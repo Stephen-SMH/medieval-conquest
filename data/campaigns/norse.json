@@ -287,6 +287,296 @@
   },
   {
    "id": "norse_3",
+   "name": "The Lean Winter",
+   "map": "fjordmark",
+   "factions": [
+    {
+     "id": "norse",
+     "name": "Hakon's Raiders",
+     "civ": "norse",
+     "color": "#2e708f",
+     "human": true,
+     "ai": "balanced"
+    },
+    {
+     "id": "elmsworth",
+     "name": "Thanes of Elmsworth",
+     "civ": "anglish",
+     "color": "#b33b3b",
+     "human": false,
+     "ai": "aggressive"
+    }
+   ],
+   "owners": {
+    "skarholm": "norse",
+    "elmsworth": "elmsworth",
+    "brimstad": "norse",
+    "calder_abbey": "elmsworth",
+    "ravensfjord": "norse",
+    "hollin": "elmsworth",
+    "ashwick": "norse",
+    "stonereach": "elmsworth"
+   },
+   "capitals": {
+    "norse": "skarholm",
+    "elmsworth": "elmsworth"
+   },
+   "buildings": {
+    "skarholm": {
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1,
+     "walls": 1
+    },
+    "elmsworth": {
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "norse",
+     "region": "skarholm",
+     "type": "huscarl",
+     "general": {
+      "name": "Hakon",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "norse",
+     "region": "ashwick",
+     "type": "spearmen"
+    },
+    {
+     "owner": "norse",
+     "region": "brimstad",
+     "type": "archers"
+    },
+    {
+     "owner": "norse",
+     "region": "ravensfjord",
+     "type": "berserker"
+    },
+    {
+     "owner": "elmsworth",
+     "region": "elmsworth",
+     "type": "yeoman",
+     "general": {
+      "name": "Eadric",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "elmsworth",
+     "region": "calder_abbey",
+     "type": "longbowman"
+    },
+    {
+     "owner": "elmsworth",
+     "region": "hollin",
+     "type": "spearmen"
+    },
+    {
+     "owner": "elmsworth",
+     "region": "stonereach",
+     "type": "swordsmen"
+    },
+    {
+     "owner": "neutral",
+     "region": "greyhaven",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "hrafnsey",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "morrow_fen",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "ulvdal",
+     "type": "militia",
+     "soldiers": 12
+    }
+   ],
+   "mission": {
+    "player": "norse",
+    "par": 7,
+    "objectives": [
+     {
+      "type": "survive",
+      "turns": 6
+     }
+    ],
+    "briefing": "The fleet is iced into the fjord and the silver is spent. The thanes smell weakness. Keep Skarholm and the army alive for six turns, until the thaw, without the gold to buy fresh spears.",
+    "victory_text": "The ice breaks, and Hakon's raiders are still standing. The thanes go home hungry.",
+    "defeat_text": "Hunger and Anglish arrows finish what the winter began."
+   },
+   "resources": {
+    "norse": {
+     "gold": 100
+    },
+    "elmsworth": {
+     "gold": 300
+    }
+   },
+   "campaign": "norse",
+   "mission_index": 2
+  },
+  {
+   "id": "norse_4",
+   "name": "Blood-Feud",
+   "map": "fjordmark",
+   "factions": [
+    {
+     "id": "norse",
+     "name": "Hakon's Raiders",
+     "civ": "norse",
+     "color": "#2e708f",
+     "human": true,
+     "ai": "balanced"
+    },
+    {
+     "id": "kaldvik",
+     "name": "Kaldvik Rebels",
+     "civ": "norse",
+     "color": "#a8742c",
+     "human": false,
+     "ai": "balanced"
+    }
+   ],
+   "owners": {
+    "skarholm": "norse",
+    "kaldvik": "kaldvik",
+    "brimstad": "norse",
+    "hrafnsey": "kaldvik",
+    "ravensfjord": "norse",
+    "solvbekk": "kaldvik",
+    "ashwick": "norse",
+    "ulvdal": "kaldvik",
+    "tornfjell": "norse"
+   },
+   "capitals": {
+    "norse": "skarholm",
+    "kaldvik": "kaldvik"
+   },
+   "buildings": {
+    "skarholm": {
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    },
+    "kaldvik": {
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "norse",
+     "region": "skarholm",
+     "type": "berserker",
+     "general": {
+      "name": "Hakon",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "norse",
+     "region": "ashwick",
+     "type": "huscarl"
+    },
+    {
+     "owner": "norse",
+     "region": "brimstad",
+     "type": "archers"
+    },
+    {
+     "owner": "norse",
+     "region": "ravensfjord",
+     "type": "spearmen"
+    },
+    {
+     "owner": "norse",
+     "region": "tornfjell",
+     "type": "light_cavalry"
+    },
+    {
+     "owner": "kaldvik",
+     "region": "kaldvik",
+     "type": "berserker",
+     "general": {
+      "name": "Sigrid",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "kaldvik",
+     "region": "hrafnsey",
+     "type": "huscarl"
+    },
+    {
+     "owner": "kaldvik",
+     "region": "solvbekk",
+     "type": "archers"
+    },
+    {
+     "owner": "kaldvik",
+     "region": "ulvdal",
+     "type": "spearmen"
+    },
+    {
+     "owner": "neutral",
+     "region": "greyhaven",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "morrow_fen",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "stonereach",
+     "type": "militia",
+     "soldiers": 12
+    }
+   ],
+   "mission": {
+    "player": "norse",
+    "par": 9,
+    "objectives": [
+     {
+      "type": "destroy_general",
+      "faction": "kaldvik",
+      "general": "Sigrid"
+     }
+    ],
+    "briefing": "Sigrid of Kaldvik has sworn Hakon's death and taken half the jarls with her. A feud ends one way: find her war-band and break it.",
+    "victory_text": "Sigrid is in chains, and the jarls of Kaldvik kneel again.",
+    "defeat_text": "Sigrid's oath is kept. Hakon's line is ended."
+   },
+   "campaign": "norse",
+   "mission_index": 3
+  },
+  {
+   "id": "norse_5",
    "name": "Throne of the Fjordmark",
    "map": "fjordmark",
    "factions": [
@@ -459,7 +749,7 @@
     "defeat_text": "Another sits on the throne Hakon bled for."
    },
    "campaign": "norse",
-   "mission_index": 2
+   "mission_index": 4
   }
  ]
 }

@@ -369,29 +369,45 @@ What we do differently:
 
 ### 8.5 Civilizations
 
-Every civilization uses the base roster from 3.5 plus **one or two special units** and a **national bonus**.
+Every civilization uses the base roster from 3.5 plus **one or two special units** and a **national bonus**. The base roster is Militia, Spearmen, Swordsmen, Archers, Crossbowmen, Light cavalry, Heavy cavalry, Catapult and **Pikemen** (heavy spear: ×2.5 against cavalry, but archers and swordsmen cut them up; needs Chain Mail).
 
 | Civilization | Status | Special units | National bonus |
 |---|---|---|---|
 | **Norse (Vikings)** | open | **Berserker** (infantry: attack rises as HP falls, never routs), **Huscarl** (heavy axe infantry) | Raiding: a move can go 2 regions along the coast, through an empty coastal region |
 | **Anglish (English)** | open | **Longbowman** (archer: +1 range — can shoot 2 regions away), **Yeoman** (cheap spear) | +15% defense in their own regions |
 | **Frankish (French)** | open | **Knight** (heavy cavalry, +25% charge), **Sergeant** (armoured spear) | Cavalry recruit 20% cheaper |
+| **Crusader Orders** | open | **Brother Knight** (best-armoured heavy cavalry, +15% charge, needs Stirrups), **Mounted Sergeant** (tougher light cavalry, no tech needed) | Hospitals: resting units heal 2 more soldiers a turn |
 | **Byzantine** | unlocks after any campaign | **Cataphract** (armoured horse), **Varangian Guard** | +25% gold from markets |
 | **Saracen** | unlocks after two campaigns | **Mamluk** (horse archer: shoots and rides off untouched), **Ghazi** | Mercenaries cost 25% less (attrition no longer exists, 8.9) |
 
-Across base and special units this gives about **18 unit types**, close to the reference game's 21.
+Across base and special units this gives **21 unit types**, the same as the reference game. The new ones fit the counter table (data/counters.tres): Pikemen have their own row and column; Brother Knights fight as heavy cavalry and Mounted Sergeants as light cavalry.
+
+| New unit | Class | HP | Attack | Defense | Moves | Gold | Strong against | Weak against |
+|---|---|---|---|---|---|---|---|---|
+| Pikemen | infantry | 105 | 8 | 11 | 1 | 95 | all cavalry (×2.5; cavalry hits them at ×0.35–0.4) | archers (×1.5), crossbows (×1.4), swordsmen (×1.7) |
+| Brother Knight | heavy cavalry | 145 | 15 | 13 | 2 | 280 | archers, swordsmen, other heavy horse | spears and pikes |
+| Mounted Sergeant | light cavalry | 110 | 11 | 8 | 2 | 145 | archers, crossbows, catapults | spears and pikes |
 
 ### 8.6 Campaigns, missions and modes
 
 | ID | Requirement |
 |---|---|
-| CP-1 | Each open civilization has a **campaign of 3 missions** on its own scenario map (12–20 regions). |
-| CP-2 | A mission has: a starting setup (owners, units, gold), **objectives** (e.g. capture these regions, hold your capital for N turns, destroy an enemy), a **par turn count** and a **hard limit** (par × 2). |
+| CP-1 | Every civilization has a **campaign of 3 to 5 missions** on its own scenario map (12–20 regions): **25 missions** in all, as in the reference game (see the table below). |
+| CP-2 | A mission has: a starting setup (owners, units, gold, walls, researched techs), **objectives** — capture these regions, hold a region for N turns, destroy a faction, **kill or capture a named general**, **survive N turns** (often with little gold), or conquest — a **par turn count** and a **hard limit** (par × 2). Losing your capital loses the mission. |
 | CP-3 | Finishing at or under par gives 3 stars; under 1.5 × par 2 stars; otherwise 1 star. Passing the hard limit loses the mission. |
-| CP-4 | Missions unlock in order. Finishing a campaign unlocks a civilization (8.5). |
+| CP-4 | Missions unlock in order. Finishing campaigns unlocks civilizations (8.5); the Byzantine and Saracen campaigns open when their civilization does. Each campaign starts with an easy capture mission and ends with its hardest, and `tools/sim_campaigns.gd` plays every mission with AI stand-ins to check the ramp. |
 | CP-5 | **Skirmish:** pick a map, your civilization, 1–3 AI opponents and difficulty. Win by conquest. |
 | CP-6 | **Hotseat:** 2–4 human players take turns on one device. A "pass the device" screen hides the map between turns. |
 | CP-7 | Mission briefings and victory/defeat screens with short text. |
+
+| Campaign | Map | Missions (objective) |
+|---|---|---|
+| **Norse — The Saga of the Sea-Wolves** | The Fjordmark | 1 Landfall (capture 3 settlements) · 2 The Abbey Road (take Greyhaven's hall) · 3 The Lean Winter (survive 6 turns with 100 gold) · 4 Blood-Feud (kill or capture Sigrid) · 5 Throne of the Fjordmark (conquest) |
+| **Anglish — The Longbow Wars** | The Wealdshire | 1 Raiders on the Coast (hold Kingsbarrow 5 turns) · 2 Mustering the Shires (capture 3 shires) · 3 Burn the Longships (destroy the raiders) · 4 Hunt the Black Count (kill or capture Baudouin) · 5 Crown of the Weald (take two capitals) |
+| **Frankish — Banners of the Valmont** | The Valmont | 1 The Unruly Marches (capture 3 marches) · 2 The Northmen Come (hold Belcourt 6 turns against an invasion) · 3 The Siege of Brévine (take the keep) · 4 The Lowland Towns (capture 3 river towns) · 5 King of the Valmont (conquest) |
+| **Crusader Orders — The Sunward Vow** | The Sunward Coast | 1 The Pilgrims' Road (capture 3 villages) · 2 The Keep on the Rock (hold Castel Aubade 6 turns) · 3 The Emir's Champion (kill or capture Rashid) · 4 The Kingdom by the Sea (take two capitals) |
+| **Byzantine — The Purple and the Gold** | The Porphyry Straits | 1 The Rebel Strategos (take Theronike) · 2 The Empty Treasury (survive 6 turns from 100 gold) · 3 The Empire Restored (conquest) |
+| **Saracen — Banners of the Sands** | The Amber Sands | 1 Riders of the Wadi (capture 3 oases) · 2 The Iron Brothers (kill or capture Aimon) · 3 Sultan of the Sands (take two capitals) |
 
 ### 8.7 Research (new)
 
@@ -401,7 +417,7 @@ Across base and special units this gives about **18 unit types**, close to the r
 | RE-2 | One tech is researched at a time. Research costs gold and takes 2–4 turns. |
 | RE-3 | Economy (gold only, 8.9): Crop Rotation (+1 gold per region), Coinage (+15% gold), Mining (+3 gold from hills, +5 from mountains), Logistics (−20% upkeep), Heavy Plough (+2 gold from plains), Guilds (+25% from markets). |
 | RE-4 | Military examples: Chain Mail (+10% infantry defense), Composite Bows (+15% ranged attack), Stirrups (+15% cavalry charge), Siege Engineering (unlocks Catapult, −1 siege turn), Drill (start units as Veteran). |
-| RE-5 | Some units need a tech before they can be recruited. |
+| RE-5 | Some units need a tech before they can be recruited: Pikemen need Chain Mail; heavy cavalry, Knights, Cataphracts and Brother Knights need Stirrups; Catapults need Siege Engineering. |
 
 ### 8.8 Version 2 milestones
 
@@ -411,6 +427,7 @@ Across base and special units this gives about **18 unit types**, close to the r
 | **V2 — AI and missions** | AI turns for every non-player faction (personalities, recruit to counter, attack when the forecast is good, defend, retreat damaged units); sieges (3.10); mission objectives, par and hard turn limits, stars; victory and defeat screens; save and load. |
 | **V3 — Civilizations and campaigns** | Norse, Anglish and Frankish with special units and bonuses; 3 campaigns × 3 missions on original maps; campaign select and briefings; Byzantine and Saracen unlocks; skirmish mode. |
 | **V4 — Research, hotseat and mobile** | Both research trees; hotseat for 2–4 players; title screen and settings; touch controls (tap, pinch zoom, drag pan); Android and web export presets. |
+| **V5 — Campaign expansion** | The Crusader Orders (open) with Brother Knight, Mounted Sergeant and hospitals; Pikemen in the base roster (21 unit types); campaigns for Crusader, Byzantine and Saracen on three new maps; Norse, Anglish and Frankish campaigns grown to 5 missions; general-hunt and survival objectives; 25 missions. |
 
 ### 8.9 Gold economy, mercenaries and the map (replaces 3.3, 3.4 and 3.12)
 

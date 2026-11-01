@@ -275,6 +275,7 @@ static func heal_amount(state: GameState, unit: Unit) -> int:
 	if unit.moved or unit.attacked or state.owners[unit.province] != unit.owner:
 		return 0
 	var rate := HEAL_SOLDIERS_BARRACKS if state.provinces[unit.province].level("barracks") > 0 else HEAL_SOLDIERS
+	rate += Bonuses.extra_healing(state, unit.owner)
 	return mini(rate, UnitType.SOLDIERS - unit.soldiers())
 
 

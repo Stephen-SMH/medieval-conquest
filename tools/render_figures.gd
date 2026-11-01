@@ -62,6 +62,13 @@ const UNITS := {
 	"mamluk": {"body": "Adventurer", "team": ["LightGreen"], "left": ["Bow_Wooden", 1.0], "pose": "rider_bow", "horse": "Horse",
 		"colors": {"Green": Color(0.88, 0.85, 0.76), "Brown": Color(0.78, 0.74, 0.64)}, "helmet": ["Helmet2", 1.0]},
 	"catapult": {"catapult": true},
+	"pikemen": {"body": "King", "head": "Adventurer", "team": ["Blue"], "right": ["Spear", 3.4, 0.3], "pose": "spear",
+		"helmet": ["Helmet1", 1.0], "colors": {"Metal": Color(0.5, 0.5, 0.53)}},
+	"brother_knight": {"body": "King", "head": "Adventurer", "team": ["Blue"], "right": ["Spear", 2.9, 0.3], "pose": "rider_lance",
+		"left": ["Shield_Heater", 0.78], "helmet": ["Helmet3", 1.05], "horse": "Horse_White",
+		"colors": {"Metal": Color(0.72, 0.72, 0.74)}},
+	"mounted_sergeant": {"body": "King", "head": "Adventurer", "team": ["Blue"], "right": ["Spear", 2.5, 0.35], "pose": "rider_spear",
+		"left": ["Shield_Round", 0.6], "helmet": ["Helmet1", 1.0], "horse": "Horse"},
 }
 
 var models_dir := ""

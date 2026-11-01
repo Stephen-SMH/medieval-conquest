@@ -1,0 +1,613 @@
+{
+ "id": "crusader",
+ "civ": "crusader",
+ "name": "The Sunward Vow",
+ "description": "Grand Master Aubert's brotherhood has landed on a far, dry shore, sworn to hold it with stone and steel.",
+ "missions": [
+  {
+   "id": "crusader_1",
+   "name": "The Pilgrims' Road",
+   "map": "sunward",
+   "factions": [
+    {
+     "id": "order",
+     "name": "Order of the Sunward Keep",
+     "civ": "crusader",
+     "color": "#c4962c",
+     "human": true,
+     "ai": "balanced"
+    },
+    {
+     "id": "jebel",
+     "name": "Emir of Jebel Nur",
+     "civ": "saracen",
+     "color": "#3d8a4a",
+     "human": false,
+     "ai": "defensive"
+    }
+   ],
+   "owners": {
+    "castel_aubade": "order",
+    "jebel_nur": "jebel",
+    "port_serene": "order",
+    "bir_asfar": "jebel",
+    "saint_ivo": "order",
+    "deir_hanna": "jebel",
+    "tal_hazir": "order"
+   },
+   "capitals": {
+    "order": "castel_aubade",
+    "jebel": "jebel_nur"
+   },
+   "buildings": {
+    "castel_aubade": {
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    },
+    "jebel_nur": {
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "order",
+     "region": "castel_aubade",
+     "type": "brother_knight",
+     "general": {
+      "name": "Aubert",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "order",
+     "region": "port_serene",
+     "type": "mounted_sergeant"
+    },
+    {
+     "owner": "order",
+     "region": "saint_ivo",
+     "type": "spearmen"
+    },
+    {
+     "owner": "order",
+     "region": "tal_hazir",
+     "type": "crossbowmen"
+    },
+    {
+     "owner": "jebel",
+     "region": "jebel_nur",
+     "type": "ghazi",
+     "general": {
+      "name": "Hamid",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "jebel",
+     "region": "bir_asfar",
+     "type": "archers"
+    },
+    {
+     "owner": "jebel",
+     "region": "deir_hanna",
+     "type": "spearmen"
+    },
+    {
+     "owner": "neutral",
+     "region": "khirbat",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "saltpans",
+     "type": "militia",
+     "soldiers": 12
+    }
+   ],
+   "mission": {
+    "player": "order",
+    "par": 6,
+    "objectives": [
+     {
+      "type": "capture",
+      "regions": ["mont_pelerin", "qasr_malik", "roche_vigile"]
+     }
+    ],
+    "briefing": "The brothers have a keep at Castel Aubade and little else. Secure the wells and villages along the pilgrims' road so the order can feed itself.",
+    "victory_text": "The road is safe, and the wells answer to the order.",
+    "defeat_text": "The road is lost, and the keep stands alone."
+   },
+   "campaign": "crusader",
+   "mission_index": 0
+  },
+  {
+   "id": "crusader_2",
+   "name": "The Keep on the Rock",
+   "map": "sunward",
+   "factions": [
+    {
+     "id": "order",
+     "name": "Order of the Sunward Keep",
+     "civ": "crusader",
+     "color": "#c4962c",
+     "human": true,
+     "ai": "balanced",
+     "techs": ["chain_mail"]
+    },
+    {
+     "id": "pelerin",
+     "name": "Riders of Mont Pélerin",
+     "civ": "saracen",
+     "color": "#3d8a4a",
+     "human": false,
+     "ai": "aggressive"
+    }
+   ],
+   "owners": {
+    "castel_aubade": "order",
+    "mont_pelerin": "pelerin",
+    "port_serene": "order",
+    "ain_sabra": "pelerin",
+    "saint_ivo": "order",
+    "gue_dore": "pelerin",
+    "tal_hazir": "order",
+    "qasr_malik": "pelerin",
+    "bir_asfar": "pelerin"
+   },
+   "capitals": {
+    "order": "castel_aubade",
+    "pelerin": "mont_pelerin"
+   },
+   "buildings": {
+    "castel_aubade": {
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1,
+     "walls": 1
+    },
+    "mont_pelerin": {
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "order",
+     "region": "castel_aubade",
+     "type": "brother_knight",
+     "general": {
+      "name": "Aubert",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "order",
+     "region": "port_serene",
+     "type": "pikemen"
+    },
+    {
+     "owner": "order",
+     "region": "saint_ivo",
+     "type": "crossbowmen"
+    },
+    {
+     "owner": "order",
+     "region": "tal_hazir",
+     "type": "spearmen"
+    },
+    {
+     "owner": "pelerin",
+     "region": "mont_pelerin",
+     "type": "mamluk",
+     "general": {
+      "name": "Tariq",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "pelerin",
+     "region": "ain_sabra",
+     "type": "ghazi"
+    },
+    {
+     "owner": "pelerin",
+     "region": "bir_asfar",
+     "type": "ghazi"
+    },
+    {
+     "owner": "pelerin",
+     "region": "gue_dore",
+     "type": "archers"
+    },
+    {
+     "owner": "pelerin",
+     "region": "qasr_malik",
+     "type": "light_cavalry"
+    },
+    {
+     "owner": "neutral",
+     "region": "khirbat",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "saltpans",
+     "type": "militia",
+     "soldiers": 12
+    }
+   ],
+   "mission": {
+    "player": "order",
+    "par": 7,
+    "objectives": [
+     {
+      "type": "hold",
+      "region": "castel_aubade",
+      "turns": 6
+     }
+    ],
+    "briefing": "Tariq's riders have come down from Mont Pélerin to drive the order into the sea. Hold Castel Aubade for six turns; the hospital keeps your wounded fighting.",
+    "victory_text": "Tariq's riders break on the rock and ride home.",
+    "defeat_text": "Castel Aubade falls, and the order's banner comes down."
+   },
+   "resources": {
+    "pelerin": {
+     "gold": 450
+    }
+   },
+   "campaign": "crusader",
+   "mission_index": 1
+  },
+  {
+   "id": "crusader_3",
+   "name": "The Emir's Champion",
+   "map": "sunward",
+   "factions": [
+    {
+     "id": "order",
+     "name": "Order of the Sunward Keep",
+     "civ": "crusader",
+     "color": "#c4962c",
+     "human": true,
+     "ai": "balanced",
+     "techs": ["chain_mail", "stirrups"]
+    },
+    {
+     "id": "jebel",
+     "name": "Emir of Jebel Nur",
+     "civ": "saracen",
+     "color": "#3d8a4a",
+     "human": false,
+     "ai": "balanced"
+    }
+   ],
+   "owners": {
+    "castel_aubade": "order",
+    "jebel_nur": "jebel",
+    "port_serene": "order",
+    "bir_asfar": "jebel",
+    "saint_ivo": "order",
+    "deir_hanna": "jebel",
+    "tal_hazir": "order",
+    "gue_dore": "jebel",
+    "mont_pelerin": "order",
+    "qasr_malik": "jebel"
+   },
+   "capitals": {
+    "order": "castel_aubade",
+    "jebel": "jebel_nur"
+   },
+   "buildings": {
+    "castel_aubade": {
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    },
+    "jebel_nur": {
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "order",
+     "region": "castel_aubade",
+     "type": "brother_knight",
+     "general": {
+      "name": "Aubert",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "order",
+     "region": "mont_pelerin",
+     "type": "mounted_sergeant"
+    },
+    {
+     "owner": "order",
+     "region": "port_serene",
+     "type": "pikemen"
+    },
+    {
+     "owner": "order",
+     "region": "saint_ivo",
+     "type": "crossbowmen"
+    },
+    {
+     "owner": "order",
+     "region": "tal_hazir",
+     "type": "archers"
+    },
+    {
+     "owner": "jebel",
+     "region": "jebel_nur",
+     "type": "mamluk",
+     "general": {
+      "name": "Rashid",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "jebel",
+     "region": "bir_asfar",
+     "type": "ghazi"
+    },
+    {
+     "owner": "jebel",
+     "region": "deir_hanna",
+     "type": "archers"
+    },
+    {
+     "owner": "jebel",
+     "region": "gue_dore",
+     "type": "spearmen"
+    },
+    {
+     "owner": "jebel",
+     "region": "qasr_malik",
+     "type": "light_cavalry"
+    },
+    {
+     "owner": "neutral",
+     "region": "khirbat",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "saltpans",
+     "type": "militia",
+     "soldiers": 12
+    }
+   ],
+   "mission": {
+    "player": "order",
+    "par": 10,
+    "objectives": [
+     {
+      "type": "destroy_general",
+      "faction": "jebel",
+      "general": "Rashid"
+     }
+    ],
+    "briefing": "Rashid, the emir's champion, leads every raid on our villages and slips away on his fast horses. Run him down.",
+    "victory_text": "Rashid is taken, and the raids stop.",
+    "defeat_text": "Rashid's horsemen ride rings around the brothers."
+   },
+   "resources": {
+    "jebel": {
+     "gold": 450
+    }
+   },
+   "campaign": "crusader",
+   "mission_index": 2
+  },
+  {
+   "id": "crusader_4",
+   "name": "The Kingdom by the Sea",
+   "map": "sunward",
+   "factions": [
+    {
+     "id": "order",
+     "name": "Order of the Sunward Keep",
+     "civ": "crusader",
+     "color": "#c4962c",
+     "human": true,
+     "ai": "balanced",
+     "techs": ["chain_mail", "stirrups"]
+    },
+    {
+     "id": "jebel",
+     "name": "Emir of Jebel Nur",
+     "civ": "saracen",
+     "color": "#3d8a4a",
+     "human": false,
+     "ai": "balanced"
+    },
+    {
+     "id": "khirbat",
+     "name": "Exarch of Khirbat",
+     "civ": "byzantine",
+     "color": "#7a40a0",
+     "human": false,
+     "ai": "aggressive"
+    }
+   ],
+   "owners": {
+    "castel_aubade": "order",
+    "jebel_nur": "jebel",
+    "khirbat": "khirbat",
+    "port_serene": "order",
+    "bir_asfar": "jebel",
+    "roche_vigile": "khirbat",
+    "saint_ivo": "order",
+    "deir_hanna": "jebel",
+    "sahl_rimah": "khirbat",
+    "tal_hazir": "order",
+    "gue_dore": "jebel",
+    "wadi_kesh": "khirbat",
+    "mont_pelerin": "order",
+    "qasr_malik": "jebel",
+    "saltpans": "khirbat",
+    "ain_sabra": "order"
+   },
+   "capitals": {
+    "order": "castel_aubade",
+    "jebel": "jebel_nur",
+    "khirbat": "khirbat"
+   },
+   "buildings": {
+    "castel_aubade": {
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    },
+    "jebel_nur": {
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1,
+     "walls": 1
+    },
+    "khirbat": {
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1,
+     "walls": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "order",
+     "region": "castel_aubade",
+     "type": "brother_knight",
+     "general": {
+      "name": "Aubert",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "order",
+     "region": "ain_sabra",
+     "type": "brother_knight"
+    },
+    {
+     "owner": "order",
+     "region": "mont_pelerin",
+     "type": "mounted_sergeant"
+    },
+    {
+     "owner": "order",
+     "region": "port_serene",
+     "type": "pikemen"
+    },
+    {
+     "owner": "order",
+     "region": "saint_ivo",
+     "type": "crossbowmen"
+    },
+    {
+     "owner": "order",
+     "region": "tal_hazir",
+     "type": "spearmen"
+    },
+    {
+     "owner": "jebel",
+     "region": "jebel_nur",
+     "type": "mamluk",
+     "general": {
+      "name": "Rashid",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "jebel",
+     "region": "bir_asfar",
+     "type": "ghazi"
+    },
+    {
+     "owner": "jebel",
+     "region": "deir_hanna",
+     "type": "ghazi"
+    },
+    {
+     "owner": "jebel",
+     "region": "gue_dore",
+     "type": "archers"
+    },
+    {
+     "owner": "jebel",
+     "region": "qasr_malik",
+     "type": "mamluk"
+    },
+    {
+     "owner": "khirbat",
+     "region": "khirbat",
+     "type": "cataphract",
+     "general": {
+      "name": "Leontios",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "khirbat",
+     "region": "roche_vigile",
+     "type": "varangian_guard"
+    },
+    {
+     "owner": "khirbat",
+     "region": "sahl_rimah",
+     "type": "archers"
+    },
+    {
+     "owner": "khirbat",
+     "region": "saltpans",
+     "type": "spearmen"
+    },
+    {
+     "owner": "khirbat",
+     "region": "wadi_kesh",
+     "type": "crossbowmen"
+    }
+   ],
+   "mission": {
+    "player": "order",
+    "par": 12,
+    "objectives": [
+     {
+      "type": "capture",
+      "regions": ["jebel_nur", "khirbat"]
+     }
+    ],
+    "briefing": "An emir in the hills and an imperial exarch on the coast both claim the Sunward shore. Take both their seats, and the order will rule from the mountains to the sea.",
+    "victory_text": "The order's banner flies over Jebel Nur and Khirbat. The vow is kept.",
+    "defeat_text": "The order is driven back to its single keep."
+   },
+   "resources": {
+    "jebel": {
+     "gold": 500
+    },
+    "khirbat": {
+     "gold": 500
+    }
+   },
+   "campaign": "crusader",
+   "mission_index": 3
+  }
+ ]
+}

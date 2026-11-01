@@ -154,6 +154,146 @@
   },
   {
    "id": "anglish_2",
+   "name": "Mustering the Shires",
+   "map": "wealdshire",
+   "factions": [
+    {
+     "id": "weald",
+     "name": "Kingdom of the Weald",
+     "civ": "anglish",
+     "color": "#b33b3b",
+     "human": true,
+     "ai": "balanced"
+    },
+    {
+     "id": "wyndle",
+     "name": "Wyndle Free Towns",
+     "civ": "anglish",
+     "color": "#c07a3a",
+     "human": false,
+     "ai": "defensive"
+    }
+   ],
+   "owners": {
+    "kingsbarrow": "weald",
+    "wyndle": "wyndle",
+    "oakhollow": "weald",
+    "bramblegate": "wyndle",
+    "thornbury": "weald",
+    "coldmarsh": "weald"
+   },
+   "capitals": {
+    "weald": "kingsbarrow",
+    "wyndle": "wyndle"
+   },
+   "buildings": {
+    "kingsbarrow": {
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    },
+    "wyndle": {
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "weald",
+     "region": "kingsbarrow",
+     "type": "longbowman",
+     "general": {
+      "name": "Elswyth",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "weald",
+     "region": "coldmarsh",
+     "type": "yeoman"
+    },
+    {
+     "owner": "weald",
+     "region": "oakhollow",
+     "type": "spearmen"
+    },
+    {
+     "owner": "weald",
+     "region": "thornbury",
+     "type": "light_cavalry"
+    },
+    {
+     "owner": "wyndle",
+     "region": "wyndle",
+     "type": "yeoman",
+     "general": {
+      "name": "Godric",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "wyndle",
+     "region": "bramblegate",
+     "type": "archers"
+    },
+    {
+     "owner": "neutral",
+     "region": "ashcombe",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "bowmere",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "gullmouth",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "harrowdene",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "larkfield",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "saltcombe",
+     "type": "militia",
+     "soldiers": 12
+    }
+   ],
+   "mission": {
+    "player": "weald",
+    "par": 6,
+    "objectives": [
+     {
+      "type": "capture",
+      "regions": ["fennick", "highwold", "saltcombe"]
+     }
+    ],
+    "briefing": "The raiders are gone for now, but the next fleet will come. Bring the nearest shires under the crown, so their bowmen answer the queen's call.",
+    "victory_text": "The shires send their bowmen to Kingsbarrow.",
+    "defeat_text": "The shires keep their bowmen at home."
+   },
+   "campaign": "anglish",
+   "mission_index": 1
+  },
+  {
+   "id": "anglish_3",
    "name": "Burn the Longships",
    "map": "wealdshire",
    "factions": [
@@ -296,10 +436,159 @@
     "defeat_text": "The raiders still hold the coast."
    },
    "campaign": "anglish",
-   "mission_index": 1
+   "mission_index": 2
   },
   {
-   "id": "anglish_3",
+   "id": "anglish_4",
+   "name": "Hunt the Black Count",
+   "map": "wealdshire",
+   "factions": [
+    {
+     "id": "weald",
+     "name": "Kingdom of the Weald",
+     "civ": "anglish",
+     "color": "#b33b3b",
+     "human": true,
+     "ai": "balanced",
+     "techs": ["chain_mail"]
+    },
+    {
+     "id": "ashcombe",
+     "name": "Count of Ashcombe",
+     "civ": "frankish",
+     "color": "#2f4fa8",
+     "human": false,
+     "ai": "balanced"
+    }
+   ],
+   "owners": {
+    "kingsbarrow": "weald",
+    "ashcombe": "ashcombe",
+    "oakhollow": "weald",
+    "harrowdene": "ashcombe",
+    "thornbury": "weald",
+    "bowmere": "ashcombe",
+    "coldmarsh": "weald",
+    "bramblegate": "ashcombe",
+    "fennick": "weald",
+    "highwold": "weald"
+   },
+   "capitals": {
+    "weald": "kingsbarrow",
+    "ashcombe": "ashcombe"
+   },
+   "buildings": {
+    "kingsbarrow": {
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1,
+     "walls": 1
+    },
+    "ashcombe": {
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "weald",
+     "region": "kingsbarrow",
+     "type": "longbowman",
+     "general": {
+      "name": "Elswyth",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "weald",
+     "region": "coldmarsh",
+     "type": "pikemen"
+    },
+    {
+     "owner": "weald",
+     "region": "fennick",
+     "type": "longbowman"
+    },
+    {
+     "owner": "weald",
+     "region": "highwold",
+     "type": "yeoman"
+    },
+    {
+     "owner": "weald",
+     "region": "oakhollow",
+     "type": "swordsmen"
+    },
+    {
+     "owner": "weald",
+     "region": "thornbury",
+     "type": "light_cavalry"
+    },
+    {
+     "owner": "ashcombe",
+     "region": "ashcombe",
+     "type": "knight",
+     "general": {
+      "name": "Baudouin",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "ashcombe",
+     "region": "bowmere",
+     "type": "sergeant"
+    },
+    {
+     "owner": "ashcombe",
+     "region": "bramblegate",
+     "type": "crossbowmen"
+    },
+    {
+     "owner": "ashcombe",
+     "region": "harrowdene",
+     "type": "light_cavalry"
+    },
+    {
+     "owner": "neutral",
+     "region": "gullmouth",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "larkfield",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "saltcombe",
+     "type": "militia",
+     "soldiers": 12
+    }
+   ],
+   "mission": {
+    "player": "weald",
+    "par": 11,
+    "objectives": [
+     {
+      "type": "destroy_general",
+      "faction": "ashcombe",
+      "general": "Baudouin"
+     }
+    ],
+    "briefing": "Baudouin, the Black Count of Ashcombe, rides through the Weald burning barns. His knights are deadly in the open: meet them with pikes and bows, then take the count.",
+    "victory_text": "The Black Count is the queen's prisoner, and his ransom fills the treasury.",
+    "defeat_text": "Baudouin's knights ride on, and the Weald burns."
+   },
+   "campaign": "anglish",
+   "mission_index": 3
+  },
+  {
+   "id": "anglish_5",
    "name": "Crown of the Weald",
    "map": "wealdshire",
    "factions": [
@@ -474,7 +763,7 @@
     "defeat_text": "The Weald stays divided."
    },
    "campaign": "anglish",
-   "mission_index": 2
+   "mission_index": 4
   }
  ]
 }

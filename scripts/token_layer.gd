@@ -337,6 +337,9 @@ static func draw_emblem(canvas: CanvasItem, civ: String, at: Vector2, r: float, 
 		"frankish":
 			for i in 3:
 				canvas.draw_circle(at + Vector2.from_angle(-PI / 2 + i * TAU / 3) * r * 0.6, r * 0.35, color)
+		"crusader":
+			canvas.draw_line(at + Vector2(0, -r * 1.05), at + Vector2(0, r * 1.05), color, r * 0.5)
+			canvas.draw_line(at + Vector2(-r * 0.75, -r * 0.3), at + Vector2(r * 0.75, -r * 0.3), color, r * 0.5)
 		"byzantine":
 			canvas.draw_arc(at, r * 0.8, 0.0, TAU, 16, color, r * 0.35)
 		"saracen":

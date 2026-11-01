@@ -140,6 +140,165 @@
   },
   {
    "id": "frankish_2",
+   "name": "The Northmen Come",
+   "map": "valmont",
+   "factions": [
+    {
+     "id": "belcourt",
+     "name": "Duchy of Belcourt",
+     "civ": "frankish",
+     "color": "#2f4fa8",
+     "human": true,
+     "ai": "balanced"
+    },
+    {
+     "id": "chaumiere",
+     "name": "Norse of Chaumière",
+     "civ": "norse",
+     "color": "#2e708f",
+     "human": false,
+     "ai": "aggressive"
+    }
+   ],
+   "owners": {
+    "belcourt": "belcourt",
+    "chaumiere": "chaumiere",
+    "lorvane": "belcourt",
+    "castelroux": "chaumiere",
+    "rochemont": "belcourt",
+    "fontmarais": "chaumiere",
+    "grandval": "belcourt",
+    "marlenne": "chaumiere",
+    "pierrefonde": "chaumiere"
+   },
+   "capitals": {
+    "belcourt": "belcourt",
+    "chaumiere": "chaumiere"
+   },
+   "buildings": {
+    "belcourt": {
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1,
+     "walls": 1
+    },
+    "chaumiere": {
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "belcourt",
+     "region": "belcourt",
+     "type": "knight",
+     "general": {
+      "name": "Robert",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "belcourt",
+     "region": "grandval",
+     "type": "sergeant"
+    },
+    {
+     "owner": "belcourt",
+     "region": "lorvane",
+     "type": "crossbowmen"
+    },
+    {
+     "owner": "belcourt",
+     "region": "rochemont",
+     "type": "spearmen"
+    },
+    {
+     "owner": "chaumiere",
+     "region": "chaumiere",
+     "type": "berserker",
+     "general": {
+      "name": "Ragnvald",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "chaumiere",
+     "region": "castelroux",
+     "type": "huscarl"
+    },
+    {
+     "owner": "chaumiere",
+     "region": "fontmarais",
+     "type": "berserker"
+    },
+    {
+     "owner": "chaumiere",
+     "region": "marlenne",
+     "type": "archers"
+    },
+    {
+     "owner": "chaumiere",
+     "region": "pierrefonde",
+     "type": "spearmen"
+    },
+    {
+     "owner": "neutral",
+     "region": "brevine",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "montclair",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "sainte_aube",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "vaudrey",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "vireux",
+     "type": "militia",
+     "soldiers": 12
+    }
+   ],
+   "mission": {
+    "player": "belcourt",
+    "par": 7,
+    "objectives": [
+     {
+      "type": "hold",
+      "region": "belcourt",
+      "turns": 6
+     }
+    ],
+    "briefing": "Ragnvald's Northmen have come up the river in force while the duke's vassals bicker. Hold Belcourt for six turns until the vassals arrive.",
+    "victory_text": "The vassals ride in, and the Northmen fall back to their ships.",
+    "defeat_text": "Belcourt burns, and the Northmen winter in the duke's hall."
+   },
+   "resources": {
+    "chaumiere": {
+     "gold": 450
+    }
+   },
+   "campaign": "frankish",
+   "mission_index": 1
+  },
+  {
+   "id": "frankish_3",
    "name": "The Siege of Brévine",
    "map": "valmont",
    "factions": [
@@ -290,10 +449,188 @@
     "defeat_text": "Brévine's walls hold."
    },
    "campaign": "frankish",
-   "mission_index": 1
+   "mission_index": 2
   },
   {
-   "id": "frankish_3",
+   "id": "frankish_4",
+   "name": "The Lowland Towns",
+   "map": "valmont",
+   "factions": [
+    {
+     "id": "belcourt",
+     "name": "Duchy of Belcourt",
+     "civ": "frankish",
+     "color": "#2f4fa8",
+     "human": true,
+     "ai": "balanced"
+    },
+    {
+     "id": "vaudrey",
+     "name": "Anglish of Vaudrey",
+     "civ": "anglish",
+     "color": "#b33b3b",
+     "human": false,
+     "ai": "defensive"
+    },
+    {
+     "id": "chaumiere",
+     "name": "Norse of Chaumière",
+     "civ": "norse",
+     "color": "#2e708f",
+     "human": false,
+     "ai": "defensive"
+    }
+   ],
+   "owners": {
+    "belcourt": "belcourt",
+    "vaudrey": "vaudrey",
+    "chaumiere": "chaumiere",
+    "lorvane": "belcourt",
+    "castelroux": "vaudrey",
+    "fontmarais": "chaumiere",
+    "rochemont": "belcourt",
+    "pierrefonde": "vaudrey",
+    "marlenne": "chaumiere",
+    "grandval": "belcourt",
+    "sainte_aube": "vaudrey",
+    "ostrel": "belcourt"
+   },
+   "capitals": {
+    "belcourt": "belcourt",
+    "vaudrey": "vaudrey",
+    "chaumiere": "chaumiere"
+   },
+   "buildings": {
+    "belcourt": {
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1,
+     "walls": 1
+    },
+    "vaudrey": {
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    },
+    "chaumiere": {
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "belcourt",
+     "region": "belcourt",
+     "type": "knight",
+     "general": {
+      "name": "Robert",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "belcourt",
+     "region": "grandval",
+     "type": "light_cavalry"
+    },
+    {
+     "owner": "belcourt",
+     "region": "lorvane",
+     "type": "sergeant"
+    },
+    {
+     "owner": "belcourt",
+     "region": "ostrel",
+     "type": "crossbowmen"
+    },
+    {
+     "owner": "belcourt",
+     "region": "rochemont",
+     "type": "knight"
+    },
+    {
+     "owner": "vaudrey",
+     "region": "vaudrey",
+     "type": "longbowman",
+     "general": {
+      "name": "Edwin",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "vaudrey",
+     "region": "castelroux",
+     "type": "yeoman"
+    },
+    {
+     "owner": "vaudrey",
+     "region": "pierrefonde",
+     "type": "swordsmen"
+    },
+    {
+     "owner": "vaudrey",
+     "region": "sainte_aube",
+     "type": "archers"
+    },
+    {
+     "owner": "chaumiere",
+     "region": "chaumiere",
+     "type": "huscarl",
+     "general": {
+      "name": "Ragnvald",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "chaumiere",
+     "region": "fontmarais",
+     "type": "archers"
+    },
+    {
+     "owner": "chaumiere",
+     "region": "marlenne",
+     "type": "spearmen"
+    },
+    {
+     "owner": "neutral",
+     "region": "brevine",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "montclair",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "vireux",
+     "type": "militia",
+     "soldiers": 12
+    }
+   ],
+   "mission": {
+    "player": "belcourt",
+    "par": 11,
+    "objectives": [
+     {
+      "type": "capture",
+      "regions": ["castelroux", "pierrefonde", "marlenne"]
+     }
+    ],
+    "briefing": "The river towns of the lowlands, Castelroux, Pierrefonde and Marlenne, pay their tolls to Anglish and Norse interlopers. Make them pay the duke.",
+    "victory_text": "The lowland tolls now fill Belcourt's coffers.",
+    "defeat_text": "The lowland towns pay their tolls to others."
+   },
+   "campaign": "frankish",
+   "mission_index": 3
+  },
+  {
+   "id": "frankish_5",
    "name": "King of the Valmont",
    "map": "valmont",
    "factions": [
@@ -472,7 +809,7 @@
     "defeat_text": "The Valmont slips from Robert's grasp."
    },
    "campaign": "frankish",
-   "mission_index": 2
+   "mission_index": 4
   }
  ]
 }

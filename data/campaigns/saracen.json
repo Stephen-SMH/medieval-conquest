@@ -1,0 +1,445 @@
+{
+ "id": "saracen",
+ "civ": "saracen",
+ "name": "Banners of the Sands",
+ "description": "Emir Zaydan rides out from the desert to unite the oases and drive the foreign knights into the sea.",
+ "missions": [
+  {
+   "id": "saracen_1",
+   "name": "Riders of the Wadi",
+   "map": "amber_sands",
+   "factions": [
+    {
+     "id": "emirate",
+     "name": "Emirate of the Sands",
+     "civ": "saracen",
+     "color": "#3d8a4a",
+     "human": true,
+     "ai": "balanced"
+    },
+    {
+     "id": "tamr",
+     "name": "Knights of Hisn Tamr",
+     "civ": "crusader",
+     "color": "#c4962c",
+     "human": false,
+     "ai": "defensive"
+    }
+   ],
+   "owners": {
+    "qasr_zahir": "emirate",
+    "hisn_tamr": "tamr",
+    "rabat_safa": "emirate",
+    "bir_layla": "tamr",
+    "wadi_murr": "emirate",
+    "nakhla": "emirate"
+   },
+   "capitals": {
+    "emirate": "qasr_zahir",
+    "tamr": "hisn_tamr"
+   },
+   "buildings": {
+    "qasr_zahir": {
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    },
+    "hisn_tamr": {
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "emirate",
+     "region": "qasr_zahir",
+     "type": "mamluk",
+     "general": {
+      "name": "Zaydan",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "emirate",
+     "region": "nakhla",
+     "type": "ghazi"
+    },
+    {
+     "owner": "emirate",
+     "region": "rabat_safa",
+     "type": "archers"
+    },
+    {
+     "owner": "emirate",
+     "region": "wadi_murr",
+     "type": "light_cavalry"
+    },
+    {
+     "owner": "tamr",
+     "region": "hisn_tamr",
+     "type": "mounted_sergeant",
+     "general": {
+      "name": "Aimon",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "tamr",
+     "region": "bir_layla",
+     "type": "spearmen"
+    },
+    {
+     "owner": "neutral",
+     "region": "darb_ghalib",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "suq_al_kahraman",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "tell_dhahab",
+     "type": "militia",
+     "soldiers": 12
+    }
+   ],
+   "mission": {
+    "player": "emirate",
+    "par": 6,
+    "objectives": [
+     {
+      "type": "capture",
+      "regions": ["bab_an_nur", "qal_at_sirr", "tell_dhahab"]
+     }
+    ],
+    "briefing": "The oasis towns along the wadi pay no one. Ride out and bring three of them under the emir's banner.",
+    "victory_text": "The oases open their gates, and their riders join Zaydan.",
+    "defeat_text": "The oases close their gates to Zaydan."
+   },
+   "campaign": "saracen",
+   "mission_index": 0
+  },
+  {
+   "id": "saracen_2",
+   "name": "The Iron Brothers",
+   "map": "amber_sands",
+   "factions": [
+    {
+     "id": "emirate",
+     "name": "Emirate of the Sands",
+     "civ": "saracen",
+     "color": "#3d8a4a",
+     "human": true,
+     "ai": "balanced",
+     "techs": ["chain_mail"]
+    },
+    {
+     "id": "tamr",
+     "name": "Knights of Hisn Tamr",
+     "civ": "crusader",
+     "color": "#c4962c",
+     "human": false,
+     "ai": "defensive"
+    }
+   ],
+   "owners": {
+    "qasr_zahir": "emirate",
+    "hisn_tamr": "tamr",
+    "rabat_safa": "emirate",
+    "bir_layla": "tamr",
+    "wadi_murr": "emirate",
+    "nakhla": "tamr",
+    "qal_at_sirr": "emirate",
+    "marsa_kahf": "tamr",
+    "tell_dhahab": "emirate",
+    "bab_an_nur": "emirate"
+   },
+   "capitals": {
+    "emirate": "qasr_zahir",
+    "tamr": "hisn_tamr"
+   },
+   "buildings": {
+    "qasr_zahir": {
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1,
+     "walls": 1
+    },
+    "hisn_tamr": {
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "emirate",
+     "region": "qasr_zahir",
+     "type": "mamluk",
+     "general": {
+      "name": "Zaydan",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "emirate",
+     "region": "bab_an_nur",
+     "type": "mamluk"
+    },
+    {
+     "owner": "emirate",
+     "region": "qal_at_sirr",
+     "type": "ghazi"
+    },
+    {
+     "owner": "emirate",
+     "region": "rabat_safa",
+     "type": "pikemen"
+    },
+    {
+     "owner": "emirate",
+     "region": "tell_dhahab",
+     "type": "archers"
+    },
+    {
+     "owner": "emirate",
+     "region": "wadi_murr",
+     "type": "spearmen"
+    },
+    {
+     "owner": "tamr",
+     "region": "hisn_tamr",
+     "type": "brother_knight",
+     "general": {
+      "name": "Aimon",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "tamr",
+     "region": "bir_layla",
+     "type": "mounted_sergeant"
+    },
+    {
+     "owner": "tamr",
+     "region": "marsa_kahf",
+     "type": "spearmen"
+    },
+    {
+     "owner": "tamr",
+     "region": "nakhla",
+     "type": "crossbowmen"
+    },
+    {
+     "owner": "neutral",
+     "region": "darb_ghalib",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "suq_al_kahraman",
+     "type": "militia",
+     "soldiers": 12
+    }
+   ],
+   "mission": {
+    "player": "emirate",
+    "par": 10,
+    "objectives": [
+     {
+      "type": "destroy_general",
+      "faction": "tamr",
+      "general": "Aimon"
+     }
+    ],
+    "briefing": "Aimon, master of the iron brothers of Hisn Tamr, has burned the date groves. His knights are slow to wheel and heavy in the sand: wear them down with arrows, then take the master.",
+    "victory_text": "Aimon is captured, and his brothers sue for peace.",
+    "defeat_text": "The iron brothers ride on through the burning groves."
+   },
+   "campaign": "saracen",
+   "mission_index": 1
+  },
+  {
+   "id": "saracen_3",
+   "name": "Sultan of the Sands",
+   "map": "amber_sands",
+   "factions": [
+    {
+     "id": "emirate",
+     "name": "Emirate of the Sands",
+     "civ": "saracen",
+     "color": "#3d8a4a",
+     "human": true,
+     "ai": "balanced",
+     "techs": ["chain_mail"]
+    },
+    {
+     "id": "tamr",
+     "name": "Knights of Hisn Tamr",
+     "civ": "crusader",
+     "color": "#c4962c",
+     "human": false,
+     "ai": "balanced"
+    },
+    {
+     "id": "ruba",
+     "name": "Imperial Ruba Sahra",
+     "civ": "byzantine",
+     "color": "#7a40a0",
+     "human": false,
+     "ai": "defensive"
+    }
+   ],
+   "owners": {
+    "qasr_zahir": "emirate",
+    "hisn_tamr": "tamr",
+    "ruba_sahra": "ruba",
+    "rabat_safa": "emirate",
+    "bir_layla": "tamr",
+    "darb_ghalib": "ruba",
+    "wadi_murr": "emirate",
+    "nakhla": "tamr",
+    "marsa_kahf": "ruba",
+    "qal_at_sirr": "emirate",
+    "tell_dhahab": "emirate",
+    "bab_an_nur": "emirate"
+   },
+   "capitals": {
+    "emirate": "qasr_zahir",
+    "tamr": "hisn_tamr",
+    "ruba": "ruba_sahra"
+   },
+   "buildings": {
+    "qasr_zahir": {
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1,
+     "walls": 1
+    },
+    "hisn_tamr": {
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    },
+    "ruba_sahra": {
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "emirate",
+     "region": "qasr_zahir",
+     "type": "mamluk",
+     "general": {
+      "name": "Zaydan",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "emirate",
+     "region": "bab_an_nur",
+     "type": "mamluk"
+    },
+    {
+     "owner": "emirate",
+     "region": "qal_at_sirr",
+     "type": "ghazi"
+    },
+    {
+     "owner": "emirate",
+     "region": "rabat_safa",
+     "type": "pikemen"
+    },
+    {
+     "owner": "emirate",
+     "region": "tell_dhahab",
+     "type": "archers"
+    },
+    {
+     "owner": "emirate",
+     "region": "wadi_murr",
+     "type": "crossbowmen"
+    },
+    {
+     "owner": "tamr",
+     "region": "hisn_tamr",
+     "type": "brother_knight",
+     "general": {
+      "name": "Aimon",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "tamr",
+     "region": "bir_layla",
+     "type": "crossbowmen"
+    },
+    {
+     "owner": "tamr",
+     "region": "nakhla",
+     "type": "spearmen"
+    },
+    {
+     "owner": "ruba",
+     "region": "ruba_sahra",
+     "type": "varangian_guard",
+     "general": {
+      "name": "Manuel",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "ruba",
+     "region": "darb_ghalib",
+     "type": "archers"
+    },
+    {
+     "owner": "ruba",
+     "region": "marsa_kahf",
+     "type": "spearmen"
+    },
+    {
+     "owner": "neutral",
+     "region": "suq_al_kahraman",
+     "type": "militia",
+     "soldiers": 12
+    }
+   ],
+   "mission": {
+    "player": "emirate",
+    "par": 15,
+    "objectives": [
+     {
+      "type": "capture",
+      "regions": ["hisn_tamr", "ruba_sahra"]
+     }
+    ],
+    "briefing": "Two foreign strongholds still hold the coast: the knights at Hisn Tamr and an imperial garrison at Ruba Sahra. Take both, and Zaydan is sultan of all the sands.",
+    "victory_text": "Zaydan is proclaimed sultan from the walls of Hisn Tamr.",
+    "defeat_text": "The foreigners keep the coast, and the sands stay divided."
+   },
+   "resources": {
+    "emirate": {
+     "gold": 600
+    }
+   },
+   "campaign": "saracen",
+   "mission_index": 2
+  }
+ ]
+}

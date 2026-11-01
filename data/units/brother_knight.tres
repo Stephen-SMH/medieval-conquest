@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="UnitType" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/unit_type.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "brother_knight"
+display_name = "Brother Knight"
+description = "Sworn knights of a fighting order: the best-armoured horse in the land, with a +15% charge."
+order = 20
+unit_class = "cavalry"
+heavy = true
+hp = 145
+attack = 15
+defense = 13
+move_points = 2
+attack_range = 0
+counter_as = "heavy_cavalry"
+civilization = "crusader"
+cost_gold = 280
+upkeep_gold = 7
+required_building = "stable"
+charge_bonus = 1.15
+required_tech = "stirrups"

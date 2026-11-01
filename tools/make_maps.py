@@ -17,7 +17,7 @@ WIDTH, HEIGHT = 1200, 700
 TERRAINS = ["plains", "plains", "plains", "forest", "forest", "hills", "hills", "mountains", "marsh"]
 
 
-def make_map(map_id, name, cols, rows, target, seed, coast, names, rivers=2, roads=4):
+def make_map(map_id, name, cols, rows, target, seed, coast, names, rivers=2, roads=4, terrains=TERRAINS):
     rng = random.Random(seed)
     step_x = WIDTH / (2 * cols)
     step_y = HEIGHT / rows
@@ -120,7 +120,7 @@ def make_map(map_id, name, cols, rows, target, seed, coast, names, rivers=2, roa
             on_side(u, side) and on_side(v, side) for u, v in edges(region["vertices"]) for side in coast
         )
         out_regions.append({
-            "id": ids[i], "name": names[i], "terrain": rng.choice(TERRAINS),
+            "id": ids[i], "name": names[i], "terrain": rng.choice(terrains),
             "population": rng.randrange(5000, 16001, 100), "coastal": coastal,
             "vertices": region["vertices"], "neighbours": sorted(ids[j] for j in neighbours[i]),
         })
@@ -199,3 +199,21 @@ make_map("valmont", "The Valmont", 6, 4, 18, 23, ["bottom"], [
     "Auberive", "Grandval", "Marlenne", "Chaumière", "Vireux", "Port-Sable", "Brévine", "Ostrel",
     "Fontmarais", "Corlay", "Ravenne",
 ])
+
+# Dry country for the eastern campaigns: few forests and marshes.
+DRY = ["plains", "plains", "plains", "plains", "hills", "hills", "hills", "mountains", "forest"]
+
+make_map("sunward", "The Sunward Coast", 5, 4, 16, 61, ["left"], [
+    "Castel Aubade", "Port Sérène", "Mont Pélerin", "Ain Sabra", "Saint-Ivo", "Tal Hazir", "Qasr Malik", "Gué-Doré",
+    "Wadi Kesh", "Roche-Vigile", "Saltpans", "Bir Asfar", "Jebel Nur", "Khirbat", "Sahl Rimah", "Deir Hanna",
+    "Tell Amar",
+], terrains=DRY)
+make_map("porphyry", "The Porphyry Straits", 5, 4, 17, 73, ["top", "right"], [
+    "Basilopolis", "Kallipora", "Theronike", "Myrrhaion", "Akrostes", "Halkaria", "Porphyra", "Thessamon",
+    "Dorylon", "Kerasos", "Mesoros", "Agia Lumi", "Kastro Neon", "Phylakion", "Leukotheia", "Anemoskala",
+    "Chrysanthe", "Vathyrema",
+], terrains=["plains", "plains", "plains", "hills", "hills", "forest", "mountains", "mountains", "marsh"])
+make_map("amber_sands", "The Amber Sands", 5, 4, 15, 89, ["bottom"], [
+    "Qasr Zahir", "Wadi Murr", "Bab an-Nur", "Jebel Sahm", "Ain Hilal", "Rabat Safa", "Tell Dhahab", "Suq al-Kahraman",
+    "Nakhla", "Qal'at Sirr", "Darb Ghalib", "Hisn Tamr", "Bir Layla", "Marsa Kahf", "Ruba Sahra", "Umm Ward",
+], terrains=DRY)

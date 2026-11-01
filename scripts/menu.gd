@@ -157,7 +157,8 @@ func show_settings() -> void:
 func show_campaigns() -> void:
 	_clear()
 	_add_label(_content, "Campaigns", 30)
-	_add_text("Each civilization has a campaign of three missions. Finish a mission to open the next; finish under par for 3 stars.")
+	_add_text("Each civilization has a campaign of three to five missions. Finish a mission to open the next; finish under par for 3 stars. "
+		+ "The Byzantine and Saracen campaigns open when those civilizations are unlocked.")
 	for campaign in Campaigns.all():
 		var civ := Rules.civilization(campaign.civ)
 		_content.add_child(HSeparator.new())
@@ -180,7 +181,7 @@ func show_campaigns() -> void:
 	for civ_id in Rules.civilizations:
 		var civ := Rules.civilization(civ_id)
 		if civ.unlock_after_campaigns > 0:
-			unlock_lines.append("%s: %s" % [civ.display_name, "unlocked for skirmish and hotseat" if Progress.civilization_unlocked(civ_id)
+			unlock_lines.append("%s: %s" % [civ.display_name, "unlocked: campaign, skirmish and hotseat" if Progress.civilization_unlocked(civ_id)
 				else "finish %d campaign%s to unlock" % [civ.unlock_after_campaigns, "" if civ.unlock_after_campaigns == 1 else "s"]])
 	_add_text("[b]More civilizations[/b]\n" + "\n".join(unlock_lines))
 
