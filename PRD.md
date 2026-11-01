@@ -3,9 +3,10 @@
 A turn-based medieval strategy game on a map of provinces. Each faction gathers food, gold, wood and iron, recruits armies of different unit types, and marches them across the map to attack and conquer. Unit types counter each other: spears beat cavalry, cavalry beats archers, and so on.
 
 - **Engine:** Godot 4.7, GDScript, Compatibility renderer
-- **Platforms:** desktop (macOS, Windows, Linux) and web (HTML5)
-- **Input:** mouse first
+- **Platforms:** desktop (macOS, Windows, Linux), web (HTML5) and Android
+- **Input:** mouse and touch
 - **View:** 2D top-down painted map with province borders
+- **Reference game:** *Strategy & Tactics: Medieval Wars* (HeroCraft, Android). Section 8 describes the version 2 redesign that follows its style. Where section 8 conflicts with sections 3–7, section 8 wins.
 
 ---
 
@@ -302,3 +303,110 @@ Faction    id, name, color, resources{}, tax_level, relations{}, ai_personality
 | **M4 — Economy** | Gold, food, wood, iron, manpower; buildings; recruiting; seasons; food and supply |
 | **M5 — AI** | 3 AI factions with personalities, sieges, victory and defeat |
 | **M6 — Full map** | 30 provinces, generals and traits, diplomacy, save/load, web export |
+
+M1–M4 are built. M5 and M6 are replaced by the version 2 milestones in section 8.8.
+
+---
+
+## 8. Version 2: the S&T: Medieval Wars style
+
+### 8.1 What we take from the reference game
+
+*Strategy & Tactics: Medieval Wars* (HeroCraft) is a turn-based Android game on a map of European regions. It has 4 historical campaigns (English, French, Crusaders, and a Viking campaign), 25 missions, 21 unit types, economic and military research, campaign missions with a turn limit, and hotseat multiplayer.
+
+What we keep, because it's what made the game memorable:
+
+- **Every unit is its own token on the map.** Each token shows its unit type as an icon (horse, infantry, bow…), a **health bar** underneath and a **soldier count** (1–20).
+- **Tap a unit, then tap a neighbouring region** to move there, attack it or retreat into it.
+- **A failed attack sends the attacker back** to the region it attacked from. A beaten defender retreats to another friendly region, or is destroyed if it has nowhere to go.
+- **Civilizations with their own troops**, such as Viking Berserkers.
+- **Campaigns of missions** with objectives and a turn limit.
+- **Economic and military research.**
+- **Hotseat multiplayer** on one device.
+
+What we do differently:
+
+- **No paywall.** The reference game had 3 free campaigns and sold the rest. Here, 3 civilizations are open from the start and more **unlock by finishing campaigns**.
+- **No "one big stack" strategy.** Reviewers said massing every unit in one region always won. Here, a region holds **at most 4 units**, and attacks come from one region at a time, so flanking and unit choice matter.
+- **Generous turn limits.** Reviewers disliked strict turn limits. Missions use turn limits for a **star rating** (3 stars if fast), and only lose the mission when the limit is far exceeded.
+- **Original content.** Our own map, region names, unit names, art and text. Only the mechanics are inspired by the reference game.
+
+### 8.2 Unit tokens (replaces armies of regiments, 3.7)
+
+| ID | Requirement |
+|---|---|
+| UT-1 | A **unit** has a type, an owner, **soldiers** (1–20) and **HP**. Max HP = 20 × the type's HP per soldier. Soldiers = ceil(HP ÷ HP per soldier). |
+| UT-2 | On the map, each unit is a **token**: unit-type icon, health bar (HP ÷ max HP, green → yellow → red) and the soldier count. Rank stars appear for veterans (UT-6). |
+| UT-3 | A region holds **at most 4 units** (stack limit), shown side by side above the region. A region with a castle shows a castle icon behind the tokens. |
+| UT-4 | Each unit has **move points** per turn: infantry and archers 1, cavalry 2, siege 1. A unit can either move or attack each turn; cavalry can move 1 then attack. |
+| UT-5 | **Generals** are attached to one unit. They give that unit's region +10% attack per Command level. If that unit is destroyed, the general is captured or killed. |
+| UT-6 | Units gain **experience** in battles. Ranks: Recruit, Veteran (+10% attack and defense), Elite (+20%), Hero (+30%). |
+| UT-7 | **Healing:** a unit that doesn't move or fight regains 2 soldiers per turn in a friendly region, 4 in a region with Barracks. Each soldier costs gold. |
+| UT-8 | **Merging:** two units of the same type in the same region can merge, up to 20 soldiers. The rank is the soldier-weighted average, rounded down. |
+
+### 8.3 Orders
+
+| ID | Requirement |
+|---|---|
+| OR-1 | Tap a unit token to select it. Neighbouring regions light up: **green** = move, **red** = attack, **grey** = blocked (full stack or no move points). |
+| OR-2 | Tap a region to **select the whole stack**. A move order then moves every unit that can. |
+| OR-3 | **Move** into a friendly or empty neutral region (empty enemy regions are captured). |
+| OR-4 | **Attack** a neighbouring enemy region. Melee units attack in person; **ranged units (archers, crossbows, catapults) shoot from their own region** and take return fire only from enemy ranged units. |
+| OR-5 | **Retreat** a unit into a neighbouring friendly region, even after it has fought this turn, as long as it has move points left. |
+| OR-6 | A forecast shows the expected result before an attack is confirmed (reuses BT-7). |
+| OR-7 | An **Undo** button undoes the last move (not attacks) this turn. |
+
+### 8.4 Battle resolution (adapts 3.9)
+
+| ID | Requirement |
+|---|---|
+| BR-1 | A battle is between the attacking units and **every defending unit in the target region**. It uses the existing three phases (ranged, charge, melee), the counter table, terrain and morale, scaled to units instead of regiments. |
+| BR-2 | If the **attacker loses or routs**, the surviving attackers go **back to the region they attacked from**. |
+| BR-3 | If the **defender loses**: each surviving defender retreats to a neighbouring friendly region with space. Units with nowhere to go are destroyed. The attacking melee units then move into the region and capture it. |
+| BR-4 | Battle results appear as a short animation on the map (tokens shake, numbers drop, a flag changes) plus a battle report you can open. |
+| BR-5 | Ranged-only attacks never capture a region. |
+
+### 8.5 Civilizations
+
+Every civilization uses the base roster from 3.5 plus **one or two special units** and a **national bonus**.
+
+| Civilization | Status | Special units | National bonus |
+|---|---|---|---|
+| **Norse (Vikings)** | open | **Berserker** (infantry: attack rises as HP falls, never routs), **Huscarl** (heavy axe infantry) | Coastal regions: units move +1 along the coast (raiding) |
+| **Anglish (English)** | open | **Longbowman** (archer: +1 range — can shoot 2 regions away), **Yeoman** (cheap spear) | +15% defense in their own regions |
+| **Frankish (French)** | open | **Knight** (heavy cavalry, +25% charge), **Sergeant** (armoured spear) | Cavalry recruit 20% cheaper |
+| **Byzantine** | unlocks after any campaign | **Cataphract** (armoured horse), **Varangian Guard** | +25% gold from markets |
+| **Saracen** | unlocks after two campaigns | **Mamluk** (horse archer: shoots and moves), **Ghazi** | Units don't suffer desert or summer attrition |
+
+Across base and special units this gives about **18 unit types**, close to the reference game's 21.
+
+### 8.6 Campaigns, missions and modes
+
+| ID | Requirement |
+|---|---|
+| CP-1 | Each open civilization has a **campaign of 3 missions** on its own scenario map (12–20 regions). |
+| CP-2 | A mission has: a starting setup (owners, units, gold), **objectives** (e.g. capture these regions, hold your capital for N turns, destroy an enemy), a **par turn count** and a **hard limit** (par × 2). |
+| CP-3 | Finishing at or under par gives 3 stars; under 1.5 × par 2 stars; otherwise 1 star. Passing the hard limit loses the mission. |
+| CP-4 | Missions unlock in order. Finishing a campaign unlocks a civilization (8.5). |
+| CP-5 | **Skirmish:** pick a map, your civilization, 1–3 AI opponents and difficulty. Win by conquest. |
+| CP-6 | **Hotseat:** 2–4 human players take turns on one device. A "pass the device" screen hides the map between turns. |
+| CP-7 | Mission briefings and victory/defeat screens with short text. |
+
+### 8.7 Research (new)
+
+| ID | Requirement |
+|---|---|
+| RE-1 | Two research trees, **Economy** and **Military**, each with about 6 techs in 3 tiers. |
+| RE-2 | One tech is researched at a time. Research costs gold and takes 2–4 turns. |
+| RE-3 | Economy examples: Crop Rotation (+20% food), Coinage (+15% gold), Mining (+iron), Logistics (+1 supply range). |
+| RE-4 | Military examples: Chain Mail (+10% infantry defense), Composite Bows (+15% ranged attack), Stirrups (+15% cavalry charge), Siege Engineering (unlocks Catapult, −1 siege turn), Drill (start units as Veteran). |
+| RE-5 | Some units need a tech before they can be recruited. |
+
+### 8.8 Version 2 milestones
+
+| Milestone | Contents |
+|---|---|
+| **V1 — Unit tokens** | Unit tokens with icon, health bar, soldier count and rank; stack limit 4; tap-to-select with green/red/grey neighbours; move, attack, ranged attack, retreat and undo; battle rules BR-1..BR-5; healing and merging; recruiting creates units. Economy from M4 adapted to units. |
+| **V2 — AI and missions** | AI turns for every non-player faction (personalities, recruit to counter, attack when the forecast is good, defend, retreat damaged units); sieges (3.10); mission objectives, par and hard turn limits, stars; victory and defeat screens; save and load. |
+| **V3 — Civilizations and campaigns** | Norse, Anglish and Frankish with special units and bonuses; 3 campaigns × 3 missions on original maps; campaign select and briefings; Byzantine and Saracen unlocks; skirmish mode. |
+| **V4 — Research, hotseat and mobile** | Both research trees; hotseat for 2–4 players; title screen and settings; touch controls (tap, pinch zoom, drag pan); Android and web export presets. |
