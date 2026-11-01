@@ -36,8 +36,15 @@ static func ensure_loaded() -> void:
 	tutorial_offered = config.get_value("game", "tutorial_offered", false)
 
 
-## Forgets what was loaded, so the next ensure_loaded() reads the file again.
+## Resets to the defaults and reads the file again, so values from a missing file never linger.
 static func load_again() -> void:
+	show_forecast = true
+	animation = "normal"
+	fullscreen = false
+	ui_scale = 1.0
+	music_volume = 0.7
+	sfx_volume = 0.8
+	tutorial_offered = false
 	_loaded = false
 	ensure_loaded()
 
