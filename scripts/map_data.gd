@@ -55,6 +55,11 @@ static func border_key(a: String, b: String) -> String:
 	return a + "|" + b if a < b else b + "|" + a
 
 
+## Factions that own provinces and play turns (not the rebels).
+func playable_factions() -> Array:
+	return factions.keys().filter(func(id): return not factions[id].get("rebel", false))
+
+
 func neighbours(id: String) -> Array:
 	return provinces[id].neighbours
 

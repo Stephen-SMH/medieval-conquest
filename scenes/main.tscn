@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://scripts/army_panel.gd" id="4_army_panel"]
 [ext_resource type="Script" path="res://scripts/forecast_popup.gd" id="5_forecast"]
 [ext_resource type="Script" path="res://scripts/battle_report.gd" id="6_report"]
+[ext_resource type="Script" path="res://scripts/resource_bar.gd" id="7_resources"]
 
 [sub_resource type="StyleBoxFlat" id="panel_style"]
 bg_color = Color(0.11, 0.12, 0.15, 0.96)
@@ -25,7 +26,7 @@ script = ExtResource("1_main")
 [node name="Map" type="Node2D" parent="."]
 
 [node name="Camera" type="Camera2D" parent="."]
-position = Vector2(780, 350)
+position = Vector2(780, 330)
 zoom = Vector2(0.8, 0.8)
 script = ExtResource("2_camera")
 
@@ -67,11 +68,16 @@ focus_mode = 0
 toggle_mode = true
 text = "Resources [3]"
 
-[node name="Hint" type="Label" parent="UI/TopBar/Rows"]
+[node name="Hint" type="Label" parent="UI/TopBar/Rows/Modes"]
 modulate = Color(1, 1, 1, 0.7)
 layout_mode = 2
-theme_override_font_sizes/font_size = 13
-text = "Click: select   Right-click: march   Drag / WASD: pan   Wheel: zoom   Enter: end turn"
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 12
+text = "  Click: select   Right-click: march   Drag/WASD: pan   Wheel: zoom   Enter: end turn"
+
+[node name="Resources" type="HBoxContainer" parent="UI/TopBar/Rows"]
+layout_mode = 2
+script = ExtResource("7_resources")
 
 [node name="ProvincePanel" type="PanelContainer" parent="UI"]
 anchors_preset = 11
@@ -98,10 +104,24 @@ theme_override_constants/margin_bottom = 12
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="Body" type="RichTextLabel" parent="UI/ProvincePanel/Margin/Content"]
+[node name="Scroll" type="ScrollContainer" parent="UI/ProvincePanel/Margin/Content"]
 layout_mode = 2
 size_flags_vertical = 3
+horizontal_scroll_mode = 3
+
+[node name="Inner" type="VBoxContainer" parent="UI/ProvincePanel/Margin/Content/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="Body" type="RichTextLabel" parent="UI/ProvincePanel/Margin/Content/Scroll/Inner"]
+layout_mode = 2
 bbcode_enabled = true
+fit_content = true
+
+[node name="Actions" type="VBoxContainer" parent="UI/ProvincePanel/Margin/Content/Scroll/Inner"]
+layout_mode = 2
+theme_override_constants/separation = 3
 
 [node name="Separator" type="HSeparator" parent="UI/ProvincePanel/Margin/Content"]
 layout_mode = 2

@@ -9,6 +9,9 @@ extends Resource
 @export var move_cost := 1
 ## Food a province of this terrain grows per 10,000 people, before season and buildings.
 @export var food_output := 20
+## Wood and iron a province of this terrain produces per turn, before buildings.
+@export var wood_output := 2
+@export var iron_output := 0
 ## Short text for the province panel.
 @export_multiline var battle_text := ""
 ## Attack multiplier per unit class ("infantry", "ranged", "cavalry", "siege"), for both sides.

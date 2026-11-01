@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="BuildingType" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/building_type.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "market"
+display_name = "Market"
+description = "+8 gold and +3 happiness per level."
+order = 1
+cost_gold = 150
+cost_wood = 30
+cost_iron = 0
+build_turns = 1
+max_level = 3
+allowed_terrains = Array[String]([])
+gold = 8
+happiness = 3

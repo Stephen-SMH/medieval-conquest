@@ -41,6 +41,7 @@ var _report_queue := []    # [Battle, province] pairs still to show.
 @onready var _dim: Control = $UI/Dim
 @onready var _forecast_popup: ForecastPopup = $UI/ForecastPopup
 @onready var _battle_report: BattleReport = $UI/BattleReport
+@onready var _resource_bar: ResourceBar = $UI/TopBar/Rows/Resources
 @onready var _mode_buttons := {
 	MapMode.POLITICAL: $UI/TopBar/Rows/Modes/PoliticalButton,
 	MapMode.TERRAIN: $UI/TopBar/Rows/Modes/TerrainButton,
@@ -53,15 +54,12 @@ func _ready() -> void:
 	state = GameState.new_game(map, GAME_SEED)
 	_camera.map_rect = Rect2(Vector2.ZERO, map.size)
 
-	_food_range = Vector2i(1 << 30, 0)
 	for id in map.province_order:
 		var province: Dictionary = map.provinces[id]
 		var view := ProvinceView.new()
 		view.setup(id, province.polygon, province.centroid, province.name)
 		_map_root.add_child(view)
 		_views[id] = view
-		var food := ProvincePanel.food_output(map, id)
-		_food_range = Vector2i(mini(_food_range.x, food), maxi(_food_range.y, food))
 
 	_border_layer = BorderLayer.new()
 	_border_layer.map = map
@@ -85,6 +83,9 @@ func _ready() -> void:
 	_forecast_popup.confirmed.connect(_on_attack_confirmed)
 	_forecast_popup.cancelled.connect(_close_forecast)
 	_battle_report.closed.connect(_show_next_report)
+	_panel.build_requested.connect(_on_build_requested)
+	_panel.recruit_requested.connect(_on_recruit_requested)
+	_resource_bar.tax_changed.connect(_on_tax_changed)
 
 	set_mode(MapMode.POLITICAL)
 	select("")
@@ -239,11 +240,36 @@ func end_turn() -> void:
 		select(selected_id)
 
 
+func _on_build_requested(province: String, building: String) -> void:
+	if Economy.start_building(state, province, building):
+		_show_message("Construction started in %s: %s." % [map.provinces[province].name, Rules.building(building).display_name])
+	select(province)
+
+
+func _on_recruit_requested(province: String, unit: String) -> void:
+	if Economy.recruit(state, province, unit):
+		_show_message("%s will join the garrison in %s next turn." % [Rules.unit(unit).display_name, map.provinces[province].name])
+	select(province)
+
+
+func _on_tax_changed(level: String) -> void:
+	state.factions[state.player].tax = level
+	_show_message("Taxes set to %s." % level)
+	_refresh_world()
+	if selected_id != "":
+		_panel.show_province(state, selected_id)
+
+
 ## Shows the most important movement event in the message line, and queues
 ## a report for every battle.
 func _report(events: Array) -> void:
 	var message := ""
+	var economy_notes := PackedStringArray()
 	for event in events:
+		if event.type == "economy":
+			if event.faction == state.player:
+				economy_notes.append(event.text)
+			continue
 		var army: Army = event.army
 		var where: String = map.provinces[event.province].name
 		match event.type:
@@ -258,6 +284,8 @@ func _report(events: Array) -> void:
 				var battle: Battle = event.battle
 				message = "Battle of %s: the %s won." % [where, "attackers" if battle.attacker_won() else "defenders"]
 				_report_queue.append([battle, event.province])
+	if not economy_notes.is_empty():
+		message = " ".join(economy_notes) + (" " + message if message != "" else "")
 	if message != "":
 		_show_message(message)
 	_refresh_world()
@@ -272,7 +300,7 @@ func _show_message(text: String) -> void:
 func _on_split_requested(indices: Array) -> void:
 	var new_army := state.split(selected_army, indices)
 	if new_army == null:
-		_show_message("Tick at least one regiment, and leave at least one behind.")
+		_show_message("Tick at least one regiment and leave one behind. The new general costs %d gold." % Economy.GENERAL_COST.gold)
 		return
 	_show_message("%s now leads %d regiments." % [new_army.display_name(), new_army.regiments.size()])
 	select_army(new_army)
@@ -286,8 +314,10 @@ func _on_merge_requested(other: Army) -> void:
 
 
 func _on_appoint_requested() -> void:
-	state.appoint_general(selected_army)
-	_show_message("%s takes command." % selected_army.general.name)
+	if state.appoint_general(selected_army):
+		_show_message("%s takes command." % selected_army.general.name)
+	else:
+		_show_message("Appointing a general costs %d gold." % Economy.GENERAL_COST.gold)
 	select_army(selected_army)
 
 
@@ -303,7 +333,9 @@ func set_mode(new_mode: MapMode) -> void:
 
 func _refresh_world() -> void:
 	_date_label.text = state.date_text()
+	_resource_bar.show_faction(state, state.player)
 	_recolor()
+	_show_legend()
 	for id in map.province_order:
 		_border_layer.capital_colors[id] = map.factions[state.owners[id]].color
 	_border_layer.queue_redraw()
@@ -314,6 +346,10 @@ func _refresh_world() -> void:
 
 
 func _recolor() -> void:
+	_food_range = Vector2i(1 << 30, 0)
+	for id in map.province_order:
+		var food := roundi(Economy.province_food(state, id))
+		_food_range = Vector2i(mini(_food_range.x, food), maxi(_food_range.y, food))
 	for id in _views:
 		_views[id].set_base_color(_color_for(id))
 
@@ -339,7 +375,7 @@ func _color_for(id: String) -> Color:
 		MapMode.TERRAIN:
 			return map.terrain(id).color
 		MapMode.RESOURCES:
-			var food := ProvincePanel.food_output(map, id)
+			var food := Economy.province_food(state, id)
 			return LOW_FOOD_COLOR.lerp(HIGH_FOOD_COLOR, inverse_lerp(_food_range.x, _food_range.y, food))
 		_:
 			return map.factions[state.owners[id]].color

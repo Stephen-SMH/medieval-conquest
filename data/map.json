@@ -4,7 +4,8 @@
     "aldmere":   {"name": "Kingdom of Aldmere", "color": "#3d6fb6"},
     "brennwald": {"name": "Duchy of Brennwald", "color": "#b5423a"},
     "corvane":   {"name": "Corvane League",     "color": "#7b4fa8"},
-    "dunmarch":  {"name": "Dunmarch Clans",     "color": "#d1a23a"}
+    "dunmarch":  {"name": "Dunmarch Clans",     "color": "#d1a23a"},
+    "rebels":    {"name": "Rebels",             "color": "#5c5c5c", "rebel": true}
   },
   "vertices": {
     "a0": [0, 0],     "a1": [310, 0],   "a2": [620, 0],   "a3": [900, 0],   "a4": [1200, 0],
@@ -15,11 +16,11 @@
   "provinces": [
     {"id": "northmarch", "name": "Northmarch", "owner": "aldmere",   "terrain": "forest",    "capital": false, "population": 8200,
      "vertices": ["a0", "a1", "b1", "b0"],             "neighbours": ["greywater", "ashford"]},
-    {"id": "greywater",  "name": "Greywater",  "owner": "aldmere",   "terrain": "plains",    "capital": true,  "population": 15400,
+    {"id": "greywater",  "name": "Greywater",  "owner": "aldmere",   "terrain": "plains",    "capital": true,  "population": 15400, "buildings": {"farm": 1, "market": 1, "barracks": 1},
      "vertices": ["a1", "a2", "b3", "b2", "b1"],       "neighbours": ["northmarch", "highcrag", "ashford", "kingsvale"]},
     {"id": "highcrag",   "name": "Highcrag",   "owner": "brennwald", "terrain": "mountains", "capital": false, "population": 5100,
      "vertices": ["a2", "a3", "b5", "b4", "b3"],       "neighbours": ["greywater", "eastwold", "kingsvale", "thornwood"]},
-    {"id": "eastwold",   "name": "Eastwold",   "owner": "brennwald", "terrain": "hills",     "capital": true,  "population": 11800,
+    {"id": "eastwold",   "name": "Eastwold",   "owner": "brennwald", "terrain": "hills",     "capital": true,  "population": 11800, "buildings": {"farm": 1, "market": 1, "barracks": 1},
      "vertices": ["a3", "a4", "b6", "b5"],             "neighbours": ["highcrag", "thornwood"]},
     {"id": "ashford",    "name": "Ashford",    "owner": "aldmere",   "terrain": "plains",    "capital": false, "population": 12600,
      "vertices": ["b0", "b1", "b2", "c2", "c1", "c0"], "neighbours": ["northmarch", "greywater", "kingsvale", "saltmere"]},
@@ -29,9 +30,9 @@
      "vertices": ["b4", "b5", "b6", "c6", "c5", "c4"], "neighbours": ["highcrag", "eastwold", "kingsvale", "stonehelm"]},
     {"id": "saltmere",   "name": "Saltmere",   "owner": "corvane",   "terrain": "marsh",     "capital": false, "population": 6400,
      "vertices": ["c0", "c1", "c2", "d1", "d0"],       "neighbours": ["ashford", "redfield"]},
-    {"id": "redfield",   "name": "Redfield",   "owner": "corvane",   "terrain": "plains",    "capital": true,  "population": 13900,
+    {"id": "redfield",   "name": "Redfield",   "owner": "corvane",   "terrain": "plains",    "capital": true,  "population": 13900, "buildings": {"farm": 1, "market": 1, "barracks": 1},
      "vertices": ["c2", "c3", "c4", "d2", "d1"],       "neighbours": ["kingsvale", "saltmere", "stonehelm"]},
-    {"id": "stonehelm",  "name": "Stonehelm",  "owner": "dunmarch",  "terrain": "hills",     "capital": true,  "population": 10200,
+    {"id": "stonehelm",  "name": "Stonehelm",  "owner": "dunmarch",  "terrain": "hills",     "capital": true,  "population": 10200, "buildings": {"farm": 1, "market": 1, "barracks": 1},
      "vertices": ["c4", "c5", "c6", "d3", "d2"],       "neighbours": ["thornwood", "redfield"]}
   ],
   "borders": [

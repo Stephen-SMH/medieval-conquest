@@ -62,7 +62,7 @@ func run(t) -> void:
 	for id in map.province_order:
 		if map.provinces[id].capital:
 			capitals[map.provinces[id].owner] = capitals.get(map.provinces[id].owner, 0) + 1
-	var one_capital_each := capitals.size() == map.factions.size()
+	var one_capital_each := capitals.size() == map.playable_factions().size()
 	for count in capitals.values():
 		one_capital_each = one_capital_each and count == 1
 	t.check(one_capital_each, "each faction has exactly one capital")

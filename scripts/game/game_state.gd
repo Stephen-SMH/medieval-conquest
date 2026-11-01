@@ -1,8 +1,9 @@
 class_name GameState
 extends RefCounted
 ## Everything that changes during a campaign: who owns each province, the
-## armies, the turn, and the random number generator. The geography is fixed
-## and lives in MapData.
+## provinces' buildings and happiness, the factions' stockpiles, the armies,
+## the turn, and the random number generator. The geography is fixed and
+## lives in MapData; the economy rules are in Economy.
 
 const SEASONS := ["Spring", "Summer", "Autumn", "Winter"]
 const GENERAL_NAMES := [
@@ -14,6 +15,8 @@ var map: MapData
 var player := "aldmere"
 var turn := 1
 var owners := {}  # province id -> faction id
+var provinces := {}  # province id -> ProvinceState
+var factions := {}  # faction id -> FactionState (playable factions only)
 var armies: Array[Army] = []
 var rng := RandomNumberGenerator.new()
 
@@ -26,8 +29,19 @@ static func new_game(game_map: MapData, game_seed := 1) -> GameState:
 	state.map = game_map
 	state.rng.seed = game_seed
 	state._graph = ProvinceGraph.new(game_map)
+	for faction_id in game_map.playable_factions():
+		var faction := FactionState.new()
+		faction.id = faction_id
+		faction.resources = Economy.START_RESOURCES.duplicate()
+		state.factions[faction_id] = faction
 	for id in game_map.province_order:
 		state.owners[id] = game_map.provinces[id].owner
+		var province := ProvinceState.new()
+		for building_id in game_map.provinces[id].get("buildings", {}):
+			province.buildings[building_id] = int(game_map.provinces[id].buildings[building_id])
+		province.happiness = Economy.BASE_HAPPINESS + (Economy.CAPITAL_HAPPINESS if game_map.provinces[id].capital else 0.0)
+		state.provinces[id] = province
+		province.forage = Economy.land_food(state, id) * 2.0
 	for entry in game_map.start_armies:
 		var general: General = null
 		if entry.get("general") != null:
@@ -194,9 +208,14 @@ func advance_army(army: Army) -> Array:
 
 
 func _occupy_if_enemy(army: Army, province: String) -> Array:
-	if is_enemy(army.owner, owners[province]) and enemy_armies_in(province, army.owner).is_empty():
+	if is_enemy(army.owner, owners[province]) and enemy_armies_in(province, army.owner).is_empty() \
+			and factions.has(army.owner):
 		var previous: String = owners[province]
 		owners[province] = army.owner
+		var state: ProvinceState = provinces[province]
+		state.happiness = Economy.CONQUERED_HAPPINESS
+		state.construction = ""
+		state.recruits.clear()
 		return [{"type": "occupied", "army": army, "province": province, "previous_owner": previous}]
 	return []
 
@@ -215,7 +234,7 @@ func fight(army: Army, province: String) -> Battle:
 	battle.resolve()
 
 	for involved in [army] + defenders:
-		_remove_destroyed_regiments(involved)
+		remove_destroyed_regiments(involved)
 	if battle.attacker_won():
 		for defender in defenders:
 			if not armies.has(defender):
@@ -262,7 +281,7 @@ func _battle_sides(army: Army, defenders: Array[Army], copy: bool) -> Array:
 		Battle.Force.new(defender_faction, false, defending, defender_mod)]
 
 
-func _remove_destroyed_regiments(army: Army) -> void:
+func remove_destroyed_regiments(army: Army) -> void:
 	var standing: Array[Regiment] = []
 	for regiment in army.regiments:
 		if regiment.men >= Battle.DESTROYED_BELOW:
@@ -303,10 +322,12 @@ func merge(target: Army, source: Army) -> bool:
 
 
 ## Moves the regiments at `indices` into a new army in the same province, led
-## by a newly appointed general. At least one regiment must stay behind.
+## by a newly appointed general (who costs gold). At least one regiment must
+## stay behind.
 func split(army: Army, indices: Array) -> Army:
-	if indices.is_empty() or indices.size() >= army.regiments.size():
+	if indices.is_empty() or indices.size() >= army.regiments.size() or not factions[army.owner].can_afford(Economy.GENERAL_COST):
 		return null
+	factions[army.owner].pay(Economy.GENERAL_COST)
 	var moving: Array[Regiment] = []
 	var staying: Array[Regiment] = []
 	for i in army.regiments.size():
@@ -322,10 +343,22 @@ func split(army: Army, indices: Array) -> Army:
 	return new_army
 
 
-## Gives a garrison a general so it can leave its province.
-func appoint_general(army: Army) -> void:
-	if army.general == null:
-		army.general = new_general()
+## Gives a garrison a general, for gold, so it can leave its province.
+func appoint_general(army: Army) -> bool:
+	if army.general != null or not factions[army.owner].can_afford(Economy.GENERAL_COST):
+		return false
+	factions[army.owner].pay(Economy.GENERAL_COST)
+	army.general = new_general()
+	return true
+
+
+## The faction's garrison in a province with room for another regiment,
+## created if there isn't one.
+func garrison_for(faction_id: String, province: String) -> Army:
+	for army in armies_in(province):
+		if army.owner == faction_id and army.is_garrison() and army.regiments.size() < Army.MAX_REGIMENTS:
+			return army
+	return add_army(faction_id, province, null, [])
 
 
 func new_general() -> General:
@@ -334,14 +367,15 @@ func new_general() -> General:
 
 # --- Turns ------------------------------------------------------------------
 
-## Ends the player's turn. Other factions don't act yet. At the start of the
-## next turn every army gets its movement back and armies with an unfinished
-## path keep walking it. Returns the movement events.
+## Ends the turn: runs the economy for every faction (income, upkeep, food,
+## supply, buildings, recruits, happiness), then starts the next turn, where
+## every army gets its movement back and unfinished marches continue. Other
+## factions don't move yet. Returns the economy and movement events.
 func end_turn() -> Array:
+	var events := Economy.process_turn(self)
 	turn += 1
 	for army in armies:
 		army.reset_movement()
-	var events := []
 	for army in armies.duplicate():
 		if not army.path.is_empty():
 			events.append_array(advance_army(army))

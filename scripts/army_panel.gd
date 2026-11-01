@@ -33,6 +33,11 @@ func show_army(state: GameState, army: Army) -> void:
 		lines.append("[b]Marching to:[/b] %s" % state.map.provinces[army.path.back()].name)
 	lines.append("[b]Men:[/b] %d in %d / %d regiments" % [
 		roundi(army.total_men()), army.regiments.size(), Army.MAX_REGIMENTS])
+	if own:
+		lines.append("[b]Upkeep:[/b] %d gold, %d food a turn" % [
+			roundi(Economy.army_gold_upkeep(army)), roundi(Economy.army_food_upkeep(army))])
+		lines.append("[b]Supply:[/b] %s" % ("supplied from your stockpile" if Economy.is_supplied(state, army)
+			else "[color=#f0a050]out of supply: living off the land[/color]"))
 	_add_text("\n".join(lines))
 
 	_content.add_child(HSeparator.new())
@@ -54,9 +59,9 @@ func show_army(state: GameState, army: Army) -> void:
 	if not own:
 		return
 	_content.add_child(HSeparator.new())
-	_add_button("Split ticked into a new army", _on_split_pressed)
+	_add_button("Split ticked into a new army (%dg)" % Economy.GENERAL_COST.gold, _on_split_pressed)
 	if army.is_garrison():
-		_add_button("Appoint a general", func(): appoint_requested.emit())
+		_add_button("Appoint a general (%dg)" % Economy.GENERAL_COST.gold, func(): appoint_requested.emit())
 	for other in state.armies_in(army.province):
 		if other != army and state.can_merge(army, other):
 			_add_button("Merge in %s" % other.display_name(), func(): merge_requested.emit(other))
