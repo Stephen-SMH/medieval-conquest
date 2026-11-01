@@ -37,7 +37,9 @@ func show_province(state: GameState, id: String) -> void:
 	lines.append("")
 	lines.append("[b]Terrain:[/b] %s" % terrain.display_name)
 	lines.append("[b]Population:[/b] %s" % thousands(province.population))
-	lines.append("[b]Food:[/b] +%d this turn (%s)" % [roundi(Economy.province_food(state, id)), state.season()])
+	lines.append("[b]Gold:[/b] +%d a turn" % roundi(Economy.region_income(state, id)))
+	if Economy.site(state, id) != "":
+		lines.append("[b]%s:[/b] mercenaries for hire" % Economy.site(state, id).capitalize())
 	lines.append("[b]In battle:[/b] %s" % terrain.battle_text)
 	var siege: ProvinceState = state.provinces[id]
 	if siege.siege_faction != "":
@@ -45,9 +47,6 @@ func show_province(state: GameState, id: String) -> void:
 			siege.siege_turns, Sieges.duration(state, id, siege.siege_faction),
 			" — the walls are breached" if Sieges.breached(state, id) else ""])
 	if own:
-		lines.append("[b]Happiness:[/b] %d / 100%s" % [roundi(province_state.happiness),
-			"  [color=#f08070](may revolt)[/color]" if province_state.happiness < Economy.REVOLT_BELOW else ""])
-		lines.append("[b]Taxes:[/b] +%d gold" % roundi(Economy.province_taxes(state, id)))
 		var built := PackedStringArray()
 		for building_id in province_state.buildings:
 			var building := Rules.building(building_id)
@@ -110,9 +109,8 @@ func _add_actions(state: GameState, id: String) -> void:
 	for unit_id in Economy.roster(state, faction_id):
 		var unit := Rules.unit(unit_id)
 		var problem := Economy.recruit_problem(state, id, unit_id, faction_id)
-		var details := "%s\n20 soldiers, attack %d, defense %d, %s, %d move%s. Upkeep %d gold, %d food." % [
-			unit.description, unit.attack, unit.defense, "range %d" % unit.attack_range if unit.is_ranged() else "melee",
-			unit.move_points, "" if unit.move_points == 1 else "s", unit.upkeep_gold, unit.upkeep_food]
+		var details := "%s\n20 soldiers, attack %d, defense %d, %s. Upkeep %d gold." % [
+			unit.description, unit.attack, unit.defense, "range %d" % unit.attack_range if unit.is_ranged() else "melee", unit.upkeep_gold]
 		_add_button("%s  (%s)" % [unit.display_name, cost_text(Economy.unit_cost(state, faction_id, unit))], details, problem,
 			func(): recruit_requested.emit(id, unit_id))
 
@@ -158,8 +156,8 @@ func show_legend(title: String, entries: Array) -> void:
 ## "60g 10w 20 soldiers" for a cost dictionary.
 static func cost_text(cost: Dictionary) -> String:
 	var parts := PackedStringArray()
-	var short := {"gold": "g", "wood": "w", "iron": "i", "manpower": " soldiers"}
-	for resource in ["gold", "wood", "iron", "manpower"]:
+	var short := {"gold": " gold"}
+	for resource in ["gold"]:
 		if cost.get(resource, 0.0) > 0.0:
 			parts.append("%d%s" % [roundi(cost[resource]), short[resource]])
 	return " ".join(parts)

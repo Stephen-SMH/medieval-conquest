@@ -29,6 +29,10 @@ window/size/window_height_override=720
 window/stretch/mode="canvas_items"
 window/handheld/orientation=0
 
+[gui]
+
+theme/custom="res://assets/ui/medieval_theme.tres"
+
 [input]
 
 pan_left={

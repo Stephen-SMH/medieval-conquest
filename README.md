@@ -16,58 +16,64 @@ menu: campaigns, skirmish, or a saved game.
 
 | Action | Input |
 |---|---|
-| Select a unit | Click its token |
-| Select a whole stack | Click your region (not a token) |
-| Move / attack | With units selected, click a **green** region to move, a **red** one to attack (a forecast shows first). Right-click works too. |
-| Undo the last move | U, or the Undo button (attacks can't be undone) |
-| Merge, hire a general | Buttons in the unit panel |
-| Build and recruit | Click your region with no units, or "Build and recruit" in the unit panel |
-| See the last battle | The Battle report button |
-| Besiege walls | "Besiege …" in the unit panel, with a melee unit next to a walled enemy region |
-| Save or load | The Save / load button (an autosave is made at the start of each of your turns) |
-| Research | The Research button: one tech at a time from the Economy and Military trees |
-| End the turn | Enter, or the End turn button; the computer factions then play |
-| Touch screens | Tap to select and order, drag to pan, pinch with two fingers to zoom |
-| Pan / zoom | WASD, arrow keys or drag / mouse wheel or `=` `-` |
-| Map mode: political / terrain / resources | `1` / `2` / `3` |
-| Deselect | Esc |
+| Select a unit | Click its figures |
+| Plan a move or attack | With a unit selected, click a **blue** region to move or a **red** one to attack. An attack opens a slider for how many soldiers to send (archers: how many shoot and how many fight hand to hand). Cavalry can then click a second step. |
+| Cancel an order | Click the unit again, its arrow, or press U |
+| Recruit, hire mercenaries | The helmet shield (top left) or R, for the selected region of yours |
+| Treasury and research | The coin shield (top left) |
+| Menu: save/load, research, battle report, map mode, main menu | The pause shield (top right) or Esc |
+| Messages from the last turn | The ! shield (bottom right) |
+| End your planning | The hourglass shield (bottom right) or Enter |
+| Skip a turn's animation | Click anywhere while it plays |
+| Pan / zoom | Drag or WASD / mouse wheel, `=` `-`, or pinch on touch screens |
 
-## Unit tokens
+## How a turn works
 
-Each token shows the unit type as an icon (shield and spear for infantry, bow for archers, horse for cavalry,
-catapult for siege), the soldier count (1–20), a health bar that goes green → yellow → red, rank stars for
-veterans, and a gold **G** if a general leads it. A diamond marks a civilization's special unit. Greyed-out
-tokens have no orders left this turn.
+Every faction plans at the same time. Each unit gets one order, drawn as a spear-shaped arrow: blue to move, red
+to attack (cavalry may take two steps). Nothing happens until everyone has turned the hourglass; then the turn
+resolves in a fixed order and plays out on the map: all volleys, then head-on clashes, then moves (units of two
+factions moving into the same empty region fight for it), then attacks (several attackers on one region fight
+strongest first), then captures and the gold.
 
-- **At most 4 units per region.** A unit moves 1 region a turn (cavalry 2) and can either move or attack;
-  cavalry can move 1 and then attack.
-- **Attacks** come from one region. Melee units fight in person. Archers, crossbowmen and catapults shoot from
-  their own region: only enemy archers shoot back, and a ranged attack never takes the region.
-- **If the attack fails**, the survivors stay in the region they attacked from. **If it succeeds**, every defender
-  retreats to a neighbouring region of its own with room, or is destroyed, and the melee attackers move in.
-- **Retreat:** a unit that fought can still move into one of your regions if it has a move point left.
-- **Healing:** a unit that rests in your region regains 2 soldiers a turn (4 with Barracks), paid in gold.
-- **Merging:** two units of the same type in a region merge, up to 20 soldiers; the rank is the soldier-weighted average.
-- **Ranks:** Recruit, Veteran (+10% attack and defense), Elite (+20%), Hero (+30%), earned in battle.
-- **Generals:** +10% attack per Command level for units in their region; lost if their unit is destroyed.
+- **One unit per region.** Moving into your own region held by the same unit type merges them (up to 20 soldiers);
+  two of your units can swap; any other move into an occupied region of yours is blocked.
+- **Attacks:** a failed attacker ends the turn where it started. A beaten defender retreats to a free region of its
+  own or is destroyed. A detachment that wins holds the region it took; the rest stay home.
+- **Ranged units** shoot from their own region (longbows 2 regions away); only enemy archers shoot back, and a volley
+  never takes a region.
+- **Ranks, generals, healing:** veterans earn gold chevrons; a general (light-blue pennant) adds +10% attack per
+  Command; a resting unit heals 2 soldiers a turn (4 with Barracks) for gold.
+- A **red X** under a unit means it has no moves left this turn.
+
+## Gold
+
+Gold is the only resource. Every region pays 10 gold a turn (shown on the map), towns 15, the capital 10 more, and
+markets 8 more per level. Gold pays for units, mercenaries, healing, buildings, research and upkeep; if it runs out,
+soldiers desert. **Mercenaries** are hired only in regions with a town or camp icon, from a limited stock that refills
+slowly.
 
 ## How battles work
 
 A battle has three phases: two ranged volleys, a cavalry charge (infantry meets it, spearmen at full strength),
 then up to 6 melee rounds until a side's morale falls to 30 and it routs. Damage follows the counter table in
 [data/counters.tres](data/counters.tres) (spearmen ×2.0 against cavalry, cavalry ×2.0 against archers, ...),
-terrain, rivers (−25% for the attacker), walls, generals, ranks and morale. A forecast simulates the battle
-20 times before you confirm. After the battle, tokens shake, losses float up, and the Battle report explains the result.
+terrain, rivers, walls, generals, ranks and morale. The battle report (menu → last battle report) explains the result.
+
+## Look and credits
+
+The map is a painted parchment political map with figure groups for units, banners, spear arrows and wooden shield
+buttons. Unit figures and icons are from game-icons.net (CC BY 3.0); the fonts are Cinzel and IM FELL English (OFL).
+The UI textures are generated by [tools/make_theme.gd](tools/make_theme.gd). Full list: [CREDITS.md](CREDITS.md).
 
 ## Civilizations
 
 | Civilization | Status | Special units | Bonus |
 |---|---|---|---|
-| Norse | open | Berserker (hits harder as it bleeds, never routs), Huscarl | A free extra move between two coastal regions |
+| Norse | open | Berserker (hits harder as it bleeds, never routs), Huscarl | Raiding: a move can go 2 regions along the coast |
 | Anglish | open | Longbowman (shoots 2 regions away), Yeoman | +15% defense in their own regions |
 | Frankish | open | Knight (+25% charge), Sergeant | Cavalry 20% cheaper |
 | Byzantine | finish 1 campaign | Cataphract, Varangian Guard | +25% gold from markets |
-| Saracen | finish 2 campaigns | Mamluk (moves and shoots), Ghazi | No winter attrition |
+| Saracen | finish 2 campaigns | Mamluk (shoots and rides off untouched), Ghazi | Mercenaries cost 25% less |
 
 18 unit types in all. Special units use their base unit's line in the counter table (a Yeoman counts as Spearmen,
 a Knight as Heavy cavalry).
@@ -88,18 +94,18 @@ Two trees of 6 techs in 3 tiers. One tech at a time, paid in gold when you start
 
 | Economy | Military |
 |---|---|
-| Crop Rotation: +20% food | Chain Mail: +10% infantry defense |
-| Coinage: +15% gold from taxes | Composite Bows: +15% ranged attack |
-| Mining: +50% iron | Stirrups: +15% cavalry charge; needed for heavy cavalry, knights, cataphracts |
-| Logistics: +1 supply range | Siege Engineering: recruit catapults; sieges 1 turn shorter |
-| Heavy Plough: +15% more food | Drill: new units start as Veterans |
+| Crop Rotation: +1 gold from every region | Chain Mail: +10% infantry defense |
+| Coinage: +15% gold | Composite Bows: +15% ranged attack |
+| Mining: +3 gold from hills, +5 from mountains | Stirrups: +15% cavalry charge; needed for heavy cavalry, knights, cataphracts |
+| Logistics: upkeep 20% cheaper | Siege Engineering: recruit catapults; sieges 1 turn shorter |
+| Heavy Plough: +2 gold from plains | Drill: new units start as Veterans |
 | Guilds: +25% from markets | Tempered Steel: +10% melee attack |
 
 ## Hotseat, settings and mobile
 
-- **Hotseat:** 2–4 people share the device, optionally with computer opponents. Between human turns the map is
-  hidden behind a "pass the device" screen, and each player sees only their own fog of war.
-- **Settings:** battle forecast on or off, full screen, interface size, and resetting campaign progress.
+- **Hotseat:** 2–4 people share the device, optionally with computer opponents. Each plans in turn behind a "pass
+  the device" screen, with their own fog of war; then everyone's orders resolve together.
+- **Settings:** turn animations (normal, fast, off), full screen, interface size, and resetting campaign progress.
 - **Touch:** taps act as clicks; two fingers pinch to zoom and drag to pan.
 
 ## Export
@@ -113,7 +119,7 @@ Two trees of 6 techs in 3 tiers. One tech at a time, paid in gold when you start
 
 Walls are built in three levels: palisade, stone walls, castle (a castle icon appears behind the tokens). Defenders
 behind walls take 33%, 50% or 60% less damage; each attacking catapult cuts that. Instead of assaulting, you can
-**besiege**: keep a melee unit next to the walls and after 2, 4 or 6 turns they are breached, the bonus is gone, and
+**besiege** (a button on a melee unit next to the walls): keep a melee unit next to them and after 2, 4 or 6 turns they are breached, the bonus is gone, and
 the starving defenders lose a quarter of their soldiers every turn.
 
 ## Missions and the computer players
@@ -127,21 +133,6 @@ Every faction without a human player is run by the AI ([scripts/game/ai.gd](scri
 that counter the enemies it can see, builds when food or gold run short, pulls badly hurt units back, attacks where
 its forecast is good enough for its personality (aggressive, balanced or defensive), besieges walls, reinforces
 threatened regions and advances on the nearest enemy.
-
-## How the economy works
-
-All numbers are in [scripts/game/economy.gd](scripts/game/economy.gd) and the `.tres` files under `data/`.
-
-- **Resources:** gold, food, wood, iron and soldiers (manpower), shared by the whole faction. The resource bar shows
-  each one's change this turn; hover it for the breakdown.
-- **Gold** comes from taxes and markets and pays unit upkeep and healing. Without gold, 5% of every unit deserts.
-- **Food** comes from the land and farms, ×1 spring, ×1.25 summer, ×1.5 autumn, ×0.25 winter. People and supplied
-  units eat. Without food, every unit loses 10% and nobody heals.
-- **Supply:** units within 2 regions of your territory are supplied; beyond that they forage, and lose 5% a turn when
-  the land is bare. In winter, units outside your territory lose 5% (10% in mountains).
-- **Buildings:** 4 slots per region (6 in a capital). **Recruiting** needs the right building; the unit appears at
-  the end of your turn if the region has room.
-- **Happiness** follows taxes, markets, garrisons and food. Below 20, an empty region may revolt.
 
 ## Tests
 
@@ -168,3 +159,5 @@ tests/    headless test suites
 - [x] V2 — AI and missions: AI turns with personalities, sieges, objectives with par and stars, victory and defeat screens, save and load
 - [x] V3 — Civilizations and campaigns: 5 civilizations with special units and bonuses, 3 campaigns × 3 missions on original maps, campaign select and briefings, unlocks, skirmish
 - [x] V4 — Research, hotseat and mobile: two research trees, hotseat for 2–4 players, title screen and settings, touch controls, Web and Android export presets
+- [x] Simultaneous turns and one unit per region, split attacks, two-step cavalry, gold-only economy, mercenaries at towns and camps
+- [x] Visual overhaul in the style of the original: parchment map, figure groups with banners, spear arrows, wooden HUD, turn animations

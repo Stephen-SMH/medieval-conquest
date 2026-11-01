@@ -13,8 +13,10 @@ var _hotseat := {"map": "heartlands", "civs": ["norse", "anglish"], "ai": 0}
 func _ready() -> void:
 	Rules.ensure_loaded()
 	Settings.apply(get_tree())
-	var background := ColorRect.new()
-	background.color = Color("#1d2630")
+	var background := TextureRect.new()
+	background.texture = load("res://assets/ui/wood.png")
+	background.stretch_mode = TextureRect.STRETCH_TILE
+	background.modulate = Color(0.55, 0.5, 0.45)
 	background.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(background)
 
@@ -25,7 +27,6 @@ func _ready() -> void:
 
 	var side := PanelContainer.new()
 	side.custom_minimum_size = Vector2(300, 0)
-	side.add_theme_stylebox_override("panel", _panel_style(Color("#141b22")))
 	columns.add_child(side)
 	var buttons := VBoxContainer.new()
 	buttons.add_theme_constant_override("separation", 10)
@@ -70,9 +71,9 @@ func _menu_entries() -> Array:
 func show_title() -> void:
 	_clear()
 	_add_label(_content, "Medieval Conquest", 48, Color("#f2d16b"))
-	_add_text("Every unit is a token on the map. Click it, then a neighbouring region: [color=#7fd07f]green[/color] to march, " \
-		+ "[color=#f07060]red[/color] to attack. At most four units hold a region, so pick them well: spears beat horse, " \
-		+ "horse beats bows, bows beat spears.")
+	_add_text("Every region holds one unit. Click it, then a neighbouring region: a [color=#7fa8f0]blue arrow[/color] marches there, " \
+		+ "a [color=#f07060]red arrow[/color] attacks. Plan every unit, then turn the hourglass: all sides move at once. " \
+		+ "Spears beat horse, horse beats bows, bows beat spears.")
 	var autosave := SaveGame.describe("auto")
 	if autosave != "":
 		_add_text("[b]Last game:[/b] " + autosave)
@@ -139,6 +140,10 @@ func show_settings() -> void:
 		fullscreen.button_pressed = Settings.fullscreen
 		fullscreen.toggled.connect(func(on): Settings.fullscreen = on; Settings.save(); Settings.apply(get_tree()))
 		_content.add_child(fullscreen)
+	var speeds := ["normal", "fast", "off"]
+	_add_option("Turn animations", ["Normal", "Fast", "Off"], speeds.find(Settings.animation),
+		func(i): Settings.animation = speeds[i]; Settings.save())
+	_add_text("[i]Click during a turn's animation to skip it. Computer factions' moves always play faster.[/i]")
 	_add_option("Interface size", Settings.UI_SCALES.map(func(x): return "%d%%" % roundi(x * 100)), Settings.UI_SCALES.find(Settings.ui_scale),
 		func(i): Settings.ui_scale = Settings.UI_SCALES[i]; Settings.save(); Settings.apply(get_tree()))
 	_content.add_child(HSeparator.new())
