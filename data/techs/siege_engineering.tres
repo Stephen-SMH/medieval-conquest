@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="TechType" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/tech_type.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "siege_engineering"
+display_name = "Siege Engineering"
+tree = "military"
+tier = 2
+cost_gold = 140
+turns = 3
+requires = Array[String](["composite_bows"])
+description = "Recruit catapults. Sieges take 1 turn less."
+

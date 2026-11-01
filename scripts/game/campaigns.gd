@@ -11,7 +11,7 @@ static var _cache := {}
 ## Every campaign, ordered like the civilizations.
 static func all() -> Array:
 	if _cache.is_empty():
-		for file in ResourceLoader.list_directory(CAMPAIGN_DIR):
+		for file in DirAccess.get_files_at(CAMPAIGN_DIR):
 			if file.ends_with(".json"):
 				var data = JSON.parse_string(FileAccess.get_file_as_string(CAMPAIGN_DIR.path_join(file)))
 				if data is Dictionary:

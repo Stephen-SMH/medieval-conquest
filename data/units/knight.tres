@@ -24,3 +24,4 @@ upkeep_gold = 7
 upkeep_food = 3
 required_building = "stable"
 charge_bonus = 1.25
+required_tech = "stirrups"

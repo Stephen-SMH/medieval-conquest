@@ -9,6 +9,7 @@
 [ext_resource type="Script" path="res://scripts/resource_bar.gd" id="7_resources"]
 [ext_resource type="Script" path="res://scripts/end_screen.gd" id="8_end"]
 [ext_resource type="Script" path="res://scripts/save_popup.gd" id="9_saves"]
+[ext_resource type="Script" path="res://scripts/research_panel.gd" id="10_research"]
 
 [sub_resource type="StyleBoxFlat" id="panel_style"]
 bg_color = Color(0.11, 0.12, 0.15, 0.96)
@@ -71,11 +72,17 @@ toggle_mode = true
 text = "Resources [3]"
 
 [node name="Hint" type="Label" parent="UI/TopBar/Rows/Modes"]
+visible = false
 modulate = Color(1, 1, 1, 0.7)
 layout_mode = 2
 size_flags_vertical = 4
 theme_override_font_sizes/font_size = 12
-text = "  Click: select / order   U: undo   Drag/WASD: pan   Wheel: zoom   Enter: end turn"
+text = "  U: undo  Drag: pan  Wheel/pinch: zoom  Enter: end turn"
+
+[node name="ResearchButton" type="Button" parent="UI/TopBar/Rows/Modes"]
+layout_mode = 2
+focus_mode = 0
+text = "Research"
 
 [node name="SaveButton" type="Button" parent="UI/TopBar/Rows/Modes"]
 layout_mode = 2
@@ -404,3 +411,30 @@ theme_override_constants/margin_bottom = 18
 [node name="Rows" type="VBoxContainer" parent="UI/SavePopup/Margin"]
 layout_mode = 2
 theme_override_constants/separation = 8
+
+[node name="ResearchPanel" type="PanelContainer" parent="UI"]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -370.0
+offset_top = -280.0
+offset_right = 370.0
+offset_bottom = 280.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("panel_style")
+script = ExtResource("10_research")
+
+[node name="Margin" type="MarginContainer" parent="UI/ResearchPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="Rows" type="VBoxContainer" parent="UI/ResearchPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10

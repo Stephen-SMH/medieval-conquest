@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="TechType" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/tech_type.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "coinage"
+display_name = "Coinage"
+tree = "economy"
+tier = 1
+cost_gold = 100
+turns = 2
+requires = Array[String]([])
+description = "+15% gold from taxes."
+income = {"gold": 1.15}

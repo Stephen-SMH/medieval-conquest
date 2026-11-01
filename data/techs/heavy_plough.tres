@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="TechType" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/tech_type.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "heavy_plough"
+display_name = "Heavy Plough"
+tree = "economy"
+tier = 3
+cost_gold = 180
+turns = 4
+requires = Array[String](["crop_rotation", "logistics"])
+description = "+15% more food."
+income = {"food": 1.15}

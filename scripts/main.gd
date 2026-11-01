@@ -28,6 +28,10 @@ var _border_layer: BorderLayer
 var _token_layer: TokenLayer
 var _pending_attack := {}  # {"units": Array[Unit], "region": String} waiting for the forecast's OK.
 var _last_battle := []  # [Battle, region] for the Report button.
+var _touch := TouchGestures.new()
+var _last_human := ""  # For hotseat: whose eyes the map was last drawn for.
+var _pass_screen: Control
+var _pass_label: Label
 
 @onready var _map_root: Node2D = $Map
 @onready var _camera: MapCamera = $Camera
@@ -48,6 +52,8 @@ var _last_battle := []  # [Battle, region] for the Report button.
 @onready var _save_button: Button = $UI/TopBar/Rows/Modes/SaveButton
 @onready var _end_screen: EndScreen = $UI/EndScreen
 @onready var _save_popup: SavePopup = $UI/SavePopup
+@onready var _research_button: Button = $UI/TopBar/Rows/Modes/ResearchButton
+@onready var _research_panel: ResearchPanel = $UI/ResearchPanel
 @onready var _mode_buttons := {
 	MapMode.POLITICAL: $UI/TopBar/Rows/Modes/PoliticalButton,
 	MapMode.TERRAIN: $UI/TopBar/Rows/Modes/TerrainButton,
@@ -93,6 +99,11 @@ func _ready() -> void:
 	_unit_panel.region_requested.connect(select_region)
 	_unit_panel.besiege_requested.connect(_on_besiege_requested)
 	_save_button.pressed.connect(_open_saves)
+	_research_button.pressed.connect(_open_research)
+	_research_panel.research_requested.connect(_on_research_requested)
+	_research_panel.closed.connect(_close_popups)
+	_build_pass_screen()
+	Settings.apply(get_tree())
 	_save_popup.save_requested.connect(_on_save_requested)
 	_save_popup.load_requested.connect(_on_load_requested)
 	_save_popup.closed.connect(_close_popups)
@@ -116,7 +127,24 @@ func _process(_delta: float) -> void:
 	_update_hover()
 
 
+## Touch: two fingers pinch to zoom and drag to pan; a trackpad pinch zooms too.
+func _input(event: InputEvent) -> void:
+	if event is InputEventScreenTouch or event is InputEventScreenDrag:
+		var gesture := _touch.handle(event)
+		if not gesture.is_empty():
+			_camera.zoom_at(gesture.center, gesture.zoom)
+			_camera.pan_by_screen(gesture.pan)
+		if _touch.is_multi_touch():
+			_press_button = MOUSE_BUTTON_NONE  # Don't treat a pinch as a tap.
+	elif event is InputEventMagnifyGesture:
+		_camera.zoom_at(event.position, event.factor)
+	elif event is InputEventPanGesture:
+		_camera.pan_by_screen(-event.delta * 8.0)
+
+
 func _unhandled_input(event: InputEvent) -> void:
+	if _pass_screen.visible:
+		return
 	if _dim.visible:
 		if event.is_action_pressed("deselect"):
 			_close_popups()
@@ -209,6 +237,9 @@ func order(region: String) -> void:
 		"attack":
 			var attackers := state.attackers_for(selection, region)
 			_pending_attack = {"units": attackers, "region": region}
+			if not Settings.show_forecast:
+				_on_attack_confirmed()
+				return
 			_forecast_popup.show_forecast(state, attackers, region, state.forecast_attack(attackers, region))
 			_dim.visible = true
 		"blocked":
@@ -275,6 +306,7 @@ func undo() -> void:
 func end_turn() -> void:
 	if not _is_my_turn():
 		return
+	_last_human = state.current_faction()
 	_report_events(state.end_faction_turn())
 	_run_other_factions()
 	clear_selection()
@@ -291,6 +323,59 @@ func _run_other_factions() -> void:
 	_refresh_world()
 	if not _check_end():
 		SaveGame.save(state, "auto")
+		_maybe_pass_device()
+
+
+## Hotseat (CP-6): when the next human isn't the one who just played, hide the
+## map until they take the device.
+func _maybe_pass_device() -> void:
+	var human := state.current_faction()
+	var humans := state.turn_order.filter(func(f): return state.factions[f].human)
+	if humans.size() > 1 and human != _last_human and _last_human != "":
+		_pass_label.text = "Pass the device to\n%s" % state.faction_name(human)
+		_pass_label.add_theme_color_override("font_color", state.faction_color(human).lightened(0.3))
+		_pass_screen.visible = true
+	_last_human = human
+
+
+func _build_pass_screen() -> void:
+	_pass_screen = ColorRect.new()
+	(_pass_screen as ColorRect).color = Color("#11161c")
+	_pass_screen.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_pass_screen.visible = false
+	$UI.add_child(_pass_screen)
+	var rows := VBoxContainer.new()
+	rows.set_anchors_preset(Control.PRESET_CENTER)
+	rows.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	rows.grow_vertical = Control.GROW_DIRECTION_BOTH
+	rows.add_theme_constant_override("separation", 24)
+	_pass_screen.add_child(rows)
+	_pass_label = Label.new()
+	_pass_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_pass_label.add_theme_font_size_override("font_size", 36)
+	rows.add_child(_pass_label)
+	var ready := Button.new()
+	ready.text = "I'm ready — show my map"
+	ready.custom_minimum_size = Vector2(320, 56)
+	ready.add_theme_font_size_override("font_size", 20)
+	ready.pressed.connect(func():
+		_pass_screen.visible = false
+		clear_selection())
+	rows.add_child(ready)
+
+
+func _open_research() -> void:
+	if not state.factions.has(state.viewer()):
+		return
+	_research_panel.open(state, state.viewer())
+	_dim.visible = true
+
+
+func _on_research_requested(tech: String) -> void:
+	if _is_my_turn() and Research.start(state, state.viewer(), tech):
+		_show_message("Research started: %s." % Rules.tech_name(tech))
+	_research_panel.open(state, state.viewer())
+	_refresh_world()
 
 
 ## Shows the end screen once the game is decided, and records campaign stars.
@@ -392,6 +477,7 @@ func _close_popups() -> void:
 	_battle_report.visible = false
 	_end_screen.visible = false
 	_save_popup.visible = false
+	_research_panel.visible = false
 	_dim.visible = false
 
 
@@ -439,6 +525,9 @@ func set_mode(new_mode: MapMode) -> void:
 func _refresh_world() -> void:
 	var faction := state.current_faction()
 	_date_label.text = "%s — %s to move" % [state.date_text(), state.faction_name(faction)]
+	var me: FactionState = state.factions.get(state.viewer())
+	_research_button.text = "Research" if me == null or me.researching == "" else "Research (%d)" % me.research_turns_left
+	_research_button.tooltip_text = "" if me == null or me.researching == "" else "Researching %s" % Rules.tech_name(me.researching)
 	_undo_button.disabled = state.undo_stack.is_empty() or not _is_my_turn()
 	_resource_bar.show_faction(state, state.viewer())
 	_show_objectives()
@@ -545,7 +634,7 @@ func _update_hover() -> void:
 	var region := ""
 	var mouse := get_viewport().get_mouse_position()
 	var over_ui := false
-	for control: Control in [_panel, _unit_panel, _top_bar, _turn_bar, _dim]:
+	for control: Control in [_panel, _unit_panel, _top_bar, _turn_bar, _dim, _pass_screen]:
 		over_ui = over_ui or (control.visible and control.get_global_rect().has_point(mouse))
 	if not over_ui and not _dragging:
 		region = map.province_at(get_global_mouse_position())

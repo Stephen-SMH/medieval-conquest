@@ -35,7 +35,7 @@ static func load_map(map_id: String) -> MapData:
 
 static func list_maps() -> Array[String]:
 	var ids: Array[String] = []
-	for file in ResourceLoader.list_directory(MAP_DIR):
+	for file in DirAccess.get_files_at(MAP_DIR):
 		if file.ends_with(".json"):
 			ids.append(file.get_basename())
 	ids.sort()

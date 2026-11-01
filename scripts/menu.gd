@@ -7,10 +7,12 @@ const DIFFICULTIES := ["easy", "normal", "hard"]
 
 var _content: VBoxContainer
 var _skirmish := {"map": "heartlands", "civ": "norse", "opponents": 2, "difficulty": "normal"}
+var _hotseat := {"map": "heartlands", "civs": ["norse", "anglish"], "ai": 0}
 
 
 func _ready() -> void:
 	Rules.ensure_loaded()
+	Settings.apply(get_tree())
 	var background := ColorRect.new()
 	background.color = Color("#1d2630")
 	background.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -47,16 +49,98 @@ func _ready() -> void:
 	_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_content.add_theme_constant_override("separation", 10)
 	scroll.add_child(_margin(_content, 32))
-	show_campaigns()
+	show_title()
 
 
 func _menu_entries() -> Array:
-	return [
+	var entries := [
 		["Campaigns", show_campaigns],
 		["Skirmish", show_skirmish],
+		["Hotseat", show_hotseat],
 		["Load game", show_load],
-		["Quit", func(): get_tree().quit()],
+		["Settings", show_settings],
 	]
+	if not OS.has_feature("web"):
+		entries.append(["Quit", func(): get_tree().quit()])
+	return entries
+
+
+# --- Title ---------------------------------------------------------------------------
+
+func show_title() -> void:
+	_clear()
+	_add_label(_content, "Medieval Conquest", 48, Color("#f2d16b"))
+	_add_text("Every unit is a token on the map. Click it, then a neighbouring region: [color=#7fd07f]green[/color] to march, " \
+		+ "[color=#f07060]red[/color] to attack. At most four units hold a region, so pick them well: spears beat horse, " \
+		+ "horse beats bows, bows beat spears.")
+	var autosave := SaveGame.describe("auto")
+	if autosave != "":
+		_add_text("[b]Last game:[/b] " + autosave)
+		_add_button(_content, "Continue", func(): _start({"save": SaveGame.load_slot("auto")}))
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	_content.add_child(row)
+	_add_button(row, "Campaigns", show_campaigns)
+	_add_button(row, "Skirmish", show_skirmish)
+	_add_button(row, "Hotseat", show_hotseat)
+	var done := Progress.campaigns_finished()
+	_add_text("[i]Campaigns finished: %d of %d.[/i]" % [done, Campaigns.all().size()])
+
+
+# --- Hotseat ---------------------------------------------------------------------------
+
+func show_hotseat() -> void:
+	_clear()
+	_add_label(_content, "Hotseat", 30)
+	_add_text("2 to 4 players take turns on this device. Between turns the map is hidden until the next player is ready.")
+	var maps := MapData.list_maps()
+	_add_option("Map", maps.map(func(m): return MapData.load_map(m).display_name), maps.find(_hotseat.map),
+		func(i): _hotseat.map = maps[i]; show_hotseat())
+	var seats := MapData.load_map(_hotseat.map).starts.size()
+	_add_option("Players", range(2, mini(4, seats) + 1).map(func(n): return str(n)), _hotseat.civs.size() - 2, func(i):
+		var count: int = i + 2
+		while _hotseat.civs.size() < count:
+			_hotseat.civs.append(Rules.civilizations.keys()[_hotseat.civs.size() % 3])
+		_hotseat.civs.resize(count)
+		_hotseat.ai = mini(_hotseat.ai, seats - count)
+		show_hotseat())
+	var civs := Rules.civilizations.keys()
+	for p in _hotseat.civs.size():
+		var option := _add_option("Player %d" % (p + 1), civs.map(func(c): return Rules.civilization(c).display_name + ("" if Progress.civilization_unlocked(c) else " (locked)")),
+			civs.find(_hotseat.civs[p]), func(i): _hotseat.civs[p] = civs[i])
+		for i in civs.size():
+			option.set_item_disabled(i, not Progress.civilization_unlocked(civs[i]))
+	var free_seats: int = seats - _hotseat.civs.size()
+	if free_seats > 0:
+		_add_option("Computer opponents", range(0, free_seats + 1).map(func(n): return str(n)), _hotseat.ai, func(i): _hotseat.ai = i)
+	_add_button(_content, "Start hotseat game", func():
+		var players: Array = _hotseat.civs.map(func(c): return {"civ": c, "human": true})
+		players.append_array(opponent_civs("", _hotseat.ai).map(func(c): return {"civ": c, "human": false}))
+		_start({"scenario": Skirmish.build(_hotseat.map, players, "normal", randi()), "seed": randi()}))
+
+
+# --- Settings ---------------------------------------------------------------------------
+
+func show_settings() -> void:
+	Settings.ensure_loaded()
+	_clear()
+	_add_label(_content, "Settings", 30)
+	var forecast := CheckBox.new()
+	forecast.text = "Show the battle forecast before attacking"
+	forecast.button_pressed = Settings.show_forecast
+	forecast.toggled.connect(func(on): Settings.show_forecast = on; Settings.save())
+	_content.add_child(forecast)
+	if not OS.has_feature("web") and not OS.has_feature("mobile"):
+		var fullscreen := CheckBox.new()
+		fullscreen.text = "Full screen"
+		fullscreen.button_pressed = Settings.fullscreen
+		fullscreen.toggled.connect(func(on): Settings.fullscreen = on; Settings.save(); Settings.apply(get_tree()))
+		_content.add_child(fullscreen)
+	_add_option("Interface size", Settings.UI_SCALES.map(func(x): return "%d%%" % roundi(x * 100)), Settings.UI_SCALES.find(Settings.ui_scale),
+		func(i): Settings.ui_scale = Settings.UI_SCALES[i]; Settings.save(); Settings.apply(get_tree()))
+	_content.add_child(HSeparator.new())
+	_add_text("Campaign progress: %d of %d campaigns finished." % [Progress.campaigns_finished(), Campaigns.all().size()])
+	_add_button(_content, "Reset campaign progress", func(): Progress.reset(); show_settings())
 
 
 # --- Campaigns ---------------------------------------------------------------------
@@ -160,6 +244,8 @@ func show_skirmish() -> void:
 ## Opponents get the other unlocked civilizations in turn.
 static func opponent_civs(own: String, count: int) -> Array:
 	var others := Rules.civilizations.keys().filter(func(c): return c != own and Progress.civilization_unlocked(c))
+	if others.is_empty():
+		others = ["norse"]
 	var picked := []
 	for i in count:
 		picked.append(others[i % others.size()])

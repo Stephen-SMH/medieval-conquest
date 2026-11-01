@@ -23,3 +23,4 @@ cost_iron = 35
 upkeep_gold = 7
 upkeep_food = 3
 required_building = "stable"
+required_tech = "stirrups"
