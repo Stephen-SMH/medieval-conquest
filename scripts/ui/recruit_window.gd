@@ -83,15 +83,20 @@ func _card(state: GameState, faction: String, unit_id: String, price: float, ava
 	card.disabled = problem != ""
 	card.pressed.connect(on_pick)
 	Hud.react(card)
-	var figure := TextureRect.new()
-	figure.texture = load("res://assets/figures/%s.svg" % TokenLayer.FIGURES.get(unit_id, "pikeman"))
-	figure.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	figure.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	figure.position = Vector2(30, 14)
-	figure.size = Vector2(64, 64)
-	figure.modulate = Color("#3a2a18", 0.4 if problem != "" else 1.0)
-	figure.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	card.add_child(figure)
+	# The painted figure in the faction's colours, cropped to fit the card.
+	var textures := TokenLayer.figure_textures(unit_id)
+	var crop := TokenLayer.figure_bounds(unit_id)
+	var team_color := state.faction_color(faction).lightened(0.12)
+	card.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	var shade := Color(0.55, 0.55, 0.55, 0.6) if problem != "" else Color.WHITE
+	card.draw.connect(func():
+		var box := Rect2(14, 6, 96, 70)
+		var scale := minf(box.size.x / crop.size.x, box.size.y / crop.size.y)
+		var shown := crop.size * scale
+		var rect := Rect2(box.position + Vector2((box.size.x - shown.x) / 2.0, box.size.y - shown.y), shown)
+		card.draw_texture_rect_region(textures[0], rect, crop, shade)
+		if textures[1] != null:
+			card.draw_texture_rect_region(textures[1], rect, crop, team_color * shade))
 	var name := Label.new()
 	name.theme_type_variation = "InkLabel"
 	name.text = unit_type.display_name

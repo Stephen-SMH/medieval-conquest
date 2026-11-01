@@ -1,7 +1,8 @@
 class_name TokenLayer
 extends Node2D
-## Draws each unit as a small group of standing figures on its region
-## (PRD UT-2): one to three figures depending on its soldiers, the faction's
+## Draws each unit as a small group of painted figures on its region
+## (PRD UT-2): three to five soldiers (two or three riders, one or two
+## engines) depending on its soldiers, in the faction's colours, the faction's
 ## banner on a pole behind them (with a light-blue pennant for a general), gold
 ## chevrons for rank, a thin health bar with a white tip, the soldier number in
 ## italic, and a red X once the unit has no moves left this turn.
@@ -10,21 +11,32 @@ extends Node2D
 ## follows the game state, so the animations can march, fade and drain units
 ## after the turn's result is already decided.
 
-const SCREEN_HEIGHT := 58.0  # Figure height on screen, in pixels, at any zoom.
-const MIN_WORLD := 30.0
-const MAX_WORLD := 84.0
+const SCREEN_HEIGHT := 64.0  # Token height on screen, in pixels, at any zoom.
+const MIN_WORLD := 42.0
+const MAX_WORLD := 90.0
 const GOLD := Color("#e2bd5a")
 const INK := Color("#1d130a")
 const HP_DRAIN_PER_SECOND := 0.9
-const FIGURES := {
-	"militia": "farmer", "spearmen": "pikeman", "swordsmen": "swordman", "archers": "bowman",
-	"crossbowmen": "archer", "light_cavalry": "cavalry", "heavy_cavalry": "mounted-knight", "catapult": "catapult",
-	"berserker": "barbarian", "huscarl": "barbarian", "longbowman": "bowman", "yeoman": "pikeman",
-	"knight": "mounted-knight", "sergeant": "pikeman", "cataphract": "mounted-knight", "varangian_guard": "guards",
-	"mamluk": "horse-archer", "ghazi": "swordman",
+## The painted figures (tools/render_figures.gd): a sprite per unit type, plus a
+## grey layer of the parts that take the faction colour. In a sprite the ground
+## is FIGURE_FEET down and a standing man is FIGURE_MAN of its height.
+const FIGURE_FEET := 0.80
+const FIGURE_MAN := 0.6
+## Where the figures of a group stand, by count, as offsets from the group's
+## foot point in token sizes; drawn back to front.
+const INFANTRY_SPOTS := {
+	3: [Vector2(-0.3, -0.08), Vector2(0.24, -0.08), Vector2(-0.03, 0.05)],
+	4: [Vector2(-0.34, -0.09), Vector2(0.08, -0.11), Vector2(-0.16, 0.05), Vector2(0.27, 0.04)],
+	5: [Vector2(-0.42, -0.1), Vector2(-0.03, -0.12), Vector2(0.36, -0.1), Vector2(-0.23, 0.05), Vector2(0.18, 0.05)],
 }
-## Painted tones for the figures by kind of unit; the faction's colour tints them.
-const TONES := {"infantry": Color("#e6e1d4"), "ranged": Color("#e8d6a8"), "cavalry": Color("#e0d2bb"), "siege": Color("#c9a77a")}
+const MOUNTED_SPOTS := {
+	2: [Vector2(-0.26, -0.08), Vector2(0.2, 0.05)],
+	3: [Vector2(-0.4, -0.1), Vector2(0.3, -0.09), Vector2(-0.05, 0.06)],
+}
+const SIEGE_SPOTS := {
+	1: [Vector2(0.0, 0.0)],
+	2: [Vector2(-0.24, -0.07), Vector2(0.2, 0.04)],
+}
 
 ## How one unit is drawn right now.
 class TokenVisual:
@@ -38,8 +50,10 @@ class TokenVisual:
 	var offset := Vector2.ZERO  # Extra offset (advance, recoil, bob).
 	## A map position that replaces the unit's place while it marches; null when not marching.
 	var position_override = null
-	## Held by an animation: the shown HP doesn't drain on its own.
+	## Held by an animation: the shown HP doesn't drain on its own and the
+	## shown rank stays the one from before the turn.
 	var held := false
+	var rank := 0
 
 	func soldiers() -> int:
 		return clampi(ceili(hp / unit.type().soldier_hp() - 0.0001), 0, UnitType.SOLDIERS)
@@ -57,12 +71,14 @@ var ghosts: Array[TokenVisual] = []
 
 var _rects := {}
 var _figures := {}
+var _team_layers := {}
 var _time := 0.0
 var _number_font: Font
 
 
 func _ready() -> void:
 	z_index = 6
+	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	_number_font = load("res://assets/fonts/IMFellEnglish-Italic.ttf")
 	sync()
 
@@ -73,6 +89,9 @@ func _process(delta: float) -> void:
 	for visual: TokenVisual in visuals.values():
 		if visual.held or not state.units.has(visual.unit):
 			continue
+		if visual.rank != visual.unit.rank():
+			visual.rank = visual.unit.rank()
+			changed = true
 		if not is_equal_approx(visual.hp, visual.unit.hp):
 			visual.hp = move_toward(visual.hp, visual.unit.hp, visual.unit.max_hp() * HP_DRAIN_PER_SECOND * delta)
 			changed = true
@@ -96,6 +115,7 @@ func sync(snap_hp := false) -> void:
 		visual.alpha = 1.0
 		visual.sink = 0.0
 		visual.held = false
+		visual.rank = unit.rank()
 		if snap_hp:
 			visual.hp = unit.hp
 	for unit in visuals.keys():
@@ -119,7 +139,27 @@ func _shown(visual: TokenVisual) -> bool:
 
 ## Where a unit stands in a region: just above the region's name.
 func region_anchor(region: String) -> Vector2:
-	return state.map.provinces[region].centroid + Vector2(0, -token_size() * 0.88)
+	return TokenLayer.layout(state.map.provinces[region].centroid, token_size()).centre
+
+
+## The token stacked above a region's name: the figures, then the health bar,
+## then the soldier number, whose bottom stays clear of the name (MapDecor).
+## Everything is relative to the region's centroid, for a token `size` high.
+static func layout(centroid: Vector2, size: float) -> Dictionary:
+	var number_size := int(maxf(size * 0.3, 11.0))
+	var label_top := MapDecor.label_rect(centroid).position.y
+	var baseline := label_top - 3.0 - number_size * 0.2
+	var bar_height := maxf(size * 0.055, 2.5)
+	var bar_top := baseline - number_size * 0.95 - bar_height
+	var foot := Vector2(centroid.x, bar_top - size * 0.12)
+	return {
+		"centre": foot - Vector2(0, size * 0.45),
+		"foot": foot,
+		"bar": Rect2(Vector2(centroid.x - size * 0.4, bar_top), Vector2(size * 0.8, bar_height)),
+		"number_size": number_size,
+		"baseline": baseline,
+		"number_rect": Rect2(Vector2(centroid.x - size * 0.4, baseline - number_size * 0.8), Vector2(size * 0.8, number_size * 0.8 + number_size * 0.2)),
+	}
 
 
 ## The centre of a unit's figures on the map right now, including any animation.
@@ -159,7 +199,6 @@ func _draw() -> void:
 
 func _draw_unit(visual: TokenVisual, centre: Vector2, size: float) -> void:
 	var unit := visual.unit
-	var unit_type := unit.type()
 	var alpha := visual.alpha
 	var faction_color := state.faction_color(visual.owner)
 	var foot := centre + Vector2(0, size * 0.45)
@@ -169,49 +208,43 @@ func _draw_unit(visual: TokenVisual, centre: Vector2, size: float) -> void:
 		var pulse := 0.5 + 0.5 * sin(_time * 5.0)
 		_draw_ellipse(foot, Vector2(size * (0.8 + 0.06 * pulse), size * 0.26), Color(GOLD, (0.25 + 0.25 * pulse) * alpha))
 		_draw_ellipse_outline(foot, Vector2(size * (0.8 + 0.06 * pulse), size * 0.26), Color(GOLD.lightened(0.3), 0.9 * alpha), maxf(size * 0.05, 1.5))
-	_draw_ellipse(foot, Vector2(size * 0.62, size * 0.17), Color(0, 0, 0, 0.32 * alpha))
+	_draw_ellipse(foot, Vector2(size * 0.6, size * 0.15), Color(0, 0, 0, 0.26 * alpha))
 
 	# The faction's banner on a pole behind the figures.
-	var pole_foot := centre + Vector2(size * 0.42, size * 0.35)
-	var pole_top := pole_foot + Vector2(0, -size * 1.25)
-	draw_line(pole_foot, pole_top, Color("#3a2410", alpha), maxf(size * 0.04, 1.2))
-	draw_circle(pole_top, size * 0.035, Color(GOLD, alpha))
-	var flag := PackedVector2Array([pole_top + Vector2(0, size * 0.05), pole_top + Vector2(size * 0.3, size * 0.05),
-		pole_top + Vector2(size * 0.3, size * 0.48), pole_top + Vector2(size * 0.15, size * 0.38), pole_top + Vector2(0, size * 0.48)])
-	draw_colored_polygon(flag, Color(faction_color, alpha))
-	var flag_line := flag.duplicate()
-	flag_line.append(flag[0])
-	draw_polyline(flag_line, Color(INK, 0.7 * alpha), maxf(size * 0.025, 1.0), true)
-	_draw_emblem(state.factions[visual.owner].civ if state.factions.has(visual.owner) else "", pole_top + Vector2(size * 0.15, size * 0.22), size * 0.08, Color(1, 1, 1, 0.9 * alpha))
+	var civ: String = state.factions[visual.owner].civ if state.factions.has(visual.owner) else ""
+	var pole_foot := foot + Vector2(size * 0.4, -size * 0.1)
+	draw_banner(self, pole_foot, size * 1.3, faction_color, civ, alpha)
 	if unit.general != null:
-		var pennant_top := centre + Vector2(-size * 0.45, -size * 0.85)
-		draw_line(pennant_top + Vector2(0, size * 1.2), pennant_top, Color("#3a2410", alpha), maxf(size * 0.035, 1.0))
+		var pennant_top := foot + Vector2(-size * 0.5, -size * 1.25)
+		draw_line(pennant_top + Vector2(0, size * 1.15), pennant_top, Color("#3a2410", alpha), maxf(size * 0.035, 1.0))
 		draw_colored_polygon(PackedVector2Array([pennant_top, pennant_top + Vector2(-size * 0.36, size * 0.07), pennant_top + Vector2(0, size * 0.16)]),
 			Color("#9cc8ec", alpha))
 
-	# The figures: one to three, depending on the soldiers left.
-	var count := 1 if visual.soldiers() <= 6 else (2 if visual.soldiers() <= 13 else 3)
-	var spots: Array = [[Vector2(0, 0)], [Vector2(-0.24, -0.04), Vector2(0.2, 0.04)],
-		[Vector2(-0.34, -0.06), Vector2(0.32, -0.06), Vector2(-0.02, 0.06)]][count - 1]
-	var texture := _figure(unit.type_id)
-	var tone: Color = TONES.get(unit_type.unit_class, Color.WHITE).lerp(faction_color, 0.28)
-	var figure_size := size * (0.85 if unit_type.is_cavalry() or unit_type.unit_class == "siege" else 0.78)
+	# The painted figures: three to five soldiers, two or three riders, one or two engines.
+	var spots: Array = figure_spots(unit.type(), visual.soldiers())
+	var textures := _figure(unit.type_id)
+	var sprite := size * 0.68 / FIGURE_MAN  # A standing man is 0.68 token sizes tall.
+	var team_color := faction_color.lightened(0.12)
+	team_color.a = alpha
+	var o := maxf(size * 0.012, 0.6)
 	for spot: Vector2 in spots:
-		var rect := Rect2(centre + spot * size - Vector2(figure_size, figure_size) / 2.0, Vector2(figure_size, figure_size))
-		var o := maxf(size * 0.025, 1.0)
+		var feet := foot + spot * size
+		var rect := Rect2(feet - Vector2(sprite * 0.5, sprite * FIGURE_FEET), Vector2(sprite, sprite))
 		for shift in [Vector2(o, 0), Vector2(-o, 0), Vector2(0, o), Vector2(0, -o)]:
-			draw_texture_rect(texture, Rect2(rect.position + shift, rect.size), false, Color(INK, 0.9 * alpha))
-		draw_texture_rect(texture, rect, false, Color(tone, alpha))
+			draw_texture_rect(textures[0], Rect2(rect.position + shift, rect.size), false, Color(INK, 0.3 * alpha))
+		draw_texture_rect(textures[0], rect, false, Color(1, 1, 1, alpha))
+		if textures[1] != null:
+			draw_texture_rect(textures[1], rect, false, team_color)
 
-	# Rank chevrons beside the figures.
-	for i in unit.rank():
-		var c := centre + Vector2(size * 0.62, -size * 0.25 + i * size * 0.14)
+	# Rank chevrons beside the figures (the rank from before the turn while it plays out).
+	for i in visual.rank:
+		var c := foot + Vector2(-size * 0.62, -size * 0.62 + i * size * 0.14)
 		var w := size * 0.12
 		draw_polyline(PackedVector2Array([c + Vector2(-w, w * 0.7), c, c + Vector2(w, w * 0.7)]), Color(INK, alpha), maxf(size * 0.07, 2.2), true)
 		draw_polyline(PackedVector2Array([c + Vector2(-w, w * 0.7), c, c + Vector2(w, w * 0.7)]), Color(GOLD, alpha), maxf(size * 0.045, 1.4), true)
 
 	# A thin health bar with a white tip, the soldiers under it, and a red X when spent.
-	var bar := Rect2(foot + Vector2(-size * 0.4, size * 0.14), Vector2(size * 0.8, maxf(size * 0.055, 2.5)))
+	var bar := Rect2(foot + Vector2(-size * 0.4, size * 0.12), Vector2(size * 0.8, maxf(size * 0.055, 2.5)))
 	draw_rect(bar.grow(1.0), Color(INK, 0.85 * alpha))
 	var health := clampf(visual.hp / unit.max_hp(), 0.0, 1.0)
 	var fill := Color("#c8402c").lerp(Color("#e0c040"), clampf(health * 2.0, 0.0, 1.0)) if health < 0.5 \
@@ -231,35 +264,85 @@ func _draw_unit(visual: TokenVisual, centre: Vector2, size: float) -> void:
 			draw_line(x_centre - d, x_centre + d, Color("#e0301e", alpha), maxf(size * 0.05, 1.8))
 
 
+## Where the figures of a unit stand: more figures as it has more soldiers.
+static func figure_spots(unit_type: UnitType, soldiers: int) -> Array:
+	if unit_type.unit_class == "siege":
+		return SIEGE_SPOTS[1 if soldiers <= 10 else 2]
+	if unit_type.is_cavalry():
+		return MOUNTED_SPOTS[2 if soldiers <= 10 else 3]
+	return INFANTRY_SPOTS[3 if soldiers <= 7 else (4 if soldiers <= 14 else 5)]
+
+
+## A faction banner on a pole: a hanging cloth with a swallowtail, a gold
+## finial and the civilization's charge.
+static func draw_banner(canvas: CanvasItem, pole_foot: Vector2, height: float, color: Color, civ: String, alpha := 1.0) -> void:
+	var size := height / 1.3
+	var pole_top := pole_foot + Vector2(0, -height)
+	canvas.draw_line(pole_foot, pole_top, Color("#3a2410", alpha), maxf(size * 0.04, 1.2))
+	canvas.draw_line(pole_top + Vector2(-size * 0.04, size * 0.05), pole_top + Vector2(size * 0.34, size * 0.05), Color("#3a2410", alpha), maxf(size * 0.03, 1.0))
+	canvas.draw_circle(pole_top, size * 0.04, Color(GOLD, alpha))
+	var top := pole_top + Vector2(0, size * 0.06)
+	var flag := PackedVector2Array([top, top + Vector2(size * 0.3, 0), top + Vector2(size * 0.3, size * 0.5),
+		top + Vector2(size * 0.15, size * 0.4), top + Vector2(0, size * 0.5)])
+	var shades := PackedColorArray([color.lightened(0.15), color, color.darkened(0.25), color.darkened(0.1), color.darkened(0.2)])
+	for i in shades.size():
+		shades[i].a = alpha
+	canvas.draw_polygon(flag, shades)
+	var flag_line := flag.duplicate()
+	flag_line.append(flag[0])
+	canvas.draw_polyline(flag_line, Color(INK, 0.7 * alpha), maxf(size * 0.025, 1.0), true)
+	draw_emblem(canvas, civ, top + Vector2(size * 0.15, size * 0.2), size * 0.085, Color(1, 0.95, 0.8, 0.92 * alpha))
+
+
 ## The viewer's unit has used every move it can this turn.
 func _spent(unit: Unit) -> bool:
 	return state.units.has(unit) and unit.owner == state.viewer() and unit.owner == state.current_faction() \
 		and Orders.next_step_index(state, unit) < 0
 
 
-func _figure(type_id: String) -> Texture2D:
+## The painted figure of a unit type and its faction-colour layer.
+func _figure(type_id: String) -> Array:
 	if not _figures.has(type_id):
-		_figures[type_id] = load("res://assets/figures/%s.svg" % FIGURES.get(type_id, "pikeman"))
+		_figures[type_id] = figure_textures(type_id)
 	return _figures[type_id]
 
 
+static var _bounds := {}
+
+
+## The part of a figure's sprite that isn't transparent, in pixels.
+static func figure_bounds(type_id: String) -> Rect2:
+	if not _bounds.has(type_id):
+		var image: Image = figure_textures(type_id)[0].get_image()
+		_bounds[type_id] = Rect2(image.get_used_rect()) if image != null else Rect2(0, 0, 1, 1)
+	return _bounds[type_id]
+
+
+static func figure_textures(type_id: String) -> Array:
+	var path := "res://assets/figures/%s.png" % type_id
+	if not ResourceLoader.exists(path):
+		path = "res://assets/figures/spearmen.png"
+	var team_path := path.replace(".png", "_team.png")
+	return [load(path), load(team_path) if ResourceLoader.exists(team_path) else null]
+
+
 ## A simple heraldic charge per civilization on the banner.
-func _draw_emblem(civ: String, at: Vector2, r: float, color: Color) -> void:
+static func draw_emblem(canvas: CanvasItem, civ: String, at: Vector2, r: float, color: Color) -> void:
 	match civ:
 		"norse":
-			draw_colored_polygon(PackedVector2Array([at + Vector2(0, -r), at + Vector2(r * 0.9, r), at + Vector2(-r * 0.9, r)]), color)
+			canvas.draw_colored_polygon(PackedVector2Array([at + Vector2(0, -r), at + Vector2(r * 0.9, r), at + Vector2(-r * 0.9, r)]), color)
 		"anglish":
-			draw_line(at + Vector2(-r, 0), at + Vector2(r, 0), color, r * 0.45)
-			draw_line(at + Vector2(0, -r), at + Vector2(0, r), color, r * 0.45)
+			canvas.draw_line(at + Vector2(-r, 0), at + Vector2(r, 0), color, r * 0.45)
+			canvas.draw_line(at + Vector2(0, -r), at + Vector2(0, r), color, r * 0.45)
 		"frankish":
 			for i in 3:
-				draw_circle(at + Vector2.from_angle(-PI / 2 + i * TAU / 3) * r * 0.6, r * 0.35, color)
+				canvas.draw_circle(at + Vector2.from_angle(-PI / 2 + i * TAU / 3) * r * 0.6, r * 0.35, color)
 		"byzantine":
-			draw_arc(at, r * 0.8, 0.0, TAU, 16, color, r * 0.35)
+			canvas.draw_arc(at, r * 0.8, 0.0, TAU, 16, color, r * 0.35)
 		"saracen":
-			draw_arc(at + Vector2(-r * 0.2, 0), r * 0.85, PI * 0.35, PI * 1.65, 16, color, r * 0.4)
+			canvas.draw_arc(at + Vector2(-r * 0.2, 0), r * 0.85, PI * 0.35, PI * 1.65, 16, color, r * 0.4)
 		_:
-			draw_circle(at, r * 0.6, color)
+			canvas.draw_circle(at, r * 0.6, color)
 
 
 func _draw_ellipse(centre: Vector2, radii: Vector2, color: Color) -> void:

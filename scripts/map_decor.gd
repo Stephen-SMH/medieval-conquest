@@ -11,6 +11,10 @@ const SEA := Color("#1e4a55")
 const SHALLOWS := Color("#3f7480")
 const SEA_MARGIN := 900.0
 const SEA_SHADER := preload("res://shaders/sea.gdshader")
+const PARCHMENT_SHADER := preload("res://shaders/parchment_overlay.gdshader")
+## The region name sits this far below the region's centroid (baseline), in this font size.
+const LABEL_BASELINE := 30.0
+const LABEL_SIZE := 19
 
 var state: GameState
 var _font: Font
@@ -38,6 +42,16 @@ func _ready() -> void:
 	_sea.z_index = -10
 	_sea.z_as_relative = false
 	add_child(_sea)
+	# Old paper over land and sea: stains, mottling and grain, under the borders and names.
+	var paper := Polygon2D.new()
+	paper.polygon = _sea.polygon
+	var paper_material := ShaderMaterial.new()
+	paper_material.shader = PARCHMENT_SHADER
+	paper_material.set_shader_parameter("paper", load("res://assets/ui/paper.png"))
+	paper.material = paper_material
+	paper.z_index = 1
+	paper.z_as_relative = false
+	add_child(paper)
 
 
 func _draw() -> void:
@@ -70,6 +84,12 @@ func _draw() -> void:
 
 	for region in map.province_order:
 		_draw_label(region)
+
+
+## The box a region's name fills, with its outline; the unit token stays above it.
+static func label_rect(centroid: Vector2) -> Rect2:
+	var top := centroid.y + LABEL_BASELINE - LABEL_SIZE * 0.85
+	return Rect2(Vector2(centroid.x - 100.0, top), Vector2(200.0, LABEL_SIZE * 1.1))
 
 
 ## The border line moved a few pixels into `region`.
@@ -118,9 +138,9 @@ func _draw_label(region: String) -> void:
 	var map := state.map
 	var centre: Vector2 = map.provinces[region].centroid
 	var name: String = map.region_name(region)
-	var at := centre + Vector2(0, 30)
-	draw_string_outline(_font, at - Vector2(100, 0), name, HORIZONTAL_ALIGNMENT_CENTER, 200, 19, 4, Color(1, 0.96, 0.85, 0.35))
-	draw_string(_font, at - Vector2(100, 0), name, HORIZONTAL_ALIGNMENT_CENTER, 200, 19, INK)
+	var at := centre + Vector2(0, LABEL_BASELINE)
+	draw_string_outline(_font, at - Vector2(100, 0), name, HORIZONTAL_ALIGNMENT_CENTER, 200, LABEL_SIZE, 4, Color(1, 0.96, 0.85, 0.35))
+	draw_string(_font, at - Vector2(100, 0), name, HORIZONTAL_ALIGNMENT_CENTER, 200, LABEL_SIZE, INK)
 
 	# Gold income: a coin stack and the number, in italic.
 	var income := roundi(Economy.region_income(state, region))

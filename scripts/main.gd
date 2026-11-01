@@ -76,6 +76,7 @@ func _ready() -> void:
 	_tokens = TokenLayer.new()
 	_tokens.state = state
 	_map_root.add_child(_tokens)
+	_orders.tokens = _tokens
 	_effects = Effects.new()
 	_effects.setup(state, _tokens, _views)
 	_map_root.add_child(_effects)
@@ -118,6 +119,7 @@ func _process(_delta: float) -> void:
 	if not is_equal_approx(_tokens.view_zoom, _camera.zoom.x):
 		_tokens.view_zoom = _camera.zoom.x
 		_tokens.queue_redraw()
+		_orders.queue_redraw()  # Arrows run between the units' feet, which move with the token size.
 
 
 func _is_my_turn() -> bool:
@@ -364,14 +366,14 @@ func _start_human_planning() -> void:
 		_pass_screen.visible = true
 	if faction == humans[0]:
 		SaveGame.save(state, "auto")
-	_hud.show_turn("Turn: %s" % state.faction_name(faction), state.faction_color(faction))
+	_hud.show_turn("Turn: %s" % state.faction_name(faction), state.faction_color(faction), state.factions[faction].civ if state.factions.has(faction) else "")
 
 
 ## Where every unit stood, and with how much HP, before the turn resolved.
 func _snapshot() -> Dictionary:
 	var before := {}
 	for unit in state.units:
-		before[unit] = {"province": unit.province, "hp": unit.hp}
+		before[unit] = {"province": unit.province, "hp": unit.hp, "rank": unit.rank()}
 	return before
 
 
@@ -672,7 +674,7 @@ func _update_hover() -> void:
 	if selected_unit != null and reach.get(region, "") in ["move", "attack"]:
 		var index := maxi(Orders.next_step_index(state, selected_unit), 0)
 		var from := Orders.step_origin(state, selected_unit, index)
-		_orders.preview = {"from": map.provinces[from].centroid, "to": map.provinces[region].centroid, "kind": reach[region]}
+		_orders.preview = {"from": _orders.anchor(from), "to": _orders.anchor(region), "kind": reach[region]}
 	_orders.queue_redraw()
 
 

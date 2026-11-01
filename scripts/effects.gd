@@ -37,7 +37,7 @@ func skip() -> void:
 	_skip = true
 
 
-## Plays the events. `before` holds each unit's region and HP before the turn.
+## Plays the events. `before` holds each unit's region, HP and rank before the turn.
 func play(events: Array, before: Dictionary, speed: float) -> void:
 	if speed <= 0.0 or not is_inside_tree():
 		return
@@ -90,6 +90,7 @@ func _rewind(before: Dictionary) -> void:
 		if before.has(unit):
 			visual.region = before[unit].province
 			visual.hp = before[unit].hp
+			visual.rank = before[unit].get("rank", unit.rank())
 		visual.held = true
 		visual.offset = Vector2.ZERO
 		visual.position_override = null

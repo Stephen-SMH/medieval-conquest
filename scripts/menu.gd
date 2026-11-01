@@ -86,9 +86,10 @@ func show_title() -> void:
 	_add_button(row, "Hotseat", show_hotseat)
 	var done := Progress.campaigns_finished()
 	_add_text("[i]Campaigns finished: %d of %d.[/i]" % [done, Campaigns.all().size()])
+	_content.add_child(Muster.new())
 	_content.add_child(HSeparator.new())
-	_add_text("[font_size=13]Unit and resource icons by Lorc, Delapouite, Carl Olsen, HeavenlyDog, Skoll and Caro Asercion from " \
-		+ "game-icons.net (CC BY 3.0). Fonts: Cinzel and IM FELL English (SIL Open Font License). See CREDITS.md.[/font_size]")
+	_add_text("[font_size=13]Unit figures rendered from CC0 3D models by Quaternius. Icons by Lorc, Delapouite, HeavenlyDog and " \
+		+ "Guard13007 from game-icons.net (CC BY 3.0). Fonts: Cinzel and IM FELL English (SIL Open Font License). See CREDITS.md.[/font_size]")
 
 
 # --- Hotseat ---------------------------------------------------------------------------
@@ -362,3 +363,42 @@ func _stars_text(count: int) -> String:
 
 func _specials_text(civ: Civilization) -> String:
 	return "Special units: %s." % ", ".join(civ.special_units.map(func(u): return Rules.unit(u).display_name))
+
+
+## Two armies facing each other under their banners, on the title screen.
+class Muster:
+	extends Control
+	const LEFT := [["knight", Color("#3d6fb6")], ["spearmen", Color("#3d6fb6")], ["archers", Color("#3d6fb6")]]
+	const RIGHT := [["huscarl", Color("#b5423a")], ["berserker", Color("#b5423a")], ["catapult", Color("#b5423a")]]
+	var _textures := {}
+
+	func _init() -> void:
+		custom_minimum_size = Vector2(0, 190)
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+		# Keep the textures alive: draw calls only hold their RIDs.
+		for entry in LEFT + RIGHT:
+			_textures[entry[0]] = TokenLayer.figure_textures(entry[0])
+
+	func _draw() -> void:
+		var ground := size.y - 18.0
+		var sprite := 150.0
+		var groups := [[LEFT, 70.0, "frankish", 1.0], [RIGHT, size.x - 430.0, "norse", -1.0]]
+		for group in groups:
+			var x: float = group[1]
+			var color: Color = group[0][0][1]
+			TokenLayer.draw_banner(self, Vector2(x + 330.0, ground - 4.0), 150.0, color, group[2])
+			for entry in group[0]:
+				var feet := Vector2(x, ground)
+				var textures: Array = _textures[entry[0]]
+				draw_set_transform(feet + Vector2(0, 4), 0.0, Vector2(1.0, 0.25))
+				draw_circle(Vector2.ZERO, 48.0, Color(0, 0, 0, 0.3))
+				draw_set_transform(Vector2.ZERO)
+				# The right-hand army is mirrored so the two face each other.
+				draw_set_transform(feet, 0.0, Vector2(group[3], 1.0))
+				var rect := Rect2(-Vector2(sprite * 0.5, sprite * TokenLayer.FIGURE_FEET), Vector2(sprite, sprite))
+				draw_texture_rect(textures[0], rect, false)
+				if textures[1] != null:
+					draw_texture_rect(textures[1], rect, false, color.lightened(0.12))
+				draw_set_transform(Vector2.ZERO)
+				x += 105.0

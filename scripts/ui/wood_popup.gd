@@ -43,7 +43,19 @@ func open(title: String) -> void:
 	visible = true
 	reset_size()
 	recenter.call_deferred()
+	_refit()
 	Hud.pop_in(self)
+
+
+## Shrinks the window to its content once the wrapped text has its real
+## height (a RichTextLabel measures itself narrow first), so no empty strip
+## is left at the bottom.
+func _refit() -> void:
+	for i in 2:
+		await get_tree().process_frame
+	if visible:
+		reset_size()
+		recenter()
 
 
 ## Keeps the window in the middle of the screen once its content is built.

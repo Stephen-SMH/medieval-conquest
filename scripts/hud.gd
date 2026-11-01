@@ -21,7 +21,9 @@ var _info_text: RichTextLabel
 var _info_buttons: HBoxContainer
 var _turn_banner: Control
 var _turn_text: Label
-var _turn_flag: ColorRect
+var _turn_flag: Control
+var _turn_color := Color.WHITE
+var _turn_civ := ""
 var _toast: Label
 var _banner: OrdersBanner
 var _end_turn: Button
@@ -32,6 +34,15 @@ var _shield_buttons: Array[Button] = []
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	# Darker, browner screen edges, behind everything else in the HUD.
+	var vignette := ColorRect.new()
+	vignette.set_anchors_preset(Control.PRESET_FULL_RECT)
+	vignette.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var vignette_material := ShaderMaterial.new()
+	vignette_material.shader = load("res://shaders/vignette.gdshader")
+	vignette.material = vignette_material
+	add_child(vignette)
 
 	# The plaque: gold and turn.
 	var plaque := PanelContainer.new()
@@ -118,15 +129,12 @@ func _ready() -> void:
 	_turn_text.add_theme_color_override("font_color", Color(1, 0.97, 0.9, 0.85))
 	_turn_text.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.5))
 	_turn_banner.add_child(_turn_text)
-	_turn_flag = ColorRect.new()  # Kept for the faction colour: drawn as a pennant beside the text.
-	_turn_flag.custom_minimum_size = Vector2(46, 40)
+	_turn_flag = Control.new()  # The faction's heraldic shield beside the text.
+	_turn_flag.custom_minimum_size = Vector2(52, 60)
 	_turn_flag.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_turn_flag.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	_turn_flag.material = null
 	_turn_banner.add_child(_turn_flag)
-	_turn_flag.draw.connect(func():
-		_turn_flag.draw_rect(Rect2(Vector2.ZERO, _turn_flag.size), Color(0, 0, 0, 0), true)
-	)
+	_turn_flag.draw.connect(func(): Hud.draw_heraldic_shield(_turn_flag, Rect2(Vector2.ZERO, _turn_flag.size), _turn_color, _turn_civ))
 
 	_toast = _label("", 18)
 	_toast.set_anchors_preset(Control.PRESET_CENTER_TOP)
@@ -191,10 +199,12 @@ func is_over_ui(point: Vector2) -> bool:
 	return false
 
 
-## "Turn: Kingdom of …" fades in and out across the map, with the faction's flag.
-func show_turn(text: String, color: Color) -> void:
+## "Turn: Kingdom of …" fades in and out across the map, with the faction's shield.
+func show_turn(text: String, color: Color, civ := "") -> void:
 	_turn_text.text = text
-	_turn_flag.color = Color(color, 0.8)
+	_turn_color = color
+	_turn_civ = civ
+	_turn_flag.queue_redraw()
 	var tween := create_tween()
 	tween.tween_property(_turn_banner, "modulate:a", 0.85, 0.5)
 	tween.tween_interval(1.4)
@@ -255,21 +265,63 @@ func _add_shield(icon_path: String, plus: bool, at: Vector2, anchors: Control.La
 	if anchors == Control.PRESET_BOTTOM_RIGHT:
 		button.offset_top = at.y
 		button.offset_bottom = at.y + 106
-	if icon_path != "":
-		var icon := _icon(icon_path, 48)
-		icon.position = Vector2(22, 22)
-		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		button.add_child(icon)
-	if plus:
-		var mark := _label("+", 26)
-		mark.position = Vector2(58, 52)
-		mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		button.add_child(mark)
+	# The icon is drawn fitted inside the shield, whatever size the button ends up.
+	var texture: Texture2D = load(icon_path) if icon_path != "" else null
+	button.draw.connect(func():
+		if texture != null:
+			button.draw_texture_rect(texture, Hud.shield_icon_rect(button.size, texture.get_size()), false, GOLD)
+		if plus:
+			var inner: Rect2 = Hud.shield_inner_rect(button.size)
+			var plus_at := inner.end - Vector2(7, 9)
+			for d in [Vector2(6, 0), Vector2(0, 6)]:
+				button.draw_line(plus_at - d, plus_at + d, Color(0, 0, 0, 0.6), 4.5)
+				button.draw_line(plus_at - d, plus_at + d, GOLD.lightened(0.15), 2.5))
 	button.pressed.connect(on_pressed)
 	react(button)
 	add_child(button)
 	_shield_buttons.append(button)
 	return button
+
+
+## The face of a shield button, inside its rim and above its point.
+static func shield_inner_rect(button_size: Vector2) -> Rect2:
+	return Rect2(button_size * Vector2(0.22, 0.18), button_size * Vector2(0.56, 0.48))
+
+
+## Where a shield button's icon goes: as big as fits inside the face, keeping its shape.
+static func shield_icon_rect(button_size: Vector2, texture_size: Vector2) -> Rect2:
+	var inner := shield_inner_rect(button_size)
+	var scale := minf(inner.size.x / maxf(texture_size.x, 1.0), inner.size.y / maxf(texture_size.y, 1.0))
+	var shown := texture_size * scale
+	return Rect2(inner.position + (inner.size - shown) / 2.0, shown)
+
+
+## A heater shield in the faction's colour with a gold rim and its civilization's charge.
+static func draw_heraldic_shield(canvas: CanvasItem, rect: Rect2, color: Color, civ: String) -> void:
+	var w := rect.size.x
+	var h := rect.size.y
+	var p := rect.position
+	var outline := PackedVector2Array()
+	outline.append(p)
+	outline.append(p + Vector2(w, 0))
+	for i in range(1, 11):
+		var t := i / 10.0
+		outline.append(p + Vector2(w - w * 0.5 * (1.0 - cos(t * PI / 2.0)), h * 0.42 + h * 0.58 * sin(t * PI / 2.0)))
+	for i in range(9, 0, -1):
+		var t := i / 10.0
+		outline.append(p + Vector2(w * 0.5 * (1.0 - cos(t * PI / 2.0)), h * 0.42 + h * 0.58 * sin(t * PI / 2.0)))
+	var colors := PackedColorArray()
+	for point in outline:
+		var k := (point - p).x / w * 0.5 + (point - p).y / h * 0.5
+		colors.append(color.lightened(0.18).lerp(color.darkened(0.3), k))
+	canvas.draw_polygon(outline, colors)
+	var ring := outline.duplicate()
+	ring.append(outline[0])
+	canvas.draw_polyline(ring, Color(0, 0, 0, 0.5), 5.0, true)
+	canvas.draw_polyline(ring, GOLD, 2.5, true)
+	# A gold chief line and the charge.
+	canvas.draw_line(p + Vector2(4, h * 0.14), p + Vector2(w - 4, h * 0.14), Color(GOLD, 0.7), 1.5)
+	TokenLayer.draw_emblem(canvas, civ, p + Vector2(w * 0.5, h * 0.48), w * 0.22, Color(1, 0.95, 0.8, 0.95))
 
 
 func _icon(path: String, size: float) -> TextureRect:

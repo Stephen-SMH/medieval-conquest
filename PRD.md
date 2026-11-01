@@ -337,7 +337,7 @@ What we do differently:
 | ID | Requirement |
 |---|---|
 | UT-1 | A **unit** has a type, an owner, **soldiers** (1–20) and **HP**. Max HP = the type's HP; soldiers = ceil(HP ÷ HP per soldier). |
-| UT-2 | On the map, each unit is a **group of 1–3 standing figures** on its region, with the faction's **banner on a pole** behind them, gold **chevrons** for rank, a thin **health bar** (green → yellow → red, white tip) and the **soldier number** in italic below. A light-blue pennant marks a general. A **red X** beside the bar shows a unit that has no moves left this turn. |
+| UT-2 | On the map, each unit is a **group of 3–5 painted figures** (2–3 riders, 1–2 engines) on its region, rendered from CC0 3D models with the faction's colour on tunics and shields, with the faction's **banner on a pole** behind them, gold **chevrons** for rank, a thin **health bar** (green → yellow → red, white tip) and the **soldier number** in italic below. A light-blue pennant marks a general. A **red X** beside the bar shows a unit that has no moves left this turn. |
 | UT-3 | **A region holds one unit.** Moving a unit into a friendly region held by the **same type** merges them (up to 20 soldiers; the rest stay behind). Two friendly units can **swap** regions. Any other move into an occupied friendly region is blocked. Recruiting needs an empty region of your own, or reinforces a weakened unit of the same type there. |
 | UT-4 | Each unit gets **one order** a turn. **Cavalry gets two steps**: a move, then a move or an attack. Infantry, archers and siege get one. |
 | UT-5 | **Generals** are attached to one unit and give it +10% attack per Command level; each Logistics point cuts its upkeep 5%. If that unit is destroyed, the general is captured or killed. |
