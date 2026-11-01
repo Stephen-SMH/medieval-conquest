@@ -32,7 +32,8 @@
     "lorvane": "belcourt",
     "auberive": "brevine",
     "rochemont": "belcourt",
-    "corlay": "brevine"
+    "corlay": "brevine",
+    "castelroux": "belcourt"
    },
    "capitals": {
     "belcourt": "belcourt",
@@ -40,13 +41,11 @@
    },
    "buildings": {
     "belcourt": {
-     "farm": 1,
      "market": 1,
      "barracks": 1,
      "archery_range": 1
     },
     "brevine": {
-     "farm": 1,
      "market": 1,
      "barracks": 1,
      "archery_range": 1
@@ -65,17 +64,17 @@
     },
     {
      "owner": "belcourt",
-     "region": "belcourt",
+     "region": "castelroux",
      "type": "sergeant"
     },
     {
      "owner": "belcourt",
-     "region": "belcourt",
+     "region": "lorvane",
      "type": "crossbowmen"
     },
     {
      "owner": "belcourt",
-     "region": "belcourt",
+     "region": "rochemont",
      "type": "light_cavalry"
     },
     {
@@ -90,19 +89,13 @@
     },
     {
      "owner": "brevine",
-     "region": "brevine",
+     "region": "auberive",
      "type": "crossbowmen"
     },
     {
      "owner": "brevine",
-     "region": "brevine",
+     "region": "corlay",
      "type": "sergeant"
-    },
-    {
-     "owner": "neutral",
-     "region": "castelroux",
-     "type": "militia",
-     "soldiers": 12
     },
     {
      "owner": "neutral",
@@ -135,7 +128,7 @@
     "objectives": [
      {
       "type": "capture",
-      "regions": ["castelroux", "grandval", "marlenne"]
+      "regions": ["grandval", "marlenne", "vaudrey"]
      }
     ],
     "briefing": "The marches beyond Belcourt answer to no one. Bring three of them under your banner.",
@@ -175,7 +168,11 @@
     "rochemont": "belcourt",
     "corlay": "brevine",
     "castelroux": "belcourt",
-    "port_sable": "brevine"
+    "port_sable": "brevine",
+    "grandval": "belcourt",
+    "montclair": "brevine",
+    "marlenne": "belcourt",
+    "vaudrey": "belcourt"
    },
    "capitals": {
     "belcourt": "belcourt",
@@ -183,14 +180,12 @@
    },
    "buildings": {
     "belcourt": {
-     "farm": 1,
      "market": 1,
      "barracks": 1,
      "archery_range": 1,
      "siege_workshop": 1
     },
     "brevine": {
-     "farm": 1,
      "market": 1,
      "barracks": 1,
      "archery_range": 1,
@@ -210,32 +205,32 @@
     },
     {
      "owner": "belcourt",
-     "region": "belcourt",
+     "region": "castelroux",
      "type": "knight"
     },
     {
      "owner": "belcourt",
-     "region": "belcourt",
+     "region": "grandval",
      "type": "sergeant"
     },
     {
      "owner": "belcourt",
-     "region": "belcourt",
+     "region": "lorvane",
      "type": "sergeant"
     },
     {
      "owner": "belcourt",
-     "region": "castelroux",
+     "region": "marlenne",
      "type": "crossbowmen"
     },
     {
      "owner": "belcourt",
-     "region": "castelroux",
+     "region": "rochemont",
      "type": "catapult"
     },
     {
      "owner": "belcourt",
-     "region": "castelroux",
+     "region": "vaudrey",
      "type": "spearmen"
     },
     {
@@ -250,39 +245,27 @@
     },
     {
      "owner": "brevine",
-     "region": "brevine",
+     "region": "auberive",
      "type": "crossbowmen"
     },
     {
      "owner": "brevine",
-     "region": "brevine",
+     "region": "corlay",
      "type": "spearmen"
     },
     {
      "owner": "brevine",
-     "region": "brevine",
+     "region": "montclair",
      "type": "swordsmen"
     },
     {
      "owner": "brevine",
-     "region": "auberive",
+     "region": "port_sable",
      "type": "archers"
     },
     {
      "owner": "neutral",
-     "region": "montclair",
-     "type": "militia",
-     "soldiers": 12
-    },
-    {
-     "owner": "neutral",
      "region": "sainte_aube",
-     "type": "militia",
-     "soldiers": 12
-    },
-    {
-     "owner": "neutral",
-     "region": "vaudrey",
      "type": "militia",
      "soldiers": 12
     },
@@ -361,19 +344,16 @@
    },
    "buildings": {
     "belcourt": {
-     "farm": 1,
      "market": 1,
      "barracks": 1,
      "archery_range": 1
     },
     "chaumiere": {
-     "farm": 1,
      "market": 1,
      "barracks": 1,
      "archery_range": 1
     },
     "vaudrey": {
-     "farm": 1,
      "market": 1,
      "barracks": 1,
      "archery_range": 1
@@ -392,38 +372,23 @@
     },
     {
      "owner": "belcourt",
-     "region": "belcourt",
+     "region": "grandval",
      "type": "knight"
     },
     {
      "owner": "belcourt",
-     "region": "belcourt",
+     "region": "lorvane",
      "type": "sergeant"
     },
     {
      "owner": "belcourt",
-     "region": "belcourt",
+     "region": "ostrel",
      "type": "sergeant"
     },
     {
      "owner": "belcourt",
-     "region": "grandval",
+     "region": "rochemont",
      "type": "crossbowmen"
-    },
-    {
-     "owner": "belcourt",
-     "region": "grandval",
-     "type": "crossbowmen"
-    },
-    {
-     "owner": "belcourt",
-     "region": "grandval",
-     "type": "light_cavalry"
-    },
-    {
-     "owner": "belcourt",
-     "region": "grandval",
-     "type": "spearmen"
     },
     {
      "owner": "chaumiere",
@@ -437,17 +402,17 @@
     },
     {
      "owner": "chaumiere",
-     "region": "chaumiere",
+     "region": "castelroux",
      "type": "huscarl"
     },
     {
      "owner": "chaumiere",
-     "region": "chaumiere",
+     "region": "fontmarais",
      "type": "archers"
     },
     {
      "owner": "chaumiere",
-     "region": "chaumiere",
+     "region": "marlenne",
      "type": "spearmen"
     },
     {
@@ -462,17 +427,17 @@
     },
     {
      "owner": "vaudrey",
-     "region": "vaudrey",
+     "region": "auberive",
      "type": "yeoman"
     },
     {
      "owner": "vaudrey",
-     "region": "vaudrey",
+     "region": "pierrefonde",
      "type": "yeoman"
     },
     {
      "owner": "vaudrey",
-     "region": "vaudrey",
+     "region": "sainte_aube",
      "type": "swordsmen"
     },
     {

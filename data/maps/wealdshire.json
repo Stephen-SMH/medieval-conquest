@@ -122,7 +122,8 @@
    "population": 13000,
    "coastal": false,
    "vertices": ["v1_5", "v1_6", "v1_7", "v1_8", "v2_8", "v2_7", "v2_6", "v3_6", "v3_5", "v3_4", "v2_4", "v2_5"],
-   "neighbours": ["coldmarsh", "fennick", "harrowdene", "larkfield", "redstow", "saltcombe", "wyndle"]
+   "neighbours": ["coldmarsh", "fennick", "harrowdene", "larkfield", "redstow", "saltcombe", "wyndle"],
+   "site": "town"
   },
   {
    "id": "highwold",
@@ -140,7 +141,8 @@
    "population": 14600,
    "coastal": false,
    "vertices": ["v2_2", "v2_3", "v2_4", "v3_4", "v3_3", "v3_2"],
-   "neighbours": ["bowmere", "bramblegate", "coldmarsh", "highwold", "redstow", "thornbury"]
+   "neighbours": ["bowmere", "bramblegate", "coldmarsh", "highwold", "redstow", "thornbury"],
+   "site": "town"
   },
   {
    "id": "larkfield",
@@ -176,7 +178,8 @@
    "population": 14500,
    "coastal": true,
    "vertices": ["v3_5", "v3_6", "v3_7", "v3_8", "v4_8", "v4_7", "v4_6", "v5_6", "v5_5", "v5_4", "v4_4", "v4_5"],
-   "neighbours": ["ashcombe", "bowmere", "bramblegate", "larkfield", "redstow"]
+   "neighbours": ["ashcombe", "bowmere", "bramblegate", "larkfield", "redstow"],
+   "site": "camp"
   },
   {
    "id": "gullmouth",
@@ -199,23 +202,19 @@
  ],
  "borders": [
   {
-   "between": ["coldmarsh", "saltcombe"],
+   "between": ["saltcombe", "bowmere"],
    "type": "river"
   },
   {
-   "between": ["saltcombe", "bramblegate"],
+   "between": ["bowmere", "highwold"],
    "type": "river"
   },
   {
-   "between": ["larkfield", "bramblegate"],
+   "between": ["wyndle", "bramblegate"],
    "type": "river"
   },
   {
-   "between": ["bramblegate", "wyndle"],
-   "type": "river"
-  },
-  {
-   "between": ["wyndle", "fennick"],
+   "between": ["bramblegate", "larkfield"],
    "type": "river"
   },
   {
@@ -224,6 +223,10 @@
   },
   {
    "between": ["ashcombe", "harrowdene"],
+   "type": "road"
+  },
+  {
+   "between": ["wyndle", "fennick"],
    "type": "road"
   },
   {

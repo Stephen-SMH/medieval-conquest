@@ -11,5 +11,5 @@ tier = 3
 cost_gold = 180
 turns = 4
 requires = Array[String](["crop_rotation", "logistics"])
-description = "+15% more food."
-income = {"food": 1.15}
+description = "+2 gold from plains."
+terrain_income = {"plains": 2}

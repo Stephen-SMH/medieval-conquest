@@ -13,15 +13,15 @@ static func to_dict(state: GameState) -> Dictionary:
 		var faction: FactionState = state.factions[id]
 		factions.append({"id": id, "name": faction.display_name, "color": faction.color.to_html(), "civ": faction.civ,
 			"human": faction.human, "ai": faction.ai, "alive": faction.alive, "resources": faction.resources.duplicate(),
-			"tax": faction.tax, "techs": Array(faction.techs), "researching": faction.researching,
+			"techs": Array(faction.techs), "researching": faction.researching,
 			"research_turns_left": faction.research_turns_left})
 	var provinces := {}
 	for region in state.provinces:
 		var province: ProvinceState = state.provinces[region]
 		provinces[region] = {"buildings": province.buildings.duplicate(), "construction": province.construction,
 			"construction_turns": province.construction_turns, "recruits": Array(province.recruits),
-			"happiness": province.happiness, "forage": province.forage,
-			"siege_faction": province.siege_faction, "siege_turns": province.siege_turns}
+			"siege_faction": province.siege_faction, "siege_turns": province.siege_turns,
+			"mercenaries": province.mercenaries.duplicate()}
 	var units := []
 	for unit in state.units:
 		var entry := {"id": unit.id, "type": unit.type_id, "owner": unit.owner, "region": unit.province, "hp": unit.hp,
@@ -35,6 +35,7 @@ static func to_dict(state: GameState) -> Dictionary:
 		"factions": factions, "owners": state.owners.duplicate(), "capitals": state.capitals.duplicate(),
 		"provinces": provinces, "units": units, "next_unit_id": state._next_unit_id,
 		"rng_seed": str(state.rng.seed), "rng_state": str(state.rng.state),
+		"orders": _orders_to_list(state),
 		"mission": state.mission.duplicate(true), "mission_progress": state.mission_progress.duplicate(),
 		"result": state.result.duplicate(),
 	}
@@ -57,7 +58,6 @@ static func from_dict(data: Dictionary) -> GameState:
 		faction.alive = entry.alive
 		for resource in entry.resources:
 			faction.resources[resource] = float(entry.resources[resource])
-		faction.tax = entry.tax
 		faction.techs.assign(entry.techs)
 		faction.researching = entry.researching
 		faction.research_turns_left = int(entry.research_turns_left)
@@ -73,10 +73,10 @@ static func from_dict(data: Dictionary) -> GameState:
 		province.construction = entry.construction
 		province.construction_turns = int(entry.construction_turns)
 		province.recruits.assign(entry.recruits)
-		province.happiness = float(entry.happiness)
-		province.forage = float(entry.forage)
 		province.siege_faction = entry.siege_faction
 		province.siege_turns = int(entry.siege_turns)
+		for unit_id in entry.get("mercenaries", {}):
+			province.mercenaries[unit_id] = int(entry.mercenaries[unit_id])
 		state.provinces[region] = province
 	for entry in data.units:
 		var unit := Unit.new(entry.type, entry.owner, entry.region)
@@ -97,7 +97,21 @@ static func from_dict(data: Dictionary) -> GameState:
 	for key in data.mission_progress:
 		state.mission_progress[key] = int(data.mission_progress[key])
 	state.result = data.get("result", {}).duplicate()
+	for entry in data.get("orders", []):
+		var unit := state.unit_by_id(int(entry.unit))
+		if unit != null:
+			state.orders[unit] = {"steps": entry.steps.duplicate(true), "soldiers": int(entry.soldiers), "shoot": int(entry.shoot)}
 	return state
+
+
+## Planned orders by unit id, oldest unit first, so saves are stable.
+static func _orders_to_list(state: GameState) -> Array:
+	var list := []
+	for unit in state.units:
+		if state.orders.has(unit):
+			var order: Dictionary = state.orders[unit]
+			list.append({"unit": unit.id, "steps": order.steps.duplicate(true), "soldiers": order.soldiers, "shoot": order.shoot})
+	return list
 
 
 static func path_for(slot: String) -> String:

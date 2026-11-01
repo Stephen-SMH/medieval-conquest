@@ -1,15 +1,14 @@
 class_name Skirmish
 extends RefCounted
 ## Builds a skirmish or hotseat scenario (PRD CP-5, CP-6): each player starts in
-## one of the map's start regions with its neighbours, a small army and a
-## capital; the other regions are independent. Win by conquest.
+## one of the map's start regions and two of its neighbours, with a unit in each
+## and a capital; the other regions are independent. Win by conquest.
 
 const DIFFICULTY := {
 	"easy": {"ai": "defensive", "gold": 200.0},
 	"normal": {"ai": "balanced", "gold": 300.0},
 	"hard": {"ai": "aggressive", "gold": 500.0},
 }
-const STARTING_UNITS := ["spearmen", "archers", "light_cavalry"]
 
 
 ## `players` is a list of {"civ": id, "human": bool}. Returns a scenario.
@@ -41,16 +40,24 @@ static func build(map_id: String, players: Array, difficulty := "normal", game_s
 		var capital: String = starts[i]
 		scenario.capitals[id] = capital
 		scenario.owners[capital] = id
-		scenario.buildings[capital] = {"farm": 1, "market": 1, "barracks": 1, "archery_range": 1}
-		var taken := 0
-		for neighbour in map.neighbours(capital):
-			if taken < 2 and not scenario.owners.has(neighbour) and not (neighbour in starts):
-				scenario.owners[neighbour] = id
-				taken += 1
-		var specials := civ.special_units
-		var army: Array = STARTING_UNITS + [specials[0] if not specials.is_empty() else "swordsmen"]
-		for k in army.size():
-			var unit := {"owner": id, "region": capital, "type": army[k]}
+		scenario.buildings[capital] = {"market": 1, "barracks": 1, "archery_range": 1}
+	# Each player takes up to two neighbouring regions, one at a time in turn, so nobody is left out.
+	var held := {}
+	for faction in scenario.factions:
+		held[faction.id] = [scenario.capitals[faction.id]] as Array[String]
+	for pass_number in 2:
+		for faction in scenario.factions:
+			for neighbour in map.neighbours(scenario.capitals[faction.id]):
+				if not scenario.owners.has(neighbour) and not (neighbour in starts):
+					scenario.owners[neighbour] = faction.id
+					held[faction.id].append(neighbour)
+					break
+	# One unit in each starting region: the civilization's special unit, archers, light cavalry.
+	for faction in scenario.factions:
+		var specials := Rules.civilization(faction.civ).special_units
+		var army: Array = [specials[0] if not specials.is_empty() else "spearmen", "archers", "light_cavalry"]
+		for k in mini(army.size(), held[faction.id].size()):
+			var unit := {"owner": faction.id, "region": held[faction.id][k], "type": army[k]}
 			if k == 0:
 				unit["general"] = {"name": GameState.GENERAL_NAMES[rng.randi() % GameState.GENERAL_NAMES.size()], "command": 2, "logistics": 2}
 			scenario.units.append(unit)

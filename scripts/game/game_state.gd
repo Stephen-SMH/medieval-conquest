@@ -1,17 +1,16 @@
 class_name GameState
 extends RefCounted
 ## Everything that changes during a game: who owns each region, the regions'
-## buildings and happiness, the factions' stockpiles, the unit tokens, whose
-## turn it is, and the random number generator. The geography is fixed and
-## lives in MapData; the economy rules are in Economy.
+## buildings, the factions' treasuries, the units, the orders
+## planned this turn, and the random number generator. The geography is fixed
+## and lives in MapData; the economy rules are in Economy.
 ##
-## Orders follow PRD 8.3: a unit moves into a neighbouring region or attacks
-## one; ranged units shoot from where they stand; a unit that fought can still
-## retreat into its own regions; the last moves can be undone.
+## Turns are simultaneous (PRD 8.3): every faction plans its orders in turn
+## (Orders), then the Resolver carries them all out together.
 
-const STACK_LIMIT := 4  # UT-3
+const STACK_LIMIT := 1  # UT-3: one unit per region.
 const SEASONS := ["Spring", "Summer", "Autumn", "Winter"]
-const GENERAL_COMMAND_BONUS := 0.10  # UT-5: per Command level, for units in the general's region.
+const GENERAL_COMMAND_BONUS := 0.10  # UT-5: per Command level, for the general's unit.
 ## Factions that hold regions but never take turns.
 const NON_PLAYABLE := {
 	"neutral": {"name": "Independent", "color": Color("#8a8478")},
@@ -27,14 +26,15 @@ var scenario_id := ""
 var turn := 1
 var factions := {}  # faction id -> FactionState, playable factions only
 var turn_order: Array[String] = []
-var current := 0  # Index into turn_order of the faction whose turn it is.
+## Index into turn_order of the faction planning its orders now.
+var current := 0
 var owners := {}  # region id -> faction id
 var provinces := {}  # region id -> ProvinceState
 var capitals := {}  # faction id -> region id
 var units: Array[Unit] = []
 var rng := RandomNumberGenerator.new()
-## Moves made this turn, newest last, so they can be undone (OR-7).
-var undo_stack := []
+## Orders planned this turn: Unit -> {"type": "move"/"attack"/"besiege", "target": region}.
+var orders := {}
 ## The scenario's mission (objectives, par...); empty for skirmish and hotseat.
 var mission := {}
 ## Turns held for "hold" objectives, by objective index.
@@ -77,26 +77,30 @@ static func from_scenario(scenario: Dictionary, game_seed := 1) -> GameState:
 		for building_id in scenario.get("buildings", {}).get(region, {}):
 			province.buildings[building_id] = int(scenario.buildings[region][building_id])
 		state.provinces[region] = province
-		province.happiness = Economy.BASE_HAPPINESS + (Economy.CAPITAL_HAPPINESS if state.is_capital(region) else 0.0)
-		province.forage = Economy.land_food(state, region) * 2.0
+	Economy.stock_mercenaries(state)
 	for entry in scenario.get("units", []):
+		if state.unit_in(entry.region) != null:
+			push_error("Scenario %s puts two units in %s" % [state.scenario_id, entry.region])
+			continue
 		var unit := state.add_unit(entry.type, entry.owner, entry.region)
 		if entry.has("soldiers"):
 			unit.set_soldiers(int(entry.soldiers))
 		unit.xp = int(entry.get("xp", 0))
 		if entry.get("general") != null:
 			unit.general = General.new(entry.general.name, int(entry.general.get("command", 1)), int(entry.general.get("logistics", 1)))
-	state._start_turn()
+	state.update_alive()
+	state.begin_turn()
 	return state
 
 
 # --- Factions and turns ---------------------------------------------------------
 
+## The faction planning its orders now.
 func current_faction() -> String:
 	return turn_order[current]
 
 
-## The human whose eyes the map is drawn for: the one whose turn it is, or the first human.
+## The human whose eyes the map is drawn for: the one planning, or the first human.
 func viewer() -> String:
 	if factions[current_faction()].human:
 		return current_faction()
@@ -138,36 +142,45 @@ func date_text() -> String:
 	return "%s, Year %d (turn %d)" % [season(), year(), turn]
 
 
-## Ends the current faction's turn: its economy runs (income, upkeep, healing,
-## recruits, buildings, happiness), then the next living faction starts. After
-## the last faction, the turn number and season advance. Returns events.
+## Starts a turn: units are fresh, nobody has orders, the first faction plans.
+func begin_turn() -> void:
+	orders.clear()
+	for unit in units:
+		unit.reset_turn()
+	current = 0
+	_skip_fallen()
+
+
+## Ends the current faction's planning. When every living faction has planned,
+## the orders are resolved together (PRD 8.3) and the next turn begins.
+## Returns the resolution events, or [] if another faction still has to plan.
 func end_faction_turn() -> Array:
-	var ending := current_faction()
-	var events := Economy.process_faction(self, ending)
-	events.append_array(Sieges.advance(self, ending))
-	undo_stack.clear()
-	for unit in units.duplicate():
-		if unit.is_destroyed():
-			remove_unit(unit)
-	Mission.end_of_turn(self, ending)
-	_update_alive()
+	if is_over():
+		return []
 	for step in turn_order.size():
 		current += 1
 		if current >= turn_order.size():
-			current = 0
-			turn += 1
-		if factions[current_faction()].alive:
 			break
-	_start_turn()
+		if factions[current_faction()].alive:
+			return []
+	current = turn_order.size() - 1
+	var events := Resolver.resolve(self)
+	turn += 1
+	begin_turn()
 	update_result()
 	return events
+
+
+func _skip_fallen() -> void:
+	while current < turn_order.size() - 1 and not factions[current_faction()].alive:
+		current += 1
 
 
 ## Checks objectives and conquest; once the game is decided, `result` stays set.
 func update_result() -> void:
 	if not result.is_empty():
 		return
-	_update_alive()
+	update_alive()
 	result = Mission.evaluate(self)
 
 
@@ -175,14 +188,7 @@ func is_over() -> bool:
 	return not result.is_empty()
 
 
-func _start_turn() -> void:
-	var coastal := Bonuses.coastal_moves(self, current_faction())
-	for unit in units_of(current_faction()):
-		unit.reset_turn()
-		unit.coastal_moves = coastal
-
-
-func _update_alive() -> void:
+func update_alive() -> void:
 	for id in factions:
 		var holds_land := owners.values().has(id)
 		factions[id].alive = holds_land or not units_of(id).is_empty()
@@ -209,11 +215,20 @@ func add_unit(type_id: String, owner: String, region: String) -> Unit:
 
 func remove_unit(unit: Unit) -> void:
 	units.erase(unit)
+	orders.erase(unit)
 
 
 func unit_by_id(id: int) -> Unit:
 	for unit in units:
 		if unit.id == id:
+			return unit
+	return null
+
+
+## The unit in a region, or null (one unit per region, UT-3).
+func unit_in(region: String) -> Unit:
+	for unit in units:
+		if unit.province == region:
 			return unit
 	return null
 
@@ -242,13 +257,9 @@ func enemy_units_in(region: String, faction: String) -> Array[Unit]:
 	return found
 
 
-## Free places in a region's stack for a faction's units (UT-3).
-func space_in(region: String, faction: String) -> int:
-	var own := 0
-	for unit in units_in(region):
-		if unit.owner == faction:
-			own += 1
-	return STACK_LIMIT - own
+## Free places in a region for a faction's units: 1 if empty, else 0.
+func space_in(region: String, _faction := "") -> int:
+	return STACK_LIMIT - units_in(region).size()
 
 
 ## Regions a faction can see units in: its own regions, regions its units
@@ -268,223 +279,47 @@ func visible_provinces(faction: String) -> Dictionary:
 	return seen
 
 
-# --- Moving (OR-3, OR-5, OR-7) --------------------------------------------------------
-
-## "" if the unit can move into `region` now, else the reason why not.
-func move_problem(unit: Unit, region: String) -> String:
-	if is_over():
-		return "the game is over"
-	if unit.owner != current_faction():
-		return "not your turn"
-	if not map.are_neighbours(unit.province, region):
-		return "not next to it"
-	if unit.move_points_left < 1 and not _coastal_step(unit, region):
-		return "no move points left"
-	if not enemy_units_in(region, unit.owner).is_empty():
-		return "enemy units there: attack instead"
-	if unit.attacked and owners[region] != unit.owner:
-		return "after fighting it can only retreat into your own regions"
-	if space_in(region, unit.owner) <= 0:
-		return "full: %d units at most" % STACK_LIMIT
-	return ""
-
-
-## Moves a unit into a neighbouring region, capturing it if it is an empty
-## enemy or neutral region. Returns events; the move can be undone.
-func move_unit(unit: Unit, region: String) -> Array:
-	if move_problem(unit, region) != "":
-		return []
-	undo_stack.append({"unit": unit, "from": unit.province, "move_points": unit.move_points_left,
-		"coastal_moves": unit.coastal_moves, "moved": unit.moved, "region": region, "owner": owners[region],
-		"happiness": provinces[region].happiness})
-	if _coastal_step(unit, region):
-		unit.coastal_moves -= 1  # Norse raiders sail along the coast for free.
-	else:
-		unit.move_points_left -= 1
-	unit.province = region
-	unit.moved = true
-	var events := [{"type": "moved", "unit": unit, "province": region}]
-	events.append_array(_capture(unit.owner, region))
-	update_result()
-	return events
-
-
-## Moves every unit of a stack that can go (OR-2), as long as there is room.
-func move_stack(stack: Array, region: String) -> Array:
-	var events := []
-	for unit: Unit in stack:
-		events.append_array(move_unit(unit, region))
-	return events
-
-
-## Undoes the last move this turn, including any capture it made (OR-7).
-func undo_last_move() -> bool:
-	if undo_stack.is_empty() or is_over():
-		return false
-	var step: Dictionary = undo_stack.pop_back()
-	var unit: Unit = step.unit
-	unit.province = step.from
-	unit.move_points_left = step.move_points
-	unit.coastal_moves = step.coastal_moves
-	unit.moved = step.moved
-	owners[step.region] = step.owner
-	provinces[step.region].happiness = step.happiness
-	return true
-
-
-## True if this step is between two coastal regions and the unit has a free coastal move.
-func _coastal_step(unit: Unit, region: String) -> bool:
-	return unit.coastal_moves > 0 and map.is_coastal(unit.province) and map.is_coastal(region)
-
-
-func _capture(faction: String, region: String) -> Array:
-	if owners[region] == faction:
-		return []
-	var previous: String = owners[region]
-	owners[region] = faction
-	var province: ProvinceState = provinces[region]
-	province.happiness = Economy.CONQUERED_HAPPINESS
-	province.construction = ""
-	province.recruits.clear()
-	province.siege_faction = ""
-	province.siege_turns = 0
-	return [{"type": "captured", "province": region, "faction": faction, "previous_owner": previous}]
-
-
-# --- Attacking (OR-4, OR-6, BR-1..BR-5) ------------------------------------------------
-
-## "" if the unit can take part in an attack on `region` now, else why not.
-func attack_problem(unit: Unit, region: String) -> String:
-	if is_over():
-		return "the game is over"
-	if unit.owner != current_faction():
-		return "not your turn"
-	if enemy_units_in(region, unit.owner).is_empty():
-		return "no enemy units there"
-	if unit.attacked:
-		return "already fought this turn"
-	var unit_type := unit.type()
-	if unit_type.is_ranged():
-		if map.distance(unit.province, region) > attack_range(unit):
-			return "out of range"
-		if unit.moved and not unit_type.skirmisher:
-			return "moved this turn"
-		return ""
-	if not map.are_neighbours(unit.province, region):
-		return "not next to it"
-	if unit.moved and not unit_type.is_cavalry():
-		return "moved this turn"
-	if unit.move_points_left < 1:
-		return "no move points left"
-	return ""
-
-
 func attack_range(unit: Unit) -> int:
 	return unit.type().attack_range
 
 
-## The units of `stack` that can join an attack on `region`. Attacks come from
-## one region at a time, so only units in the first able unit's region join.
-func attackers_for(stack: Array, region: String) -> Array[Unit]:
-	var able: Array[Unit] = []
-	var origin := ""
-	for unit: Unit in stack:
-		if attack_problem(unit, region) != "":
-			continue
-		if origin == "":
-			origin = unit.province
-		if unit.province == origin:
-			able.append(unit)
-	return able
+# --- Battles ----------------------------------------------------------------------
 
-
-## Rates an attack without changing anything (OR-6).
+## Rates an attack by a unit on the unit in `region` without changing anything (OR-6).
 func forecast_attack(stack: Array, region: String, runs := Battle.FORECAST_RUNS) -> Dictionary:
-	var attacking := attackers_for(stack, region)
-	if attacking.is_empty():
+	if stack.is_empty() or enemy_units_in(region, stack[0].owner).is_empty():
 		return {}
-	var defenders := enemy_units_in(region, attacking[0].owner)
+	var attacker: Unit = stack[0]
+	var defender: Unit = enemy_units_in(region, attacker.owner)[0]
+	var attacking: Array[Unit] = [attacker]
+	var defending: Array[Unit] = [defender]
 	return Battle.forecast(
-		func(): return _forces(attacking, defenders, region, true)[0],
-		func(): return _forces(attacking, defenders, region, true)[1],
-		map.terrain(region), _crosses_river(attacking, region),
-		hash([attacking[0].id, region, turn]), runs)
+		func(): return forces(attacking, defending, region, true)[0],
+		func(): return forces(attacking, defending, region, true)[1],
+		map.terrain(region), crosses_river(attacking, region),
+		hash([attacker.id, region, turn]), runs)
 
 
-## Attacks `region` with the units of `stack` that can (BR-1) and applies the
-## result. If the attackers lose, the survivors stay in the region they attacked
-## from (BR-2). If the defenders lose, each retreats to a neighbouring friendly
-## region with room or is destroyed, and the melee attackers move in and take
-## the region (BR-3). Ranged-only attacks never take a region (BR-5).
-## Returns {"battle": Battle, "events": [...]} or {} if nobody could attack.
-func attack(stack: Array, region: String) -> Dictionary:
-	var attacking := attackers_for(stack, region)
-	if attacking.is_empty():
-		return {}
-	var origin := attacking[0].province
-	var faction := attacking[0].owner
-	var defenders := enemy_units_in(region, faction)
-	var forces := _forces(attacking, defenders, region, false)
-	var battle := Battle.new(forces[0], forces[1], map.terrain(region), _crosses_river(attacking, region), rng.randi())
-	battle.resolve()
-	undo_stack.clear()
-
-	var events := [{"type": "battle", "battle": battle, "province": region, "origin": origin, "faction": faction}]
-	for unit in attacking:
-		unit.attacked = true
-	for unit in attacking + defenders:
-		if not unit.is_destroyed():
-			unit.xp += 1
-	if battle.attacker_won():
-		for unit in attacking:
-			unit.xp += 1
-	else:
-		for unit in defenders:
-			unit.xp += 1
-	events.append_array(_remove_destroyed(attacking + defenders))
-
-	if battle.attacker_won():
-		for defender in defenders:
-			if not units.has(defender):
-				continue
-			var refuge := _retreat_region(defender, region)
-			if refuge == "":
-				events.append_array(_destroy(defender, "had nowhere to retreat"))
-			else:
-				defender.province = refuge
-				events.append({"type": "retreated", "unit": defender, "province": refuge})
-		var movers := attacking.filter(func(u: Unit): return units.has(u) and not u.type().is_ranged())
-		for unit: Unit in movers:
-			unit.province = region
-			unit.moved = true
-		if not movers.is_empty():
-			events.append_array(_capture(faction, region))
-	elif not battle.ranged_only():
-		events.append({"type": "repulsed", "province": origin, "faction": faction})
-	update_result()
-	return {"battle": battle, "events": events}
-
-
-## [attacking Force, defending Force]. With `copy`, the forces fight copies
-## of the units so a forecast leaves the real ones untouched.
-func _forces(attacking: Array[Unit], defenders: Array[Unit], region: String, copy: bool) -> Array:
+## [attacking Force, defending Force] for units fighting over `region`. With
+## `copy`, the forces fight copies so a forecast leaves the real ones untouched.
+## A `field` battle (head-on or contested move) has no walls.
+func forces(attacking: Array[Unit], defenders: Array[Unit], region: String, copy: bool, field := false) -> Array:
 	var attack_units: Array[Unit] = []
 	for unit in attacking:
 		prepare_for_battle(unit, false, region)
 		attack_units.append(unit.copy() if copy else unit)
 	var defend_units: Array[Unit] = []
 	for unit in defenders:
-		prepare_for_battle(unit, true, region)
+		prepare_for_battle(unit, not field, region)
 		defend_units.append(unit.copy() if copy else unit)
-	var defender_faction: String = defenders[0].owner if not defenders.is_empty() else owners[region]
-	var attacking_force := Battle.Force.new(attacking[0].owner, true, attack_units, _command_mod(attacking[0].owner, attacking[0].province))
-	var defending_force := Battle.Force.new(defender_faction, false, defend_units, _command_mod(defender_faction, region))
-	defending_force.wall_bonus = wall_bonus(region, attacking)
+	var attacking_force := Battle.Force.new(attacking[0].owner, true, attack_units, command_mod(attacking))
+	var defending_force := Battle.Force.new(defenders[0].owner, false, defend_units, command_mod(defenders))
+	if not field:
+		defending_force.wall_bonus = Sieges.wall_bonus(self, region, attacking)
 	return [attacking_force, defending_force]
 
 
-## Works out a unit's battle multipliers from its rank (UT-6). Civilizations
-## and research add to these.
+## Works out a unit's battle multipliers from its rank (UT-6), civilization and research.
 func prepare_for_battle(unit: Unit, defending: bool, region: String) -> void:
 	var rank_bonus: float = Unit.RANK_BONUS[unit.rank()]
 	unit.attack_mod = 1.0 + rank_bonus
@@ -493,47 +328,32 @@ func prepare_for_battle(unit: Unit, defending: bool, region: String) -> void:
 	Bonuses.battle(self, unit, defending, region)
 
 
-## +10% attack per Command level of the best general among a faction's units in a region (UT-5).
-func _command_mod(faction: String, region: String) -> float:
+## +10% attack per Command level of a general among these units (UT-5).
+func command_mod(side: Array[Unit]) -> float:
 	var best := 0
-	for unit in units_in(region):
-		if unit.owner == faction and unit.general != null:
+	for unit in side:
+		if unit.general != null:
 			best = maxi(best, unit.general.command)
 	return 1.0 + GENERAL_COMMAND_BONUS * best
 
 
-## Walls make defenders take less damage; each attacking catapult cuts the
-## bonus by 25 points, and a finished siege removes it (3.10).
-func wall_bonus(region: String, attacking: Array[Unit]) -> float:
-	return Sieges.wall_bonus(self, region, attacking)
-
-
-func _crosses_river(attacking: Array[Unit], region: String) -> bool:
+func crosses_river(attacking: Array[Unit], region: String) -> bool:
 	for unit in attacking:
 		if not unit.type().is_ranged() and map.border_type(unit.province, region) == "river":
 			return true
 	return false
 
 
-## A neighbouring region the unit's faction owns, with room and no enemy units.
-func _retreat_region(unit: Unit, from: String) -> String:
+## A free neighbouring region the unit's faction owns, or "" if there is none.
+func retreat_region(unit: Unit, from: String) -> String:
 	for neighbour in map.neighbours(from):
-		if owners[neighbour] == unit.owner and space_in(neighbour, unit.owner) > 0 \
-				and enemy_units_in(neighbour, unit.owner).is_empty():
+		if owners[neighbour] == unit.owner and unit_in(neighbour) == null:
 			return neighbour
 	return ""
 
 
-func _remove_destroyed(involved: Array) -> Array:
-	var events := []
-	for unit: Unit in involved:
-		if units.has(unit) and unit.is_destroyed():
-			events.append_array(_destroy(unit, "was destroyed"))
-	return events
-
-
 ## Removes a unit. Its general is killed or captured with it (UT-5).
-func _destroy(unit: Unit, how: String) -> Array:
+func destroy(unit: Unit, how: String) -> Array:
 	remove_unit(unit)
 	var events := [{"type": "destroyed", "unit": unit, "province": unit.province, "how": how}]
 	if unit.general != null:
@@ -542,44 +362,58 @@ func _destroy(unit: Unit, how: String) -> Array:
 	return events
 
 
+## Takes a region for a faction. Returns the event, or [] if nothing changed.
+func capture(faction: String, region: String, from := "") -> Array:
+	if owners[region] == faction:
+		return []
+	var previous: String = owners[region]
+	owners[region] = faction
+	var province: ProvinceState = provinces[region]
+	province.construction = ""
+	province.recruits.clear()
+	province.siege_faction = ""
+	province.siege_turns = 0
+	return [{"type": "captured", "province": region, "faction": faction, "previous_owner": previous, "from": from}]
+
+
 # --- Merging (UT-8) ----------------------------------------------------------------
 
-## "" if `source` can merge into `target`, else why not.
+## "" if `source` can join `target`, else why not.
 func merge_problem(target: Unit, source: Unit) -> String:
 	if target == source:
 		return "the same unit"
-	if target.owner != source.owner or target.province != source.province:
-		return "not in the same region"
+	if target.owner != source.owner:
+		return "not the same faction"
 	if target.type_id != source.type_id:
 		return "different unit types"
-	if target.soldiers() + source.soldiers() > UnitType.SOLDIERS:
-		return "more than %d soldiers" % UnitType.SOLDIERS
+	if target.soldiers() >= UnitType.SOLDIERS:
+		return "already %d soldiers" % UnitType.SOLDIERS
 	if target.general != null and source.general != null:
 		return "both have a general"
 	return ""
 
 
-## Merges `source` into `target`. The rank is the soldier-weighted average,
-## rounded down; the merged unit keeps the lower move points of the two.
-func merge(target: Unit, source: Unit) -> bool:
+## Moves soldiers from `source` into `target`, up to 20 (UT-8). The rank is the
+## soldier-weighted average, rounded down. Soldiers that don't fit stay in
+## `source`; if none are left, `source` is removed. Returns the soldiers moved.
+func merge(target: Unit, source: Unit) -> int:
 	if merge_problem(target, source) != "":
-		return false
+		return 0
+	var moving := mini(source.soldiers(), UnitType.SOLDIERS - target.soldiers())
 	var soldiers_t := target.soldiers()
-	var soldiers_s := source.soldiers()
-	var rank := floori(float(target.rank() * soldiers_t + source.rank() * soldiers_s) / (soldiers_t + soldiers_s))
+	var rank := floori(float(target.rank() * soldiers_t + source.rank() * moving) / (soldiers_t + moving))
 	var xp: int = Unit.RANK_XP[rank]
 	if target.rank() == rank and source.rank() == rank:
 		xp = mini(target.xp, source.xp)
-	target.hp = minf(target.hp + source.hp, target.max_hp())
+	target.set_soldiers(soldiers_t + moving)
 	target.xp = xp
-	if target.general == null:
+	if target.general == null and moving == source.soldiers():
 		target.general = source.general
-	target.move_points_left = mini(target.move_points_left, source.move_points_left)
-	target.attacked = target.attacked or source.attacked
-	target.moved = target.moved or source.moved
-	remove_unit(source)
-	undo_stack.clear()
-	return true
+	if moving >= source.soldiers():
+		remove_unit(source)
+	else:
+		source.set_soldiers(source.soldiers() - moving)
+	return moving
 
 
 func new_general() -> General:
@@ -593,36 +427,3 @@ func hire_general(unit: Unit) -> bool:
 	factions[unit.owner].pay(Economy.GENERAL_COST)
 	unit.general = new_general()
 	return true
-
-
-# --- Highlights (OR-1) ---------------------------------------------------------------
-
-## For the selected units, what clicking each nearby region would do:
-## "move", "attack" or "blocked".
-func reachable(stack: Array) -> Dictionary:
-	var result := {}
-	var origins := {}
-	for unit: Unit in stack:
-		origins[unit.province] = true
-		var reach: int = maxi(1, attack_range(unit))
-		var distance := map.distances_from(unit.province)
-		for region in distance:
-			var steps: int = distance[region]
-			if steps == 0 or steps > reach:
-				continue
-			var status := ""
-			if attack_problem(unit, region) == "":
-				status = "attack"
-			elif steps == 1:
-				status = "move" if move_problem(unit, region) == "" else "blocked"
-			else:
-				continue
-			if not result.has(region) or _rank_status(status) > _rank_status(result[region]):
-				result[region] = status
-	for origin in origins:
-		result.erase(origin)
-	return result
-
-
-func _rank_status(status: String) -> int:
-	return {"blocked": 0, "move": 1, "attack": 2}[status]

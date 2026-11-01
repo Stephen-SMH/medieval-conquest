@@ -80,11 +80,20 @@ static func income(state: GameState, faction: String, kind: String) -> float:
 	return multiplier
 
 
-static func supply_range(state: GameState, faction: String) -> int:
-	var bonus := 0
+## Extra gold a region pays its owner from research.
+static func region_bonus(state: GameState, faction: String, region: String) -> float:
+	var bonus := 0.0
+	var terrain: String = state.map.provinces[region].terrain
 	for tech: TechType in _known(state, faction):
-		bonus += tech.supply_range
+		bonus += tech.region_bonus + tech.terrain_income.get(terrain, 0)
 	return bonus
+
+
+static func upkeep_mod(state: GameState, faction: String) -> float:
+	var multiplier := 1.0
+	for tech: TechType in _known(state, faction):
+		multiplier *= tech.upkeep
+	return multiplier
 
 
 static func starting_xp(state: GameState, faction: String) -> int:

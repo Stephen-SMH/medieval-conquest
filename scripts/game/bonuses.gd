@@ -6,22 +6,19 @@ extends RefCounted
 const ANGLISH_HOME_DEFENSE := 1.15
 const FRANKISH_CAVALRY_COST := 0.8
 const BYZANTINE_MARKETS := 1.25
+const SARACEN_MERCENARIES := 0.75
 
 
 static func civ(state: GameState, faction: String) -> String:
 	return state.factions[faction].civ if state.factions.has(faction) else ""
 
 
-## Multiplier for a kind of income: "food", "gold", "iron" or "market".
+## Multiplier for a kind of income: "gold" (all of it) or "market".
 static func income(state: GameState, faction: String, kind: String) -> float:
 	var multiplier := Research.income(state, faction, kind)
 	if kind == "market" and civ(state, faction) == "byzantine":
 		multiplier *= BYZANTINE_MARKETS
 	return multiplier
-
-
-static func supply_range(state: GameState, faction: String) -> int:
-	return Research.supply_range(state, faction)
 
 
 ## Multiplier on a unit type's gold cost.
@@ -31,8 +28,9 @@ static func recruit_cost(state: GameState, faction: String, unit_type: UnitType)
 	return 1.0
 
 
-static func ignores_attrition(state: GameState, faction: String) -> bool:
-	return civ(state, faction) == "saracen"
+## Multiplier on what mercenaries cost.
+static func mercenary_cost(state: GameState, faction: String) -> float:
+	return SARACEN_MERCENARIES if civ(state, faction) == "saracen" else 1.0
 
 
 ## Experience new recruits start with.
@@ -40,7 +38,7 @@ static func starting_xp(state: GameState, faction: String) -> int:
 	return Research.starting_xp(state, faction)
 
 
-## Free moves along the coast for Norse units (coastal raiding).
+## Norse raiding: moves 2 regions along the coast.
 static func coastal_moves(state: GameState, faction: String) -> int:
 	return 1 if civ(state, faction) == "norse" else 0
 

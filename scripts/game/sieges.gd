@@ -72,7 +72,6 @@ static func besiege(state: GameState, stack: Array, region: String) -> bool:
 	for unit: Unit in stack:
 		if map_adjacent(state, unit, region):
 			unit.attacked = true
-	state.undo_stack.clear()
 	return true
 
 

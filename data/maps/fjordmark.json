@@ -87,7 +87,8 @@
    "population": 10000,
    "coastal": true,
    "vertices": ["v0_4", "v0_5", "v0_6", "v1_6", "v1_5", "v1_4"],
-   "neighbours": ["kaldvik", "ravensfjord", "solvbekk"]
+   "neighbours": ["kaldvik", "ravensfjord", "solvbekk"],
+   "site": "town"
   },
   {
    "id": "kaldvik",
@@ -159,7 +160,8 @@
    "population": 5500,
    "coastal": false,
    "vertices": ["v2_6", "v2_7", "v2_8", "v3_8", "v3_7", "v3_6"],
-   "neighbours": ["elmsworth", "hollin", "morrow_fen", "solvbekk", "stonereach"]
+   "neighbours": ["elmsworth", "hollin", "morrow_fen", "solvbekk", "stonereach"],
+   "site": "town"
   },
   {
    "id": "hollin",
@@ -168,7 +170,8 @@
    "population": 13500,
    "coastal": false,
    "vertices": ["v2_8", "v2_9", "v2_10", "v3_10", "v3_9", "v3_8"],
-   "neighbours": ["calder_abbey", "elmsworth", "solvbekk"]
+   "neighbours": ["calder_abbey", "elmsworth", "solvbekk"],
+   "site": "town"
   },
   {
    "id": "wyrmsby",
@@ -209,27 +212,27 @@
  ],
  "borders": [
   {
-   "between": ["wyrmsby", "ashwick"],
+   "between": ["morrow_fen", "solvbekk"],
    "type": "river"
   },
   {
-   "between": ["ashwick", "tornfjell"],
+   "between": ["solvbekk", "hrafnsey"],
    "type": "river"
   },
   {
-   "between": ["greyhaven", "stonereach"],
+   "between": ["elmsworth", "calder_abbey"],
    "type": "river"
   },
   {
-   "between": ["stonereach", "calder_abbey"],
+   "between": ["calder_abbey", "solvbekk"],
    "type": "river"
   },
   {
-   "between": ["calder_abbey", "morrow_fen"],
+   "between": ["solvbekk", "ulvdal"],
    "type": "river"
   },
   {
-   "between": ["skarholm", "ravensfjord"],
+   "between": ["skarholm", "brimstad"],
    "type": "road"
   },
   {
@@ -241,7 +244,7 @@
    "type": "road"
   },
   {
-   "between": ["wyrmsby", "tornfjell"],
+   "between": ["wyrmsby", "greyhaven"],
    "type": "road"
   }
  ]

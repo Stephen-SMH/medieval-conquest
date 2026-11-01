@@ -32,13 +32,10 @@ extends Resource
 @export var civilization := ""
 ## Research needed before it can be recruited (RE-5); "" for none.
 @export var required_tech := ""
+## Price in gold (8.9: gold is the only resource).
 @export var cost_gold := 50
-@export var cost_wood := 0
-@export var cost_iron := 0
-## Soldiers taken from the faction's manpower when recruited.
-@export var cost_manpower := 20
+## Gold a full unit costs each turn.
 @export var upkeep_gold := 1
-@export var upkeep_food := 1
 ## Building a region needs before it can recruit this unit; "" for none.
 @export var required_building := ""
 

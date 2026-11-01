@@ -41,6 +41,8 @@ class Force:
 	var general_mod := 1.0
 	## Walls: damage taken by this side is divided by 1 + wall_bonus (3.10).
 	var wall_bonus := 0.0
+	## Horse archers shoot and ride off: nobody can shoot back at them.
+	var hit_and_run := false
 	var morale := 100.0
 	var routed := false
 	var start_strength := 0.0
@@ -122,7 +124,10 @@ func resolve() -> void:
 	var melee_attack := not ranged_only()
 	var decided := false
 	for volley in RANGED_VOLLEYS:
-		_exchange(_shooters(attacker), _shooters(defender), "ranged")
+		var replies: Array[Unit] = []
+		if not attacker.hit_and_run:
+			replies = _shooters(defender)
+		_exchange(_shooters(attacker), replies, "ranged")
 		if melee_attack and _finished("the ranged phase"):
 			decided = true
 			break

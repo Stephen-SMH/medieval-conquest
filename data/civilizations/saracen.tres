@@ -12,4 +12,4 @@ order = 4
 unlock_after_campaigns = 2
 special_units = Array[String](["mamluk", "ghazi"])
 description = "Swift horsemen of the southern deserts. Unlocked by finishing two campaigns."
-bonus_text = "Never lose soldiers to winter attrition."
+bonus_text = "Mercenaries cost 25% less."

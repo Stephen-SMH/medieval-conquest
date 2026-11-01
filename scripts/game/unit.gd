@@ -64,6 +64,12 @@ func is_destroyed() -> bool:
 	return strength() < DESTROYED_BELOW
 
 
+## Rough fighting strength, used to decide who fights first.
+func power() -> float:
+	var unit_type := type()
+	return strength() * (unit_type.attack + unit_type.defense) * unit_type.hp / 100.0
+
+
 func rank() -> int:
 	var result := 0
 	for i in RANK_XP.size():

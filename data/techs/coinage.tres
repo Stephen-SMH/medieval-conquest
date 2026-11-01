@@ -11,5 +11,5 @@ tier = 1
 cost_gold = 100
 turns = 2
 requires = Array[String]([])
-description = "+15% gold from taxes."
+description = "+15% gold."
 income = {"gold": 1.15}

@@ -13,32 +13,31 @@ func run(t) -> void:
 
 
 func _test_sieges(t) -> void:
-	var state := Helpers.game({"greywater": "blue", "kingsvale": "red"}, [
-		["blue", "greywater", "swordsmen"], ["blue", "greywater", "catapult"], ["red", "kingsvale", "spearmen"]], 7,
+	var state := Helpers.game({"greywater": "blue", "ashford": "blue", "kingsvale": "red"}, [
+		["blue", "greywater", "swordsmen"], ["blue", "ashford", "catapult"], ["red", "kingsvale", "spearmen"]], 7,
 		{"buildings": {"kingsvale": {"walls": 2}}})
-	var swords: Array[Unit] = [state.units[0]]
-	var with_catapult: Array[Unit] = [state.units[0], state.units[1]]
-	t.check(Sieges.wall_bonus(state, "kingsvale", swords) == 1.0, "stone walls: defenders take half damage (bonus +100%)")
-	t.check(Sieges.wall_bonus(state, "kingsvale", with_catapult) == 0.75, "each attacking catapult cuts the wall bonus by 25 points")
+	var swords: Unit = state.unit_in("greywater")
+	var catapult: Unit = state.unit_in("ashford")
+	var defender: Unit = state.unit_in("kingsvale")
+	t.check(Sieges.wall_bonus(state, "kingsvale", [swords] as Array[Unit]) == 1.0, "stone walls: defenders take half damage (bonus +100%)")
+	t.check(Sieges.wall_bonus(state, "kingsvale", [swords, catapult] as Array[Unit]) == 0.75, "each attacking catapult cuts the wall bonus by 25 points")
 	t.check(Sieges.duration(state, "kingsvale", "blue") == 4, "stone walls hold out 4 turns")
-	t.check(Sieges.besiege_problem(state, [state.units[1]], "kingsvale") != "", "catapults alone can't besiege")
-	t.check(Sieges.besiege_problem(state, state.units_in("greywater"), "redfield") == "no walls to besiege", "only walled regions can be besieged")
-	t.check(Sieges.besiege(state, state.units_in("greywater"), "kingsvale") and state.units[0].attacked, "besieging uses the units' attack")
-	var hp_before: float = state.units[2].hp
+	t.check(Orders.problem(state, catapult, "besiege", "kingsvale") != "", "catapults alone can't besiege")
+	t.check(Orders.problem(state, swords, "besiege", "redfield") == "no walls to besiege", "only walled regions can be besieged")
+	t.check(Helpers.order(state, swords, "besiege", "kingsvale") == "", "a melee unit next to the walls can besiege them")
+	var hp_before: float = defender.hp
 	for i in 4:
-		state.end_faction_turn()
-		state.end_faction_turn()
+		Helpers.resolve(state)
 	t.check(Sieges.breached(state, "kingsvale") and state.provinces.kingsvale.siege_turns == 4, "after 4 turns next to the walls they are breached")
-	t.check(state.units[2].hp < hp_before, "breached walls starve the defenders")
-	t.check(Sieges.wall_bonus(state, "kingsvale", swords) == 0.0, "breached walls give no bonus against the besieger")
-	state.units[0].province = "northmarch"
-	state.units[1].province = "northmarch"
-	state.end_faction_turn()
+	t.check(defender.hp < hp_before, "breached walls starve the defenders")
+	t.check(Sieges.wall_bonus(state, "kingsvale", [swords] as Array[Unit]) == 0.0, "breached walls give no bonus against the besieger")
+	Helpers.order(state, swords, "move", "northmarch")
+	Helpers.resolve(state)
 	t.check(state.provinces.kingsvale.siege_faction == "", "the siege is lifted when the besiegers leave")
 
-	state = Helpers.game({"greywater": "blue", "kingsvale": "red"}, [["blue", "greywater", "swordsmen"]], 7,
-		{"buildings": {"kingsvale": {"walls": 3}}})
-	state.move_unit(state.units[0], "kingsvale")
+	state = Helpers.game({"greywater": "blue", "kingsvale": "red"}, [["blue", "greywater", "swordsmen"]], 7, {"buildings": {"kingsvale": {"walls": 3}}})
+	Helpers.order(state, state.unit_in("greywater"), "move", "kingsvale")
+	Helpers.resolve(state)
 	t.check(state.owners.kingsvale == "blue", "empty walls are taken by walking in")
 
 
@@ -50,60 +49,58 @@ func _test_missions(t) -> void:
 		[["blue", "greywater", "swordsmen"], ["red", "eastwold", "militia"]], 7, {"capitals": {"blue": "greywater"}})
 	state.mission = mission.duplicate(true)
 	t.check(not state.is_over() and not Mission.objectives(state)[0].done, "the objective starts open")
-	state.move_unit(state.units[0], "kingsvale")
-	t.check(state.is_over() and state.result.result == "won" and state.result.stars == 3, "capturing the target on turn 1 (par 4) wins with 3 stars")
+	Helpers.order(state, state.unit_in("greywater"), "move", "kingsvale")
+	Helpers.resolve(state)
+	t.check(state.is_over() and state.result.result == "won" and state.result.stars == 3, "capturing the target in turn 1 (par 4) wins with 3 stars")
 
 	state = Helpers.game({"greywater": "blue", "kingsvale": "red", "eastwold": "red"},
 		[["blue", "greywater", "militia"], ["red", "kingsvale", "militia"]], 7, {"capitals": {"blue": "greywater"}})
 	state.mission = mission.duplicate(true)
 	for i in 7:
-		state.end_faction_turn()
-		state.end_faction_turn()
-	t.check(not state.is_over() and state.turn == 8 and Mission.hard_limit(state) == 8,
-		"the hard limit is par × 2: turn 8 of 8 is still playable")
-	state.end_faction_turn()
-	state.end_faction_turn()
-	t.check(state.is_over() and state.result.result == "lost" and "Out of time" in state.result.reason,
-		"passing the hard limit loses the mission")
+		Helpers.resolve(state)
+	t.check(not state.is_over() and state.turn == 8 and Mission.hard_limit(state) == 8, "the hard limit is par × 2: turn 8 of 8 is still playable")
+	Helpers.resolve(state)
+	t.check(state.is_over() and state.result.result == "lost" and "Out of time" in state.result.reason, "passing the hard limit loses the mission")
 
 	state = Helpers.game({"greywater": "blue", "kingsvale": "blue", "eastwold": "red"}, [["red", "eastwold", "militia"]], 7)
 	state.mission = {"player": "blue", "par": 10, "objectives": [{"type": "hold", "region": "kingsvale", "turns": 2}]}
-	state.end_faction_turn()
-	t.check(Mission.objectives(state)[0].text.ends_with("(1 so far)"), "holding a region counts your turns")
-	state.end_faction_turn()
-	state.end_faction_turn()
+	Helpers.resolve(state)
+	t.check(Mission.objectives(state)[0].text.ends_with("(1 so far)"), "holding a region counts the turns")
+	Helpers.resolve(state)
 	t.check(state.is_over() and state.result.result == "won", "holding it for 2 turns wins")
 
 	state = Helpers.game({"greywater": "blue", "ashford": "blue", "kingsvale": "red"},
 		[["blue", "ashford", "militia"], ["red", "kingsvale", "swordsmen"]], 7, {"capitals": {"blue": "greywater"}})
 	state.mission = {"player": "blue", "par": 10, "objectives": [{"type": "destroy", "faction": "red"}]}
-	state.end_faction_turn()
-	state.move_unit(state.units[1], "greywater")
+	Helpers.order(state, state.unit_in("kingsvale"), "move", "greywater")
+	Helpers.resolve(state)
 	t.check(state.is_over() and state.result.result == "lost" and "capital" in state.result.reason, "losing your capital loses the mission")
 
-	state = Helpers.game({"greywater": "blue", "kingsvale": "red"}, [["blue", "greywater", "heavy_cavalry"], ["red", "kingsvale", "militia", 1]], 7)
-	state.attack([state.units[0]], "kingsvale")
+	state = Helpers.game({"greywater": "blue", "kingsvale": "red"}, [["blue", "greywater", "heavy_cavalry"], ["red", "kingsvale", "militia", 1]], 7,
+		{"conquest": true})
+	Helpers.order(state, state.unit_in("greywater"), "attack", "kingsvale")
+	Helpers.resolve(state)
 	t.check(state.is_over() and state.result.winner == "blue" and not state.factions.red.alive, "without a mission, the last faction standing wins")
 
 
 func _test_saves(t) -> void:
 	var scenario: Dictionary = (load("res://scripts/session.gd") as GDScript).call("load_scenario", "heartlands")
 	var state := GameState.from_scenario(scenario, 3)
-	Economy.start_building(state, "greywater", "farm")
-	Economy.recruit(state, "greywater", "militia")
-	state.move_unit(Helpers.units_of_type(state, "light_cavalry")[0], "northmarch")
-	state.factions.aldmere.tax = "high"
+	Economy.start_building(state, "greywater", "market")
+	Economy.hire(state, "ashford", "crossbowmen")
+	Orders.give(state, state.unit_in("northmarch"), "move", "ashford")
+	Orders.give(state, state.unit_in("ashford"), "attack", "kingsvale", {"soldiers": 12})
 	var saved := SaveGame.to_dict(state)
 	var loaded := SaveGame.from_dict(JSON.parse_string(JSON.stringify(saved)))
-	t.check(_same(SaveGame.to_dict(loaded), saved), "save → JSON → load → save gives the same data")
+	t.check(_same(SaveGame.to_dict(loaded), saved), "save → JSON → load → save gives the same data, planned orders included")
 
 	# Both copies play on identically, AI and dice included.
-	for i in 6:
+	for i in 3 * state.turn_order.size():
 		for game in [state, loaded]:
 			if not game.factions[game.current_faction()].human:
 				AI.play_turn(game)
 			game.end_faction_turn()
-	t.check(_same(SaveGame.to_dict(loaded), SaveGame.to_dict(state)), "a loaded game plays on exactly like the original (6 faction turns, AI and battles)")
+	t.check(_same(SaveGame.to_dict(loaded), SaveGame.to_dict(state)), "a loaded game plays on exactly like the original (3 turns, AI and battles)")
 
 	var error := SaveGame.save(state, "3")
 	var from_disk := SaveGame.from_dict(SaveGame.load_slot("3"))
@@ -113,36 +110,31 @@ func _test_saves(t) -> void:
 
 
 func _test_ai(t) -> void:
-	# The AI attacks when the forecast is good, and takes the region.
 	var state := Helpers.game({"greywater": "blue", "kingsvale": "red", "redfield": "red"}, [
-		["blue", "greywater", "militia", 6],
-		["red", "kingsvale", "heavy_cavalry"], ["red", "kingsvale", "swordsmen"], ["red", "kingsvale", "swordsmen"]], 7)
-	state.end_faction_turn()
+		["blue", "greywater", "militia", 6], ["red", "kingsvale", "heavy_cavalry"]], 7)
+	Helpers.plan_as(state, "red")
 	AI.play_turn(state)
-	t.check(state.owners.greywater == "red", "the AI attacks a weak neighbour and takes it")
+	t.check(state.orders.get(state.unit_in("kingsvale"), {}).get("steps", [{}])[0].get("type") == "attack", "the AI plans an attack on a weak neighbour")
+	Helpers.resolve(state)
+	t.check(state.owners.greywater == "red", "and takes it when the turn resolves")
 
-	# It doesn't throw units at a fortress.
-	state = Helpers.game({"greywater": "blue", "kingsvale": "red"}, [
-		["blue", "greywater", "spearmen"], ["blue", "greywater", "spearmen"], ["blue", "greywater", "spearmen"], ["blue", "greywater", "spearmen"],
-		["red", "kingsvale", "militia"]], 7)
-	state.end_faction_turn()
+	state = Helpers.game({"greywater": "blue", "kingsvale": "red"}, [["blue", "greywater", "spearmen"], ["red", "kingsvale", "light_cavalry", 8]], 7)
+	Helpers.plan_as(state, "red")
 	AI.play_turn(state)
-	t.check(state.units_in("kingsvale").size() == 1 and state.owners.greywater == "blue", "the AI won't attack when the forecast is bad")
+	var order: Dictionary = state.orders.get(state.unit_in("kingsvale"), {})
+	t.check(order.is_empty() or order.steps[0].type != "attack", "the AI won't attack when the forecast is bad")
 
-	# Damaged units pull back.
 	state = Helpers.game({"greywater": "blue", "kingsvale": "red", "redfield": "red"}, [
-		["blue", "greywater", "swordsmen"], ["blue", "greywater", "swordsmen"], ["blue", "greywater", "heavy_cavalry"],
-		["red", "kingsvale", "spearmen", 3], ["red", "kingsvale", "spearmen"]], 7)
-	state.end_faction_turn()
-	var hurt: Unit = state.units[3]
+		["blue", "greywater", "heavy_cavalry"], ["red", "kingsvale", "spearmen", 3]], 7)
+	Helpers.plan_as(state, "red")
+	var hurt: Unit = state.unit_in("kingsvale")
 	AI.play_turn(state)
+	Helpers.resolve(state)
 	t.check(hurt.province == "redfield" or not state.units.has(hurt), "a badly hurt unit pulls back from the front")
 
-	# It recruits units that counter what it sees.
-	state = Helpers.game({"greywater": "blue", "kingsvale": "red"}, [
-		["blue", "greywater", "heavy_cavalry"], ["blue", "greywater", "heavy_cavalry"]], 7,
+	state = Helpers.game({"greywater": "blue", "kingsvale": "red"}, [["blue", "greywater", "heavy_cavalry"]], 7,
 		{"buildings": {"kingsvale": {"barracks": 1}}, "resources": {"red": {"gold": 500, "wood": 200, "manpower": 200}}})
-	state.end_faction_turn()
+	Helpers.plan_as(state, "red")
 	AI.play_turn(state)
 	t.check("spearmen" in state.provinces.kingsvale.recruits, "facing cavalry, the AI recruits spearmen %s" % [state.provinces.kingsvale.recruits])
 
@@ -156,15 +148,14 @@ func _test_ai(t) -> void:
 	var started := Time.get_ticks_msec()
 	while not game.is_over() and game.turn <= 200:
 		var round_start := Time.get_ticks_msec()
-		for i in game.living_factions().size():
-			if game.is_over():
-				break
+		var turn := game.turn
+		while game.turn == turn and not game.is_over():
 			AI.play_turn(game)
 			game.end_faction_turn()
 		slowest_round = maxi(slowest_round, Time.get_ticks_msec() - round_start)
 	t.check(game.is_over() and game.result.winner != "",
 		"an AI-only Heartlands skirmish ends with a winner: %s on turn %d (%d ms)" % [game.result.get("winner", "nobody"), game.turn, Time.get_ticks_msec() - started])
-	t.check(slowest_round < 2000, "every round of AI turns takes under 2 s (slowest %d ms)" % slowest_round)
+	t.check(slowest_round < 2000, "a whole turn of AI planning and resolution takes under 2 s (slowest %d ms)" % slowest_round)
 
 
 func _same(a, b) -> bool:

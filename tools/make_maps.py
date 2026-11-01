@@ -141,6 +141,16 @@ def make_map(map_id, name, cols, rows, target, seed, coast, names, rivers=2, roa
     while len(starts) < 4:
         best = max(range(len(regions)), key=lambda i: min(distances(s)[i] for s in starts))
         starts.append(best)
+    # Towns and camps, where mercenaries can be hired: about one region in four.
+    for i, region in enumerate(out_regions):
+        if i not in starts and rng.random() < 0.28:
+            region["site"] = "town" if rng.random() < 0.5 else "camp"
+    # At least three, so every map has somewhere to hire mercenaries.
+    by_people = sorted((i for i in range(len(out_regions)) if i not in starts), key=lambda i: -out_regions[i]["population"])
+    for n, i in enumerate(by_people):
+        if sum(1 for r in out_regions if r.get("site")) >= 3:
+            break
+        out_regions[i].setdefault("site", "town" if n % 2 == 0 else "camp")
     for s in starts:
         out_regions[s]["terrain"] = "plains"
         out_regions[s]["population"] = max(out_regions[s]["population"], 13000)

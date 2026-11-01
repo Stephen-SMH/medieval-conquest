@@ -31,7 +31,12 @@
     "gullmouth": "raiders",
     "oakhollow": "weald",
     "bowmere": "raiders",
-    "thornbury": "weald"
+    "thornbury": "weald",
+    "harrowdene": "raiders",
+    "coldmarsh": "weald",
+    "highwold": "raiders",
+    "fennick": "weald",
+    "redstow": "raiders"
    },
    "capitals": {
     "weald": "kingsbarrow",
@@ -39,14 +44,12 @@
    },
    "buildings": {
     "kingsbarrow": {
-     "farm": 1,
      "market": 1,
      "barracks": 1,
      "archery_range": 1,
      "walls": 1
     },
     "gullmouth": {
-     "farm": 1,
      "market": 1,
      "barracks": 1,
      "archery_range": 1
@@ -65,22 +68,22 @@
     },
     {
      "owner": "weald",
-     "region": "kingsbarrow",
+     "region": "coldmarsh",
      "type": "yeoman"
     },
     {
      "owner": "weald",
-     "region": "kingsbarrow",
+     "region": "fennick",
      "type": "yeoman"
-    },
-    {
-     "owner": "weald",
-     "region": "kingsbarrow",
-     "type": "spearmen"
     },
     {
      "owner": "weald",
      "region": "oakhollow",
+     "type": "spearmen"
+    },
+    {
+     "owner": "weald",
+     "region": "thornbury",
      "type": "archers"
     },
     {
@@ -95,39 +98,27 @@
     },
     {
      "owner": "raiders",
-     "region": "gullmouth",
+     "region": "bowmere",
      "type": "berserker"
     },
     {
      "owner": "raiders",
-     "region": "gullmouth",
+     "region": "harrowdene",
      "type": "huscarl"
     },
     {
      "owner": "raiders",
-     "region": "gullmouth",
+     "region": "highwold",
      "type": "archers"
     },
     {
      "owner": "raiders",
-     "region": "bowmere",
+     "region": "redstow",
      "type": "spearmen"
     },
     {
      "owner": "neutral",
      "region": "ashcombe",
-     "type": "militia",
-     "soldiers": 12
-    },
-    {
-     "owner": "neutral",
-     "region": "coldmarsh",
-     "type": "militia",
-     "soldiers": 12
-    },
-    {
-     "owner": "neutral",
-     "region": "harrowdene",
      "type": "militia",
      "soldiers": 12
     },
@@ -190,7 +181,11 @@
     "bowmere": "raiders",
     "thornbury": "weald",
     "harrowdene": "raiders",
-    "coldmarsh": "weald"
+    "coldmarsh": "weald",
+    "highwold": "raiders",
+    "fennick": "weald",
+    "redstow": "raiders",
+    "saltcombe": "weald"
    },
    "capitals": {
     "weald": "kingsbarrow",
@@ -198,13 +193,11 @@
    },
    "buildings": {
     "kingsbarrow": {
-     "farm": 1,
      "market": 1,
      "barracks": 1,
      "archery_range": 1
     },
     "gullmouth": {
-     "farm": 1,
      "market": 1,
      "barracks": 1,
      "archery_range": 1
@@ -223,27 +216,27 @@
     },
     {
      "owner": "weald",
-     "region": "kingsbarrow",
+     "region": "coldmarsh",
      "type": "longbowman"
     },
     {
      "owner": "weald",
-     "region": "kingsbarrow",
+     "region": "fennick",
      "type": "yeoman"
     },
     {
      "owner": "weald",
-     "region": "kingsbarrow",
+     "region": "oakhollow",
      "type": "swordsmen"
     },
     {
      "owner": "weald",
-     "region": "coldmarsh",
+     "region": "saltcombe",
      "type": "light_cavalry"
     },
     {
      "owner": "weald",
-     "region": "coldmarsh",
+     "region": "thornbury",
      "type": "spearmen"
     },
     {
@@ -258,22 +251,22 @@
     },
     {
      "owner": "raiders",
-     "region": "gullmouth",
+     "region": "bowmere",
      "type": "huscarl"
     },
     {
      "owner": "raiders",
-     "region": "gullmouth",
+     "region": "harrowdene",
      "type": "archers"
     },
     {
      "owner": "raiders",
-     "region": "gullmouth",
+     "region": "highwold",
      "type": "spearmen"
     },
     {
      "owner": "raiders",
-     "region": "bowmere",
+     "region": "redstow",
      "type": "berserker"
     },
     {
@@ -285,12 +278,6 @@
     {
      "owner": "neutral",
      "region": "larkfield",
-     "type": "militia",
-     "soldiers": 12
-    },
-    {
-     "owner": "neutral",
-     "region": "saltcombe",
      "type": "militia",
      "soldiers": 12
     }
@@ -352,7 +339,10 @@
     "bowmere": "ashcombe",
     "fennick": "wyndle",
     "coldmarsh": "weald",
-    "larkfield": "ashcombe"
+    "larkfield": "ashcombe",
+    "highwold": "weald",
+    "redstow": "ashcombe",
+    "saltcombe": "weald"
    },
    "capitals": {
     "weald": "kingsbarrow",
@@ -361,20 +351,17 @@
    },
    "buildings": {
     "kingsbarrow": {
-     "farm": 1,
      "market": 1,
      "barracks": 1,
      "archery_range": 1
     },
     "ashcombe": {
-     "farm": 1,
      "market": 1,
      "barracks": 1,
      "archery_range": 1,
      "walls": 2
     },
     "wyndle": {
-     "farm": 1,
      "market": 1,
      "barracks": 1,
      "archery_range": 1
@@ -393,33 +380,28 @@
     },
     {
      "owner": "weald",
-     "region": "kingsbarrow",
+     "region": "coldmarsh",
      "type": "longbowman"
     },
     {
      "owner": "weald",
-     "region": "kingsbarrow",
+     "region": "highwold",
      "type": "yeoman"
     },
     {
      "owner": "weald",
-     "region": "kingsbarrow",
+     "region": "oakhollow",
      "type": "yeoman"
     },
     {
      "owner": "weald",
-     "region": "coldmarsh",
+     "region": "saltcombe",
      "type": "swordsmen"
     },
     {
      "owner": "weald",
-     "region": "coldmarsh",
+     "region": "thornbury",
      "type": "heavy_cavalry"
-    },
-    {
-     "owner": "weald",
-     "region": "coldmarsh",
-     "type": "archers"
     },
     {
      "owner": "ashcombe",
@@ -433,22 +415,22 @@
     },
     {
      "owner": "ashcombe",
-     "region": "ashcombe",
+     "region": "bowmere",
      "type": "sergeant"
     },
     {
      "owner": "ashcombe",
-     "region": "ashcombe",
+     "region": "harrowdene",
      "type": "crossbowmen"
     },
     {
      "owner": "ashcombe",
-     "region": "ashcombe",
+     "region": "larkfield",
      "type": "spearmen"
     },
     {
      "owner": "ashcombe",
-     "region": "bowmere",
+     "region": "redstow",
      "type": "knight"
     },
     {
@@ -463,23 +445,17 @@
     },
     {
      "owner": "wyndle",
-     "region": "wyndle",
+     "region": "bramblegate",
      "type": "archers"
     },
     {
      "owner": "wyndle",
-     "region": "wyndle",
+     "region": "fennick",
      "type": "spearmen"
     },
     {
      "owner": "neutral",
      "region": "gullmouth",
-     "type": "militia",
-     "soldiers": 12
-    },
-    {
-     "owner": "neutral",
-     "region": "saltcombe",
      "type": "militia",
      "soldiers": 12
     }

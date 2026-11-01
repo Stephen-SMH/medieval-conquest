@@ -12,9 +12,14 @@ extends Resource
 @export var turns := 2
 ## Techs needed first.
 @export var requires: Array[String] = []
-## Income multipliers: "food", "gold", "iron", "market".
+## Income multipliers: "gold" (all income) or "market".
 @export var income := {}
-@export var supply_range := 0
+## Extra gold from every region a turn.
+@export var region_bonus := 0
+## Extra gold a turn from regions of these terrains: {"hills": 3}.
+@export var terrain_income := {}
+## Multiplier on unit upkeep.
+@export var upkeep := 1.0
 ## Battle multipliers by unit class ("infantry", "ranged", "cavalry", "siege"; "melee" for all non-ranged).
 @export var attack := {}
 @export var defense := {}

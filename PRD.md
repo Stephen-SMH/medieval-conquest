@@ -327,44 +327,45 @@ What we keep, because it's what made the game memorable:
 What we do differently:
 
 - **No paywall.** The reference game had 3 free campaigns and sold the rest. Here, 3 civilizations are open from the start and more **unlock by finishing campaigns**.
-- **No "one big stack" strategy.** Reviewers said massing every unit in one region always won. Here, a region holds **at most 4 units**, and attacks come from one region at a time, so flanking and unit choice matter.
+- **One unit per region, as in the original.** An earlier draft allowed 4 units per region to stop "one big stack" play; the stack limit is now **1** because the original works that way: each region holds one figure group of up to 20 soldiers, so position and unit choice matter.
+- **Gold only.** Like the original, the economy is gold alone (8.9); food, wood, iron and manpower are gone.
 - **Generous turn limits.** Reviewers disliked strict turn limits. Missions use turn limits for a **star rating** (3 stars if fast), and only lose the mission when the limit is far exceeded.
 - **Original content.** Our own map, region names, unit names, art and text. Only the mechanics are inspired by the reference game.
 
-### 8.2 Unit tokens (replaces armies of regiments, 3.7)
+### 8.2 Units (replaces armies of regiments, 3.7)
 
 | ID | Requirement |
 |---|---|
-| UT-1 | A **unit** has a type, an owner, **soldiers** (1–20) and **HP**. Max HP = 20 × the type's HP per soldier. Soldiers = ceil(HP ÷ HP per soldier). |
-| UT-2 | On the map, each unit is a **token**: unit-type icon, health bar (HP ÷ max HP, green → yellow → red) and the soldier count. Rank stars appear for veterans (UT-6). |
-| UT-3 | A region holds **at most 4 units** (stack limit), shown side by side above the region. A region with a castle shows a castle icon behind the tokens. |
-| UT-4 | Each unit has **move points** per turn: infantry and archers 1, cavalry 2, siege 1. A unit can either move or attack each turn; cavalry can move 1 then attack. |
-| UT-5 | **Generals** are attached to one unit. They give that unit's region +10% attack per Command level. If that unit is destroyed, the general is captured or killed. |
+| UT-1 | A **unit** has a type, an owner, **soldiers** (1–20) and **HP**. Max HP = the type's HP; soldiers = ceil(HP ÷ HP per soldier). |
+| UT-2 | On the map, each unit is a **group of 1–3 standing figures** on its region, with the faction's **banner on a pole** behind them, gold **chevrons** for rank, a thin **health bar** (green → yellow → red, white tip) and the **soldier number** in italic below. A light-blue pennant marks a general. A **red X** beside the bar shows a unit that has no moves left this turn. |
+| UT-3 | **A region holds one unit.** Moving a unit into a friendly region held by the **same type** merges them (up to 20 soldiers; the rest stay behind). Two friendly units can **swap** regions. Any other move into an occupied friendly region is blocked. Recruiting needs an empty region of your own, or reinforces a weakened unit of the same type there. |
+| UT-4 | Each unit gets **one order** a turn. **Cavalry gets two steps**: a move, then a move or an attack. Infantry, archers and siege get one. |
+| UT-5 | **Generals** are attached to one unit and give it +10% attack per Command level; each Logistics point cuts its upkeep 5%. If that unit is destroyed, the general is captured or killed. |
 | UT-6 | Units gain **experience** in battles. Ranks: Recruit, Veteran (+10% attack and defense), Elite (+20%), Hero (+30%). |
-| UT-7 | **Healing:** a unit that doesn't move or fight regains 2 soldiers per turn in a friendly region, 4 in a region with Barracks. Each soldier costs gold. |
-| UT-8 | **Merging:** two units of the same type in the same region can merge, up to 20 soldiers. The rank is the soldier-weighted average, rounded down. |
+| UT-7 | **Healing:** a unit that neither moves nor fights regains 2 soldiers per turn in its own region, 4 with Barracks. Each soldier costs gold. |
+| UT-8 | **Merging:** the merged rank is the soldier-weighted average, rounded down. |
 
-### 8.3 Orders
-
-| ID | Requirement |
-|---|---|
-| OR-1 | Tap a unit token to select it. Neighbouring regions light up: **green** = move, **red** = attack, **grey** = blocked (full stack or no move points). |
-| OR-2 | Tap a region to **select the whole stack**. A move order then moves every unit that can. |
-| OR-3 | **Move** into a friendly or empty neutral region (empty enemy regions are captured). |
-| OR-4 | **Attack** a neighbouring enemy region. Melee units attack in person; **ranged units (archers, crossbows, catapults) shoot from their own region** and take return fire only from enemy ranged units. |
-| OR-5 | **Retreat** a unit into a neighbouring friendly region, even after it has fought this turn, as long as it has move points left. |
-| OR-6 | A forecast shows the expected result before an attack is confirmed (reuses BT-7). |
-| OR-7 | An **Undo** button undoes the last move (not attacks) this turn. |
-
-### 8.4 Battle resolution (adapts 3.9)
+### 8.3 Orders: plan with arrows, resolve with the hourglass
 
 | ID | Requirement |
 |---|---|
-| BR-1 | A battle is between the attacking units and **every defending unit in the target region**. It uses the existing three phases (ranged, charge, melee), the counter table, terrain and morale, scaled to units instead of regiments. |
-| BR-2 | If the **attacker loses or routs**, the surviving attackers go **back to the region they attacked from**. |
-| BR-3 | If the **defender loses**: each surviving defender retreats to a neighbouring friendly region with space. Units with nowhere to go are destroyed. The attacking melee units then move into the region and capture it. |
-| BR-4 | Battle results appear as a short animation on the map (tokens shake, numbers drop, a flag changes) plus a battle report you can open. |
-| BR-5 | Ranged-only attacks never capture a region. |
+| OR-1 | **Planning.** Click a unit to select it; nearby regions show what it can do: **blue** to move, **red** to attack, **grey** blocked. Clicking a region gives the order, drawn as a big **spear-shaped arrow** (blue move, red attack, gold outline, tapered tail). Nothing happens yet. |
+| OR-2 | **Cancel** an order by clicking the unit again or its arrow (this replaces Undo). Recruit, mercenary and build orders are also queued until the turn resolves. |
+| OR-3 | **Split attacks.** An attack opens a window with a slider for **how many soldiers to send**; ranged units get two sliders, **shoot** (bow) and **melee** (crossed swords). The rest stay home. Soldiers who fail come back to their unit; a detachment that wins holds the region it took. |
+| OR-4 | **Ranged units** shoot from their own region (longbows 2 regions away); only enemy ranged units shoot back, and horse archers (Mamluks) ride off before anyone can. Ranged attacks never capture a region. |
+| OR-5 | **Retreat** is simply a blue arrow into one of your regions. |
+| OR-6 | The attack window shows a **forecast** (BT-7) before the order is confirmed. |
+| OR-7 | **Who plans when.** Every faction plans against the same state: the humans one after another (in hotseat behind a "pass the device" screen), then the AI. The **hourglass** ends your planning; when the last faction is done, the turn resolves. |
+
+### 8.4 Resolution (adapts 3.9)
+
+| ID | Requirement |
+|---|---|
+| BR-1 | Orders resolve in a fixed, seeded order: **1.** all ranged volleys; **2.** head-on attacks (A attacks B while B attacks A) as one field battle; **3.** moves into empty or friendly regions, with swaps and merges; units of different factions moving into the same empty region **fight for it**; **4.** sieges, then attacks on occupied regions: several attackers on one region fight **one after another, strongest first**, and later attackers face whatever is left; **5.** captures; **6.** the economy and upkeep. Steps 1–4 run again for cavalry's second step. |
+| BR-2 | A **failed attacker** ends the turn in the region it attacked from (shown marching out and back). |
+| BR-3 | A **beaten defender** retreats to a free neighbouring region of its own, or is destroyed if there is none. A winning melee attacker moves in only if the region is now empty. |
+| BR-4 | After the hourglass, the turn **plays out on the map** in the same order: all volleys together (arrows arc, catapults throw stones), then marches, clashes (dust and sparks, the defender recoils, numbers drain), retreats, units that fade and sink, and captures (the new colour sweeps across the region and a banner drops in). A speed setting (Normal, Fast, Off) and a click skip it; computer factions play faster. The results are decided before anything is shown. |
+| BR-5 | The same orders with the same seed always give the same result. |
 
 ### 8.5 Civilizations
 
@@ -372,11 +373,11 @@ Every civilization uses the base roster from 3.5 plus **one or two special units
 
 | Civilization | Status | Special units | National bonus |
 |---|---|---|---|
-| **Norse (Vikings)** | open | **Berserker** (infantry: attack rises as HP falls, never routs), **Huscarl** (heavy axe infantry) | Coastal regions: units move +1 along the coast (raiding) |
+| **Norse (Vikings)** | open | **Berserker** (infantry: attack rises as HP falls, never routs), **Huscarl** (heavy axe infantry) | Raiding: a move can go 2 regions along the coast, through an empty coastal region |
 | **Anglish (English)** | open | **Longbowman** (archer: +1 range — can shoot 2 regions away), **Yeoman** (cheap spear) | +15% defense in their own regions |
 | **Frankish (French)** | open | **Knight** (heavy cavalry, +25% charge), **Sergeant** (armoured spear) | Cavalry recruit 20% cheaper |
 | **Byzantine** | unlocks after any campaign | **Cataphract** (armoured horse), **Varangian Guard** | +25% gold from markets |
-| **Saracen** | unlocks after two campaigns | **Mamluk** (horse archer: shoots and moves), **Ghazi** | Units don't suffer desert or summer attrition |
+| **Saracen** | unlocks after two campaigns | **Mamluk** (horse archer: shoots and rides off untouched), **Ghazi** | Mercenaries cost 25% less (attrition no longer exists, 8.9) |
 
 Across base and special units this gives about **18 unit types**, close to the reference game's 21.
 
@@ -398,7 +399,7 @@ Across base and special units this gives about **18 unit types**, close to the r
 |---|---|
 | RE-1 | Two research trees, **Economy** and **Military**, each with about 6 techs in 3 tiers. |
 | RE-2 | One tech is researched at a time. Research costs gold and takes 2–4 turns. |
-| RE-3 | Economy examples: Crop Rotation (+20% food), Coinage (+15% gold), Mining (+iron), Logistics (+1 supply range). |
+| RE-3 | Economy (gold only, 8.9): Crop Rotation (+1 gold per region), Coinage (+15% gold), Mining (+3 gold from hills, +5 from mountains), Logistics (−20% upkeep), Heavy Plough (+2 gold from plains), Guilds (+25% from markets). |
 | RE-4 | Military examples: Chain Mail (+10% infantry defense), Composite Bows (+15% ranged attack), Stirrups (+15% cavalry charge), Siege Engineering (unlocks Catapult, −1 siege turn), Drill (start units as Veteran). |
 | RE-5 | Some units need a tech before they can be recruited. |
 
@@ -410,3 +411,18 @@ Across base and special units this gives about **18 unit types**, close to the r
 | **V2 — AI and missions** | AI turns for every non-player faction (personalities, recruit to counter, attack when the forecast is good, defend, retreat damaged units); sieges (3.10); mission objectives, par and hard turn limits, stars; victory and defeat screens; save and load. |
 | **V3 — Civilizations and campaigns** | Norse, Anglish and Frankish with special units and bonuses; 3 campaigns × 3 missions on original maps; campaign select and briefings; Byzantine and Saracen unlocks; skirmish mode. |
 | **V4 — Research, hotseat and mobile** | Both research trees; hotseat for 2–4 players; title screen and settings; touch controls (tap, pinch zoom, drag pan); Android and web export presets. |
+
+### 8.9 Gold economy, mercenaries and the map (replaces 3.3, 3.4 and 3.12)
+
+This decision replaces sections 3.3 (resources), 3.4 (food and supply) and 3.12 (stockpile): the game has one resource, **gold**, as in the original.
+
+| ID | Requirement |
+|---|---|
+| GE-1 | Every region pays its owner **10 gold** a turn; a town pays 15, the capital 10 more, and each market level 8 more. The number is shown on the map under the region's name with a coin-stack icon. |
+| GE-2 | Gold pays for recruiting, mercenaries, healing, buildings, research and unit upkeep. Costs that used wood or iron were converted to gold (1 wood = 1 gold, 1 iron = 2 gold) so the balance stays about the same. |
+| GE-3 | If gold would go negative, 5% of every unit deserts and the treasury stays at 0. |
+| GE-4 | Food, wood, iron, manpower, starvation, foraging, supply range, winter attrition, spoilage and storage caps are gone. Taxes and happiness are dropped too: with gold as the only resource they no longer trade off against anything, so revolts are gone as well. |
+| GE-5 | **Mercenaries** can be hired only in regions with a **town** or a **camp** icon. A town offers spearmen, crossbowmen and swordsmen; a camp militia, archers and light cavalry; each starts with 2 available and restocks 1 every 3 turns (up to 4). They cost 1.5 × the unit's gold price, take the region's one recruit slot for the turn, and arrive at the end of the turn. |
+| GE-6 | The map is a parchment political map: clear faction colours, a thin dark border inside a faction and a **double line** (dark plus each side's colour) where two factions meet, a dark teal sea with paper grain, region names in a serif map font, a crown for the capital, a tower for walls, a tent for a camp, houses for a town, and small ships on coastal regions with dotted lanes for coastal raids. |
+| GE-7 | The HUD is minimal: a riveted plaque at the top with the gold and the turn; wooden shield buttons in the corners for recruit, treasury, menu, messages and the end-turn hourglass; a cloth banner on the right listing the turn's orders (green) and battles (red); and faint calligraphy across the map at each turn ("Turn: …"). Everything else is in popups. |
+

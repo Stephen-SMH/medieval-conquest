@@ -52,11 +52,10 @@ func run(t) -> void:
 	var reasons := _battle(["spearmen"], ["heavy_cavalry"], "plains", 4, 3).explain("a", {"a": "A", "d": "D"})
 	t.check(reasons.size() >= 3 and "×2.00" in "\n".join(reasons), "the report explains the result, naming the ×2.00 counter")
 
-	var state := Helpers.game({"greywater": "blue", "kingsvale": "red"}, [
-		["blue", "greywater", "swordsmen"], ["blue", "greywater", "heavy_cavalry"], ["red", "kingsvale", "militia"]])
-	var hp_before := state.units[2].hp
+	var state := Helpers.game({"greywater": "blue", "kingsvale": "red"}, [["blue", "greywater", "heavy_cavalry"], ["red", "kingsvale", "militia"]])
+	var hp_before := state.units[1].hp
 	var forecast := state.forecast_attack(state.units_in("greywater"), "kingsvale")
-	t.check(state.units[2].hp == hp_before and forecast.rating == "Decisive win", "a forecast rates the attack and changes nothing (%s)" % forecast.rating)
+	t.check(state.units[1].hp == hp_before and forecast.rating == "Decisive win", "a forecast rates the attack and changes nothing (%s)" % forecast.rating)
 	t.check(state.forecast_attack(state.units_in("greywater"), "kingsvale") == forecast, "the same forecast twice gives the same answer")
 
 

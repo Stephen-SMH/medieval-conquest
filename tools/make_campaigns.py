@@ -13,7 +13,7 @@ import re
 from collections import deque
 
 CIV_COLORS = {"norse": "#2e708f", "anglish": "#b33b3b", "frankish": "#2f4fa8", "byzantine": "#7a40a0", "saracen": "#3d8a4a"}
-CAPITAL_BUILDINGS = {"farm": 1, "market": 1, "barracks": 1, "archery_range": 1}
+CAPITAL_BUILDINGS = {"market": 1, "barracks": 1, "archery_range": 1}
 
 
 def load_map(map_id):
@@ -63,6 +63,7 @@ def mission(map_id, mission_id, title, player, factions, objectives, par, briefi
     data, graph, names = load_map(map_id)
     starts = []
     for faction in factions:
+        faction["size"] = max(faction["size"], len(faction["units"]))
         start = faction["start"]
         if isinstance(start, int):
             start = data["starts"][start]
@@ -92,8 +93,8 @@ def mission(map_id, mission_id, title, player, factions, objectives, par, briefi
     for faction in factions:
         territory = [r for r, f in owners.items() if f == faction["id"]]
         territory.sort(key=lambda r: (r != faction["start_region"], r))
-        for i, unit_type in enumerate(faction["units"]):
-            region = territory[min(i // 4, len(territory) - 1)]
+        for i, unit_type in enumerate(faction["units"][: len(territory)]):
+            region = territory[i]  # One unit per region.
             entry = {"owner": faction["id"], "region": region, "type": unit_type}
             if i == 0:
                 entry["general"] = {"name": faction["general"], "command": 2, "logistics": 2}

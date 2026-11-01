@@ -11,5 +11,5 @@ tier = 2
 cost_gold = 120
 turns = 3
 requires = Array[String](["coinage"])
-description = "+50% iron."
-income = {"iron": 1.5}
+description = "+3 gold from hills, +5 from mountains."
+terrain_income = {"hills": 3, "mountains": 5}

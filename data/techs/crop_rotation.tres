@@ -11,5 +11,5 @@ tier = 1
 cost_gold = 80
 turns = 2
 requires = Array[String]([])
-description = "+20% food."
-income = {"food": 1.2}
+description = "+1 gold from every region."
+region_bonus = 1

@@ -31,7 +31,9 @@
     "elmsworth": "elmsworth",
     "brimstad": "norse",
     "calder_abbey": "elmsworth",
-    "hollin": "elmsworth"
+    "ravensfjord": "norse",
+    "hollin": "elmsworth",
+    "ashwick": "norse"
    },
    "capitals": {
     "norse": "skarholm",
@@ -39,13 +41,11 @@
    },
    "buildings": {
     "skarholm": {
-     "farm": 1,
      "market": 1,
      "barracks": 1,
      "archery_range": 1
     },
     "elmsworth": {
-     "farm": 1,
      "market": 1,
      "barracks": 1,
      "archery_range": 1
@@ -64,17 +64,17 @@
     },
     {
      "owner": "norse",
-     "region": "skarholm",
+     "region": "ashwick",
      "type": "spearmen"
     },
     {
      "owner": "norse",
-     "region": "skarholm",
+     "region": "brimstad",
      "type": "archers"
     },
     {
      "owner": "norse",
-     "region": "skarholm",
+     "region": "ravensfjord",
      "type": "huscarl"
     },
     {
@@ -89,12 +89,12 @@
     },
     {
      "owner": "elmsworth",
-     "region": "elmsworth",
+     "region": "calder_abbey",
      "type": "spearmen"
     },
     {
      "owner": "elmsworth",
-     "region": "elmsworth",
+     "region": "hollin",
      "type": "archers"
     },
     {
@@ -117,12 +117,6 @@
     },
     {
      "owner": "neutral",
-     "region": "ravensfjord",
-     "type": "militia",
-     "soldiers": 12
-    },
-    {
-     "owner": "neutral",
      "region": "stonereach",
      "type": "militia",
      "soldiers": 12
@@ -140,7 +134,7 @@
     "objectives": [
      {
       "type": "capture",
-      "regions": ["ravensfjord", "ashwick", "morrow_fen"]
+      "regions": ["morrow_fen", "solvbekk", "tornfjell"]
      }
     ],
     "briefing": "The longships are beached. Seize the three settlements nearest the shore before the thanes muster.",
@@ -179,8 +173,11 @@
     "ashwick": "greyhaven",
     "ravensfjord": "norse",
     "greyhaven": "greyhaven",
-    "tornfjell": "greyhaven",
-    "morrow_fen": "greyhaven"
+    "tornfjell": "norse",
+    "morrow_fen": "greyhaven",
+    "solvbekk": "norse",
+    "stonereach": "greyhaven",
+    "ulvdal": "norse"
    },
    "capitals": {
     "norse": "skarholm",
@@ -188,13 +185,11 @@
    },
    "buildings": {
     "skarholm": {
-     "farm": 1,
      "market": 1,
      "barracks": 1,
      "archery_range": 1
     },
     "wyrmsby": {
-     "farm": 1,
      "market": 1,
      "barracks": 1,
      "archery_range": 1,
@@ -214,27 +209,27 @@
     },
     {
      "owner": "norse",
-     "region": "skarholm",
+     "region": "brimstad",
      "type": "berserker"
     },
     {
      "owner": "norse",
-     "region": "skarholm",
+     "region": "ravensfjord",
      "type": "huscarl"
     },
     {
      "owner": "norse",
-     "region": "skarholm",
+     "region": "solvbekk",
      "type": "archers"
     },
     {
      "owner": "norse",
-     "region": "brimstad",
+     "region": "tornfjell",
      "type": "spearmen"
     },
     {
      "owner": "norse",
-     "region": "brimstad",
+     "region": "ulvdal",
      "type": "light_cavalry"
     },
     {
@@ -249,39 +244,27 @@
     },
     {
      "owner": "greyhaven",
-     "region": "wyrmsby",
+     "region": "ashwick",
      "type": "longbowman"
     },
     {
      "owner": "greyhaven",
-     "region": "wyrmsby",
+     "region": "greyhaven",
      "type": "spearmen"
     },
     {
      "owner": "greyhaven",
-     "region": "wyrmsby",
+     "region": "morrow_fen",
      "type": "swordsmen"
     },
     {
      "owner": "greyhaven",
-     "region": "ashwick",
+     "region": "stonereach",
      "type": "archers"
     },
     {
      "owner": "neutral",
      "region": "hrafnsey",
-     "type": "militia",
-     "soldiers": 12
-    },
-    {
-     "owner": "neutral",
-     "region": "stonereach",
-     "type": "militia",
-     "soldiers": 12
-    },
-    {
-     "owner": "neutral",
-     "region": "ulvdal",
      "type": "militia",
      "soldiers": 12
     }
@@ -344,7 +327,10 @@
     "hollin": "stonereach",
     "ashwick": "norse",
     "ulvdal": "kaldvik",
-    "stonereach": "stonereach"
+    "stonereach": "stonereach",
+    "tornfjell": "norse",
+    "morrow_fen": "norse",
+    "greyhaven": "norse"
    },
    "capitals": {
     "norse": "skarholm",
@@ -353,19 +339,16 @@
    },
    "buildings": {
     "skarholm": {
-     "farm": 1,
      "market": 1,
      "barracks": 1,
      "archery_range": 1
     },
     "kaldvik": {
-     "farm": 1,
      "market": 1,
      "barracks": 1,
      "archery_range": 1
     },
     "elmsworth": {
-     "farm": 1,
      "market": 1,
      "barracks": 1,
      "archery_range": 1
@@ -384,32 +367,32 @@
     },
     {
      "owner": "norse",
-     "region": "skarholm",
+     "region": "ashwick",
      "type": "huscarl"
     },
     {
      "owner": "norse",
-     "region": "skarholm",
+     "region": "brimstad",
      "type": "huscarl"
     },
     {
      "owner": "norse",
-     "region": "skarholm",
+     "region": "greyhaven",
      "type": "archers"
     },
     {
      "owner": "norse",
-     "region": "ashwick",
+     "region": "morrow_fen",
      "type": "spearmen"
     },
     {
      "owner": "norse",
-     "region": "ashwick",
+     "region": "ravensfjord",
      "type": "light_cavalry"
     },
     {
      "owner": "norse",
-     "region": "ashwick",
+     "region": "tornfjell",
      "type": "berserker"
     },
     {
@@ -424,17 +407,17 @@
     },
     {
      "owner": "kaldvik",
-     "region": "kaldvik",
+     "region": "hrafnsey",
      "type": "spearmen"
     },
     {
      "owner": "kaldvik",
-     "region": "kaldvik",
+     "region": "solvbekk",
      "type": "archers"
     },
     {
      "owner": "kaldvik",
-     "region": "kaldvik",
+     "region": "ulvdal",
      "type": "huscarl"
     },
     {
@@ -449,30 +432,18 @@
     },
     {
      "owner": "stonereach",
-     "region": "elmsworth",
+     "region": "calder_abbey",
      "type": "sergeant"
     },
     {
      "owner": "stonereach",
-     "region": "elmsworth",
+     "region": "hollin",
      "type": "crossbowmen"
     },
     {
      "owner": "stonereach",
-     "region": "elmsworth",
+     "region": "stonereach",
      "type": "spearmen"
-    },
-    {
-     "owner": "neutral",
-     "region": "greyhaven",
-     "type": "militia",
-     "soldiers": 12
-    },
-    {
-     "owner": "neutral",
-     "region": "morrow_fen",
-     "type": "militia",
-     "soldiers": 12
     }
    ],
    "mission": {

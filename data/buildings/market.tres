@@ -6,13 +6,10 @@
 script = ExtResource("1")
 id = "market"
 display_name = "Market"
-description = "+8 gold and +3 happiness per level."
+description = "+8 gold a turn per level."
 order = 1
-cost_gold = 150
-cost_wood = 30
-cost_iron = 0
+cost_gold = 180
 build_turns = 1
 max_level = 3
 allowed_terrains = Array[String]([])
 gold = 8
-happiness = 3

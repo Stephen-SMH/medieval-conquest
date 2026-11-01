@@ -34,62 +34,63 @@ func _test_research_flow(t) -> void:
 	t.check(Research.problem(state, "blue", "mining") == "needs Coinage", "techs need their prerequisites")
 	t.check(Research.start(state, "blue", "coinage") and blue.resources.gold == 900.0, "research is paid in gold when it starts")
 	t.check(Research.problem(state, "blue", "crop_rotation").begins_with("already researching"), "one tech at a time")
-	state.end_faction_turn()  # Red holds nothing here, so each end of turn is a full turn.
+	Helpers.resolve(state)  # Red holds nothing here, so each end of turn is a full turn.
 	t.check(not blue.has_tech("coinage") and blue.research_turns_left == 1, "after 1 of 2 turns it isn't done")
-	var events := state.end_faction_turn()
+	var events := Helpers.resolve(state)
 	t.check(blue.has_tech("coinage") and blue.researching == "" and events.any(func(e): return "Research complete" in e.get("text", "")),
 		"after 2 turns Coinage is known and reported")
 	var saved := SaveGame.from_dict(JSON.parse_string(JSON.stringify(SaveGame.to_dict(state))))
 	t.check(saved.factions.blue.has_tech("coinage"), "research survives save and load")
 
 	state = Helpers.game({"greywater": "blue", "eastwold": "red"}, [], 7, {"resources": {"red": {"gold": 600}}})
-	state.end_faction_turn()
+	Helpers.plan_as(state, "red")
 	AI.play_turn(state)
 	t.check(state.factions.red.researching != "", "the AI picks research (%s)" % state.factions.red.researching)
 
 
 func _test_research_effects(t) -> void:
-	var state := Helpers.game({"greywater": "blue", "kingsvale": "blue"}, [
-		["blue", "greywater", "spearmen"], ["blue", "greywater", "archers"], ["blue", "greywater", "heavy_cavalry"], ["blue", "stonehelm", "militia"]], 7,
+	var state := Helpers.game({"greywater": "blue", "kingsvale": "blue", "highcrag": "blue"}, [
+		["blue", "greywater", "spearmen"], ["blue", "kingsvale", "archers"], ["blue", "northmarch", "heavy_cavalry"]], 7,
 		{"buildings": {"greywater": {"market": 2, "siege_workshop": 1, "stable": 1, "barracks": 1}, "kingsvale": {"walls": 1}},
-			"resources": {"blue": {"gold": 5000, "wood": 500, "iron": 500, "manpower": 500}}})
+			"resources": {"blue": {"gold": 5000}}})
 	var blue: FactionState = state.factions.blue
-	var before := Economy.deltas(state, "blue")
-	var food_before := Economy.province_food(state, "greywater")
-	var markets_before: float = Economy.breakdown(state, "blue").gold.filter(func(l): return l[0] == "Markets")[0][1]
+	var plains := Economy.region_income(state, "kingsvale")
+	var mountains := Economy.region_income(state, "highcrag")
+	var upkeep := Economy.unit_upkeep(state, state.unit_in("greywater"))
 	t.check(Economy.recruit_problem(state, "greywater", "catapult", "blue") == "needs research: Siege Engineering"
 		and Economy.recruit_problem(state, "greywater", "heavy_cavalry", "blue") == "needs research: Stirrups",
 		"catapults need Siege Engineering and heavy cavalry needs Stirrups")
-	var far := Helpers.game({"northmarch": "blue"}, [["blue", "redfield", "militia"]], 7)
-	var supplied_before := Economy.is_supplied(far, far.units[0])
 	t.check(Sieges.duration(state, "kingsvale", "blue") == 2, "a palisade holds out 2 turns")
 
+	blue.techs.assign(["crop_rotation"])
+	t.check(Economy.region_income(state, "highcrag") == mountains + 1.0, "Crop Rotation: +1 gold from every region")
+	blue.techs.assign(["mining"])
+	t.check(Economy.region_income(state, "highcrag") == mountains + 5.0, "Mining: +5 gold from mountains")
+	blue.techs.assign(["heavy_plough"])
+	t.check(Economy.region_income(state, "kingsvale") == plains + 2.0, "Heavy Plough: +2 gold from plains")
+	blue.techs.assign(["coinage"])
+	t.check(Economy.region_income(state, "highcrag") == roundf(mountains * 1.15), "Coinage: +15% gold")
+	blue.techs.assign(["guilds"])
+	t.check(Economy.region_income(state, "greywater") == 10.0 + 16.0 * 1.25, "Guilds: +25% from markets")
+	blue.techs.assign(["logistics"])
+	t.check(is_equal_approx(Economy.unit_upkeep(state, state.unit_in("greywater")), upkeep * 0.8), "Logistics: upkeep costs 20% less")
+
 	blue.techs.assign(Rules.techs.keys())
-	t.check(is_equal_approx(Economy.province_food(state, "greywater"), food_before * 1.2 * 1.15), "Crop Rotation and Heavy Plough: +20% then +15% food")
-	var taxes_after: float = Economy.breakdown(state, "blue").gold.filter(func(l): return l[0].begins_with("Taxes"))[0][1]
-	var taxes_before: float = before.gold - markets_before + Economy.unit_gold_upkeep(state.units[0]) + Economy.unit_gold_upkeep(state.units[1]) \
-		+ Economy.unit_gold_upkeep(state.units[2]) + Economy.unit_gold_upkeep(state.units[3])
-	t.check(is_equal_approx(taxes_after, taxes_before * 1.15), "Coinage: +15% gold from taxes")
-	var markets_after: float = Economy.breakdown(state, "blue").gold.filter(func(l): return l[0] == "Markets")[0][1]
-	t.check(is_equal_approx(markets_after, markets_before * 1.25), "Guilds: +25% from markets")
-	far.factions.blue.techs.append("logistics")
-	t.check(not supplied_before and Economy.is_supplied(far, far.units[0]), "Logistics: +1 supply range (Redfield, 3 regions out, is now in supply)")
-	t.check(Economy.recruit_problem(state, "greywater", "catapult", "blue") == "" and Economy.recruit_problem(state, "greywater", "heavy_cavalry", "blue") == "",
-		"the researched units can now be recruited")
+	t.check(not Economy.recruit_problem(state, "greywater", "catapult", "blue").begins_with("needs research")
+		and not Economy.recruit_problem(state, "greywater", "heavy_cavalry", "blue").begins_with("needs research"),
+		"the researched units no longer need research")
 	t.check(Sieges.duration(state, "kingsvale", "blue") == 1, "Siege Engineering: sieges take 1 turn less")
-
-	state.prepare_for_battle(state.units[0], true, "greywater")
-	state.prepare_for_battle(state.units[1], false, "greywater")
-	state.prepare_for_battle(state.units[2], false, "greywater")
-	t.check(is_equal_approx(state.units[0].defense_mod, 1.1) and is_equal_approx(state.units[0].attack_mod, 1.1),
+	state.prepare_for_battle(state.unit_in("greywater"), true, "greywater")
+	state.prepare_for_battle(state.unit_in("kingsvale"), false, "greywater")
+	state.prepare_for_battle(state.unit_in("northmarch"), false, "greywater")
+	t.check(is_equal_approx(state.unit_in("greywater").defense_mod, 1.1) and is_equal_approx(state.unit_in("greywater").attack_mod, 1.1),
 		"Chain Mail +10% infantry defense, Tempered Steel +10% melee attack")
-	t.check(is_equal_approx(state.units[1].attack_mod, 1.15), "Composite Bows: +15% ranged attack")
-	t.check(is_equal_approx(state.units[2].charge_mod, 1.15), "Stirrups: +15% cavalry charge")
-
+	t.check(is_equal_approx(state.unit_in("kingsvale").attack_mod, 1.15), "Composite Bows: +15% ranged attack")
+	t.check(is_equal_approx(state.unit_in("northmarch").charge_mod, 1.15), "Stirrups: +15% cavalry charge")
+	state.remove_unit(state.unit_in("greywater"))
 	Economy.recruit(state, "greywater", "spearmen")
-	state.end_faction_turn()
-	var recruit: Unit = state.units_in("greywater").back()
-	t.check(recruit.rank_name() == "Veteran", "Drill: new units start as Veterans")
+	Helpers.resolve(state)
+	t.check(state.unit_in("greywater").rank_name() == "Veteran", "Drill: new units start as Veterans")
 
 
 func _test_hotseat(t) -> void:

@@ -55,7 +55,8 @@
    "population": 5100,
    "coastal": true,
    "vertices": ["a2", "a3", "b5", "b4", "b3"],
-   "neighbours": ["greywater", "eastwold", "kingsvale", "thornwood"]
+   "neighbours": ["greywater", "eastwold", "kingsvale", "thornwood"],
+   "site": "camp"
   },
   {
    "id": "eastwold",
@@ -73,7 +74,8 @@
    "population": 12600,
    "coastal": true,
    "vertices": ["b0", "b1", "b2", "c2", "c1", "c0"],
-   "neighbours": ["northmarch", "greywater", "kingsvale", "saltmere"]
+   "neighbours": ["northmarch", "greywater", "kingsvale", "saltmere"],
+   "site": "town"
   },
   {
    "id": "kingsvale",
@@ -82,7 +84,8 @@
    "population": 14100,
    "coastal": false,
    "vertices": ["b2", "b3", "b4", "c4", "c3", "c2"],
-   "neighbours": ["greywater", "highcrag", "ashford", "thornwood", "redfield"]
+   "neighbours": ["greywater", "highcrag", "ashford", "thornwood", "redfield"],
+   "site": "town"
   },
   {
    "id": "thornwood",
@@ -91,7 +94,8 @@
    "population": 7300,
    "coastal": false,
    "vertices": ["b4", "b5", "b6", "c6", "c5", "c4"],
-   "neighbours": ["highcrag", "eastwold", "kingsvale", "stonehelm"]
+   "neighbours": ["highcrag", "eastwold", "kingsvale", "stonehelm"],
+   "site": "camp"
   },
   {
    "id": "saltmere",
@@ -100,7 +104,8 @@
    "population": 6400,
    "coastal": true,
    "vertices": ["c0", "c1", "c2", "d1", "d0"],
-   "neighbours": ["ashford", "redfield"]
+   "neighbours": ["ashford", "redfield"],
+   "site": "camp"
   },
   {
    "id": "redfield",
@@ -109,7 +114,8 @@
    "population": 13900,
    "coastal": false,
    "vertices": ["c2", "c3", "c4", "d2", "d1"],
-   "neighbours": ["kingsvale", "saltmere", "stonehelm"]
+   "neighbours": ["kingsvale", "saltmere", "stonehelm"],
+   "site": "town"
   },
   {
    "id": "stonehelm",

@@ -11,5 +11,5 @@ tier = 2
 cost_gold = 120
 turns = 3
 requires = Array[String](["crop_rotation"])
-description = "+1 supply range for every unit."
-supply_range = 1
+description = "Unit upkeep costs 20% less."
+upkeep = 0.8

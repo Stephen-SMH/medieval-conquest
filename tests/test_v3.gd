@@ -49,38 +49,31 @@ func _test_special_units(t) -> void:
 	t.check(not Battle.Force.new("a", true, mixed).all_berserkers(), "a mixed force can still rout")
 
 	# Longbowmen shoot 2 regions away; ordinary archers don't.
-	var state := Helpers.game({"greywater": "blue", "redfield": "red"}, [
-		["blue", "greywater", "longbowman"], ["blue", "greywater", "archers"], ["red", "redfield", "militia"]], 7, {"blue_civ": "anglish"})
+	var state := Helpers.game({"greywater": "blue", "ashford": "blue", "redfield": "red"}, [
+		["blue", "greywater", "longbowman"], ["blue", "ashford", "archers"], ["red", "redfield", "militia"]], 7, {"blue_civ": "anglish"})
+	var longbow: Unit = state.unit_in("greywater")
 	t.check(state.map.distance("greywater", "redfield") == 2, "Redfield is 2 regions from Greywater")
-	t.check(state.attack_problem(state.units[0], "redfield") == "" and state.attack_problem(state.units[1], "redfield") == "out of range",
+	t.check(Orders.problem(state, longbow, "attack", "redfield") == "" and Orders.problem(state, state.unit_in("ashford"), "attack", "redfield") == "out of range",
 		"longbowmen reach 2 regions, archers only 1")
-	t.check(state.reachable([state.units[0]]).get("redfield") == "attack", "the target 2 regions away lights up red")
-	var result := state.attack([state.units[0]], "redfield")
-	t.check(result.battle.ranged_only() and state.units[0].province == "greywater" and state.owners.redfield == "red",
+	t.check(Orders.reachable(state, longbow).get("redfield") == "attack", "the target 2 regions away lights up red")
+	Helpers.order(state, longbow, "attack", "redfield")
+	var events := Helpers.resolve(state)
+	t.check(Helpers.events_of(events, "volley").size() == 1 and longbow.province == "greywater" and state.owners.redfield == "red",
 		"the longbow volley flies 2 regions and takes nothing")
-
-	# Mamluks move and then shoot.
-	state = Helpers.game({"greywater": "blue", "kingsvale": "red"}, [["blue", "ashford", "mamluk"], ["red", "kingsvale", "militia"]], 7, {"blue_civ": "saracen"})
-	state.move_unit(state.units[0], "greywater")
-	t.check(state.attack_problem(state.units[0], "kingsvale") == "", "mamluks can shoot after moving")
 
 	t.check(Rules.unit("knight").charge_bonus == 1.25, "knights charge at +25%")
 
 
 func _test_bonuses(t) -> void:
-	# Norse: a free move between coastal regions.
+	# Norse: raiding 2 regions along the coast in one move.
 	var state := Helpers.game({"northmarch": "blue"}, [["blue", "northmarch", "berserker"], ["red", "eastwold", "militia"]], 7, {"blue_civ": "norse"})
-	var raider: Unit = state.units[0]
+	var raider: Unit = state.unit_in("northmarch")
 	t.check(state.map.is_coastal("northmarch") and state.map.is_coastal("greywater") and state.map.is_coastal("highcrag"), "the north coast is coastal")
-	state.move_unit(raider, "greywater")
-	t.check(raider.province == "greywater" and raider.move_points_left == 1, "Norse units sail along the coast without spending a move")
-	state.move_unit(raider, "highcrag")
-	t.check(raider.province == "highcrag" and raider.move_points_left == 0, "then use their normal move")
-	t.check(state.undo_last_move() and state.undo_last_move() and raider.province == "northmarch" and raider.coastal_moves == 1,
-		"undo gives the coastal move back")
+	t.check(Helpers.order(state, raider, "move", "highcrag") == "", "Norse units can sail 2 regions along the coast")
+	Helpers.resolve(state)
+	t.check(raider.province == "highcrag", "and land there in one turn")
 	state = Helpers.game({"northmarch": "blue"}, [["blue", "northmarch", "spearmen"]], 7, {"blue_civ": "anglish"})
-	state.move_unit(state.units[0], "greywater")
-	t.check(state.units[0].move_points_left == 0, "other civilizations get no coastal move")
+	t.check(Orders.problem(state, state.unit_in("northmarch"), "move", "highcrag") == "not next to it", "other civilizations can't")
 
 	# Anglish: +15% defense at home.
 	state = Helpers.game({"greywater": "blue", "kingsvale": "red"}, [["blue", "greywater", "yeoman"], ["blue", "kingsvale", "yeoman"]], 7, {"blue_civ": "anglish"})
@@ -90,22 +83,18 @@ func _test_bonuses(t) -> void:
 
 	# Frankish: cheaper cavalry.
 	state = Helpers.game({"greywater": "blue"}, [], 7, {"blue_civ": "frankish", "red_civ": "norse"})
-	t.check(Economy.unit_cost(state, "blue", Rules.unit("knight")).gold == 160.0 and Economy.unit_cost(state, "red", Rules.unit("light_cavalry")).gold == 110.0,
-		"Frankish cavalry costs 20% less (knight 200 → 160)")
+	t.check(Economy.unit_cost(state, "blue", Rules.unit("knight")).gold == 208.0 and Economy.unit_cost(state, "red", Rules.unit("light_cavalry")).gold == 110.0,
+		"Frankish cavalry costs 20% less (knight 260 → 208)")
 
 	# Byzantine: +25% from markets.
 	state = Helpers.game({"greywater": "blue", "eastwold": "red"}, [], 7,
 		{"blue_civ": "byzantine", "buildings": {"greywater": {"market": 2}, "eastwold": {"market": 2}}})
-	var markets := func(faction: String) -> float:
-		return Economy.breakdown(state, faction).gold.filter(func(l): return l[0] == "Markets")[0][1]
-	t.check(is_equal_approx(markets.call("blue"), 20.0) and is_equal_approx(markets.call("red"), 16.0), "Byzantine markets earn 25% more")
+	t.check(Economy.region_income(state, "greywater") == 30.0 and Economy.region_income(state, "eastwold") == 26.0, "Byzantine markets earn 25% more (20 vs 16)")
 
-	# Saracen: no winter attrition.
-	state = Helpers.game({"greywater": "blue"}, [["blue", "kingsvale", "ghazi"]], 7, {"blue_civ": "saracen"})
-	state.turn = 4
-	state.units[0].moved = true
-	state.end_faction_turn()
-	t.check(state.units[0].soldiers() == 20, "Saracen units don't suffer winter attrition")
+	# Saracen: cheaper mercenaries.
+	state = Helpers.game({"ashford": "blue", "kingsvale": "red"}, [], 7, {"blue_civ": "saracen", "red_civ": "norse"})
+	t.check(Economy.mercenary_price(Rules.unit("spearmen"), state, "blue") == 79.0 and Economy.mercenary_price(Rules.unit("spearmen"), state, "red") == 105.0,
+		"Saracen mercenaries cost 25% less")
 
 
 func _test_campaigns(t) -> void:
@@ -181,7 +170,7 @@ func _test_skirmish(t) -> void:
 		var state := GameState.from_scenario(scenario, 3)
 		var ok: bool = state.turn_order.size() == 4 and state.factions[state.turn_order[0]].human and state.turn_order[3] == "norse_2"
 		for faction in state.turn_order:
-			ok = ok and state.owners[state.capitals[faction]] == faction and state.units_of(faction).size() == 4
+			ok = ok and state.owners[state.capitals[faction]] == faction and state.units_of(faction).size() >= 2
 		t.check(ok, "skirmish on %s: 4 factions with capitals and armies, repeated civilizations get their own id" % map_id)
 
 	var players := [{"civ": "norse"}, {"civ": "anglish"}, {"civ": "frankish"}, {"civ": "byzantine"}]
