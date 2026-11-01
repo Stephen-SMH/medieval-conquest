@@ -7,6 +7,7 @@ signal select_only(unit: Unit)
 signal merge_requested(target: Unit, source: Unit)
 signal hire_requested(unit: Unit)
 signal region_requested(region: String)
+signal besiege_requested(region: String)
 
 @onready var _content: VBoxContainer = $Margin/Scroll/Content
 
@@ -60,6 +61,14 @@ func show_units(state: GameState, selection: Array[Unit]) -> void:
 			if target.id < source.id and state.merge_problem(target, source) == "":
 				_add_button("Merge two %s (%d + %d soldiers)" % [target.type().display_name.to_lower(),
 					target.soldiers(), source.soldiers()], func(): merge_requested.emit(target, source))
+	var walled := {}
+	for unit in selection:
+		for neighbour in state.map.neighbours(unit.province):
+			if Sieges.besiege_problem(state, selection, neighbour) == "":
+				walled[neighbour] = true
+	for target in walled:
+		_add_button("Besiege %s (%s)" % [state.map.region_name(target), Sieges.WALL_NAMES[Sieges.walls(state, target)]],
+			func(): besiege_requested.emit(target))
 	if selection.size() == 1 and first.general == null:
 		_add_button("Hire a general (%dg)" % Economy.GENERAL_COST.gold, func(): hire_requested.emit(first))
 	if state.owners[region] == first.owner:

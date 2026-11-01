@@ -39,6 +39,11 @@ func show_province(state: GameState, id: String) -> void:
 	lines.append("[b]Population:[/b] %s" % thousands(province.population))
 	lines.append("[b]Food:[/b] +%d this turn (%s)" % [roundi(Economy.province_food(state, id)), state.season()])
 	lines.append("[b]In battle:[/b] %s" % terrain.battle_text)
+	var siege: ProvinceState = state.provinces[id]
+	if siege.siege_faction != "":
+		lines.append("[color=#f0a050][b]Besieged[/b] by %s: %d of %d turns%s[/color]" % [state.faction_name(siege.siege_faction),
+			siege.siege_turns, Sieges.duration(state, id, siege.siege_faction),
+			" — the walls are breached" if Sieges.breached(state, id) else ""])
 	if own:
 		lines.append("[b]Happiness:[/b] %d / 100%s" % [roundi(province_state.happiness),
 			"  [color=#f08070](may revolt)[/color]" if province_state.happiness < Economy.REVOLT_BELOW else ""])
@@ -58,6 +63,8 @@ func show_province(state: GameState, id: String) -> void:
 			for unit_id in province_state.recruits:
 				names.append(Rules.unit(unit_id).display_name)
 			lines.append("[b]Training:[/b] %s (ready at the end of the turn)" % ", ".join(names))
+		if Sieges.walls(state, id) > 0:
+			lines.append("[b]Walls:[/b] %s" % Sieges.WALL_NAMES[Sieges.walls(state, id)])
 		if Economy.blockaded(state, id):
 			lines.append("[color=#f08070]Enemy units are here: no income, building or recruiting.[/color]")
 	lines.append("")
@@ -94,7 +101,7 @@ func _add_actions(state: GameState, id: String) -> void:
 			continue
 		var title := building.display_name if level == 0 else "%s → %d" % [building.display_name, level + 1]
 		var problem := Economy.build_problem(state, id, building_id, state.owners[id])
-		_add_button("%s  (%s, %d turn%s)" % [title, cost_text(Economy.building_cost(building)), building.build_turns,
+		_add_button("%s  (%s, %d turn%s)" % [title, cost_text(Economy.building_cost(building, level + 1)), building.build_turns,
 			"" if building.build_turns == 1 else "s"], building.description, problem,
 			func(): build_requested.emit(id, building_id))
 

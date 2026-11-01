@@ -22,7 +22,9 @@ Open `project.godot` in Godot 4.7 and press F5, or run `godot --path .` from thi
 | Merge, hire a general | Buttons in the unit panel |
 | Build and recruit | Click your region with no units, or "Build and recruit" in the unit panel |
 | See the last battle | The Battle report button |
-| End the turn | Enter, or the End turn button |
+| Besiege walls | "Besiege …" in the unit panel, with a melee unit next to a walled enemy region |
+| Save or load | The Save / load button (an autosave is made at the start of each of your turns) |
+| End the turn | Enter, or the End turn button; the computer factions then play |
 | Pan / zoom | WASD, arrow keys or drag / mouse wheel or `=` `-` |
 | Map mode: political / terrain / resources | `1` / `2` / `3` |
 | Deselect | Esc |
@@ -53,6 +55,25 @@ then up to 6 melee rounds until a side's morale falls to 30 and it routs. Damage
 [data/counters.tres](data/counters.tres) (spearmen ×2.0 against cavalry, cavalry ×2.0 against archers, ...),
 terrain, rivers (−25% for the attacker), walls, generals, ranks and morale. A forecast simulates the battle
 20 times before you confirm. After the battle, tokens shake, losses float up, and the Battle report explains the result.
+
+## Walls and sieges
+
+Walls are built in three levels: palisade, stone walls, castle (a castle icon appears behind the tokens). Defenders
+behind walls take 33%, 50% or 60% less damage; each attacking catapult cuts that. Instead of assaulting, you can
+**besiege**: keep a melee unit next to the walls and after 2, 4 or 6 turns they are breached, the bonus is gone, and
+the starving defenders lose a quarter of their soldiers every turn.
+
+## Missions and the computer players
+
+A mission has objectives (capture regions, hold a region for some turns, destroy a faction), a **par** turn count
+and a **hard limit** of twice par. Finishing at or under par gives 3 stars, under 1.5 × par 2 stars, otherwise 1;
+passing the limit, losing your capital or losing everything loses the mission. Without a mission, the last faction
+standing wins.
+
+Every faction without a human player is run by the AI ([scripts/game/ai.gd](scripts/game/ai.gd)). It recruits units
+that counter the enemies it can see, builds when food or gold run short, pulls badly hurt units back, attacks where
+its forecast is good enough for its personality (aggressive, balanced or defensive), besieges walls, reinforces
+threatened regions and advances on the nearest enemy.
 
 ## How the economy works
 
@@ -89,6 +110,6 @@ tests/    headless test suites
 
 - [x] M1–M4 (version 1): province map, armies, battles, economy
 - [x] V1 — Unit tokens: icons, health bars, soldier counts, ranks; 4-unit stacks; move, attack, ranged attack, retreat, undo; battle results; healing and merging; recruiting units
-- [ ] V2 — AI and missions
+- [x] V2 — AI and missions: AI turns with personalities, sieges, objectives with par and stars, victory and defeat screens, save and load
 - [ ] V3 — Civilizations and campaigns
 - [ ] V4 — Research, hotseat and mobile

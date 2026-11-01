@@ -17,7 +17,7 @@
    "civ": "",
    "color": "#b5423a",
    "human": false,
-   "ai": "balanced"
+   "ai": "aggressive"
   },
   {
    "id": "corvane",
@@ -33,7 +33,7 @@
    "civ": "",
    "color": "#d1a23a",
    "human": false,
-   "ai": "balanced"
+   "ai": "defensive"
   }
  ],
  "owners": {
@@ -63,7 +63,8 @@
   "eastwold": {
    "farm": 1,
    "market": 1,
-   "barracks": 1
+   "barracks": 1,
+   "walls": 1
   },
   "redfield": {
    "farm": 1,
@@ -73,7 +74,8 @@
   "stonehelm": {
    "farm": 1,
    "market": 1,
-   "barracks": 1
+   "barracks": 1,
+   "walls": 2
   }
  },
  "units": [
@@ -237,5 +239,23 @@
    "region": "thornwood",
    "type": "archers"
   }
- ]
+ ],
+ "mission": {
+  "player": "aldmere",
+  "par": 10,
+  "objectives": [
+   {
+    "type": "capture",
+    "regions": ["eastwold"]
+   },
+   {
+    "type": "hold",
+    "region": "kingsvale",
+    "turns": 3
+   }
+  ],
+  "briefing": "Brennwald's dukes have grown bold. Take their seat at Eastwold, and hold the crossroads of Kingsvale for three turns.",
+  "victory_text": "Eastwold's banners come down, and the roads through Kingsvale are yours.",
+  "defeat_text": "The duchy holds, and Aldmere's hopes go with it."
+ }
 }

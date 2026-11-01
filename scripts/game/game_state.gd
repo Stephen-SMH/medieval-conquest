@@ -35,6 +35,12 @@ var units: Array[Unit] = []
 var rng := RandomNumberGenerator.new()
 ## Moves made this turn, newest last, so they can be undone (OR-7).
 var undo_stack := []
+## The scenario's mission (objectives, par...); empty for skirmish and hotseat.
+var mission := {}
+## Turns held for "hold" objectives, by objective index.
+var mission_progress := {}
+## {} while the game goes on; see Mission.evaluate().
+var result := {}
 
 var _next_unit_id := 1
 
@@ -45,6 +51,7 @@ static func from_scenario(scenario: Dictionary, game_seed := 1) -> GameState:
 	var state := GameState.new()
 	state.map = MapData.load_map(scenario.map)
 	state.scenario_id = scenario.get("id", "")
+	state.mission = scenario.get("mission", {}).duplicate(true)
 	state.rng.seed = game_seed
 	for entry in scenario.factions:
 		var faction := FactionState.new()
@@ -132,11 +139,14 @@ func date_text() -> String:
 ## recruits, buildings, happiness), then the next living faction starts. After
 ## the last faction, the turn number and season advance. Returns events.
 func end_faction_turn() -> Array:
-	var events := Economy.process_faction(self, current_faction())
+	var ending := current_faction()
+	var events := Economy.process_faction(self, ending)
+	events.append_array(Sieges.advance(self, ending))
 	undo_stack.clear()
 	for unit in units.duplicate():
 		if unit.is_destroyed():
 			remove_unit(unit)
+	Mission.end_of_turn(self, ending)
 	_update_alive()
 	for step in turn_order.size():
 		current += 1
@@ -146,7 +156,20 @@ func end_faction_turn() -> Array:
 		if factions[current_faction()].alive:
 			break
 	_start_turn()
+	update_result()
 	return events
+
+
+## Checks objectives and conquest; once the game is decided, `result` stays set.
+func update_result() -> void:
+	if not result.is_empty():
+		return
+	_update_alive()
+	result = Mission.evaluate(self)
+
+
+func is_over() -> bool:
+	return not result.is_empty()
 
 
 func _start_turn() -> void:
@@ -244,6 +267,8 @@ func visible_provinces(faction: String) -> Dictionary:
 
 ## "" if the unit can move into `region` now, else the reason why not.
 func move_problem(unit: Unit, region: String) -> String:
+	if is_over():
+		return "the game is over"
 	if unit.owner != current_faction():
 		return "not your turn"
 	if not map.are_neighbours(unit.province, region):
@@ -272,6 +297,7 @@ func move_unit(unit: Unit, region: String) -> Array:
 	unit.moved = true
 	var events := [{"type": "moved", "unit": unit, "province": region}]
 	events.append_array(_capture(unit.owner, region))
+	update_result()
 	return events
 
 
@@ -285,7 +311,7 @@ func move_stack(stack: Array, region: String) -> Array:
 
 ## Undoes the last move this turn, including any capture it made (OR-7).
 func undo_last_move() -> bool:
-	if undo_stack.is_empty():
+	if undo_stack.is_empty() or is_over():
 		return false
 	var step: Dictionary = undo_stack.pop_back()
 	var unit: Unit = step.unit
@@ -315,6 +341,8 @@ func _capture(faction: String, region: String) -> Array:
 
 ## "" if the unit can take part in an attack on `region` now, else why not.
 func attack_problem(unit: Unit, region: String) -> String:
+	if is_over():
+		return "the game is over"
 	if unit.owner != current_faction():
 		return "not your turn"
 	if enemy_units_in(region, unit.owner).is_empty():
@@ -419,6 +447,7 @@ func attack(stack: Array, region: String) -> Dictionary:
 			events.append_array(_capture(faction, region))
 	elif not battle.ranged_only():
 		events.append({"type": "repulsed", "province": origin, "faction": faction})
+	update_result()
 	return {"battle": battle, "events": events}
 
 

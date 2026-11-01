@@ -7,6 +7,8 @@ const DEFAULT_SCENARIO := "heartlands"
 
 ## {"scenario": Dictionary, "seed": int} for a new game, or {"save": Dictionary} to load.
 var setup := {}
+## The last new-game setup, for "Play again".
+var last_setup := {}
 
 
 ## The setup to start, falling back to the default scenario (for running the
@@ -16,6 +18,8 @@ func take_setup() -> Dictionary:
 	setup = {}
 	if chosen.is_empty():
 		chosen = {"scenario": load_scenario(DEFAULT_SCENARIO), "seed": 1}
+	if chosen.has("scenario"):
+		last_setup = chosen.duplicate(true)
 	return chosen
 
 

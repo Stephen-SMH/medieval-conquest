@@ -7,6 +7,8 @@
 [ext_resource type="Script" path="res://scripts/forecast_popup.gd" id="5_forecast"]
 [ext_resource type="Script" path="res://scripts/battle_report.gd" id="6_report"]
 [ext_resource type="Script" path="res://scripts/resource_bar.gd" id="7_resources"]
+[ext_resource type="Script" path="res://scripts/end_screen.gd" id="8_end"]
+[ext_resource type="Script" path="res://scripts/save_popup.gd" id="9_saves"]
 
 [sub_resource type="StyleBoxFlat" id="panel_style"]
 bg_color = Color(0.11, 0.12, 0.15, 0.96)
@@ -26,7 +28,7 @@ script = ExtResource("1_main")
 [node name="Map" type="Node2D" parent="."]
 
 [node name="Camera" type="Camera2D" parent="."]
-position = Vector2(780, 330)
+position = Vector2(780, 310)
 zoom = Vector2(0.8, 0.8)
 script = ExtResource("2_camera")
 
@@ -75,9 +77,22 @@ size_flags_vertical = 4
 theme_override_font_sizes/font_size = 12
 text = "  Click: select / order   U: undo   Drag/WASD: pan   Wheel: zoom   Enter: end turn"
 
+[node name="SaveButton" type="Button" parent="UI/TopBar/Rows/Modes"]
+layout_mode = 2
+focus_mode = 0
+text = "Save / load"
+
 [node name="Resources" type="HBoxContainer" parent="UI/TopBar/Rows"]
 layout_mode = 2
 script = ExtResource("7_resources")
+
+[node name="Objectives" type="RichTextLabel" parent="UI/TopBar/Rows"]
+custom_minimum_size = Vector2(940, 0)
+layout_mode = 2
+bbcode_enabled = true
+fit_content = true
+theme_override_font_sizes/normal_font_size = 13
+theme_override_font_sizes/bold_font_size = 13
 
 [node name="ProvincePanel" type="PanelContainer" parent="UI"]
 anchors_preset = 11
@@ -305,3 +320,87 @@ layout_mode = 2
 size_flags_horizontal = 8
 focus_mode = 0
 text = "Close [Esc]"
+
+[node name="EndScreen" type="PanelContainer" parent="UI"]
+visible = false
+custom_minimum_size = Vector2(520, 0)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -260.0
+offset_top = -170.0
+offset_right = 260.0
+offset_bottom = 170.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("panel_style")
+script = ExtResource("8_end")
+
+[node name="Margin" type="MarginContainer" parent="UI/EndScreen"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="Rows" type="VBoxContainer" parent="UI/EndScreen/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Stars" type="Control" parent="UI/EndScreen/Margin/Rows"]
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+
+[node name="Body" type="RichTextLabel" parent="UI/EndScreen/Margin/Rows"]
+layout_mode = 2
+bbcode_enabled = true
+fit_content = true
+
+[node name="Buttons" type="HBoxContainer" parent="UI/EndScreen/Margin/Rows"]
+layout_mode = 2
+alignment = 2
+theme_override_constants/separation = 8
+
+[node name="CloseButton" type="Button" parent="UI/EndScreen/Margin/Rows/Buttons"]
+layout_mode = 2
+focus_mode = 0
+text = "Look at the map"
+
+[node name="MenuButton" type="Button" parent="UI/EndScreen/Margin/Rows/Buttons"]
+layout_mode = 2
+focus_mode = 0
+text = "Main menu"
+
+[node name="AgainButton" type="Button" parent="UI/EndScreen/Margin/Rows/Buttons"]
+layout_mode = 2
+focus_mode = 0
+text = "Play again"
+
+[node name="SavePopup" type="PanelContainer" parent="UI"]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -280.0
+offset_top = -140.0
+offset_right = 280.0
+offset_bottom = 140.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("panel_style")
+script = ExtResource("9_saves")
+
+[node name="Margin" type="MarginContainer" parent="UI/SavePopup"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="Rows" type="VBoxContainer" parent="UI/SavePopup/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8

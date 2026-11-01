@@ -44,6 +44,10 @@ var _last_battle := []  # [Battle, region] for the Report button.
 @onready var _forecast_popup: ForecastPopup = $UI/ForecastPopup
 @onready var _battle_report: BattleReport = $UI/BattleReport
 @onready var _resource_bar: ResourceBar = $UI/TopBar/Rows/Resources
+@onready var _objectives_label: RichTextLabel = $UI/TopBar/Rows/Objectives
+@onready var _save_button: Button = $UI/TopBar/Rows/Modes/SaveButton
+@onready var _end_screen: EndScreen = $UI/EndScreen
+@onready var _save_popup: SavePopup = $UI/SavePopup
 @onready var _mode_buttons := {
 	MapMode.POLITICAL: $UI/TopBar/Rows/Modes/PoliticalButton,
 	MapMode.TERRAIN: $UI/TopBar/Rows/Modes/TerrainButton,
@@ -55,7 +59,10 @@ func _ready() -> void:
 	var session := get_node_or_null("/root/Session")
 	var setup: Dictionary = session.take_setup() if session != null \
 		else {"scenario": SessionScript.load_scenario(SessionScript.DEFAULT_SCENARIO), "seed": 1}
-	state = GameState.from_scenario(setup.scenario, setup.get("seed", 1))
+	if setup.has("save"):
+		state = SaveGame.from_dict(setup.save)
+	else:
+		state = GameState.from_scenario(setup.scenario, setup.get("seed", 1))
 	map = state.map
 	_camera.map_rect = Rect2(Vector2.ZERO, map.size)
 
@@ -84,6 +91,14 @@ func _ready() -> void:
 	_unit_panel.merge_requested.connect(_on_merge_requested)
 	_unit_panel.hire_requested.connect(_on_hire_requested)
 	_unit_panel.region_requested.connect(select_region)
+	_unit_panel.besiege_requested.connect(_on_besiege_requested)
+	_save_button.pressed.connect(_open_saves)
+	_save_popup.save_requested.connect(_on_save_requested)
+	_save_popup.load_requested.connect(_on_load_requested)
+	_save_popup.closed.connect(_close_popups)
+	_end_screen.play_again.connect(_play_again)
+	_end_screen.closed.connect(_close_popups)
+	_end_screen.menu.connect(_go_to_menu)
 	_forecast_popup.confirmed.connect(_on_attack_confirmed)
 	_forecast_popup.cancelled.connect(_close_popups)
 	_battle_report.closed.connect(_close_popups)
@@ -93,8 +108,8 @@ func _ready() -> void:
 
 	set_mode(MapMode.POLITICAL)
 	clear_selection()
-	_run_other_factions()
 	_show_message("You are %s. Click one of your units, then a green region to move or a red one to attack." % state.faction_name(state.viewer()))
+	_run_other_factions()
 
 
 func _process(_delta: float) -> void:
@@ -129,7 +144,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _is_my_turn() -> bool:
-	return state.factions[state.current_faction()].human
+	return state.factions[state.current_faction()].human and not state.is_over()
 
 
 # --- Selection (OR-1, OR-2) ----------------------------------------------------------
@@ -190,6 +205,7 @@ func order(region: String) -> void:
 			var events := state.move_stack(selection, region)
 			_report_events(events)
 			select_units(selection)
+			_check_end()
 		"attack":
 			var attackers := state.attackers_for(selection, region)
 			_pending_attack = {"units": attackers, "region": region}
@@ -220,6 +236,7 @@ func _on_attack_confirmed() -> void:
 		clear_selection()
 	else:
 		select_units(survivors)
+	_check_end()
 
 
 ## The short battle effect on the map (BR-4): both regions shake, each unit's
@@ -263,13 +280,69 @@ func end_turn() -> void:
 	clear_selection()
 
 
-## Plays every AI faction's turn until a human is up.
+## Plays every AI faction's turn until a human is up, then autosaves.
 func _run_other_factions() -> void:
 	var guard := state.turn_order.size() * 2
-	while not _is_my_turn() and guard > 0:
+	while not state.factions[state.current_faction()].human and not state.is_over() and guard > 0:
 		guard -= 1
-		_report_events(state.end_faction_turn(), true)
+		var events := AI.play_turn(state)
+		events.append_array(state.end_faction_turn())
+		_report_events(events, true)
 	_refresh_world()
+	if not _check_end():
+		SaveGame.save(state, "auto")
+
+
+## Shows the end screen once the game is decided.
+func _check_end() -> bool:
+	if not state.is_over():
+		return false
+	_refresh_world()
+	_end_screen.show_result(state, state.viewer())
+	_dim.visible = true
+	return true
+
+
+func _play_again() -> void:
+	var session := get_node_or_null("/root/Session")
+	if session != null:
+		session.setup = session.last_setup.duplicate(true)
+	get_tree().reload_current_scene()
+
+
+## The title screen (V4); until then, a new game.
+func _go_to_menu() -> void:
+	if ResourceLoader.exists("res://scenes/title.tscn"):
+		get_tree().change_scene_to_file("res://scenes/title.tscn")
+	else:
+		_play_again()
+
+
+func _open_saves() -> void:
+	_save_popup.open(_is_my_turn())
+	_dim.visible = true
+
+
+func _on_save_requested(slot: String) -> void:
+	var error := SaveGame.save(state, slot)
+	_show_message("Saved to slot %s." % slot if error == OK else "Couldn't save: %s." % error_string(error))
+	_save_popup.open(_is_my_turn())
+
+
+func _on_load_requested(slot: String) -> void:
+	var data := SaveGame.load_slot(slot)
+	var session := get_node_or_null("/root/Session")
+	if data.is_empty() or session == null:
+		return
+	session.setup = {"save": data}
+	get_tree().reload_current_scene()
+
+
+func _on_besiege_requested(region: String) -> void:
+	if Sieges.besiege(state, selection, region):
+		_show_message("The siege of %s begins: %d turns until the walls are breached, if you stay next to them." % [
+			map.region_name(region), Sieges.duration(state, region, state.current_faction())])
+	select_units(selection)
 
 
 ## Writes the most important events to the message line.
@@ -296,6 +369,9 @@ func _report_events(events: Array, quiet := false) -> void:
 					notes.append("The attack failed; the survivors fell back to %s." % map.region_name(event.province))
 			"general_lost":
 				notes.append("General %s was %s." % [event.general.name, event.fate])
+			"siege_breached":
+				if event.faction == viewer or state.owners[event.province] == viewer:
+					notes.append("The walls of %s are breached." % map.region_name(event.province))
 	if not notes.is_empty():
 		_show_message(" ".join(notes))
 	_refresh_world()
@@ -316,6 +392,8 @@ func _close_popups() -> void:
 	_pending_attack = {}
 	_forecast_popup.visible = false
 	_battle_report.visible = false
+	_end_screen.visible = false
+	_save_popup.visible = false
 	_dim.visible = false
 
 
@@ -365,6 +443,7 @@ func _refresh_world() -> void:
 	_date_label.text = "%s — %s to move" % [state.date_text(), state.faction_name(faction)]
 	_undo_button.disabled = state.undo_stack.is_empty() or not _is_my_turn()
 	_resource_bar.show_faction(state, state.viewer())
+	_show_objectives()
 	reach = state.reachable(selection) if _is_my_turn() and not selection.is_empty() else {}
 	_food_range = Vector2i(1 << 30, 0)
 	for region in map.province_order:
@@ -384,6 +463,18 @@ func _refresh_world() -> void:
 	_token_layer.selected = selection
 	_token_layer.visible_provinces = state.visible_provinces(state.viewer())
 	_token_layer.queue_redraw()
+
+
+func _show_objectives() -> void:
+	if not Mission.is_mission(state):
+		_objectives_label.text = "[b]Conquest:[/b] defeat every rival. %d factions remain." % state.living_factions().size()
+		return
+	var parts := PackedStringArray()
+	for objective in Mission.objectives(state):
+		parts.append("[color=%s]%s %s[/color]" % ["#8fe08f" if objective.done else "#e8e4dc",
+			"[x]" if objective.done else "[  ]", objective.text])
+	_objectives_label.text = "%s   [b]Turn %d[/b] — par %d, limit %d" % ["   ".join(parts), state.turn,
+		Mission.par(state), Mission.hard_limit(state)]
 
 
 func _color_for(region: String) -> Color:

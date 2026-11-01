@@ -201,8 +201,12 @@ static func material_cap(state: GameState, faction_id: String) -> float:
 
 # --- Buildings (3.11) -------------------------------------------------------------
 
-static func building_cost(building: BuildingType) -> Dictionary:
-	return {"gold": float(building.cost_gold), "wood": float(building.cost_wood), "iron": float(building.cost_iron)}
+## The cost of building `building` up to `level`.
+static func building_cost(building: BuildingType, level := 1) -> Dictionary:
+	var scale := 1.0
+	if level - 1 < building.level_cost_multipliers.size():
+		scale = building.level_cost_multipliers[level - 1]
+	return {"gold": building.cost_gold * scale, "wood": building.cost_wood * scale, "iron": building.cost_iron * scale}
 
 
 static func slots(state: GameState, region: String) -> int:
@@ -233,7 +237,7 @@ static func build_problem(state: GameState, region: String, building_id: String,
 		return "needs %s" % " or ".join(building.allowed_terrains)
 	if province.level(building_id) == 0 and used_slots(state, region) >= slots(state, region):
 		return "no free building slots"
-	if not state.factions[faction_id].can_afford(building_cost(building)):
+	if not state.factions[faction_id].can_afford(building_cost(building, province.level(building_id) + 1)):
 		return "not enough resources"
 	return ""
 
@@ -243,7 +247,7 @@ static func start_building(state: GameState, region: String, building_id: String
 	if not state.factions.has(faction_id) or build_problem(state, region, building_id, faction_id) != "":
 		return false
 	var building := Rules.building(building_id)
-	state.factions[faction_id].pay(building_cost(building))
+	state.factions[faction_id].pay(building_cost(building, state.provinces[region].level(building_id) + 1))
 	state.provinces[region].construction = building_id
 	state.provinces[region].construction_turns = building.build_turns
 	return true
