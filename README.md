@@ -116,7 +116,42 @@ Two trees of 6 techs in 3 tiers. One tech at a time, paid in gold when you start
 `export_presets.cfg` has two presets:
 
 - **Web** (Thread Support off, so it runs on any static host): `godot --headless --export-release "Web" build/web/index.html`.
-- **Android** (arm64, landscape): needs a Java SDK, the Android SDK and a keystore set in Godot's Editor Settings.
+- **Android** (arm64, landscape): see below.
+
+### Build for Android
+
+One-time setup on a Mac (the Android export templates must be installed in Godot):
+
+```
+brew install openjdk@17
+brew install --cask android-commandlinetools
+export JAVA_HOME=/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home
+SDK=~/Library/Android/sdk
+yes | sdkmanager --sdk_root=$SDK --licenses
+sdkmanager --sdk_root=$SDK "platform-tools" "build-tools;36.1.0" "platforms;android-36" "cmdline-tools;latest"
+```
+
+In Godot's Editor Settings (Export > Android), set **Java SDK Path** to the `JAVA_HOME` above, **Android SDK
+Path** to `~/Library/Android/sdk`, and **Debug Keystore** to a debug keystore (create one with
+`keytool -genkeypair -keyalg RSA -alias androiddebugkey -keypass android -storepass android -keystore debug.keystore -dname "CN=Android Debug,O=Android,C=US" -validity 9999`).
+
+Then build a debug APK (about 30 MB):
+
+```
+godot --headless --import    # once
+godot --headless --export-debug "Android" build/android/medieval-conquest.apk
+```
+
+The launcher icons in `assets/android/` are made from `icon.svg` by `tools/make_android_icons.sh`; run it again
+if the icon changes.
+
+To install the APK on a phone (Android 7 or later, 64-bit), do one of the following:
+
+- **USB:** on the phone, open Settings > About phone and tap *Build number* seven times, then turn on
+  Developer options > *USB debugging*. Plug the phone in, accept the prompt, and run
+  `~/Library/Android/sdk/platform-tools/adb install -r build/android/medieval-conquest.apk`.
+- **Copy the file:** put the APK on the phone (cable, cloud drive or email), open it in the Files app, and allow
+  *Install unknown apps* for that app when asked.
 
 ## Walls and sieges
 
