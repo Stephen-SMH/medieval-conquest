@@ -4,7 +4,9 @@ extends Node2D
 ## (PRD 8.3): red to attack, blue to move: a wooden shaft and a steel head
 ## over a tapered wedge of the order's colour, edged in gold. Only the
 ## viewer's own orders show while planning; a fainter arrow previews the order
-## under the mouse. Clicking an arrow cancels its order.
+## under the mouse. A unit split across several orders has one arrow per
+## detachment, each with a small shield showing how many soldiers go.
+## Clicking an arrow cancels that one order.
 
 const ATTACK := Color("#c8402c")
 const MOVE := Color("#3a6ed0")
@@ -20,28 +22,35 @@ var tokens: TokenLayer
 ## instead of regions) or {} for no preview.
 var preview := {}
 
-var _shapes := {}  # Unit -> Array of PackedVector2Array, for clicking.
+var _shapes := []  # [Unit, order index, PackedVector2Array], for clicking.
+var _font: Font
 
 
 func _ready() -> void:
 	z_index = 5
+	_font = load("res://assets/fonts/IMFellEnglish-Italic.ttf")
 
 
 func _draw() -> void:
 	_shapes.clear()
+	var counts := []  # Drawn last, above every arrow and the preview.
 	for unit: Unit in state.orders:
 		if unit.owner != state.viewer() or not state.units.has(unit):
 			continue
-		var steps: Array = state.orders[unit].steps
-		var points := route(unit)
-		var shapes := []
-		for i in steps.size():
-			var color := MOVE if steps[i].type == "move" else (ATTACK if steps[i].type == "attack" else BESIEGE)
-			shapes.append(draw_spear(self, points[i], points[i + 1], color, 1.0))
-		_shapes[unit] = shapes
+		var list: Array = state.orders[unit]
+		for index in list.size():
+			var steps: Array = list[index].steps
+			var points := route(unit, index)
+			for i in steps.size():
+				var color := MOVE if steps[i].type == "move" else (ATTACK if steps[i].type == "attack" else BESIEGE)
+				_shapes.append([unit, index, draw_spear(self, points[i], points[i + 1], color, 1.0)])
+			if list.size() > 1 or int(list[index].size) < unit.soldiers():
+				counts.append([points[0].lerp(points[1], 0.42), int(list[index].size)])
 	if not preview.is_empty():
 		var ends: Array = route_through([preview.from, preview.to]) if preview.from is String else [preview.from, preview.to]
 		draw_spear(self, ends[0], ends[1], MOVE if preview.kind == "move" else ATTACK, 0.45)
+	for count in counts:
+		_draw_count(count[0], count[1])
 
 
 ## Where arrows start and end in a region: at the feet of the unit standing there.
@@ -51,14 +60,27 @@ func anchor(region: String) -> Vector2:
 	return state.map.provinces[region].centroid
 
 
-## The points a unit's arrows run through: from its feet, through each
-## waypoint, to the last target, each moved off the region's name (see joint()).
-func route(unit: Unit) -> Array:
+## The points an order's arrows run through: from the unit's feet, through
+## each waypoint, to the last target, each moved off the region's name (see joint()).
+func route(unit: Unit, index := 0) -> Array:
 	var regions := [unit.province]
-	if state.orders.has(unit):
-		for step in state.orders[unit].steps:
+	var list: Array = state.orders.get(unit, [])
+	if index < list.size():
+		for step in list[index].steps:
 			regions.append(step.target)
 	return route_through(regions)
+
+
+## How many soldiers a detachment takes, on a small round shield on its arrow.
+func _draw_count(at: Vector2, count: int) -> void:
+	var r := _size() * 0.2
+	draw_circle(at, r + 2.0, Color(0.1, 0.06, 0.03, 0.9))
+	draw_circle(at, r, Color("#f1e3bd"))
+	draw_arc(at, r, 0.0, TAU, 24, OUTLINE, 2.0, true)
+	var text := str(count)
+	var font_size := int(r * 1.25)
+	var width := _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+	draw_string(_font, at + Vector2(-width / 2.0, font_size * 0.36), text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, Color("#1d130a"))
 
 
 ## The points an arrow through these regions runs through, clear of their names.
@@ -138,13 +160,18 @@ static func spear_cover(from: Vector2, to: Vector2, rect: Rect2) -> float:
 	return area
 
 
+## The order whose arrow is under `point`: [unit, order index], or [].
+func order_at(point: Vector2) -> Array:
+	for i in range(_shapes.size() - 1, -1, -1):
+		if Geometry2D.is_point_in_polygon(point, _shapes[i][2]):
+			return [_shapes[i][0], _shapes[i][1]]
+	return []
+
+
 ## The unit whose arrow is under `point`, or null.
 func unit_at(point: Vector2) -> Unit:
-	for unit in _shapes:
-		for shape: PackedVector2Array in _shapes[unit]:
-			if Geometry2D.is_point_in_polygon(point, shape):
-				return unit
-	return null
+	var hit := order_at(point)
+	return hit[0] if not hit.is_empty() else null
 
 
 ## Draws a spear arrow on `canvas` and returns its outline polygon (for

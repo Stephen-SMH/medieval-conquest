@@ -15,13 +15,13 @@ const STEPS := [
 	{"id": "select", "title": "Select a unit",
 		"text": "Welcome, commander! Each region holds one unit: a group of soldiers under its banner. Click your [b]spearmen in Millbrook[/b] to select them."},
 	{"id": "move", "title": "March",
-		"text": "The regions lit [color=#2a4fa0][b]blue[/b][/color] are where they can march. Click [b]Fernridge[/b]: a blue spear-arrow shows the order. Nothing moves until the turn ends."},
+		"text": "The regions lit [color=#2a4fa0][b]blue[/b][/color] are where they can march. Click [b]Fernridge[/b], choose how many soldiers go (all, unless you drag the slider) and press the check mark: a blue spear-arrow shows the order. Nothing moves until the turn ends."},
 	{"id": "cancel", "title": "Cancel an order",
-		"text": "Changed your mind? Click the unit again, or its arrow, to [b]cancel[/b] the order. Then send the spearmen to Fernridge again."},
+		"text": "Changed your mind? Click an [b]arrow[/b] to [b]cancel[/b] that order; [b]right-click[/b] the unit (or press [b]Cancel all orders[/b]) to cancel all of them. Then send the spearmen to Fernridge again."},
 	{"id": "attack", "title": "Attack",
-		"text": "Select the [b]swordsmen in Highmoor[/b] and click [b]Ravensford[/b], lit [color=#9b2d20][b]red[/b][/color]: an attack. Drag the [b]slider[/b] to choose how many soldiers to send (the rest stay home), then press the check mark."},
+		"text": "Select the [b]swordsmen in Highmoor[/b] and click [b]Ravensford[/b], lit [color=#9b2d20][b]red[/b][/color]: an attack. Drag the [b]slider[/b] to choose how many soldiers to send, then press the check mark. The unit stays selected: the rest can march elsewhere with another arrow, or stay home (the small number by the unit)."},
 	{"id": "cavalry", "title": "Cavalry: two steps",
-		"text": "Horsemen move twice. Select the [b]light cavalry in Eastwatch[/b], click [b]Saltfen[/b], then click a second region to ride on or attack. A unit with no moves left shows a [color=#c0301e][b]red X[/b][/color] by its health bar."},
+		"text": "Horsemen move twice. Select the [b]light cavalry in Eastwatch[/b], click [b]Saltfen[/b] and confirm, then click a second region to ride on or attack. A unit whose soldiers all have orders shows a [color=#c0301e][b]red X[/b][/color] by its health bar."},
 	{"id": "hourglass", "title": "End the turn",
 		"text": "Every unit has its orders. Turn the [b]hourglass[/b] (bottom right, or Enter) to end your turn: every side moves at once and the turn plays out on the map. Click to skip the show."},
 	{"id": "treasury", "title": "Gold",
@@ -103,11 +103,12 @@ func is_done(id: String, state: GameState, selected: Unit) -> bool:
 	return false  # "finish" waits for the player to close the tutorial.
 
 
-## Some unit of the player's has orders whose steps pass `test(unit, steps)`.
+## Some order of the player's has steps that pass `test(unit, steps)`.
 func _has_step(state: GameState, test: Callable) -> bool:
 	for unit: Unit in state.orders:
-		if unit.owner == PLAYER and test.call(unit, state.orders[unit].steps):
-			return true
+		for order in state.orders[unit]:
+			if unit.owner == PLAYER and test.call(unit, order.steps):
+				return true
 	return false
 
 

@@ -1,8 +1,11 @@
 extends Node2D
 ## The game scene: the painted map, the units and the order arrows, and the
 ## planning turn (PRD 8.3). Click one of your units, then a region: a blue
-## arrow moves there, a red one attacks (choose how many soldiers to send).
-## Cavalry can add a second step. Click the unit again, or its arrow, to cancel.
+## arrow moves there, a red one attacks; a slider chooses how many soldiers
+## go. The unit stays selected, so more arrows can send the rest elsewhere;
+## whoever isn't sent stays home. Cavalry detachments can add a second step.
+## Click an arrow to cancel that order; right-click the unit (or press U) to
+## cancel all of them.
 ## The hourglass ends your planning; when every faction has planned, the turn
 ## resolves and plays out on the map.
 
@@ -91,6 +94,7 @@ func _ready() -> void:
 		$UI.add_child(popup)
 		popup.closed.connect(_close_popups)
 	_attack_popup.confirmed.connect(_on_attack_amounts)
+	_attack_popup.remove_requested.connect(_on_remove_order)
 	_recruit_window.recruit_requested.connect(_on_recruit)
 	_hud.recruit_pressed.connect(open_recruit)
 	_hud.treasury_pressed.connect(open_treasury)
@@ -209,13 +213,13 @@ func clear_selection() -> void:
 	select_region("")
 
 
-## A click on the map: an arrow cancels its order; with a unit selected a lit
-## region is an order; a unit of yours selects it (again: cancels its orders).
+## A click on the map: an arrow cancels that order; with a unit selected a lit
+## region is an order; a unit of yours selects it and shows its orders.
 func _click(point: Vector2) -> void:
-	var arrow := _orders.unit_at(point)
-	if arrow != null and _is_my_turn() and arrow.owner == state.current_faction():
+	var arrow := _orders.order_at(point)
+	if not arrow.is_empty() and _is_my_turn() and arrow[0].owner == state.current_faction():
 		AudioManager.sfx("click")
-		_cancel_order(arrow)
+		_cancel_one(arrow[0], arrow[1])
 		return
 	var unit := _tokens.unit_at(point)
 	var region := map.province_at(point)
@@ -225,45 +229,47 @@ func _click(point: Vector2) -> void:
 		order(region)
 		return
 	if unit != null and unit.owner == state.current_faction() and _is_my_turn():
-		if unit == selected_unit and state.orders.has(unit):
-			AudioManager.sfx("click")
-			_cancel_order(unit)
-		else:
-			AudioManager.sfx("select")
-			select_unit(unit)
+		AudioManager.sfx("select")
+		select_unit(unit)
 		return
 	select_region(region)
 
 
+## Gives the selected unit an order to `region`. A new arrow, or one that
+## changes an existing order's count, asks how many soldiers go; a cavalry
+## detachment's second march just carries on.
 func order(region: String) -> void:
 	if selected_unit == null or not _is_my_turn():
 		return
 	var unit := selected_unit
-	match reach.get(region, ""):
-		"move":
-			var problem := Orders.give(state, unit, "move", region)
-			if problem != "":
-				_hud.toast(problem.capitalize())
-			else:
-				AudioManager.sfx("order")
-		"attack":
-			_attack_popup.show_attack(state, unit, region, state.forecast_attack([unit], region))
-			_attack_popup.set_meta("target", region)
-			_attack_popup.set_meta("unit", unit)
-			_dim.visible = true
-			return
-		"blocked":
-			var index := maxi(Orders.next_step_index(state, unit), 0)
-			_hud.toast("Can't go to %s: %s." % [map.region_name(region), Orders.problem(state, unit, "move", region, index)])
-			return
-	_after_order(unit)
+	if reach.get(region, "") == "blocked" or not reach.has(region):
+		_hud.toast("Can't go to %s: %s." % [map.region_name(region), Orders.problem(state, unit, "move", region)])
+		return
+	var plan := Orders.intent(state, unit, region)
+	if plan.is_empty():
+		return
+	if plan.type == "move" and plan.step > 0:
+		_give(unit, "move", region, {})
+		return
+	var current: Dictionary = Orders.orders_of(state, unit)[plan.order] if plan.order >= 0 and plan.step == 0 else {}
+	var forecast := state.forecast_attack([unit], region) if plan.type == "attack" else {}
+	_attack_popup.show_order(state, unit, plan.type, region, forecast, Orders.available(state, unit, region), current,
+		plan.type == "move" and Orders.whole_unit_only(state, unit, region), plan.from)
+	_attack_popup.set_meta("target", region)
+	_attack_popup.set_meta("unit", unit)
+	_attack_popup.set_meta("type", plan.type)
+	_dim.visible = true
 
 
 func _on_attack_amounts(amounts: Dictionary) -> void:
 	var unit: Unit = _attack_popup.get_meta("unit")
 	var region: String = _attack_popup.get_meta("target")
 	_close_popups()
-	var problem := Orders.give(state, unit, "attack", region, amounts)
+	_give(unit, _attack_popup.get_meta("type", "attack"), region, amounts)
+
+
+func _give(unit: Unit, type: String, region: String, amounts: Dictionary) -> void:
+	var problem := Orders.give(state, unit, type, region, amounts)
 	if problem != "":
 		_hud.toast(problem.capitalize())
 	else:
@@ -271,16 +277,36 @@ func _on_attack_amounts(amounts: Dictionary) -> void:
 	_after_order(unit)
 
 
-## Cavalry with a step left stays selected for its second step.
+## "Remove this order" in the slider window of an existing order.
+func _on_remove_order() -> void:
+	var unit: Unit = _attack_popup.get_meta("unit")
+	var index := Orders.index_to(state, unit, _attack_popup.get_meta("target"))
+	_close_popups()
+	if index >= 0:
+		_cancel_one(unit, index)
+
+
+## The unit stays selected for more arrows until every soldier has one.
 func _after_order(unit: Unit) -> void:
-	if Orders.next_step_index(state, unit) > 0:
-		select_unit(unit)
-	else:
+	if Orders.is_spent(state, unit):
 		clear_selection()
+	else:
+		select_unit(unit)
 
 
+## Cancels all the unit's orders.
 func _cancel_order(unit: Unit) -> void:
+	if not state.orders.has(unit):
+		return
 	Orders.cancel(state, unit)
+	_tutorial_record("cancel")
+	_hud.toast("All orders cancelled.")
+	select_unit(unit)
+
+
+## Cancels one order (its arrow was clicked); its soldiers are free again.
+func _cancel_one(unit: Unit, index: int) -> void:
+	Orders.cancel_order(state, unit, index)
 	_tutorial_record("cancel")
 	_hud.toast("Order cancelled.")
 	select_unit(unit)
@@ -295,15 +321,17 @@ func _show_unit_info(unit: Unit) -> void:
 		"range %d" % unit_type.attack_range if unit_type.is_ranged() else "melee", ", two steps a turn" if unit_type.is_cavalry() else ""])
 	var buttons := []
 	if unit.owner == state.current_faction() and _is_my_turn():
-		var order_of := Orders.order_of(state, unit)
-		if order_of.is_empty():
-			lines.append("Click a [color=#2a4fa0]region to move[/color] or an [color=#9b2d20]enemy to attack[/color].")
+		if not state.orders.has(unit):
+			lines.append("Click a [color=#2a4fa0]region to move[/color] or an [color=#9b2d20]enemy to attack[/color]; a slider sets how many go.")
 		else:
-			var steps := PackedStringArray()
-			for step in order_of.steps:
-				steps.append("%s %s" % [step.type, map.region_name(step.target)])
-			lines.append("Orders: %s.%s" % [", then ".join(steps), " Click a region for its second step." if Orders.next_step_index(state, unit) > 0 else ""])
-			buttons.append(["Cancel order (U)", func(): _cancel_order(unit)])
+			var hints := PackedStringArray()
+			if Orders.chain_index(state, unit) >= 0:
+				hints.append("Click a region for the detachment's second step.")
+			if Orders.unassigned(state, unit) > 0:
+				hints.append("More arrows send the rest elsewhere.")
+			hints.append("Click an arrow to cancel it.")
+			lines.append("Orders: %s. %s" % [Orders.describe(state, unit), " ".join(hints)])
+			buttons.append(["Cancel all orders (U)", func(): _cancel_order(unit)])
 		for target in map.neighbours(unit.province):
 			if Orders.problem(state, unit, "besiege", target) == "":
 				buttons.append(["Besiege %s" % map.region_name(target), func(): Orders.give(state, unit, "besiege", target); clear_selection()])
@@ -693,7 +721,11 @@ func _handle_mouse_button(event: InputEventMouseButton) -> void:
 				_click(point)
 			elif event.button_index == MOUSE_BUTTON_RIGHT:
 				var region := map.province_at(point)
-				if reach.has(region):
+				var unit := _tokens.unit_at(point)
+				if unit != null and unit.owner == state.current_faction() and _is_my_turn() and state.orders.has(unit):
+					AudioManager.sfx("click")
+					_cancel_order(unit)  # Right-click your unit: cancel all its orders.
+				elif reach.has(region) and reach[region] != "blocked":
 					order(region)
 				else:
 					clear_selection()
@@ -726,9 +758,9 @@ func _update_hover() -> void:
 	# Preview the arrow the selected unit would get.
 	_orders.preview = {}
 	if selected_unit != null and reach.get(region, "") in ["move", "attack"]:
-		var index := maxi(Orders.next_step_index(state, selected_unit), 0)
-		var from := Orders.step_origin(state, selected_unit, index)
-		_orders.preview = {"from": from, "to": region, "kind": reach[region]}
+		var plan := Orders.intent(state, selected_unit, region)
+		if not plan.is_empty():
+			_orders.preview = {"from": plan.from, "to": region, "kind": plan.type}
 	_orders.queue_redraw()
 
 

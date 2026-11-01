@@ -114,15 +114,15 @@ func _test_ai(t) -> void:
 		["blue", "greywater", "militia", 6], ["red", "kingsvale", "heavy_cavalry"]], 7)
 	Helpers.plan_as(state, "red")
 	AI.play_turn(state)
-	t.check(state.orders.get(state.unit_in("kingsvale"), {}).get("steps", [{}])[0].get("type") == "attack", "the AI plans an attack on a weak neighbour")
+	t.check(state.orders.get(state.unit_in("kingsvale"), [{"steps": [{}]}])[0].steps[0].get("type") == "attack", "the AI plans an attack on a weak neighbour")
 	Helpers.resolve(state)
 	t.check(state.owners.greywater == "red", "and takes it when the turn resolves")
 
 	state = Helpers.game({"greywater": "blue", "kingsvale": "red"}, [["blue", "greywater", "spearmen"], ["red", "kingsvale", "light_cavalry", 8]], 7)
 	Helpers.plan_as(state, "red")
 	AI.play_turn(state)
-	var order: Dictionary = state.orders.get(state.unit_in("kingsvale"), {})
-	t.check(order.is_empty() or order.steps[0].type != "attack", "the AI won't attack when the forecast is bad")
+	var orders: Array = state.orders.get(state.unit_in("kingsvale"), [])
+	t.check(orders.all(func(o): return o.steps[0].type != "attack"), "the AI won't attack when the forecast is bad")
 
 	state = Helpers.game({"greywater": "blue", "kingsvale": "red", "redfield": "red"}, [
 		["blue", "greywater", "heavy_cavalry"], ["red", "kingsvale", "spearmen", 3]], 7)

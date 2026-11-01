@@ -13,6 +13,7 @@ const SUITES := [
 	preload("res://tests/test_v5.gd"),
 	preload("res://tests/test_visuals.gd"),
 	preload("res://tests/test_polish.gd"),
+	preload("res://tests/test_split.gd"),
 ]
 
 var failures := 0

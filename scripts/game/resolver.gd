@@ -2,28 +2,33 @@ class_name Resolver
 extends RefCounted
 ## Carries out every faction's orders together when the hourglass is pressed
 ## (PRD 8.3, 8.4), always in the same order, with the game's seeded dice:
+##   0. units with several orders, or an order for only some soldiers, split
+##      into detachments: the soldiers with no order stay home as the unit
+##      (with its general); if everyone goes, the unit itself leads the
+##      largest detachment. HP is shared out per soldier;
 ##   1. ranged volleys;
 ##   2. head-on attacks (A attacks B while B attacks A) become one field battle;
 ##   3. moves into empty or friendly regions, with swaps and merges; units of
 ##      different factions moving into the same empty region fight for it;
 ##   4. sieges, then attacks on occupied regions; several attackers on one
 ##      region fight one after another, strongest first;
-##   5. captures: a region a unit of another faction entered this turn, and
-##      still holds (or rode through, empty), changes hands;
+##   5. detachments that end the turn back home (failed, blocked or only
+##      shooting) rejoin their unit; then captures: a region a unit of another
+##      faction entered this turn, and still holds (or rode through, empty),
+##      changes hands;
 ##   6. the economy and end-of-turn upkeep.
-## Steps 1-4 run once for every unit's first step and again for cavalry's
-## second step. An attack that sends only part of a unit fights with a
-## detachment, which rejoins its unit afterwards unless it took the region.
+## Steps 1-4 run once for every detachment's first step and again for
+## cavalry's second step. A detachment that moves into an empty region, or
+## wins an attack and finds the region empty, stays there as a new unit.
 ## Returns the events in the order they happened, for the animations.
 
 
 static func resolve(state: GameState) -> Array:
 	var events := []
 	var plan := {}
-	for unit in state.orders:
-		if state.units.has(unit):
-			plan[unit] = state.orders[unit].duplicate(true)
-	var ctx := {"plan": plan, "stopped": {}, "came_from": {}, "entered": []}
+	# group: each detachment -> the unit it split from; homes: region -> that unit.
+	var ctx := {"plan": plan, "stopped": {}, "came_from": {}, "entered": [], "group": {}, "homes": {}}
+	events.append_array(_split(state, ctx))
 	for wave in Orders.CAVALRY_STEPS:
 		var steps := {}
 		for unit in _by_id(plan.keys()):
@@ -35,9 +40,75 @@ static func resolve(state: GameState) -> Array:
 		events.append_array(_head_on(state, steps, ctx))
 		events.append_array(_moves(state, steps, ctx))
 		events.append_array(_attacks(state, steps, ctx))
+	events.append_array(_reunite(state, ctx))
+	events.append_array(_one_per_region(state))
 	events.append_array(_captures(state, ctx))
 	events.append_array(_end_of_turn(state))
 	return events
+
+
+# --- 0. Detachments ------------------------------------------------------------------
+
+## Turns each unit's orders into detachments, each a unit with one order.
+## A unit whose single order sends everyone simply carries it out itself.
+static func _split(state: GameState, ctx: Dictionary) -> Array:
+	var events := []
+	for unit in _by_id(state.orders.keys()):
+		if not state.units.has(unit):
+			continue
+		var list: Array = state.orders[unit]
+		var total := unit.soldiers()
+		var sizes := []
+		var left := total
+		for order in list:
+			var size := clampi(int(order.get("size", total)), 0, left)
+			sizes.append(size)
+			left -= size
+		if list.is_empty() or total <= 0:
+			continue
+		if list.size() == 1 and sizes[0] >= total:
+			ctx.plan[unit] = _plan_entry(list[0], total)
+			continue
+		# If nobody stays home, the unit itself (and its general) leads the largest detachment.
+		var leader := -1
+		if left <= 0:
+			for i in sizes.size():
+				if leader < 0 or sizes[i] > sizes[leader]:
+					leader = i
+		var per_soldier := unit.hp / total
+		var floor_hp := _floor_hp(unit)
+		var parts := []
+		var hp := {}
+		var given := 0.0
+		for i in list.size():
+			if i == leader or sizes[i] <= 0:
+				continue
+			var part := state.add_unit(unit.type_id, unit.owner, unit.province)
+			part.hp = maxf(per_soldier * sizes[i], floor_hp)
+			part.xp = unit.xp
+			part.coastal_moves = unit.coastal_moves
+			given += part.hp
+			ctx.group[part] = unit
+			ctx.plan[part] = _plan_entry(list[i], sizes[i])
+			parts.append(part)
+			hp[part] = part.hp
+		if parts.is_empty() and leader >= 0:
+			ctx.plan[unit] = _plan_entry(list[leader], total)
+			continue
+		unit.hp = maxf(unit.hp - given, floor_hp)
+		unit.moved = true  # Reorganising: a unit that splits doesn't also rest and heal this turn.
+		ctx.group[unit] = unit
+		ctx.homes[unit.province] = unit
+		if leader >= 0:
+			ctx.plan[unit] = _plan_entry(list[leader], sizes[leader])
+		hp[unit] = unit.hp
+		events.append({"type": "split", "unit": unit, "parts": parts, "province": unit.province, "hp": hp})
+	return events
+
+
+static func _plan_entry(order: Dictionary, size: int) -> Dictionary:
+	return {"steps": order.steps.duplicate(true), "soldiers": mini(int(order.get("soldiers", size)), size),
+		"shoot": mini(int(order.get("shoot", 0)), size)}
 
 
 # --- 1. Volleys --------------------------------------------------------------------
@@ -78,8 +149,12 @@ static func _head_on(state: GameState, steps: Dictionary, ctx: Dictionary) -> Ar
 		if not _melee_attack(state, a, steps, ctx):
 			continue
 		var target: String = steps[a].target
-		var b := state.unit_in(target)
-		if b == null or not steps.has(b) or not _melee_attack(state, b, steps, ctx) or steps[b].target != a.province:
+		var b: Unit = null
+		for other in state.units_in(target):
+			if steps.has(other) and _melee_attack(state, other, steps, ctx) and steps[other].target == a.province:
+				b = other
+				break
+		if b == null:
 			continue
 		var origin_a := a.province
 		var origin_b := b.province
@@ -133,7 +208,9 @@ static func _moves(state: GameState, steps: Dictionary, ctx: Dictionary) -> Arra
 			if not pending.has(unit):
 				continue
 			var other := state.unit_in(steps[unit].target)
-			if other != null and other.owner == unit.owner and pending.has(other) and steps[other].target == unit.province:
+			# A unit that split this turn shares its region with its detachments: it can't swap.
+			if other != null and other.owner == unit.owner and pending.has(other) and steps[other].target == unit.province \
+					and not ctx.group.has(unit) and not ctx.group.has(other):
 				var here: String = unit.province
 				unit.province = other.province
 				other.province = here
@@ -167,7 +244,7 @@ static func _moves(state: GameState, steps: Dictionary, ctx: Dictionary) -> Arra
 					continue
 				if unit == champion:
 					_enter(state, unit, target, ctx, events, "move")
-				elif champion != null and unit.owner == champion.owner and state.merge_problem(champion, unit) == "":
+				elif champion != null and unit.owner == champion.owner and _may_merge(state, champion, unit, ctx):
 					_merge_in(state, champion, unit, events)
 				else:
 					events.append({"type": "blocked", "unit": unit, "province": target, "reason": "the region was taken first"})
@@ -176,7 +253,7 @@ static func _moves(state: GameState, steps: Dictionary, ctx: Dictionary) -> Arra
 		# Moves into a region held by the same unit type: merge.
 		for unit in pending.duplicate():
 			var occupant := state.unit_in(steps[unit].target)
-			if occupant != null and occupant.owner == unit.owner and not pending.has(occupant) and state.merge_problem(occupant, unit) == "":
+			if occupant != null and occupant.owner == unit.owner and not pending.has(occupant) and _may_merge(state, occupant, unit, ctx):
 				pending.erase(unit)
 				_merge_in(state, occupant, unit, events)
 				progress = true
@@ -287,16 +364,23 @@ static func _end_of_turn(state: GameState) -> Array:
 # --- Helpers ------------------------------------------------------------------------------------
 
 ## Splits `soldiers` off a unit into a detachment in the same region, or returns
-## the unit itself when it sends everyone.
+## the unit itself when it sends everyone. HP is shared out per soldier.
 static func _detach(state: GameState, unit: Unit, soldiers: int) -> Unit:
 	if soldiers >= unit.soldiers() or soldiers <= 0:
 		return unit
 	var part := state.add_unit(unit.type_id, unit.owner, unit.province)
-	part.set_soldiers(soldiers)
+	var floor_hp := _floor_hp(unit)
+	part.hp = maxf(unit.hp * soldiers / unit.soldiers(), floor_hp)
 	part.xp = unit.xp
 	part.attacked = true
-	unit.set_soldiers(unit.soldiers() - soldiers)
+	unit.hp = maxf(unit.hp - part.hp, floor_hp)
 	return part
+
+
+## The least HP a detachment gets: just one soldier, so it isn't destroyed
+## (Unit.DESTROYED_BELOW) and doesn't count as two.
+static func _floor_hp(unit: Unit) -> float:
+	return unit.max_hp() * Unit.DESTROYED_BELOW * (1.0 + 1e-5)
 
 
 ## A detachment goes back to its unit and merges with it again.
@@ -304,10 +388,96 @@ static func _rejoin(state: GameState, unit: Unit, part: Unit, events: Array) -> 
 	if part == unit or not state.units.has(part):
 		return
 	if state.units.has(unit):
-		state.merge(unit, part)
-		events.append({"type": "rejoined", "unit": unit, "part": part, "province": unit.province})
+		_join(state, unit, part)
+		events.append({"type": "rejoined", "unit": unit, "part": part, "province": unit.province, "hp": unit.hp})
 	elif state.unit_in(part.province) != part:
 		events.append_array(state.destroy(part, "was cut off"))
+
+
+## Merges a detachment back into its unit, keeping their HP (a merge of two
+## different units rounds up to whole soldiers instead, UT-8).
+## They always fit: both came out of one unit and HP never grows in a turn.
+static func _join(state: GameState, unit: Unit, part: Unit) -> void:
+	unit.attacked = unit.attacked or part.attacked
+	unit.moved = unit.moved or part.moved
+	if unit.general == null and part.general != null:
+		unit.general = part.general
+		part.general = null
+	var hp := unit.hp + part.hp
+	if hp > unit.max_hp() * 1.0001 or unit.owner != part.owner or unit.type_id != part.type_id:
+		state.merge(unit, part)  # Not one unit's soldiers after all: a normal merge, up to 20.
+		return
+	# The rank is the soldier-weighted average, rounded down (UT-8).
+	var mine := unit.soldiers()
+	var theirs := part.soldiers()
+	var rank := floori(float(unit.rank() * mine + part.rank() * theirs) / maxi(mine + theirs, 1))
+	unit.xp = mini(unit.xp, part.xp) if unit.rank() == rank and part.rank() == rank else Unit.RANK_XP[rank]
+	unit.hp = minf(hp, unit.max_hp())
+	state.remove_unit(part)
+
+
+## Whether `unit` may merge into `target`. A unit that split this turn takes in
+## only its own detachments, so they always fit when they come home.
+static func _may_merge(state: GameState, target: Unit, unit: Unit, ctx: Dictionary) -> bool:
+	if state.merge_problem(target, unit) != "":
+		return false
+	if ctx.group.has(target) and ctx.homes.get(target.province) == ctx.group[target]:
+		return ctx.group.get(unit) == ctx.group[target]
+	return true
+
+
+## Detachments of the same unit that end the turn in the same region (back
+## home after a failed attack, a blocked march, or a volley) join up again.
+## If the unit itself is gone, the first of them becomes the unit there.
+static func _reunite(state: GameState, ctx: Dictionary) -> Array:
+	var events := []
+	var by_place := {}
+	for unit: Unit in _by_id(ctx.group.keys()):
+		if state.units.has(unit):
+			var key := "%d/%s" % [ctx.group[unit].id, unit.province]
+			by_place.get_or_add(key, []).append(unit)
+	for key in _sorted_keys(by_place):
+		var members: Array = by_place[key]
+		if members.size() < 2:
+			continue
+		var origin: Unit = null
+		for member: Unit in members:
+			if ctx.group[member] == member:
+				origin = member
+		var keeper: Unit = origin if origin != null else members[0]
+		for member: Unit in members:
+			if member == keeper or not state.units.has(member):
+				continue
+			_join(state, keeper, member)
+			events.append({"type": "rejoined", "unit": keeper, "part": member, "province": keeper.province, "hp": keeper.hp})
+	return events
+
+
+## A last guard for UT-3: if two units ever end in one region, the same type
+## merges; otherwise the newer unit falls back to a free region of its own,
+## or is lost.
+static func _one_per_region(state: GameState) -> Array:
+	var events := []
+	var seen := {}
+	for unit: Unit in _by_id(state.units.duplicate()):
+		if not state.units.has(unit):
+			continue
+		var first: Unit = seen.get(unit.province)
+		if first == null:
+			seen[unit.province] = unit
+			continue
+		if first.owner == unit.owner and state.merge_problem(first, unit) == "" and first.soldiers() + unit.soldiers() <= UnitType.SOLDIERS:
+			_join(state, first, unit)
+			events.append({"type": "rejoined", "unit": first, "part": unit, "province": first.province, "hp": first.hp, "crowded": true})
+			continue
+		var refuge := state.retreat_region(unit, unit.province)
+		if refuge == "":
+			events.append_array(state.destroy(unit, "had no room"))
+		else:
+			events.append({"type": "retreated", "unit": unit, "from": unit.province, "province": refuge, "crowded": true})
+			unit.province = refuge
+			seen[refuge] = unit
+	return events
 
 
 static func _enter(state: GameState, unit: Unit, region: String, ctx: Dictionary, events: Array, how: String) -> void:

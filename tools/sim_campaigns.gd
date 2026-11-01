@@ -52,8 +52,7 @@ func _play(campaign_id: String, index: int, game_seed: int, style: String) -> Ga
 		if style == "garrison" and planning == player and state.capitals.has(player):
 			var unit := state.unit_in(state.capitals[player])
 			if unit != null and unit.owner == player:
-				var order := Orders.order_of(state, unit)
-				if not order.is_empty() and (order.steps[0].type == "move" or int(order.soldiers) > 0):
+				if Orders.orders_of(state, unit).any(func(o): return o.steps[0].type == "move" or int(o.soldiers) > 0):
 					Orders.cancel(state, unit)
 		state.end_faction_turn()
 	return state

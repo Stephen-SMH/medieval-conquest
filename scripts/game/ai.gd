@@ -3,8 +3,10 @@ extends RefCounted
 ## Plans a computer faction's orders (PRD V2) with the same Orders a person
 ## uses: recruit units that counter the enemies it can see, build when poor,
 ## pull damaged units back, attack where the forecast is good enough for its
-## personality, besiege walls, capture empty regions and advance. The orders
-## are carried out with everyone else's when the turn resolves.
+## personality, besiege walls, capture empty regions and advance. A strong
+## unit sure of its attack may split off a few soldiers to hold an empty region
+## of its own that enemies threaten. The orders are carried out with everyone
+## else's when the turn resolves.
 
 const FORECAST_RUNS := 8  # Fewer than the player's forecast, to keep AI turns fast.
 const RETREAT_BELOW := 0.35  # Units weaker than this pull back from the front.
@@ -15,6 +17,8 @@ const ACCEPT := {
 	"defensive": ["Decisive win"],
 }
 const GOLD_RESERVE := {"aggressive": 40.0, "balanced": 80.0, "defensive": 120.0}
+## A unit splits off a garrison only when it has this many soldiers or more.
+const GARRISON_FROM := 14
 
 
 ## Plans the current faction's orders. Returns [] (nothing happens until the turn resolves).
@@ -28,6 +32,7 @@ static func play_turn(state: GameState) -> Array:
 		if _retreat(state, unit, claimed):
 			continue
 		if _attack(state, unit):
+			_garrison(state, unit, claimed)
 			continue
 		if _besiege(state, unit):
 			continue
@@ -134,6 +139,28 @@ static func _attack(state: GameState, unit: Unit) -> bool:
 			best_value = value
 			best = target
 	return best != "" and Orders.give(state, unit, "attack", best) == ""
+
+
+## A big unit attacking with a decisive forecast leaves a fifth of its
+## soldiers (at least 3) to hold an empty region of its own next to it that
+## enemies could walk into, and attacks with the rest.
+static func _garrison(state: GameState, unit: Unit, claimed: Dictionary) -> void:
+	var list := Orders.orders_of(state, unit)
+	if list.size() != 1 or list[0].steps[0].type != "attack" or unit.type().is_ranged() or unit.soldiers() < GARRISON_FROM:
+		return
+	var target: String = list[0].steps[0].target
+	for neighbour in state.map.neighbours(unit.province):
+		if neighbour == target or state.owners[neighbour] != unit.owner or state.unit_in(neighbour) != null or claimed.has(neighbour) \
+				or _enemies_near(state, unit.owner, neighbour, 1).is_empty():
+			continue
+		var forecast := state.forecast_attack([unit], target, FORECAST_RUNS)
+		if forecast.is_empty() or forecast.rating != "Decisive win":
+			return
+		var guard := maxi(3, unit.soldiers() / 5)
+		Orders.give(state, unit, "attack", target, {"soldiers": unit.soldiers() - guard})
+		if Orders.give(state, unit, "move", neighbour, {"soldiers": guard}) == "":
+			claimed[neighbour] = true
+		return
 
 
 static func _besiege(state: GameState, unit: Unit) -> bool:

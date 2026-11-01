@@ -155,7 +155,7 @@ func _test_split_attacks(t) -> void:
 	var state := Helpers.game({"greywater": "blue", "kingsvale": "red"}, [["blue", "greywater", "swordsmen"], ["red", "kingsvale", "swordsmen"]], 4)
 	var unit: Unit = state.unit_in("greywater")
 	Helpers.order(state, unit, "attack", "kingsvale", {"soldiers": 5})
-	t.check(state.orders[unit].soldiers == 5, "an attack can send part of the unit (5 of 20)")
+	t.check(state.orders[unit][0].size == 5, "an attack can send part of the unit (5 of 20)")
 	var events := Helpers.resolve(state)
 	var battle: Battle = Helpers.events_of(events, "battle")[0].battle
 	t.check(battle.attacker.units[0].soldiers() <= 5 and battle.attacker.before[0][1] == 5, "only the 5 sent fight")
@@ -175,7 +175,7 @@ func _test_split_attacks(t) -> void:
 	state = Helpers.game({"greywater": "blue", "kingsvale": "red"}, [["blue", "greywater", "archers"], ["red", "kingsvale", "militia", 6]], 4)
 	unit = state.unit_in("greywater")
 	Helpers.order(state, unit, "attack", "kingsvale", {"shoot": 14, "soldiers": 6})
-	t.check(state.orders[unit].shoot == 14 and state.orders[unit].soldiers == 6, "archers can split: 14 shoot and 6 go into melee")
+	t.check(state.orders[unit][0].shoot == 14 and state.orders[unit][0].soldiers == 6, "archers can split: 14 shoot and 6 go into melee")
 	events = Helpers.resolve(state)
 	var volleys := Helpers.events_of(events, "volley")
 	t.check(volleys.size() == 1 and volleys[0].shooters == 14, "the 14 shoot first")
@@ -188,11 +188,11 @@ func _test_cavalry(t) -> void:
 	var foot: Unit = state.unit_in("ashford")
 	t.check(Helpers.order(state, horse, "move", "kingsvale") == "" and Helpers.order(state, horse, "move", "redfield") == "",
 		"cavalry plans two moves")
-	t.check(state.orders[horse].steps.size() == 2, "both steps are kept")
+	t.check(state.orders[horse][0].steps.size() == 2, "both steps are kept")
 	Helpers.order(state, foot, "move", "saltmere")
 	Helpers.order(state, foot, "move", "northmarch")
-	t.check(state.orders[foot].steps.size() == 1 and state.orders[foot].steps[0].target == "northmarch",
-		"infantry gets one step: a second click replaces the first")
+	t.check(state.orders[foot].size() == 1 and state.orders[foot][0].steps.size() == 1 and state.orders[foot][0].steps[0].target == "northmarch",
+		"infantry gets one step: a second click replaces a whole-unit order")
 	Orders.cancel(state, foot)
 	Helpers.resolve(state)
 	t.check(horse.province == "redfield" and state.owners.kingsvale == "blue" and state.owners.redfield == "blue",

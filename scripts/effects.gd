@@ -1,8 +1,9 @@
 class_name Effects
 extends Node2D
 ## Plays a resolved turn on the map (PRD BR-4), in the order it was resolved:
+## units that split into detachments step apart into separate figure groups,
 ## all volleys together (arrows arc, catapults throw stones), then marches,
-## clashes and captures. Units march with a bob; an attacker advances to the
+## clashes and captures; detachments that come home march back into their unit. Units march with a bob; an attacker advances to the
 ## border, dust and sparks fly, the defender recoils and the numbers drain; a
 ## failed attacker marches back; a destroyed unit fades and sinks; a captured
 ## region fills with its new colour from the attacker's side as a banner drops
@@ -48,6 +49,20 @@ func play(events: Array, before: Dictionary, speed: float) -> void:
 	while i < events.size():
 		var event: Dictionary = events[i]
 		match event.type:
+			"split":
+				var splits := []
+				while i < events.size() and events[i].type == "split":
+					splits.append(events[i])
+					i += 1
+				await _splits(splits)
+				continue
+			"rejoined":
+				var joins := []
+				while i < events.size() and events[i].type == "rejoined":
+					joins.append(events[i])
+					i += 1
+				await _rejoins(joins)
+				continue
 			"volley":
 				var volleys := []
 				while i < events.size() and events[i].type in ["volley", "volley_missed", "destroyed", "general_lost", "rejoined"]:
@@ -109,6 +124,52 @@ func _pace(unit) -> float:
 
 
 # --- Pieces ------------------------------------------------------------------------------
+
+## Each split unit's detachments appear as their own small figure groups,
+## stepping out beside the soldiers who stay home.
+func _splits(splits: Array) -> void:
+	var size := tokens.token_size()
+	for event in splits:
+		var home := _visual(event.unit)
+		if home != null:
+			home.hp = event.hp[event.unit]
+		var rank: int = home.rank if home != null else event.unit.rank()
+		var parts: Array = event.parts
+		for k in parts.size():
+			var part: Unit = parts[k]
+			var visual := TokenLayer.TokenVisual.new()
+			visual.unit = part
+			visual.region = event.province
+			visual.owner = part.owner
+			visual.hp = event.hp[part]
+			visual.held = true
+			visual.rank = rank
+			tokens.visuals[part] = visual
+			# Fan out: alternately right and left, a little further each time.
+			var side := 1.0 if k % 2 == 0 else -1.0
+			var spread := Vector2(side * size * (0.85 + 0.7 * floorf(k / 2.0)), size * 0.12)
+			_track(visual, "offset", Vector2.ZERO, spread, 0.35 / _speed)
+	tokens.queue_redraw()
+	await _wait(0.5 / _speed)
+
+
+## Detachments march back into their unit, which fills up again.
+func _rejoins(joins: Array) -> void:
+	var longest := 0.0
+	var marching := []
+	for event in joins:
+		var part := _visual(event.part)
+		var pace := _pace(event.unit)
+		if part != null and part.alpha > 0.0:
+			_march_now(event.part, event.province, MARCH * 0.6 / pace, true)
+			marching.append(event.part)
+			longest = maxf(longest, MARCH * 0.6 / pace)
+	for sound in march_sounds(marching):
+		_sound(sound)
+	await _wait(longest)
+	for event in joins:
+		if event.has("hp"):
+			_drain({event.unit: event.hp}, 0.3 / _speed)
 
 func _volleys(volleys: Array) -> void:
 	var drains := []

@@ -2,7 +2,10 @@ class_name SaveGame
 extends RefCounted
 ## Saves and loads a whole game as JSON in user://saves/, including the
 ## random number generator, so a loaded game plays on exactly as it would have.
+## Version 3 saves each unit's list of orders (detachments, PRD OR-3); older
+## saves held one order per unit and are converted when loaded.
 
+const VERSION := 3
 const SAVE_DIR := "user://saves"
 const SLOTS := ["auto", "1", "2", "3"]
 
@@ -31,7 +34,7 @@ static func to_dict(state: GameState) -> Dictionary:
 			entry["general"] = {"name": unit.general.name, "command": unit.general.command, "logistics": unit.general.logistics}
 		units.append(entry)
 	return {
-		"version": 2, "map": state.map.id, "scenario": state.scenario_id, "turn": state.turn, "current": state.current,
+		"version": VERSION, "map": state.map.id, "scenario": state.scenario_id, "turn": state.turn, "current": state.current,
 		"factions": factions, "owners": state.owners.duplicate(), "capitals": state.capitals.duplicate(),
 		"provinces": provinces, "units": units, "next_unit_id": state._next_unit_id,
 		"rng_seed": str(state.rng.seed), "rng_state": str(state.rng.state),
@@ -97,11 +100,33 @@ static func from_dict(data: Dictionary) -> GameState:
 	for key in data.mission_progress:
 		state.mission_progress[key] = int(data.mission_progress[key])
 	state.result = data.get("result", {}).duplicate()
+	var version := int(data.get("version", 1))
 	for entry in data.get("orders", []):
 		var unit := state.unit_by_id(int(entry.unit))
-		if unit != null:
-			state.orders[unit] = {"steps": entry.steps.duplicate(true), "soldiers": int(entry.soldiers), "shoot": int(entry.shoot)}
+		if unit == null:
+			continue
+		var list := []
+		if version >= 3:
+			for order in entry.orders:
+				list.append({"steps": order.steps.duplicate(true), "size": int(order.size), "soldiers": int(order.soldiers), "shoot": int(order.shoot)})
+		else:
+			list.append(_old_order(unit, entry))
+		state.orders[unit] = list
 	return state
+
+
+## A version 1-2 order (one per unit, the whole unit moving; an attack sending
+## `soldiers` and `shoot`) as a detachment: a single attack sends only those
+## soldiers, and anything else takes the whole unit, as it did then.
+static func _old_order(unit: Unit, entry: Dictionary) -> Dictionary:
+	var soldiers := int(entry.get("soldiers", unit.soldiers()))
+	var shoot := int(entry.get("shoot", 0))
+	var size := unit.soldiers()
+	if entry.steps.size() == 1 and entry.steps[0].type == "attack":
+		size = clampi(soldiers + shoot, 1, unit.soldiers())
+	elif entry.steps.size() == 1:
+		soldiers = size
+	return {"steps": entry.steps.duplicate(true), "size": size, "soldiers": mini(soldiers, size), "shoot": mini(shoot, size)}
 
 
 ## Planned orders by unit id, oldest unit first, so saves are stable.
@@ -109,8 +134,10 @@ static func _orders_to_list(state: GameState) -> Array:
 	var list := []
 	for unit in state.units:
 		if state.orders.has(unit):
-			var order: Dictionary = state.orders[unit]
-			list.append({"unit": unit.id, "steps": order.steps.duplicate(true), "soldiers": order.soldiers, "shoot": order.shoot})
+			var orders := []
+			for order in state.orders[unit]:
+				orders.append({"steps": order.steps.duplicate(true), "size": int(order.size), "soldiers": int(order.soldiers), "shoot": int(order.shoot)})
+			list.append({"unit": unit.id, "orders": orders})
 	return list
 
 

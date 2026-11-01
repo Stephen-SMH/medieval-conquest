@@ -5,7 +5,9 @@ extends Node2D
 ## engines) depending on its soldiers, in the faction's colours, the faction's
 ## banner on a pole behind them (with a light-blue pennant for a general), gold
 ## chevrons for rank, a thin health bar with a white tip, the soldier number in
-## italic, and a red X once the unit has no moves left this turn.
+## italic, a red X once every soldier has an order (and no detachment can take
+## another step), and while only some of them have orders, a small shield with
+## how many are left at home.
 ##
 ## What's drawn is a display model (one TokenVisual per unit) that normally
 ## follows the game state, so the animations can march, fade and drain units
@@ -267,6 +269,21 @@ func _draw_unit(visual: TokenVisual, centre: Vector2, size: float) -> void:
 		for d in [Vector2(r, r), Vector2(r, -r)]:
 			draw_line(x_centre - d, x_centre + d, Color(INK, alpha), maxf(size * 0.075, 2.5))
 			draw_line(x_centre - d, x_centre + d, Color("#e0301e", alpha), maxf(size * 0.05, 1.8))
+	elif _planning(unit) and state.orders.has(unit) and Orders.unassigned(state, unit) > 0:
+		_draw_home_badge(bar.position + Vector2(-size * 0.2, bar.size.y / 2.0), Orders.unassigned(state, unit), size, alpha)
+
+
+## Soldiers of a partly ordered unit still at home: a small parchment shield with the number.
+func _draw_home_badge(at: Vector2, count: int, size: float, alpha: float) -> void:
+	var r := size * 0.17
+	var shield := PackedVector2Array([at + Vector2(-r, -r), at + Vector2(r, -r), at + Vector2(r, r * 0.25), at + Vector2(0, r * 1.15),
+		at + Vector2(-r, r * 0.25)])
+	var ring := shield.duplicate()
+	ring.append(shield[0])
+	draw_colored_polygon(shield, Color("#f1e3bd", alpha))
+	draw_polyline(ring, Color(INK, 0.9 * alpha), maxf(size * 0.035, 1.4), true)
+	var font_size := int(maxf(size * 0.24, 10.0))
+	draw_string(_number_font, at + Vector2(-r, font_size * 0.3), str(count), HORIZONTAL_ALIGNMENT_CENTER, r * 2.0, font_size, Color(INK, alpha))
 
 
 ## Where the figures of a unit stand: more figures as it has more soldiers.
@@ -299,10 +316,14 @@ static func draw_banner(canvas: CanvasItem, pole_foot: Vector2, height: float, c
 	draw_emblem(canvas, civ, top + Vector2(size * 0.15, size * 0.2), size * 0.085, Color(1, 0.95, 0.8, 0.92 * alpha))
 
 
-## The viewer's unit has used every move it can this turn.
+## The viewer's unit, while its owner plans.
+func _planning(unit: Unit) -> bool:
+	return state.units.has(unit) and unit.owner == state.viewer() and unit.owner == state.current_faction()
+
+
+## The viewer's unit has used every soldier and step it can this turn.
 func _spent(unit: Unit) -> bool:
-	return state.units.has(unit) and unit.owner == state.viewer() and unit.owner == state.current_faction() \
-		and Orders.next_step_index(state, unit) < 0
+	return _planning(unit) and Orders.is_spent(state, unit)
 
 
 ## The painted figure of a unit type (one of its pose variants) and its faction-colour layer.

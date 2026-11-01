@@ -179,7 +179,8 @@ func update(state: GameState, has_alerts: bool) -> void:
 	var entries := []
 	for unit: Unit in state.orders:
 		if unit.owner == state.viewer():
-			entries.append(state.orders[unit].steps.back().type)
+			for order in state.orders[unit]:
+				entries.append(order.steps.back().type)
 	_banner.own = entries
 	_banner.queue_redraw()
 
