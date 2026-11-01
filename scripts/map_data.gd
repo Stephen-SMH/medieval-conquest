@@ -12,6 +12,7 @@ var factions := {}       # faction id -> {name, color}
 var provinces := {}      # province id -> data from map.json plus "polygon" and "centroid"
 var province_order: Array[String] = []
 var borders := {}        # border_key(a, b) -> "river" or "road"
+var start_armies := []   # {owner, province, general (or null for a garrison), regiments}
 
 var _vertices := {}      # vertex id -> Vector2
 
@@ -46,6 +47,7 @@ func load_file(path: String) -> Error:
 		province_order.append(province.id)
 	for border in data.borders:
 		borders[border_key(border.between[0], border.between[1])] = border.type
+	start_armies = data.get("start_armies", [])
 	return OK
 
 

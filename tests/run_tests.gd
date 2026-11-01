@@ -4,6 +4,7 @@ extends SceneTree
 
 const SUITES := [
 	preload("res://tests/test_map.gd"),
+	preload("res://tests/test_movement.gd"),
 ]
 
 var failures := 0

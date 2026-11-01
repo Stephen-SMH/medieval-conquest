@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
 [ext_resource type="Script" path="res://scripts/map_camera.gd" id="2_camera"]
 [ext_resource type="Script" path="res://scripts/province_panel.gd" id="3_panel"]
+[ext_resource type="Script" path="res://scripts/army_panel.gd" id="4_army_panel"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_main")
@@ -55,7 +56,7 @@ text = "Resources [3]"
 modulate = Color(1, 1, 1, 0.7)
 layout_mode = 2
 theme_override_font_sizes/font_size = 13
-text = "Click: select   Drag / WASD: pan   Wheel: zoom   Esc: deselect"
+text = "Click: select   Right-click: march   Drag / WASD: pan   Wheel: zoom   Enter: end turn"
 
 [node name="ProvincePanel" type="PanelContainer" parent="UI"]
 anchors_preset = 11
@@ -95,3 +96,67 @@ theme_override_font_sizes/font_size = 15
 
 [node name="Legend" type="VBoxContainer" parent="UI/ProvincePanel/Margin/Content"]
 layout_mode = 2
+
+[node name="ArmyPanel" type="PanelContainer" parent="UI"]
+visible = false
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -296.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 0
+grow_vertical = 2
+script = ExtResource("4_army_panel")
+
+[node name="Margin" type="MarginContainer" parent="UI/ArmyPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="Scroll" type="ScrollContainer" parent="UI/ArmyPanel/Margin"]
+layout_mode = 2
+horizontal_scroll_mode = 3
+
+[node name="Content" type="VBoxContainer" parent="UI/ArmyPanel/Margin/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="TurnBar" type="PanelContainer" parent="UI"]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = -8.0
+offset_right = 8.0
+offset_bottom = -8.0
+grow_vertical = 0
+
+[node name="Rows" type="VBoxContainer" parent="UI/TurnBar"]
+layout_mode = 2
+
+[node name="Turn" type="HBoxContainer" parent="UI/TurnBar/Rows"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Date" type="Label" parent="UI/TurnBar/Rows/Turn"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 17
+text = "Spring, Year 1 (turn 1)"
+
+[node name="EndTurnButton" type="Button" parent="UI/TurnBar/Rows/Turn"]
+layout_mode = 2
+focus_mode = 0
+text = "End turn [Enter]"
+
+[node name="Message" type="Label" parent="UI/TurnBar/Rows"]
+custom_minimum_size = Vector2(460, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+autowrap_mode = 3

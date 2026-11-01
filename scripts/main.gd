@@ -1,28 +1,41 @@
 extends Node2D
 ## Campaign map: builds the provinces from data/map.json and handles selection,
-## hover, camera controls and map modes.
+## hover, camera controls, map modes, armies, movement and turns.
 
 enum MapMode { POLITICAL, TERRAIN, RESOURCES }
 
 const DRAG_THRESHOLD := 6.0  # Screen pixels the mouse must move before a click becomes a drag.
 const LOW_FOOD_COLOR := Color("#7a3f2a")
 const HIGH_FOOD_COLOR := Color("#7fc24f")
+const GAME_SEED := 20261101
 
+var state: GameState
 var map: MapData
 var mode := MapMode.POLITICAL
 var selected_id := ""
+var selected_army: Army
 var hovered_id := ""
+## A province clicked once as the selected army's destination; a second click confirms.
+var pending_destination := ""
 
 var _views := {}  # province id -> ProvinceView
 var _food_range := Vector2i.ZERO  # Lowest and highest food output, for the resources map.
 var _press_button := MOUSE_BUTTON_NONE
 var _press_position := Vector2.ZERO
 var _dragging := false
+var _border_layer: BorderLayer
+var _army_layer: ArmyLayer
+var _path_layer: PathLayer
 
 @onready var _map_root: Node2D = $Map
 @onready var _camera: MapCamera = $Camera
 @onready var _panel: ProvincePanel = $UI/ProvincePanel
+@onready var _army_panel: ArmyPanel = $UI/ArmyPanel
 @onready var _top_bar: Control = $UI/TopBar
+@onready var _turn_bar: Control = $UI/TurnBar
+@onready var _date_label: Label = $UI/TurnBar/Rows/Turn/Date
+@onready var _message_label: Label = $UI/TurnBar/Rows/Message
+@onready var _end_turn_button: Button = $UI/TurnBar/Rows/Turn/EndTurnButton
 @onready var _mode_buttons := {
 	MapMode.POLITICAL: $UI/TopBar/Rows/Modes/PoliticalButton,
 	MapMode.TERRAIN: $UI/TopBar/Rows/Modes/TerrainButton,
@@ -32,6 +45,7 @@ var _dragging := false
 
 func _ready() -> void:
 	map = MapData.load_default()
+	state = GameState.new_game(map, GAME_SEED)
 	_camera.map_rect = Rect2(Vector2.ZERO, map.size)
 
 	_food_range = Vector2i(1 << 30, 0)
@@ -44,20 +58,30 @@ func _ready() -> void:
 		var food := ProvincePanel.food_output(map, id)
 		_food_range = Vector2i(mini(_food_range.x, food), maxi(_food_range.y, food))
 
-	var border_layer := BorderLayer.new()
-	border_layer.map = map
-	for id in map.province_order:
-		border_layer.capital_colors[id] = map.factions[map.provinces[id].owner].color
-	_map_root.add_child(border_layer)
+	_border_layer = BorderLayer.new()
+	_border_layer.map = map
+	_map_root.add_child(_border_layer)
+	_path_layer = PathLayer.new()
+	_path_layer.state = state
+	_map_root.add_child(_path_layer)
+	_army_layer = ArmyLayer.new()
+	_army_layer.state = state
+	_map_root.add_child(_army_layer)
 
 	var group := ButtonGroup.new()
 	for map_mode in _mode_buttons:
 		var button: Button = _mode_buttons[map_mode]
 		button.button_group = group
 		button.pressed.connect(set_mode.bind(map_mode))
+	_end_turn_button.pressed.connect(end_turn)
+	_army_panel.split_requested.connect(_on_split_requested)
+	_army_panel.merge_requested.connect(_on_merge_requested)
+	_army_panel.appoint_requested.connect(_on_appoint_requested)
 
 	set_mode(MapMode.POLITICAL)
 	select("")
+	_refresh_world()
+	_show_message("Your realm: the Kingdom of Aldmere (blue). Click your banner in Greywater.")
 
 
 func _process(_delta: float) -> void:
@@ -75,31 +99,176 @@ func _unhandled_input(event: InputEvent) -> void:
 		_camera.zoom_at(_zoom_anchor(event), MapCamera.ZOOM_STEP)
 	elif event.is_action_pressed("zoom_out"):
 		_camera.zoom_at(_zoom_anchor(event), 1.0 / MapCamera.ZOOM_STEP)
+	elif event.is_action_pressed("end_turn"):
+		end_turn()
 	elif event.is_action_pressed("deselect"):
-		select("")
+		if pending_destination != "":
+			pending_destination = ""
+			_update_path_preview()
+		else:
+			select("")
 	elif event is InputEventMouseButton:
 		_handle_mouse_button(event)
 	elif event is InputEventMouseMotion:
 		_handle_mouse_motion(event)
 
 
+# --- Selection --------------------------------------------------------------
+
 func select(id: String) -> void:
+	selected_army = null
+	pending_destination = ""
 	selected_id = id
 	var neighbours: Array = map.neighbours(id) if id != "" else []
 	for view_id in _views:
 		var view: ProvinceView = _views[view_id]
 		view.selected = view_id == id
 		view.neighbour = view_id in neighbours
-	_panel.show_province(map, id)
+	_panel.show_province(state, id)
+	_panel.visible = true
+	_army_panel.visible = false
+	_refresh_world()
 
+
+func select_army(army: Army) -> void:
+	select("")
+	selected_army = army
+	_panel.visible = false
+	_army_panel.visible = true
+	_army_panel.show_army(state, army)
+	_refresh_world()
+
+
+## Click on the map: a banner selects its army; with one of your armies
+## selected, a province is a destination (click twice to march); otherwise
+## the province is selected.
+func _click(point: Vector2) -> void:
+	var army := _army_layer.army_at(point)
+	if army != null:
+		select_army(army)
+		return
+	var id := map.province_at(point)
+	if _can_order(selected_army) and id != "" and id != selected_army.province:
+		if pending_destination == id:
+			order_move(id)
+		else:
+			pending_destination = id
+			_update_path_preview()
+		return
+	select(id)
+
+
+func _can_order(army: Army) -> bool:
+	return army != null and army.owner == state.player and army.can_move()
+
+
+# --- Orders and turns --------------------------------------------------------
+
+func order_move(destination: String) -> void:
+	if not _can_order(selected_army):
+		return
+	var army := selected_army
+	var events := state.order_move(army, destination)
+	pending_destination = ""
+	_report(events)
+	select_army(army)
+
+
+func end_turn() -> void:
+	var events := state.end_turn()
+	_report(events)
+	_refresh_world()
+	if selected_army != null and state.armies.has(selected_army):
+		select_army(selected_army)
+	else:
+		select(selected_id)
+
+
+## Shows the most important movement event in the message line.
+func _report(events: Array) -> void:
+	var message := ""
+	for event in events:
+		var army: Army = event.army
+		var where: String = map.provinces[event.province].name
+		match event.type:
+			"moved":
+				if army.owner == state.player:
+					message = "%s marched to %s." % [army.display_name(), where]
+			"zone_of_control":
+				message = "%s stopped in %s: enemy army nearby." % [army.display_name(), where]
+			"blocked":
+				message = "%s halted: an enemy army holds %s." % [army.display_name(), where]
+	if message != "":
+		_show_message(message)
+
+
+func _show_message(text: String) -> void:
+	_message_label.text = text
+
+
+func _on_split_requested(indices: Array) -> void:
+	var new_army := state.split(selected_army, indices)
+	if new_army == null:
+		_show_message("Tick at least one regiment, and leave at least one behind.")
+		return
+	_show_message("%s now leads %d regiments." % [new_army.display_name(), new_army.regiments.size()])
+	select_army(new_army)
+
+
+func _on_merge_requested(other: Army) -> void:
+	var army := selected_army
+	if state.merge(army, other):
+		_show_message("Armies merged: %d regiments." % army.regiments.size())
+	select_army(army)
+
+
+func _on_appoint_requested() -> void:
+	state.appoint_general(selected_army)
+	_show_message("%s takes command." % selected_army.general.name)
+	select_army(selected_army)
+
+
+# --- Drawing -----------------------------------------------------------------
 
 func set_mode(new_mode: MapMode) -> void:
 	mode = new_mode
-	for id in _views:
-		_views[id].set_base_color(_color_for(id))
+	_recolor()
 	for map_mode in _mode_buttons:
 		_mode_buttons[map_mode].set_pressed_no_signal(map_mode == mode)
 	_show_legend()
+
+
+func _refresh_world() -> void:
+	_date_label.text = state.date_text()
+	_recolor()
+	for id in map.province_order:
+		_border_layer.capital_colors[id] = map.factions[state.owners[id]].color
+	_border_layer.queue_redraw()
+	_army_layer.selected_army = selected_army
+	_army_layer.visible_provinces = state.visible_provinces(state.player)
+	_army_layer.queue_redraw()
+	_update_path_preview()
+
+
+func _recolor() -> void:
+	for id in _views:
+		_views[id].set_base_color(_color_for(id))
+
+
+## Shows the selected army's path: to the pending destination if there is one,
+## else to the hovered province, else the path it is already marching.
+func _update_path_preview() -> void:
+	if not _can_order(selected_army):
+		_path_layer.clear()
+		return
+	var target := pending_destination if pending_destination != "" else hovered_id
+	if target == "" or target == selected_army.province:
+		if selected_army.path.is_empty():
+			_path_layer.clear()
+		else:
+			_path_layer.show_path(selected_army, selected_army.path, _army_layer.visible_provinces)
+		return
+	_path_layer.show_path(selected_army, state.find_path(selected_army.province, target), _army_layer.visible_provinces)
 
 
 func _color_for(id: String) -> Color:
@@ -110,7 +279,7 @@ func _color_for(id: String) -> Color:
 			var food := ProvincePanel.food_output(map, id)
 			return LOW_FOOD_COLOR.lerp(HIGH_FOOD_COLOR, inverse_lerp(_food_range.x, _food_range.y, food))
 		_:
-			return map.factions[map.provinces[id].owner].color
+			return map.factions[state.owners[id]].color
 
 
 func _show_legend() -> void:
@@ -133,6 +302,8 @@ func _show_legend() -> void:
 			_panel.show_legend("Food output", entries)
 
 
+# --- Mouse -------------------------------------------------------------------
+
 func _handle_mouse_button(event: InputEventMouseButton) -> void:
 	if not (event.button_index in [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT, MOUSE_BUTTON_MIDDLE]):
 		return
@@ -140,10 +311,16 @@ func _handle_mouse_button(event: InputEventMouseButton) -> void:
 		if _press_button == MOUSE_BUTTON_NONE:
 			_press_button = event.button_index
 			_press_position = event.position
-			_dragging = event.button_index != MOUSE_BUTTON_LEFT  # Right and middle always drag.
+			_dragging = event.button_index == MOUSE_BUTTON_MIDDLE  # Middle always drags.
 	elif event.button_index == _press_button:
 		if not _dragging:
-			select(map.province_at(get_global_mouse_position()))
+			var point := get_global_mouse_position()
+			if event.button_index == MOUSE_BUTTON_LEFT:
+				_click(point)
+			elif event.button_index == MOUSE_BUTTON_RIGHT:
+				var id := map.province_at(point)
+				if _can_order(selected_army) and id != "" and id != selected_army.province:
+					order_move(id)
 		_press_button = MOUSE_BUTTON_NONE
 		_dragging = false
 
@@ -160,7 +337,9 @@ func _handle_mouse_motion(event: InputEventMouseMotion) -> void:
 func _update_hover() -> void:
 	var id := ""
 	var mouse := get_viewport().get_mouse_position()
-	var over_ui := _panel.get_global_rect().has_point(mouse) or _top_bar.get_global_rect().has_point(mouse)
+	var over_ui := false
+	for control: Control in [_panel, _army_panel, _top_bar, _turn_bar]:
+		over_ui = over_ui or (control.visible and control.get_global_rect().has_point(mouse))
 	if not over_ui and not _dragging:
 		id = map.province_at(get_global_mouse_position())
 	if id == hovered_id:
@@ -170,6 +349,8 @@ func _update_hover() -> void:
 	hovered_id = id
 	if id != "":
 		_views[id].hovered = true
+	if pending_destination == "":
+		_update_path_preview()
 
 
 ## Wheel zoom goes towards the mouse; keyboard zoom towards the screen centre.

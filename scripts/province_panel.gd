@@ -7,7 +7,8 @@ extends PanelContainer
 @onready var _legend: VBoxContainer = $Margin/Content/Legend
 
 
-func show_province(map: MapData, id: String) -> void:
+func show_province(state: GameState, id: String) -> void:
+	var map := state.map
 	if id == "":
 		_body.text = "[font_size=20][b]No province selected[/b][/font_size]\n\n" \
 			+ "Click a province to see who owns it, its terrain and its neighbours."
@@ -15,7 +16,7 @@ func show_province(map: MapData, id: String) -> void:
 
 	var province: Dictionary = map.provinces[id]
 	var terrain := map.terrain(id)
-	var faction: Dictionary = map.factions[province.owner]
+	var faction: Dictionary = map.factions[state.owners[id]]
 	var lines := PackedStringArray()
 	lines.append("[font_size=22][b]%s[/b][/font_size]" % province.name)
 	var owner_line := "[color=#%s]%s[/color]" % [faction.color.lightened(0.35).to_html(false), faction.name]
@@ -36,6 +37,14 @@ func show_province(map: MapData, id: String) -> void:
 		if border != "":
 			line += " (%s)" % border
 		lines.append(line)
+
+	var seen := state.visible_provinces(state.player)
+	var armies_here := state.armies_in(id)
+	if seen.has(id) and not armies_here.is_empty():
+		lines.append("")
+		lines.append("[b]Armies here[/b]")
+		for army in armies_here:
+			lines.append("•  %s — %d regiments" % [army.display_name(), army.regiments.size()])
 	_body.text = "\n".join(lines)
 
 

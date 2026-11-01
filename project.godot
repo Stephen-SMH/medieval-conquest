@@ -63,6 +63,10 @@ map_mode_resources={
 "deadzone": 0.2,
 "events": [Object(InputEventKey,"physical_keycode":51)]
 }
+end_turn={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"physical_keycode":4194309), Object(InputEventKey,"physical_keycode":4194310)]
+}
 deselect={
 "deadzone": 0.2,
 "events": [Object(InputEventKey,"physical_keycode":4194305)]

@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="UnitType" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/unit_type.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "militia"
+display_name = "Militia"
+short_name = "Mi"
+order = 0
+unit_class = "infantry"
+heavy = false
+hp = 80
+attack = 6
+defense = 4
+speed = 2
+ranged = false
+cost_gold = 30
+cost_wood = 0
+cost_iron = 0
+upkeep_gold = 1
+upkeep_food = 1
+required_building = ""

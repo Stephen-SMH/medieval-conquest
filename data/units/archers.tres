@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="UnitType" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/unit_type.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "archers"
+display_name = "Archers"
+short_name = "Ar"
+order = 3
+unit_class = "ranged"
+heavy = false
+hp = 70
+attack = 10
+defense = 4
+speed = 2
+ranged = true
+cost_gold = 70
+cost_wood = 15
+cost_iron = 0
+upkeep_gold = 2
+upkeep_food = 1
+required_building = "archery_range"

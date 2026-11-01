@@ -42,5 +42,21 @@
     {"between": ["ashford", "saltmere"], "type": "road"},
     {"between": ["greywater", "kingsvale"], "type": "road"},
     {"between": ["kingsvale", "redfield"], "type": "road"}
+  ],
+  "start_armies": [
+    {"owner": "aldmere", "province": "greywater",
+     "general": {"name": "Edric Vane", "command": 2, "logistics": 1},
+     "regiments": ["spearmen", "spearmen", "swordsmen", "swordsmen", "archers", "archers", "light_cavalry"]},
+    {"owner": "brennwald", "province": "eastwold",
+     "general": {"name": "Hrolf Brenn", "command": 2, "logistics": 1},
+     "regiments": ["militia", "militia", "spearmen", "spearmen", "crossbowmen", "heavy_cavalry", "heavy_cavalry"]},
+    {"owner": "brennwald", "province": "kingsvale", "general": null,
+     "regiments": ["militia", "militia", "spearmen"]},
+    {"owner": "corvane", "province": "redfield",
+     "general": {"name": "Lysa Corvane", "command": 1, "logistics": 2},
+     "regiments": ["spearmen", "spearmen", "archers", "archers", "archers", "light_cavalry", "light_cavalry"]},
+    {"owner": "dunmarch", "province": "stonehelm",
+     "general": {"name": "Bram Dun", "command": 2, "logistics": 2},
+     "regiments": ["militia", "militia", "swordsmen", "swordsmen", "archers", "archers", "heavy_cavalry"]}
   ]
 }

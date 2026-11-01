@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="UnitType" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/unit_type.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "crossbowmen"
+display_name = "Crossbowmen"
+short_name = "Cb"
+order = 4
+unit_class = "ranged"
+heavy = false
+hp = 75
+attack = 13
+defense = 5
+speed = 2
+ranged = true
+cost_gold = 100
+cost_wood = 10
+cost_iron = 10
+upkeep_gold = 3
+upkeep_food = 1
+required_building = "archery_range"
