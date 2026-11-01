@@ -85,6 +85,9 @@ func show_title() -> void:
 	_add_button(row, "Hotseat", show_hotseat)
 	var done := Progress.campaigns_finished()
 	_add_text("[i]Campaigns finished: %d of %d.[/i]" % [done, Campaigns.all().size()])
+	_content.add_child(HSeparator.new())
+	_add_text("[font_size=13]Unit and resource icons by Lorc, Delapouite, Carl Olsen, HeavenlyDog, Skoll and Caro Asercion from " \
+		+ "game-icons.net (CC BY 3.0). Fonts: Cinzel and IM FELL English (SIL Open Font License). See CREDITS.md.[/font_size]")
 
 
 # --- Hotseat ---------------------------------------------------------------------------

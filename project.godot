@@ -105,6 +105,7 @@ pointing/emulate_mouse_from_touch=true
 
 [rendering]
 
+textures/canvas_textures/default_texture_filter=3
 textures/vram_compression/import_etc2_astc=true
 
 renderer/rendering_method="gl_compatibility"

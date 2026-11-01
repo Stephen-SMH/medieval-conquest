@@ -125,6 +125,9 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	_update_hover()
+	if not is_equal_approx(_token_layer.view_zoom, _camera.zoom.x):
+		_token_layer.view_zoom = _camera.zoom.x
+		_token_layer.queue_redraw()
 
 
 ## Touch: two fingers pinch to zoom and drag to pan; a trackpad pinch zooms too.
@@ -270,26 +273,9 @@ func _on_attack_confirmed() -> void:
 	_check_end()
 
 
-## The short battle effect on the map (BR-4): both regions shake, each unit's
-## losses float up, and a captured region says so.
-func _play_battle(result: Dictionary, before: Dictionary) -> void:
-	var battle: Battle = result.battle
-	var region: String = result.events[0].province
-	var origin: String = result.events[0].origin
-	_token_layer.shake(region)
-	_token_layer.shake(origin)
-	_refresh_world()
-	for unit: Unit in before:
-		var lost: int = before[unit] - (unit.soldiers() if state.units.has(unit) and not unit.is_destroyed() else 0)
-		if lost <= 0:
-			continue
-		var at: Vector2 = _token_layer.token_rect(unit).get_center() if state.units.has(unit) \
-			else map.provinces[unit.province].centroid
-		_token_layer.float_text(at, "−%d" % lost if state.units.has(unit) else "destroyed", Color("#ff8070"))
-	for event in result.events:
-		if event.type == "captured":
-			_token_layer.float_text(map.provinces[region].centroid + Vector2(0, -60), "Captured!", Color("#ffe080"))
-	_last_battle = [battle, region]
+## After a battle: the map catches up and the report is ready (BR-4).
+func _play_battle(result: Dictionary, _before: Dictionary) -> void:
+	_last_battle = [result.battle, result.events[0].province]
 	_report_button.visible = true
 	_report_events(result.events)
 
@@ -549,7 +535,7 @@ func _refresh_world() -> void:
 	_border_layer.queue_redraw()
 	_token_layer.selected = selection
 	_token_layer.visible_provinces = state.visible_provinces(state.viewer())
-	_token_layer.queue_redraw()
+	_token_layer.sync()
 
 
 func _show_objectives() -> void:
