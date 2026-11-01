@@ -13,6 +13,10 @@ signal alerts_pressed
 signal end_turn_pressed
 
 const GOLD := Color("#e2bd5a")
+const TURN_BANNER_TOP := 96.0  # Below the plaque and the toast line.
+const TURN_FADE_IN := 0.3
+const TURN_HOLD := 1.0
+const TURN_FADE_OUT := 0.5
 
 var _gold_label: Label
 var _turn_label: Label
@@ -24,6 +28,7 @@ var _turn_text: Label
 var _turn_flag: Control
 var _turn_color := Color.WHITE
 var _turn_civ := ""
+var _turn_tween: Tween
 var _toast: Label
 var _banner: OrdersBanner
 var _end_turn: Button
@@ -84,6 +89,7 @@ func _ready() -> void:
 	_alerts_dot.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	alerts.add_child(_alerts_dot)
 	_end_turn = _add_shield("res://assets/icons/ui_hourglass.svg", false, Vector2(-100, -114), Control.PRESET_BOTTOM_RIGHT, "End turn (Enter)", func(): end_turn_pressed.emit())
+	_end_turn.set_meta("sfx", "")  # The hourglass makes its own sound.
 
 	# The orders banner on the right edge.
 	_banner = OrdersBanner.new()
@@ -115,25 +121,40 @@ func _ready() -> void:
 	_info_buttons.add_theme_constant_override("separation", 8)
 	column.add_child(_info_buttons)
 
-	# The turn banner: faint calligraphy across the middle of the map.
-	_turn_banner = HBoxContainer.new()
-	_turn_banner.set_anchors_preset(Control.PRESET_CENTER)
-	_turn_banner.position = Vector2(-330, 120)
-	_turn_banner.custom_minimum_size = Vector2(660, 70)
-	_turn_banner.alignment = BoxContainer.ALIGNMENT_CENTER
+	# The turn banner: a cloth banner under the plaque with the faction's
+	# shield inside it, left of the calligraphy. It's sized to its text and
+	# fades quickly, so it never sits over the map's names for long.
+	_turn_banner = PanelContainer.new()
+	var cloth := StyleBoxFlat.new()
+	cloth.bg_color = Color(0.17, 0.1, 0.05, 0.9)
+	cloth.border_color = GOLD
+	cloth.set_border_width_all(2)
+	cloth.set_corner_radius_all(6)
+	cloth.content_margin_left = 16
+	cloth.content_margin_right = 26
+	cloth.content_margin_top = 6
+	cloth.content_margin_bottom = 6
+	cloth.shadow_color = Color(0, 0, 0, 0.35)
+	cloth.shadow_size = 6
+	_turn_banner.add_theme_stylebox_override("panel", cloth)
 	_turn_banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_turn_banner.modulate.a = 0.0
 	add_child(_turn_banner)
-	_turn_text = _label("", 44)
-	_turn_text.add_theme_font_override("font", load("res://assets/fonts/IMFellEnglish-Italic.ttf"))
-	_turn_text.add_theme_color_override("font_color", Color(1, 0.97, 0.9, 0.85))
-	_turn_text.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.5))
-	_turn_banner.add_child(_turn_text)
-	_turn_flag = Control.new()  # The faction's heraldic shield beside the text.
-	_turn_flag.custom_minimum_size = Vector2(52, 60)
+	var banner_row := HBoxContainer.new()
+	banner_row.add_theme_constant_override("separation", 14)
+	banner_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_turn_banner.add_child(banner_row)
+	_turn_flag = Control.new()  # The faction's heraldic shield, inside the banner beside the text.
+	_turn_flag.custom_minimum_size = Vector2(40, 48)
 	_turn_flag.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_turn_flag.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	_turn_banner.add_child(_turn_flag)
+	banner_row.add_child(_turn_flag)
+	_turn_text = _label("", 34)
+	_turn_text.add_theme_font_override("font", load("res://assets/fonts/IMFellEnglish-Italic.ttf"))
+	_turn_text.add_theme_color_override("font_color", Color(1, 0.96, 0.86))
+	_turn_text.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.6))
+	_turn_text.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	banner_row.add_child(_turn_text)
 	_turn_flag.draw.connect(func(): Hud.draw_heraldic_shield(_turn_flag, Rect2(Vector2.ZERO, _turn_flag.size), _turn_color, _turn_civ))
 
 	_toast = _label("", 18)
@@ -205,10 +226,24 @@ func show_turn(text: String, color: Color, civ := "") -> void:
 	_turn_color = color
 	_turn_civ = civ
 	_turn_flag.queue_redraw()
-	var tween := create_tween()
-	tween.tween_property(_turn_banner, "modulate:a", 0.85, 0.5)
-	tween.tween_interval(1.4)
-	tween.tween_property(_turn_banner, "modulate:a", 0.0, 0.8)
+	_turn_banner.reset_size()
+	_turn_banner.position = turn_banner_position(size, _turn_banner.size)
+	if _turn_tween != null and _turn_tween.is_valid():
+		_turn_tween.kill()
+	_turn_tween = create_tween()
+	_turn_tween.tween_property(_turn_banner, "modulate:a", 1.0, TURN_FADE_IN)
+	_turn_tween.tween_interval(TURN_HOLD)
+	_turn_tween.tween_property(_turn_banner, "modulate:a", 0.0, TURN_FADE_OUT)
+
+
+## Where the turn banner goes: centred under the gold-and-turn plaque.
+static func turn_banner_position(screen: Vector2, banner: Vector2) -> Vector2:
+	return Vector2(roundf((screen.x - banner.x) / 2.0), TURN_BANNER_TOP)
+
+
+## How long the turn banner shows, in seconds, from fading in to gone.
+static func turn_banner_seconds() -> float:
+	return TURN_FADE_IN + TURN_HOLD + TURN_FADE_OUT
 
 
 func toast(text: String) -> void:

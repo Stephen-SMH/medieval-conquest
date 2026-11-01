@@ -20,6 +20,8 @@ const GOLD_RESERVE := {"aggressive": 40.0, "balanced": 80.0, "defensive": 120.0}
 ## Plans the current faction's orders. Returns [] (nothing happens until the turn resolves).
 static func play_turn(state: GameState) -> Array:
 	var faction := state.current_faction()
+	if state.factions[faction].ai == "passive":
+		return []  # The tutorial's raiders stand and wait.
 	_manage_economy(state, faction)
 	var claimed := {}  # Regions some unit already plans to move into.
 	for unit in _strongest_first(state.units_of(faction)):

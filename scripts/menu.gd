@@ -4,6 +4,10 @@ extends Control
 
 const GAME_SCENE := "res://scenes/main.tscn"
 const DIFFICULTIES := ["easy", "normal", "hard"]
+const CREDIT_LINE := "Unit figures rendered from CC0 3D models by Quaternius. Icons by Lorc, Delapouite, HeavenlyDog and " \
+	+ "Guard13007 from game-icons.net (CC BY 3.0). Fonts: Cinzel and IM FELL English (SIL Open Font License). " \
+	+ "Music by RandomMind, cynicmusic and Emma_MA (CC0). Sounds by Kenney and by freesound.org users HebronTheatre, " \
+	+ "mcaseydesign, craigsmith, el_boss and freefire66 (CC0). See CREDITS.md."
 
 var _content: VBoxContainer
 var _skirmish := {"map": "heartlands", "civ": "norse", "opponents": 2, "difficulty": "normal"}
@@ -50,11 +54,66 @@ func _ready() -> void:
 	_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_content.add_theme_constant_override("separation", 10)
 	scroll.add_child(_margin(_content, 32))
+	AudioManager.music("menu")
 	show_title()
+	if should_offer_tutorial():
+		_offer_tutorial()
+
+
+## The one-time "First time here?" prompt: only before any campaign progress, and only once.
+static func should_offer_tutorial() -> bool:
+	Settings.ensure_loaded()
+	return not Settings.tutorial_offered and not Progress.any_progress()
+
+
+func start_tutorial() -> void:
+	_start({"scenario": Tutorial.scenario(), "seed": 1})
+
+
+func _offer_tutorial() -> void:
+	Settings.tutorial_offered = true
+	Settings.save()
+	var shade := ColorRect.new()
+	shade.color = Color(0, 0, 0, 0.55)
+	shade.set_anchors_preset(Control.PRESET_FULL_RECT)
+	add_child(shade)
+	var card := PanelContainer.new()
+	card.theme_type_variation = "Parchment"
+	card.custom_minimum_size = Vector2(460, 0)
+	shade.add_child(card)
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 14)
+	card.add_child(column)
+	var title := Label.new()
+	title.text = "First time here?"
+	title.add_theme_font_override("font", load("res://assets/fonts/Cinzel.ttf"))
+	title.add_theme_font_size_override("font_size", 26)
+	title.add_theme_color_override("font_color", Color("#6a2a14"))
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	column.add_child(title)
+	var text := RichTextLabel.new()
+	text.bbcode_enabled = true
+	text.fit_content = true
+	text.add_theme_color_override("default_color", Color("#2f2012"))
+	text.add_theme_font_size_override("normal_font_size", 17)
+	text.text = "The [b]tutorial[/b] is a short mission on a small map that shows you, step by step, how to march, attack, " \
+		+ "end the turn, earn gold and raise troops. It takes about five minutes."
+	column.add_child(text)
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 14)
+	column.add_child(row)
+	_add_button(row, "Play the tutorial", start_tutorial)
+	_add_button(row, "Not now", shade.queue_free)
+	# Centre the card once it knows its size.
+	await get_tree().process_frame
+	card.reset_size()
+	card.position = (shade.size - card.size) / 2.0
 
 
 func _menu_entries() -> Array:
 	var entries := [
+		["Tutorial", start_tutorial],
 		["Campaigns", show_campaigns],
 		["Skirmish", show_skirmish],
 		["Hotseat", show_hotseat],
@@ -81,6 +140,7 @@ func show_title() -> void:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 10)
 	_content.add_child(row)
+	_add_button(row, "Tutorial", start_tutorial)
 	_add_button(row, "Campaigns", show_campaigns)
 	_add_button(row, "Skirmish", show_skirmish)
 	_add_button(row, "Hotseat", show_hotseat)
@@ -88,8 +148,7 @@ func show_title() -> void:
 	_add_text("[i]Campaigns finished: %d of %d.[/i]" % [done, Campaigns.all().size()])
 	_content.add_child(Muster.new())
 	_content.add_child(HSeparator.new())
-	_add_text("[font_size=13]Unit figures rendered from CC0 3D models by Quaternius. Icons by Lorc, Delapouite, HeavenlyDog and " \
-		+ "Guard13007 from game-icons.net (CC BY 3.0). Fonts: Cinzel and IM FELL English (SIL Open Font License). See CREDITS.md.[/font_size]")
+	_add_text("[font_size=13]" + CREDIT_LINE + "[/font_size]")
 
 
 # --- Hotseat ---------------------------------------------------------------------------
@@ -147,6 +206,8 @@ func show_settings() -> void:
 	_add_text("[i]Click during a turn's animation to skip it. Computer factions' moves always play faster.[/i]")
 	_add_option("Interface size", Settings.UI_SCALES.map(func(x): return "%d%%" % roundi(x * 100)), Settings.UI_SCALES.find(Settings.ui_scale),
 		func(i): Settings.ui_scale = Settings.UI_SCALES[i]; Settings.save(); Settings.apply(get_tree()))
+	_add_volume("Music", Settings.music_volume, func(v): Settings.music_volume = v)
+	_add_volume("Sound", Settings.sfx_volume, func(v): Settings.sfx_volume = v, true)
 	_content.add_child(HSeparator.new())
 	_add_text("Campaign progress: %d of %d campaigns finished." % [Progress.campaigns_finished(), Campaigns.all().size()])
 	_add_button(_content, "Reset campaign progress", func(): Progress.reset(); show_settings())
@@ -334,6 +395,35 @@ func _add_option(title: String, labels: Array, selected: int, on_selected: Calla
 	option.item_selected.connect(on_selected)
 	row.add_child(option)
 	return option
+
+
+## A volume slider (0 to 100%) that applies and saves at once. The Sound
+## slider jingles coins when let go, to hear the new level.
+func _add_volume(title: String, value: float, set_value: Callable, test_sound := false) -> HSlider:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	_content.add_child(row)
+	var label := _add_label(row, title, 17)
+	label.custom_minimum_size = Vector2(220, 0)
+	var slider := HSlider.new()
+	slider.min_value = 0
+	slider.max_value = 100
+	slider.step = 5
+	slider.value = roundf(value * 100.0)
+	slider.custom_minimum_size = Vector2(280, 32)
+	slider.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(slider)
+	var percent := _add_label(row, "%d%%" % roundi(slider.value), 17)
+	percent.custom_minimum_size = Vector2(60, 0)
+	slider.value_changed.connect(func(v):
+		set_value.call(v / 100.0)
+		percent.text = "%d%%" % roundi(v)
+		AudioManager.apply_volumes()
+		Settings.save())
+	slider.drag_ended.connect(func(_changed):
+		if test_sound:
+			AudioManager.sfx("coins"))
+	return slider
 
 
 func _margin(child: Control, size: int) -> MarginContainer:

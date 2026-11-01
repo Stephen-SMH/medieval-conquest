@@ -1,0 +1,57 @@
+{
+ "id": "tutorial",
+ "name": "Tutorial: The Training Marches",
+ "map": "tutorial_map",
+ "factions": [
+  {
+   "id": "realm",
+   "name": "Your Realm",
+   "civ": "",
+   "color": "#3d6fb6",
+   "human": true,
+   "ai": "balanced"
+  },
+  {
+   "id": "raiders",
+   "name": "Ravensford Raiders",
+   "civ": "",
+   "color": "#b5423a",
+   "human": false,
+   "ai": "passive"
+  }
+ ],
+ "owners": {
+  "oakhollow": "realm",
+  "millbrook": "realm",
+  "highmoor": "realm",
+  "eastwatch": "realm",
+  "ravensford": "raiders"
+ },
+ "capitals": {
+  "realm": "oakhollow",
+  "raiders": "ravensford"
+ },
+ "buildings": {
+  "oakhollow": {"market": 1, "barracks": 1}
+ },
+ "resources": {
+  "realm": {"gold": 500},
+  "raiders": {"gold": 0}
+ },
+ "units": [
+  {"owner": "realm", "region": "millbrook", "type": "spearmen"},
+  {"owner": "realm", "region": "highmoor", "type": "swordsmen"},
+  {"owner": "realm", "region": "eastwatch", "type": "light_cavalry"},
+  {"owner": "raiders", "region": "ravensford", "type": "militia", "soldiers": 8}
+ ],
+ "mission": {
+  "player": "realm",
+  "par": 0,
+  "objectives": [],
+  "tutorial": true,
+  "lose_capital": false,
+  "briefing": "Learn to command an army on a small map.",
+  "victory_text": "Your training is complete.",
+  "defeat_text": "Even veterans lose a battle. Try again."
+ }
+}

@@ -124,7 +124,12 @@ func _volleys(volleys: Array) -> void:
 				drains.append(event)
 			"destroyed":
 				drains.append(event)
+	var sounds := volley_sounds(volleys)
+	for sound in sounds:
+		_sound(sound)
 	await _wait(VOLLEY / _speed)
+	if sounds.has("catapult"):
+		_sound("impact")
 	_projectiles.clear()
 	for event in drains:
 		if event.type == "volley":
@@ -138,6 +143,8 @@ func _volleys(volleys: Array) -> void:
 
 func _marches(marches: Array) -> void:
 	var longest := 0.0
+	for sound in march_sounds(marches.map(func(e): return e.get("unit"))):
+		_sound(sound)
 	for event in marches:
 		var pace := _pace(event.unit)
 		match event.type:
@@ -162,6 +169,7 @@ func _battle(event: Dictionary) -> void:
 	if attacker != null:
 		_track(attacker, "offset", attacker.offset, border - from, 0.4 / pace)
 	await _wait(0.4 / pace)
+	_sound("clash")
 	_clash_effects(border)
 	if defender != null:
 		var away := (to - from).normalized() * tokens.token_size() * 0.35
@@ -176,11 +184,15 @@ func _march_back(unit) -> void:
 	var visual := _visual(unit)
 	if visual == null:
 		return
+	for sound in march_sounds([unit]):
+		_sound(sound)
 	_track(visual, "offset", visual.offset, Vector2.ZERO, MARCH / _pace(unit), true)
 	await _wait(MARCH / _pace(unit))
 
 
 func _march(unit, region: String, seconds: float) -> void:
+	for sound in march_sounds([unit]):
+		_sound(sound)
 	_march_now(unit, region, seconds / _pace(unit))
 	await _wait(seconds / _pace(unit))
 
@@ -208,6 +220,7 @@ func _fade_now(unit) -> void:
 	var visual := _visual(unit)
 	if visual == null:
 		return
+	_sound("destroyed")
 	tokens.visuals.erase(unit)
 	tokens.ghosts.append(visual)
 	_tracks.append({"visual": visual, "kind": "fade", "t": 0.0, "duration": 0.6 / _speed})
@@ -218,6 +231,7 @@ func _capture(event: Dictionary) -> void:
 	var view: ProvinceView = views.get(region)
 	if view == null:
 		return
+	_sound("capture")
 	var origin: Vector2 = state.map.provinces[event.from].centroid if event.get("from", "") != "" else state.map.provinces[region].centroid
 	view.sweep_to(ProvinceView.paint(state.faction_color(event.faction)), origin.lerp(state.map.provinces[region].centroid, 0.25), SWEEP / _speed)
 	_banners.append({"at": tokens.region_anchor(region) + Vector2(-tokens.token_size() * 0.9, -tokens.token_size() * 0.2),
@@ -341,6 +355,36 @@ func _draw() -> void:
 		draw_colored_polygon(PackedVector2Array([top, top + Vector2(size * 0.45, 0), top + Vector2(size * 0.45, size * 0.6),
 			top + Vector2(size * 0.22, size * 0.48), top + Vector2(0, size * 0.6)]), Color(banner.color, alpha))
 		draw_circle(top, size * 0.05, Color("#e2bd5a", alpha))
+
+
+## The sounds a group of volleys makes: arrows whistle, catapults throw.
+static func volley_sounds(volleys: Array) -> Array:
+	var sounds := []
+	for event in volleys:
+		if event.type != "volley" or event.get("unit") == null:
+			continue
+		var sound := "catapult" if event.unit.type().unit_class == "siege" else "volley"
+		if not sounds.has(sound):
+			sounds.append(sound)
+	return sounds
+
+
+## The sounds of units marching together: footsteps, and hooves for cavalry.
+static func march_sounds(units: Array) -> Array:
+	var sounds := []
+	for unit in units:
+		if unit == null:
+			continue
+		var sound := "hooves" if unit.type().is_cavalry() else "march"
+		if not sounds.has(sound):
+			sounds.append(sound)
+	return sounds
+
+
+## Plays a sound effect, unless the player is skipping the animation.
+func _sound(sound: String) -> void:
+	if not _skip:
+		AudioManager.sfx(sound)
 
 
 ## Waits, unless the player clicked to skip.

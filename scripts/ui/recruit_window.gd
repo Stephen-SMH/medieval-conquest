@@ -23,10 +23,10 @@ func show_region(state: GameState, region: String) -> void:
 	columns.add_child(treasury)
 	treasury.add_child(WoodPopup.icon_rect("res://assets/icons/ui_coins.svg", 56))
 	var gold := Label.new()
-	gold.text = _odometer(roundi(state.factions[faction].resources.gold))
+	gold.text = gold_text(roundi(state.factions[faction].resources.gold))
 	gold.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	gold.add_theme_font_override("font", load("res://assets/fonts/Cinzel.ttf"))
-	gold.add_theme_font_size_override("font_size", 22)
+	gold.add_theme_font_size_override("font_size", 28)
 	treasury.add_child(gold)
 	var site := Economy.site(state, region)
 	var where := Label.new()
@@ -81,6 +81,7 @@ func _card(state: GameState, faction: String, unit_id: String, price: float, ava
 		box.modulate_color = {"normal": Color.WHITE, "hover": Color(1.1, 1.06, 0.95), "pressed": Color(0.9, 0.86, 0.8), "disabled": Color(1, 1, 1, 0.55)}[style]
 		card.add_theme_stylebox_override(style, box)
 	card.disabled = problem != ""
+	card.set_meta("sfx", "")  # Hiring jingles coins instead of clicking.
 	card.pressed.connect(on_pick)
 	Hud.react(card)
 	# The painted figure in the faction's colours, cropped to fit the card.
@@ -151,5 +152,6 @@ func _short(problem: String) -> String:
 	return problem.split(":")[0]
 
 
-func _odometer(value: int) -> String:
-	return " ".join(("%06d" % value).split(""))
+## The treasury as shown in the window: "300", "1,250"; no leading zeros.
+static func gold_text(value: int) -> String:
+	return ("-" if value < 0 else "") + ProvincePanel.thousands(absi(value))

@@ -221,20 +221,25 @@ func _draw_unit(visual: TokenVisual, centre: Vector2, size: float) -> void:
 			Color("#9cc8ec", alpha))
 
 	# The painted figures: three to five soldiers, two or three riders, one or two engines.
+	# Each figure gets its own pose variant, a slightly different size, place
+	# and shade, so a group doesn't look like a row of copies.
 	var spots: Array = figure_spots(unit.type(), visual.soldiers())
-	var textures := _figure(unit.type_id)
+	var variants := variant_count(unit.type_id)
 	var sprite := size * 0.68 / FIGURE_MAN  # A standing man is 0.68 token sizes tall.
 	var team_color := faction_color.lightened(0.12)
-	team_color.a = alpha
 	var o := maxf(size * 0.012, 0.6)
-	for spot: Vector2 in spots:
-		var feet := foot + spot * size
-		var rect := Rect2(feet - Vector2(sprite * 0.5, sprite * FIGURE_FEET), Vector2(sprite, sprite))
+	for i in spots.size():
+		var look := figure_look(unit.get_instance_id(), i, variants)
+		var textures := _figure(unit.type_id, look.variant)
+		var feet: Vector2 = foot + (spots[i] + look.offset) * size
+		var shown: float = sprite * look.scale
+		var rect := Rect2(feet - Vector2(shown * 0.5, shown * FIGURE_FEET), Vector2(shown, shown))
 		for shift in [Vector2(o, 0), Vector2(-o, 0), Vector2(0, o), Vector2(0, -o)]:
 			draw_texture_rect(textures[0], Rect2(rect.position + shift, rect.size), false, Color(INK, 0.3 * alpha))
-		draw_texture_rect(textures[0], rect, false, Color(1, 1, 1, alpha))
+		var shade: float = look.shade
+		draw_texture_rect(textures[0], rect, false, Color(shade, shade, shade * 0.98, alpha))
 		if textures[1] != null:
-			draw_texture_rect(textures[1], rect, false, team_color)
+			draw_texture_rect(textures[1], rect, false, Color(team_color.r * shade, team_color.g * shade, team_color.b * shade, alpha))
 
 	# Rank chevrons beside the figures (the rank from before the turn while it plays out).
 	for i in visual.rank:
@@ -300,11 +305,42 @@ func _spent(unit: Unit) -> bool:
 		and Orders.next_step_index(state, unit) < 0
 
 
-## The painted figure of a unit type and its faction-colour layer.
-func _figure(type_id: String) -> Array:
-	if not _figures.has(type_id):
-		_figures[type_id] = figure_textures(type_id)
-	return _figures[type_id]
+## The painted figure of a unit type (one of its pose variants) and its faction-colour layer.
+func _figure(type_id: String, variant := 0) -> Array:
+	var key := "%s/%d" % [type_id, variant]
+	if not _figures.has(key):
+		_figures[key] = figure_textures(type_id, variant)
+	return _figures[key]
+
+
+const MAX_VARIANTS := 3
+static var _variant_counts := {}
+
+
+## How many pose variants a unit type has been rendered in (1 if only the base figure).
+static func variant_count(type_id: String) -> int:
+	if not _variant_counts.has(type_id):
+		var count := 1
+		while count < MAX_VARIANTS and ResourceLoader.exists("res://assets/figures/%s_v%d.png" % [type_id, count]):
+			count += 1
+		_variant_counts[type_id] = count
+	return _variant_counts[type_id]
+
+
+## How the `index`th figure of a unit looks: its pose variant (neighbours in a
+## group never share one while there are enough), a size within 8% either
+## way, a small nudge from its spot (in token sizes) and a shade. The same
+## unit always looks the same.
+static func figure_look(unit_seed: int, index: int, variants: int) -> Dictionary:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash([unit_seed, index])
+	var first := posmod(hash(unit_seed), maxi(variants, 1))
+	return {
+		"variant": posmod(first + index, maxi(variants, 1)),
+		"scale": rng.randf_range(0.92, 1.08),
+		"offset": Vector2(rng.randf_range(-0.04, 0.04), rng.randf_range(-0.02, 0.02)),
+		"shade": rng.randf_range(0.9, 1.04),
+	}
 
 
 static var _bounds := {}
@@ -318,8 +354,10 @@ static func figure_bounds(type_id: String) -> Rect2:
 	return _bounds[type_id]
 
 
-static func figure_textures(type_id: String) -> Array:
+static func figure_textures(type_id: String, variant := 0) -> Array:
 	var path := "res://assets/figures/%s.png" % type_id
+	if variant > 0 and ResourceLoader.exists("res://assets/figures/%s_v%d.png" % [type_id, variant]):
+		path = "res://assets/figures/%s_v%d.png" % [type_id, variant]
 	if not ResourceLoader.exists(path):
 		path = "res://assets/figures/spearmen.png"
 	var team_path := path.replace(".png", "_team.png")

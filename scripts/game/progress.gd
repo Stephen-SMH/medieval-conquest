@@ -27,6 +27,11 @@ static func stars(campaign_id: String, index: int) -> int:
 	return int(_load().stars.get("%s/%d" % [campaign_id, index], 0))
 
 
+## True once any mission has been finished.
+static func any_progress() -> bool:
+	return not _load().get("stars", {}).is_empty()
+
+
 ## Keeps the best result for a mission.
 static func record(campaign_id: String, index: int, earned: int) -> void:
 	var data := _load()

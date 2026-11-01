@@ -10,6 +10,7 @@ enum MapMode { POLITICAL, TERRAIN }
 
 const SessionScript := preload("res://scripts/session.gd")
 const DRAG_THRESHOLD := 6.0
+const TUTORIAL_ZOOM := 0.8
 
 var state: GameState
 var map: MapData
@@ -38,6 +39,8 @@ var _busy := false  # True while a turn resolves on screen.
 var _attack_popup: AttackPopup
 var _recruit_window: RecruitWindow
 var _popup: WoodPopup
+var _tutorial: Tutorial  # The guided tutorial's steps, in the tutorial mission only.
+var _tutorial_box: TutorialBox
 
 @onready var _map_root: Node2D = $Map
 @onready var _camera: MapCamera = $Camera
@@ -109,6 +112,9 @@ func _ready() -> void:
 	_build_pass_screen()
 	Hud.react_all($UI)
 	Settings.apply(get_tree())
+	AudioManager.music("map")
+	if state.mission.get("tutorial", false):
+		_start_tutorial()
 
 	clear_selection()
 	_advance()
@@ -116,6 +122,8 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	_update_hover()
+	if _tutorial != null and _tutorial.update(state, selected_unit):
+		_show_tutorial_step()
 	if not is_equal_approx(_tokens.view_zoom, _camera.zoom.x):
 		_tokens.view_zoom = _camera.zoom.x
 		_tokens.queue_redraw()
@@ -206,6 +214,7 @@ func clear_selection() -> void:
 func _click(point: Vector2) -> void:
 	var arrow := _orders.unit_at(point)
 	if arrow != null and _is_my_turn() and arrow.owner == state.current_faction():
+		AudioManager.sfx("click")
 		_cancel_order(arrow)
 		return
 	var unit := _tokens.unit_at(point)
@@ -217,8 +226,10 @@ func _click(point: Vector2) -> void:
 		return
 	if unit != null and unit.owner == state.current_faction() and _is_my_turn():
 		if unit == selected_unit and state.orders.has(unit):
+			AudioManager.sfx("click")
 			_cancel_order(unit)
 		else:
+			AudioManager.sfx("select")
 			select_unit(unit)
 		return
 	select_region(region)
@@ -233,6 +244,8 @@ func order(region: String) -> void:
 			var problem := Orders.give(state, unit, "move", region)
 			if problem != "":
 				_hud.toast(problem.capitalize())
+			else:
+				AudioManager.sfx("order")
 		"attack":
 			_attack_popup.show_attack(state, unit, region, state.forecast_attack([unit], region))
 			_attack_popup.set_meta("target", region)
@@ -253,6 +266,8 @@ func _on_attack_amounts(amounts: Dictionary) -> void:
 	var problem := Orders.give(state, unit, "attack", region, amounts)
 	if problem != "":
 		_hud.toast(problem.capitalize())
+	else:
+		AudioManager.sfx("order")
 	_after_order(unit)
 
 
@@ -266,6 +281,7 @@ func _after_order(unit: Unit) -> void:
 
 func _cancel_order(unit: Unit) -> void:
 	Orders.cancel(state, unit)
+	_tutorial_record("cancel")
 	_hud.toast("Order cancelled.")
 	select_unit(unit)
 
@@ -330,6 +346,10 @@ func _show_region_info(region: String) -> void:
 func end_turn() -> void:
 	if not _is_my_turn():
 		return
+	if _tutorial != null and not _tutorial.may_end_turn():
+		_hud.toast("Finish this step of the tutorial first, or skip it.")
+		return
+	AudioManager.sfx("hourglass", 0.0)
 	_last_human = state.current_faction()
 	clear_selection()
 	var before := _snapshot()
@@ -364,7 +384,7 @@ func _start_human_planning() -> void:
 		_pass_label.text = "Pass the device to\n%s" % state.faction_name(faction)
 		_pass_label.add_theme_color_override("font_color", state.faction_color(faction).lightened(0.4))
 		_pass_screen.visible = true
-	if faction == humans[0]:
+	if faction == humans[0] and _tutorial == null:  # The tutorial doesn't overwrite the autosave.
 		SaveGame.save(state, "auto")
 	_hud.show_turn("Turn: %s" % state.faction_name(faction), state.faction_color(faction), state.factions[faction].civ if state.factions.has(faction) else "")
 
@@ -431,6 +451,7 @@ func _check_end() -> bool:
 	_refresh_world()
 	if state.result.result == "won" and state.mission.has("campaign") and state.result.winner == state.viewer():
 		Progress.record(state.mission.campaign, int(state.mission.mission_index), int(state.result.stars))
+	AudioManager.music("victory" if state.result.get("winner", "") == state.viewer() else "defeat")
 	_end_screen.show_result(state, state.viewer())
 	_dim.visible = true
 	return true
@@ -454,6 +475,8 @@ func open_recruit(region := "") -> void:
 func _on_recruit(region: String, unit: String, mercenary: bool) -> void:
 	var done := Economy.hire(state, region, unit) if mercenary else Economy.recruit(state, region, unit)
 	if done:
+		AudioManager.sfx("coins")
+		_tutorial_record("hire" if mercenary else "recruit")
 		_hud.toast("%s will be ready in %s at the end of the turn." % [Rules.unit(unit).display_name, map.region_name(region)])
 	_close_popups()
 	_refresh_world()
@@ -461,6 +484,7 @@ func _on_recruit(region: String, unit: String, mercenary: bool) -> void:
 
 func open_treasury() -> void:
 	var faction := state.viewer()
+	_tutorial_record("treasury")
 	_popup.open("Treasury")
 	var lines := PackedStringArray()
 	var total := 0.0
@@ -568,6 +592,35 @@ func _on_research_requested(tech: String) -> void:
 	_refresh_world()
 
 
+# --- Tutorial ----------------------------------------------------------------------------------
+
+func _start_tutorial() -> void:
+	_tutorial = Tutorial.new(state.turn)
+	_tutorial_box = TutorialBox.new()
+	$UI.add_child(_tutorial_box)
+	_tutorial_box.skip_pressed.connect(func():
+		_tutorial.skip()
+		_show_tutorial_step())
+	_tutorial_box.leave_pressed.connect(_go_to_menu)
+	# Shift the small map right, over the sea, so the hint box in the
+	# lower-left corner never hides a region or its name.
+	_camera.zoom = Vector2.ONE * TUTORIAL_ZOOM
+	_camera.position = Vector2((get_viewport_rect().size.x / 2.0 - TutorialBox.WIDTH - 2.0 * TutorialBox.MARGIN) / TUTORIAL_ZOOM, map.size.y / 2.0)
+	_show_tutorial_step()
+
+
+func _show_tutorial_step() -> void:
+	if _tutorial.finished():
+		_tutorial_box.visible = false
+		return
+	_tutorial_box.show_step(_tutorial.current(), _tutorial.step, Tutorial.STEPS.size())
+
+
+func _tutorial_record(kind: String) -> void:
+	if _tutorial != null:
+		_tutorial.record(kind)
+
+
 func _build_pass_screen() -> void:
 	_pass_screen = TextureRect.new()
 	(_pass_screen as TextureRect).texture = load("res://assets/ui/wood.png")
@@ -660,7 +713,8 @@ func _handle_mouse_motion(event: InputEventMouseMotion) -> void:
 func _update_hover() -> void:
 	var region := ""
 	var mouse := get_viewport().get_mouse_position()
-	if not _dragging and not _dim.visible and not _pass_screen.visible and not _hud.is_over_ui(mouse):
+	var over_hint := _tutorial_box != null and _tutorial_box.visible and _tutorial_box.get_global_rect().has_point(mouse)
+	if not _dragging and not _dim.visible and not _pass_screen.visible and not _hud.is_over_ui(mouse) and not over_hint:
 		region = map.province_at(get_global_mouse_position())
 	if region == hovered_id:
 		return
@@ -674,7 +728,7 @@ func _update_hover() -> void:
 	if selected_unit != null and reach.get(region, "") in ["move", "attack"]:
 		var index := maxi(Orders.next_step_index(state, selected_unit), 0)
 		var from := Orders.step_origin(state, selected_unit, index)
-		_orders.preview = {"from": _orders.anchor(from), "to": _orders.anchor(region), "kind": reach[region]}
+		_orders.preview = {"from": from, "to": region, "kind": reach[region]}
 	_orders.queue_redraw()
 
 

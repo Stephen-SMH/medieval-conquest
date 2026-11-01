@@ -16,7 +16,8 @@ const STEEL := Color("#c9ccd2")
 var state: GameState
 ## Arrows run between the units' feet when set, else between region centres.
 var tokens: TokenLayer
-## {"from": Vector2, "to": Vector2, "kind": "move"/"attack"} or {} for no preview.
+## {"from": region, "to": region, "kind": "move"/"attack"} (or map points
+## instead of regions) or {} for no preview.
 var preview := {}
 
 var _shapes := {}  # Unit -> Array of PackedVector2Array, for clicking.
@@ -31,16 +32,16 @@ func _draw() -> void:
 	for unit: Unit in state.orders:
 		if unit.owner != state.viewer() or not state.units.has(unit):
 			continue
-		var from := unit.province
+		var steps: Array = state.orders[unit].steps
+		var points := route(unit)
 		var shapes := []
-		for step in state.orders[unit].steps:
-			var color := MOVE if step.type == "move" else (ATTACK if step.type == "attack" else BESIEGE)
-			var shape := draw_spear(self, anchor(from), anchor(step.target), color, 1.0)
-			shapes.append(shape)
-			from = step.target
+		for i in steps.size():
+			var color := MOVE if steps[i].type == "move" else (ATTACK if steps[i].type == "attack" else BESIEGE)
+			shapes.append(draw_spear(self, points[i], points[i + 1], color, 1.0))
 		_shapes[unit] = shapes
 	if not preview.is_empty():
-		draw_spear(self, preview.from, preview.to, MOVE if preview.kind == "move" else ATTACK, 0.45)
+		var ends: Array = route_through([preview.from, preview.to]) if preview.from is String else [preview.from, preview.to]
+		draw_spear(self, ends[0], ends[1], MOVE if preview.kind == "move" else ATTACK, 0.45)
 
 
 ## Where arrows start and end in a region: at the feet of the unit standing there.
@@ -48,6 +49,93 @@ func anchor(region: String) -> Vector2:
 	if tokens != null:
 		return TokenLayer.layout(state.map.provinces[region].centroid, tokens.token_size()).foot
 	return state.map.provinces[region].centroid
+
+
+## The points a unit's arrows run through: from its feet, through each
+## waypoint, to the last target, each moved off the region's name (see joint()).
+func route(unit: Unit) -> Array:
+	var regions := [unit.province]
+	if state.orders.has(unit):
+		for step in state.orders[unit].steps:
+			regions.append(step.target)
+	return route_through(regions)
+
+
+## The points an arrow through these regions runs through, clear of their names.
+func route_through(regions: Array) -> Array:
+	return route_points(regions.map(anchor), regions.map(func(r): return name_rect(state.map, r)), _size())
+
+
+## Moves each point of an arrow's path (normally the feet of the unit's spot
+## in that region) off its region's name: two passes, so each point sees
+## where its neighbours ended up.
+static func route_points(anchors: Array, labels: Array, size: float) -> Array:
+	var points := anchors.duplicate()
+	for pass_number in 2:
+		for i in points.size():
+			var before = points[i - 1] if i > 0 else null
+			var after = points[i + 1] if i < points.size() - 1 else null
+			points[i] = joint(before, anchors[i], after, labels[i], size)
+	return points
+
+
+func _size() -> float:
+	return tokens.token_size() if tokens != null else 50.0
+
+
+static var _label_font: Font
+
+
+## The box a region's name and gold line fill on the map, measured to the text.
+static func name_rect(map: MapData, region: String) -> Rect2:
+	if _label_font == null:
+		_label_font = load("res://assets/fonts/IMFellEnglish-Regular.ttf")
+	var centroid: Vector2 = map.provinces[region].centroid
+	var width := _label_font.get_string_size(map.region_name(region), HORIZONTAL_ALIGNMENT_LEFT, -1, MapDecor.LABEL_SIZE).x
+	var top := MapDecor.label_rect(centroid).position.y
+	return Rect2(Vector2(centroid.x - width / 2.0 - 6.0, top - 2.0), Vector2(width + 12.0, centroid.y + 54.0 - top))
+
+
+## Where an arrow starts, ends or turns (at a two-step order's waypoint) in a
+## region. Normally at the feet of the unit's spot there; when an arrow to or
+## from that point would cross the region's name, the point moves up or to the
+## side so the name stays readable. `from` or `to` is null at the ends.
+static func joint(from, foot: Vector2, to, label: Rect2, size: float) -> Vector2:
+	var aside := label.size.x * 0.5 + 18.0
+	var candidates := []
+	for dy in [0.0, -0.45, -0.9, -1.35]:
+		for dx in [0.0, -1.0, 1.0, -1.5, 1.5, -2.1, 2.1]:
+			candidates.append(foot + Vector2(dx * aside, dy * size))
+	candidates.sort_custom(func(a, b): return a.distance_squared_to(foot) < b.distance_squared_to(foot))
+	# The first point that keeps the name clear; when none can (a sharp V
+	# around the name), the one that covers least of it.
+	var best := foot
+	var least := INF
+	for candidate in candidates:
+		var covered := (0.0 if from == null else spear_cover(from, candidate, label)) + (0.0 if to == null else spear_cover(candidate, to, label))
+		if covered <= 0.0:
+			return candidate
+		if covered < least - 1.0:
+			least = covered
+			best = candidate
+	return best
+
+
+## Whether a spear arrow between two points covers any of `rect`.
+static func spear_crosses(from: Vector2, to: Vector2, rect: Rect2) -> bool:
+	return spear_cover(from, to, rect) > 0.0
+
+
+## How much of `rect` (in square pixels) a spear arrow between two points covers.
+static func spear_cover(from: Vector2, to: Vector2, rect: Rect2) -> float:
+	var g := spear_geometry(from, to)
+	if g.is_empty():
+		return 0.0
+	var box := PackedVector2Array([rect.position, Vector2(rect.end.x, rect.position.y), rect.end, Vector2(rect.position.x, rect.end.y)])
+	var area := 0.0
+	for piece: PackedVector2Array in Geometry2D.intersect_polygons(g.shape, box):
+		area += absf(MapData.polygon_area(piece))
+	return area
 
 
 ## The unit whose arrow is under `point`, or null.

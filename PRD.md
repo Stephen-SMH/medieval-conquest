@@ -426,3 +426,13 @@ This decision replaces sections 3.3 (resources), 3.4 (food and supply) and 3.12 
 | GE-6 | The map is a parchment political map: clear faction colours, a thin dark border inside a faction and a **double line** (dark plus each side's colour) where two factions meet, a dark teal sea with paper grain, region names in a serif map font, a crown for the capital, a tower for walls, a tent for a camp, houses for a town, and small ships on coastal regions with dotted lanes for coastal raids. |
 | GE-7 | The HUD is minimal: a riveted plaque at the top with the gold and the turn; wooden shield buttons in the corners for recruit, treasury, menu, messages and the end-turn hourglass; a cloth banner on the right listing the turn's orders (green) and battles (red); and faint calligraphy across the map at each turn ("Turn: …"). Everything else is in popups. |
 
+### 8.10 Sound, music and the tutorial
+
+| ID | Requirement |
+|---|---|
+| SM-1 | **Music** on its own bus: a menu track, two calm map tracks that alternate, and a victory and a defeat sting. The music crossfades between the menu and the map. All audio is CC0 and credited in CREDITS.md. |
+| SM-2 | **Sound effects** on their own bus: button clicks, selecting a unit, placing an order, the hourglass, and during playback (BR-4) footsteps or hooves for marches, arrow volleys, catapult throws and impacts, sword clashes, a destroyed unit and a horn for a capture; coins when recruiting or hiring. |
+| SM-3 | **Music and Sound volume** sliders in Settings, saved with the other settings. With no audio files or no audio device the game is simply silent. |
+| TU-1 | A **tutorial** mission on a 7-region map, reachable from the title menu, teaches one thing per step in a parchment hint box and waits for the player to do it: select, march, cancel, attack with the split slider, cavalry's two steps and the red X, the hourglass, gold income, mercenaries and recruiting. Any step can be skipped, and the tutorial left. |
+| TU-2 | A new player (no campaign progress) is asked once whether to play the tutorial. |
+
