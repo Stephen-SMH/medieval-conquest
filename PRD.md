@@ -1,0 +1,304 @@
+# Medieval Conquest — Product Requirements
+
+A turn-based medieval strategy game on a map of provinces. Each faction gathers food, gold, wood and iron, recruits armies of different unit types, and marches them across the map to attack and conquer. Unit types counter each other: spears beat cavalry, cavalry beats archers, and so on.
+
+- **Engine:** Godot 4.7, GDScript, Compatibility renderer
+- **Platforms:** desktop (macOS, Windows, Linux) and web (HTML5)
+- **Input:** mouse first
+- **View:** 2D top-down painted map with province borders
+
+---
+
+## 1. Goals
+
+| # | Goal |
+|---|---|
+| G1 | Choosing **what army to build** matters as much as where to send it, because unit types counter each other. |
+| G2 | **Food and supply** limit how big and how far armies can go. |
+| G3 | A match against 3 AI factions can be won in about 60–90 minutes. |
+| G4 | Every battle result can be explained: the player sees why they won or lost. |
+
+**Out of scope for v1:** real-time tactical battles (v1 uses auto-resolve), multiplayer, naval warfare, religion, family trees.
+
+---
+
+## 2. Core loop (one turn = one season)
+
+```
+Collect income ─► Build / recruit ─► Move armies ─► Battles & sieges ─► End turn (AI factions play)
+      ▲                                                                          │
+      └────────────────────── Next season: upkeep, food, events ◄────────────────┘
+```
+
+---
+
+## 3. Functional requirements
+
+### 3.1 Map and provinces
+
+| ID | Requirement |
+|---|---|
+| MP-1 | The map has **about 30 provinces**. Each is a clickable polygon (`Polygon2D` + `Area2D`). |
+| MP-2 | Provinces form a **graph**: each lists its neighbours. Armies move only between neighbours. |
+| MP-3 | Each province has: owner, terrain, settlement level, population, buildings, garrison, and resource output. |
+| MP-4 | Some provinces have a **river border** with a neighbour, or a **road** to it. |
+| MP-5 | **Fog of war:** the player only sees armies in their own provinces and in neighbouring provinces. |
+| MP-6 | The camera pans (drag / WASD) and zooms (mouse wheel). Map modes: political (owners), terrain, resources. |
+
+**Terrain**
+
+| Terrain | Move cost | Food output | Battle effect |
+|---|---|---|---|
+| Plains | 1 | high | cavalry +20% attack |
+| Forest | 2 | low | cavalry −30% attack; archers −20% attack (no clear line of fire); defender +10% |
+| Hills | 2 | medium | archers +20% when defending; attacker −10% |
+| Mountains | 3 | very low | defender +30%; cavalry −50% |
+| Marsh | 3 | low | everyone −20% attack; heavy units −30% |
+
+| Border | Effect |
+|---|---|
+| River | attacker −25% the turn they cross; move cost +1 |
+| Road | move cost −1 (minimum 1) |
+
+### 3.2 Factions and turns
+
+| ID | Requirement |
+|---|---|
+| FC-1 | v1 has **4 factions**: the player and 3 AI factions, each starting with a capital and 2 provinces. |
+| FC-2 | A turn is one **season** (Spring, Summer, Autumn, Winter). |
+| FC-3 | Turn order: the player plays first, then each AI faction. Battles happen when an army moves into an enemy province. |
+| FC-4 | Each faction has a colour, banner and name. |
+
+### 3.3 Resources
+
+| Resource | Comes from | Used for |
+|---|---|---|
+| **Gold** | taxes (population), markets, trade | recruiting, unit upkeep, buildings |
+| **Food** | farms, depends on terrain and season | feeding armies and population |
+| **Wood** | forest provinces, lumber camps | buildings, archers' bows, siege engines |
+| **Iron** | hill and mountain mines | swordsmen, heavy cavalry, armour upgrades |
+| **Manpower** | population (5% per season) | every unit costs manpower to recruit |
+
+| ID | Requirement |
+|---|---|
+| RS-1 | All resources are stored at the **faction level** (one shared pool). |
+| RS-2 | The top bar shows each resource with its **change per turn** (e.g. Food 420 (+35)). |
+| RS-3 | Hovering a resource shows a breakdown of where it comes from and where it goes. |
+
+### 3.4 Food and supply
+
+| ID | Requirement |
+|---|---|
+| FD-1 | Every unit eats food each turn (see unit table). The population also eats: 1 food per 1,000 people. |
+| FD-2 | Farm output depends on season: **Spring ×1, Summer ×1.25, Autumn ×1.5 (harvest), Winter ×0.25**. |
+| FD-3 | If food falls below 0: each army loses **10% of its men per turn** (starvation), and province happiness drops. |
+| FD-4 | **Supply range:** an army in its own territory, or within 2 provinces of it, is supplied. An army further away **forages** from the province it's in: it takes food from that province, which can run out. When it does, the army loses 5% of its men per turn. |
+| FD-5 | **Winter attrition:** armies outside their own territory in winter lose 5% of their men per turn, 10% in mountains. |
+| FD-6 | A **Granary** building stores extra food so it can carry over winter. |
+
+### 3.5 Unit types
+
+| Unit | Role | HP | Attack | Defense | Speed (moves) | Range | Cost (gold / other) | Upkeep (gold / food) |
+|---|---|---|---|---|---|---|---|---|
+| Militia | cheap filler | 80 | 6 | 4 | 2 | melee | 30 / — | 1 / 1 |
+| Spearmen | anti-cavalry | 100 | 8 | 10 | 2 | melee | 60 / 10 wood | 2 / 1 |
+| Swordsmen | heavy infantry | 110 | 12 | 8 | 2 | melee | 90 / 15 iron | 3 / 1 |
+| Archers | ranged | 70 | 10 | 4 | 2 | ranged | 70 / 15 wood | 2 / 1 |
+| Crossbowmen | armour piercing ranged | 75 | 13 | 5 | 2 | ranged | 100 / 10 wood, 10 iron | 3 / 1 |
+| Light cavalry | fast raider, flanker | 90 | 10 | 5 | 4 | melee | 110 / — | 4 / 2 |
+| Heavy cavalry | shock charge | 130 | 15 | 10 | 3 | melee | 180 / 25 iron | 6 / 3 |
+| Catapult | siege | 60 | 20 (vs walls) | 2 | 1 | ranged | 150 / 40 wood | 4 / 1 |
+
+Each unit is a **regiment** of 100 men. HP and Attack scale with how many men are left.
+
+### 3.6 Unit counters
+
+Damage multiplier when the **row** unit attacks the **column** unit:
+
+| Attacker ↓ / Defender → | Militia | Spear | Sword | Archer | Crossbow | Light cav | Heavy cav | Catapult |
+|---|---|---|---|---|---|---|---|---|
+| **Militia** | 1.0 | 0.8 | 0.7 | 1.0 | 1.0 | 0.8 | 0.6 | 1.5 |
+| **Spearmen** | 1.1 | 1.0 | 0.75 | 1.0 | 1.0 | **2.0** | **2.0** | 1.5 |
+| **Swordsmen** | 1.3 | **1.5** | 1.0 | 1.2 | 1.2 | 0.9 | 0.8 | 1.5 |
+| **Archers** | 1.2 | **1.25** | 0.8 | 1.0 | 1.0 | 0.7 | 0.5 | 1.0 |
+| **Crossbowmen** | 1.2 | 1.2 | **1.3** | 1.0 | 1.0 | 0.9 | **1.3** | 1.0 |
+| **Light cavalry** | 1.2 | 0.5 | 0.9 | **2.0** | **2.0** | 1.0 | 0.7 | **2.0** |
+| **Heavy cavalry** | 1.5 | 0.6 | 1.3 | **2.0** | 1.5 | 1.3 | 1.0 | **2.0** |
+| **Catapult** | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 0.5 | 0.5 | 1.0 |
+
+The rock-paper-scissors in short:
+
+- **Spearmen beat cavalry** (cavalry charging into spears takes double damage).
+- **Cavalry beats archers and siege** (fast units catch slow ranged units).
+- **Archers beat spearmen** (slow, lightly armoured blocks of infantry).
+- **Swordsmen beat spearmen** (better in close combat).
+- **Crossbows beat armour** (swordsmen and heavy cavalry).
+- **Catapults** are weak in a field battle but needed to break walls.
+
+### 3.7 Armies and generals
+
+| ID | Requirement |
+|---|---|
+| AR-1 | An **army** is a group of up to **12 regiments** led by a **general**. |
+| AR-2 | Armies without a general can't leave their province (garrisons only). |
+| AR-3 | Generals have **Command** (+% attack for the army), **Logistics** (−% food upkeep, + supply range) and **one trait** (e.g. "Horse Lord": cavalry +15%; "Siege Master": sieges 1 turn faster; "Cautious": defense +10%, attack −5%). |
+| AR-4 | Generals gain experience from battles and can level up (choose a stat). |
+| AR-5 | Armies can **merge**, **split**, and move regiments between each other when they're in the same province. |
+| AR-6 | Damaged regiments recover **10% men per turn** in their own territory if they don't move, using manpower. |
+
+### 3.8 Movement
+
+| ID | Requirement |
+|---|---|
+| MV-1 | An army's **movement points** = the lowest Speed among its regiments. |
+| MV-2 | Entering a province costs its terrain move cost (with road and river changes). |
+| MV-3 | Clicking a destination shows the path and the number of turns it will take (pathfinding over the province graph with A*). |
+| MV-4 | Entering a province with an **enemy army** stops movement and starts a battle. |
+| MV-5 | Entering an undefended enemy province **occupies** it. A province with walls must be **besieged** first. |
+| MV-6 | **Zone of control:** an army that moves next to an enemy army must stop. |
+
+### 3.9 Battles (auto-resolve in v1)
+
+| ID | Requirement |
+|---|---|
+| BT-1 | A battle runs in **3 phases**: **Ranged** (archers, crossbows, catapults shoot), **Charge** (cavalry attacks first and picks its best targets), then **Melee** (rounds until one side breaks or 6 rounds pass). |
+| BT-2 | In each phase, every regiment picks a target. Melee units prefer the enemy they have the best multiplier against. |
+| BT-3 | Damage = `Attack × counterMultiplier × terrainMod × generalMod × moraleMod × random(0.85–1.15) − Defense / 2`. |
+| BT-4 | **Morale:** every army starts at 100 morale. Losing regiments, losing the general, and being outnumbered lower it. At 30 morale the army **routs**: it retreats to a neighbouring friendly province and loses 20% more men. |
+| BT-5 | The defender gets the terrain bonus. The attacker gets the river penalty if crossing one. |
+| BT-6 | After the battle, a **report** shows each regiment's losses, which counters mattered, and why the battle was won or lost. |
+| BT-7 | The player can see a **battle forecast** (expected outcome: decisive win / win / close / loss / decisive loss) before attacking. |
+
+### 3.10 Sieges
+
+| ID | Requirement |
+|---|---|
+| SG-1 | Provinces with **walls** (Wooden palisade → Stone walls → Castle) must be besieged. |
+| SG-2 | A siege lasts until the defender runs out of food (palisade 2 turns, stone walls 4, castle 6) or the attacker **assaults**. |
+| SG-3 | An **assault** is a battle where the defender gets +50% defense (palisade), +100% (stone) or +150% (castle). Each catapult reduces this bonus by 25 percentage points. |
+| SG-4 | The besieging army must stay in the province. If it leaves or is defeated, the siege ends. |
+
+### 3.11 Provinces and buildings
+
+| Building | Effect | Cost |
+|---|---|---|
+| Farm (Lv 1–3) | +food | 100 gold, 20 wood |
+| Market (Lv 1–3) | +gold | 150 gold, 30 wood |
+| Lumber camp | +wood (forest only) | 80 gold |
+| Mine | +iron (hills/mountains only) | 120 gold, 20 wood |
+| Granary | stores food over winter | 100 gold, 40 wood |
+| Barracks | recruit Spearmen, Swordsmen | 150 gold, 40 wood |
+| Archery range | recruit Archers, Crossbowmen | 150 gold, 50 wood |
+| Stable | recruit cavalry | 200 gold, 40 wood |
+| Siege workshop | recruit Catapults | 200 gold, 80 wood |
+| Walls (palisade → stone → castle) | defense, siege length | 100 / 300 / 600 gold, wood & iron |
+
+| ID | Requirement |
+|---|---|
+| PV-1 | Each province has **4 building slots** (capital: 6). One building can be built per province per turn. Buildings take 1–2 turns. |
+| PV-2 | Recruiting takes **1 turn**. Each province can recruit up to 2 regiments per turn. |
+| PV-3 | **Happiness** (0–100): lowered by high taxes, starvation, recent conquest; raised by garrisons and markets. Below 20, the province may **revolt** and spawn rebel militia. |
+| PV-4 | The player sets a faction-wide **tax level** (low / normal / high), trading gold against happiness. |
+
+### 3.12 Inventory (faction stockpile)
+
+There is no item inventory per character. The faction **stockpile** holds Gold, Food, Wood and Iron, with a capacity:
+
+| ID | Requirement |
+|---|---|
+| ST-1 | Food can be stored up to `500 + 500 × granaries`. Anything above that spoils at the end of the turn. |
+| ST-2 | Wood and iron are stored up to `1,000 + 500 × capital level`. |
+| ST-3 | Gold has no cap. |
+| ST-4 | v2: generals can hold **equipment** (sword, armour, banner) found after battles that give small bonuses. |
+
+### 3.13 AI
+
+| ID | Requirement |
+|---|---|
+| AI-1 | Each AI faction has a **personality**: Aggressive, Defensive or Economic, which changes its weights. |
+| AI-2 | Each turn the AI: builds economy buildings when food or gold is low; recruits to **counter** the armies it can see (e.g. sees cavalry → recruits spearmen); attacks neighbouring provinces where its forecast is "win" or better; defends threatened provinces. |
+| AI-3 | The AI follows the same rules as the player (no free resources) on Normal difficulty. On Hard it gets +25% income. |
+
+### 3.14 Diplomacy (minimal v1)
+
+| ID | Requirement |
+|---|---|
+| DP-1 | Factions are either **at war** or **at peace** with each other. |
+| DP-2 | The player can **propose peace** (accepted if the AI is losing) or **declare war**. |
+| DP-3 | Breaking a peace treaty within 4 turns lowers happiness in all the player's provinces. |
+
+### 3.15 Victory and defeat
+
+| Condition | Result |
+|---|---|
+| Own **every capital** or **70% of provinces** | Victory |
+| Lose your capital and have no other province with walls | Defeat |
+| Turn 80 reached | The faction with the highest score wins (provinces, gold, armies) |
+
+### 3.16 Save system
+
+| ID | Requirement |
+|---|---|
+| SV-1 | Save at any time during the player's turn. 5 manual slots + 1 autosave at the start of each turn. |
+| SV-2 | Saves include map state, factions, resources, armies, sieges, AI state and the random seed. |
+| SV-3 | Saves go in `user://` (browser storage on the web). |
+
+---
+
+## 4. Data model (Godot Resources)
+
+```
+UnitTypeData   id, name, hp, attack, defense, speed, ranged, cost{gold, wood, iron, manpower},
+               upkeep{gold, food}, required_building, sprite
+CounterTable   matrix[attacker_id][defender_id] → multiplier
+TerrainData    id, move_cost, food_mod, battle_mods{unit_class → mod}
+BuildingData   id, name, cost{}, build_turns, effects{}, allowed_terrain[], max_level
+ProvinceData   id, name, polygon, neighbours[], river_borders[], roads[], terrain, base_food,
+               base_gold, population
+TraitData      id, name, modifiers{}
+```
+
+Runtime state (saved):
+
+```
+Province   owner, buildings[], garrison, happiness, food_stock, siege
+Army       id, owner, general, regiments[{type, men}], province, movement_left, path[]
+Faction    id, name, color, resources{}, tax_level, relations{}, ai_personality
+```
+
+---
+
+## 5. Screens
+
+1. Title (New campaign / Load / Settings)
+2. Faction select
+3. Campaign map with top resource bar, end-turn button, minimap
+4. Province panel (buildings, recruit, garrison, happiness)
+5. Army panel (regiments, general, merge/split)
+6. Battle forecast popup and battle report
+7. Diplomacy screen
+8. End-of-match screen
+
+---
+
+## 6. Non-functional requirements
+
+| ID | Requirement |
+|---|---|
+| NF-1 | An AI turn takes less than 2 seconds for all 3 AI factions combined. |
+| NF-2 | Battles use a seeded random number generator, so a replayed save gives the same result. |
+| NF-3 | 60 fps panning and zooming the map, on desktop and in the browser. |
+| NF-4 | All units, buildings, terrain and counters are data (`.tres`), so balance can be changed without code changes. |
+
+---
+
+## 7. Milestones
+
+| Milestone | Contents |
+|---|---|
+| **M1 — Map** | Province map with 10 provinces, selection, neighbours, pan and zoom, map modes |
+| **M2 — Armies and movement** | Armies with regiments, pathfinding, movement points, turns |
+| **M3 — Battles** | Auto-resolve with the 3 phases, counter table, terrain, morale, battle report |
+| **M4 — Economy** | Gold, food, wood, iron, manpower; buildings; recruiting; seasons; food and supply |
+| **M5 — AI** | 3 AI factions with personalities, sieges, victory and defeat |
+| **M6 — Full map** | 30 provinces, generals and traits, diplomacy, save/load, web export |
