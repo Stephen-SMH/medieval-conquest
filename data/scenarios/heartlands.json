@@ -1,0 +1,241 @@
+{
+ "id": "heartlands",
+ "name": "The Heartlands",
+ "map": "heartlands",
+ "factions": [
+  {
+   "id": "aldmere",
+   "name": "Kingdom of Aldmere",
+   "civ": "",
+   "color": "#3d6fb6",
+   "human": true,
+   "ai": "balanced"
+  },
+  {
+   "id": "brennwald",
+   "name": "Duchy of Brennwald",
+   "civ": "",
+   "color": "#b5423a",
+   "human": false,
+   "ai": "balanced"
+  },
+  {
+   "id": "corvane",
+   "name": "Corvane League",
+   "civ": "",
+   "color": "#7b4fa8",
+   "human": false,
+   "ai": "balanced"
+  },
+  {
+   "id": "dunmarch",
+   "name": "Dunmarch Clans",
+   "civ": "",
+   "color": "#d1a23a",
+   "human": false,
+   "ai": "balanced"
+  }
+ ],
+ "owners": {
+  "northmarch": "aldmere",
+  "greywater": "aldmere",
+  "highcrag": "brennwald",
+  "eastwold": "brennwald",
+  "ashford": "aldmere",
+  "kingsvale": "brennwald",
+  "thornwood": "dunmarch",
+  "saltmere": "corvane",
+  "redfield": "corvane",
+  "stonehelm": "dunmarch"
+ },
+ "capitals": {
+  "aldmere": "greywater",
+  "brennwald": "eastwold",
+  "corvane": "redfield",
+  "dunmarch": "stonehelm"
+ },
+ "buildings": {
+  "greywater": {
+   "farm": 1,
+   "market": 1,
+   "barracks": 1
+  },
+  "eastwold": {
+   "farm": 1,
+   "market": 1,
+   "barracks": 1
+  },
+  "redfield": {
+   "farm": 1,
+   "market": 1,
+   "barracks": 1
+  },
+  "stonehelm": {
+   "farm": 1,
+   "market": 1,
+   "barracks": 1
+  }
+ },
+ "units": [
+  {
+   "owner": "aldmere",
+   "region": "greywater",
+   "type": "spearmen",
+   "general": {
+    "name": "Edric Vane",
+    "command": 2,
+    "logistics": 1
+   }
+  },
+  {
+   "owner": "aldmere",
+   "region": "greywater",
+   "type": "spearmen"
+  },
+  {
+   "owner": "aldmere",
+   "region": "greywater",
+   "type": "swordsmen"
+  },
+  {
+   "owner": "aldmere",
+   "region": "greywater",
+   "type": "swordsmen"
+  },
+  {
+   "owner": "brennwald",
+   "region": "eastwold",
+   "type": "militia",
+   "general": {
+    "name": "Hrolf Brenn",
+    "command": 2,
+    "logistics": 1
+   }
+  },
+  {
+   "owner": "brennwald",
+   "region": "eastwold",
+   "type": "militia"
+  },
+  {
+   "owner": "brennwald",
+   "region": "eastwold",
+   "type": "spearmen"
+  },
+  {
+   "owner": "brennwald",
+   "region": "eastwold",
+   "type": "spearmen"
+  },
+  {
+   "owner": "brennwald",
+   "region": "kingsvale",
+   "type": "militia"
+  },
+  {
+   "owner": "brennwald",
+   "region": "kingsvale",
+   "type": "militia"
+  },
+  {
+   "owner": "brennwald",
+   "region": "kingsvale",
+   "type": "spearmen"
+  },
+  {
+   "owner": "corvane",
+   "region": "redfield",
+   "type": "spearmen",
+   "general": {
+    "name": "Lysa Corvane",
+    "command": 1,
+    "logistics": 2
+   }
+  },
+  {
+   "owner": "corvane",
+   "region": "redfield",
+   "type": "spearmen"
+  },
+  {
+   "owner": "corvane",
+   "region": "redfield",
+   "type": "archers"
+  },
+  {
+   "owner": "corvane",
+   "region": "redfield",
+   "type": "archers"
+  },
+  {
+   "owner": "dunmarch",
+   "region": "stonehelm",
+   "type": "militia",
+   "general": {
+    "name": "Bram Dun",
+    "command": 2,
+    "logistics": 2
+   }
+  },
+  {
+   "owner": "dunmarch",
+   "region": "stonehelm",
+   "type": "militia"
+  },
+  {
+   "owner": "dunmarch",
+   "region": "stonehelm",
+   "type": "swordsmen"
+  },
+  {
+   "owner": "dunmarch",
+   "region": "stonehelm",
+   "type": "swordsmen"
+  },
+  {
+   "owner": "aldmere",
+   "region": "ashford",
+   "type": "spearmen"
+  },
+  {
+   "owner": "aldmere",
+   "region": "ashford",
+   "type": "archers"
+  },
+  {
+   "owner": "aldmere",
+   "region": "ashford",
+   "type": "light_cavalry"
+  },
+  {
+   "owner": "brennwald",
+   "region": "highcrag",
+   "type": "spearmen"
+  },
+  {
+   "owner": "brennwald",
+   "region": "highcrag",
+   "type": "crossbowmen"
+  },
+  {
+   "owner": "corvane",
+   "region": "saltmere",
+   "type": "archers"
+  },
+  {
+   "owner": "corvane",
+   "region": "saltmere",
+   "type": "light_cavalry"
+  },
+  {
+   "owner": "dunmarch",
+   "region": "thornwood",
+   "type": "swordsmen"
+  },
+  {
+   "owner": "dunmarch",
+   "region": "thornwood",
+   "type": "archers"
+  }
+ ]
+}

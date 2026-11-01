@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="UnitType" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/unit_type.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "sergeant"
+display_name = "Sergeant"
+description = "Armoured spearmen."
+order = 15
+unit_class = "infantry"
+heavy = false
+hp = 110
+attack = 9
+defense = 12
+move_points = 1
+attack_range = 0
+counter_as = "spearmen"
+civilization = "frankish"
+cost_gold = 75
+cost_wood = 10
+cost_iron = 10
+upkeep_gold = 2
+upkeep_food = 1
+required_building = "barracks"

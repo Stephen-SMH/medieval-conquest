@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="UnitType" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/unit_type.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "huscarl"
+display_name = "Huscarl"
+description = "Heavy axemen of the jarl's household."
+order = 11
+unit_class = "infantry"
+heavy = true
+hp = 120
+attack = 13
+defense = 11
+move_points = 1
+attack_range = 0
+counter_as = "swordsmen"
+civilization = "norse"
+cost_gold = 120
+cost_wood = 0
+cost_iron = 20
+upkeep_gold = 4
+upkeep_food = 1
+required_building = "barracks"

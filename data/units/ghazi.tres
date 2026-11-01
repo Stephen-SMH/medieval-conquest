@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="UnitType" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/unit_type.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "ghazi"
+display_name = "Ghazi"
+description = "Zealous light infantry."
+order = 19
+unit_class = "infantry"
+heavy = false
+hp = 90
+attack = 11
+defense = 6
+move_points = 1
+attack_range = 0
+counter_as = "swordsmen"
+civilization = "saracen"
+cost_gold = 70
+cost_wood = 0
+cost_iron = 5
+upkeep_gold = 2
+upkeep_food = 1
+required_building = "barracks"

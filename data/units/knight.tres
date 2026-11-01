@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="UnitType" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/unit_type.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "knight"
+display_name = "Knight"
+description = "Heavy horse with a +25% charge."
+order = 14
+unit_class = "cavalry"
+heavy = true
+hp = 135
+attack = 15
+defense = 11
+move_points = 2
+attack_range = 0
+counter_as = "heavy_cavalry"
+civilization = "frankish"
+cost_gold = 200
+cost_wood = 0
+cost_iron = 30
+upkeep_gold = 7
+upkeep_food = 3
+required_building = "stable"
+charge_bonus = 1.25

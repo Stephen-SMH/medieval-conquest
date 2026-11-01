@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="UnitType" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/unit_type.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "longbowman"
+display_name = "Longbowman"
+description = "Shoots 2 regions away."
+order = 12
+unit_class = "ranged"
+heavy = false
+hp = 75
+attack = 12
+defense = 4
+move_points = 1
+attack_range = 2
+counter_as = "archers"
+civilization = "anglish"
+cost_gold = 90
+cost_wood = 20
+cost_iron = 0
+upkeep_gold = 3
+upkeep_food = 1
+required_building = "archery_range"

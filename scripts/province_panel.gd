@@ -1,7 +1,7 @@
 class_name ProvincePanel
 extends PanelContainer
-## Side panel: details of the selected province, building and recruiting for
-## your own provinces, and the legend for the map mode.
+## Side panel: details of the selected region, building and recruiting for
+## your own regions, and the legend for the map mode.
 
 signal build_requested(province: String, building: String)
 signal recruit_requested(province: String, unit: String)
@@ -17,23 +17,25 @@ func show_province(state: GameState, id: String) -> void:
 		child.queue_free()
 	var map := state.map
 	if id == "":
-		_body.text = "[font_size=20][b]No province selected[/b][/font_size]\n\n" \
-			+ "Click a province to see who owns it, its terrain and its neighbours."
+		_body.text = "[font_size=20][b]Nothing selected[/b][/font_size]\n\n" \
+			+ "Click one of your units to give it orders, or a region to see it. Click your own region to build and recruit."
 		return
 
 	var province: Dictionary = map.provinces[id]
 	var province_state: ProvinceState = state.provinces[id]
 	var terrain := map.terrain(id)
-	var faction: Dictionary = map.factions[state.owners[id]]
-	var own: bool = state.owners[id] == state.player
+	var owner: String = state.owners[id]
+	var own: bool = owner == state.viewer() and owner == state.current_faction()
 	var lines := PackedStringArray()
 	lines.append("[font_size=22][b]%s[/b][/font_size]" % province.name)
-	var owner_line := "[color=#%s]%s[/color]" % [faction.color.lightened(0.35).to_html(false), faction.name]
-	if province.capital:
+	var owner_line := "[color=#%s]%s[/color]" % [state.faction_color(owner).lightened(0.35).to_html(false), state.faction_name(owner)]
+	if state.is_capital(id):
 		owner_line += " (capital)"
+	if map.is_coastal(id):
+		owner_line += ", coast"
 	lines.append(owner_line)
 	lines.append("")
-	lines.append("[b]Terrain:[/b] %s, move cost %d" % [terrain.display_name, terrain.move_cost])
+	lines.append("[b]Terrain:[/b] %s" % terrain.display_name)
 	lines.append("[b]Population:[/b] %s" % thousands(province.population))
 	lines.append("[b]Food:[/b] +%d this turn (%s)" % [roundi(Economy.province_food(state, id)), state.season()])
 	lines.append("[b]In battle:[/b] %s" % terrain.battle_text)
@@ -55,25 +57,25 @@ func show_province(state: GameState, id: String) -> void:
 			var names := PackedStringArray()
 			for unit_id in province_state.recruits:
 				names.append(Rules.unit(unit_id).display_name)
-			lines.append("[b]Training:[/b] %s (ready next turn)" % ", ".join(names))
+			lines.append("[b]Training:[/b] %s (ready at the end of the turn)" % ", ".join(names))
 		if Economy.blockaded(state, id):
-			lines.append("[color=#f08070]An enemy army is here: no income, building or recruiting.[/color]")
+			lines.append("[color=#f08070]Enemy units are here: no income, building or recruiting.[/color]")
 	lines.append("")
-	lines.append("[b]Neighbours[/b] (move cost from here)")
+	lines.append("[b]Neighbours[/b]")
 	for neighbour_id in map.neighbours(id):
-		var line := "•  %s — %d" % [map.provinces[neighbour_id].name, map.move_cost(id, neighbour_id)]
+		var line := "•  %s" % map.region_name(neighbour_id)
 		var border := map.border_type(id, neighbour_id)
 		if border != "":
 			line += " (%s)" % border
 		lines.append(line)
 
-	var seen := state.visible_provinces(state.player)
-	var armies_here := state.armies_in(id)
-	if seen.has(id) and not armies_here.is_empty():
+	var seen := state.visible_provinces(state.viewer())
+	var units_here := state.units_in(id)
+	if seen.has(id) and not units_here.is_empty():
 		lines.append("")
-		lines.append("[b]Armies here[/b]")
-		for army in armies_here:
-			lines.append("•  %s — %d regiments" % [army.display_name(), army.regiments.size()])
+		lines.append("[b]Units here (%d/%d)[/b]" % [units_here.size(), GameState.STACK_LIMIT])
+		for unit in units_here:
+			lines.append("•  %s, %d soldiers (%s)" % [unit.type().display_name, unit.soldiers(), state.faction_name(unit.owner)])
 	_body.text = "\n".join(lines)
 
 	if own:
@@ -91,18 +93,20 @@ func _add_actions(state: GameState, id: String) -> void:
 		if level >= building.max_level or wrong_terrain:
 			continue
 		var title := building.display_name if level == 0 else "%s → %d" % [building.display_name, level + 1]
-		var problem := Economy.build_problem(state, id, building_id, state.player)
+		var problem := Economy.build_problem(state, id, building_id, state.owners[id])
 		_add_button("%s  (%s, %d turn%s)" % [title, cost_text(Economy.building_cost(building)), building.build_turns,
 			"" if building.build_turns == 1 else "s"], building.description, problem,
 			func(): build_requested.emit(id, building_id))
 
-	_add_heading("Recruit (ready next turn)")
-	for unit_id in Rules.units:
+	_add_heading("Recruit (ready at the end of the turn)")
+	var faction_id: String = state.owners[id]
+	for unit_id in Economy.roster(state, faction_id):
 		var unit := Rules.unit(unit_id)
-		var problem := Economy.recruit_problem(state, id, unit_id, state.player)
-		var details := "HP %d, attack %d, defense %d, speed %d. Upkeep %d gold, %d food." % [
-			unit.hp, unit.attack, unit.defense, unit.speed, unit.upkeep_gold, unit.upkeep_food]
-		_add_button("%s  (%s)" % [unit.display_name, cost_text(Economy.unit_cost(unit))], details, problem,
+		var problem := Economy.recruit_problem(state, id, unit_id, faction_id)
+		var details := "%s\n20 soldiers, attack %d, defense %d, %s, %d move%s. Upkeep %d gold, %d food." % [
+			unit.description, unit.attack, unit.defense, "range %d" % unit.attack_range if unit.is_ranged() else "melee",
+			unit.move_points, "" if unit.move_points == 1 else "s", unit.upkeep_gold, unit.upkeep_food]
+		_add_button("%s  (%s)" % [unit.display_name, cost_text(Economy.unit_cost(state, faction_id, unit))], details, problem,
 			func(): recruit_requested.emit(id, unit_id))
 
 
@@ -144,10 +148,10 @@ func show_legend(title: String, entries: Array) -> void:
 		_legend.add_child(row)
 
 
-## "60g 10w 100 men" for a cost dictionary.
+## "60g 10w 20 soldiers" for a cost dictionary.
 static func cost_text(cost: Dictionary) -> String:
 	var parts := PackedStringArray()
-	var short := {"gold": "g", "wood": "w", "iron": "i", "manpower": " men"}
+	var short := {"gold": "g", "wood": "w", "iron": "i", "manpower": " soldiers"}
 	for resource in ["gold", "wood", "iron", "manpower"]:
 		if cost.get(resource, 0.0) > 0.0:
 			parts.append("%d%s" % [roundi(cost[resource]), short[resource]])

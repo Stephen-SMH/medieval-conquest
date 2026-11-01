@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="UnitType" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/unit_type.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "berserker"
+display_name = "Berserker"
+description = "Fights harder as it bleeds and never routs."
+order = 10
+unit_class = "infantry"
+heavy = false
+hp = 100
+attack = 13
+defense = 5
+move_points = 1
+attack_range = 0
+counter_as = "swordsmen"
+civilization = "norse"
+cost_gold = 100
+cost_wood = 0
+cost_iron = 5
+upkeep_gold = 3
+upkeep_food = 1
+required_building = "barracks"
+berserker = true

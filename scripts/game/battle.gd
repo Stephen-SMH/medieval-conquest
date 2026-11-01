@@ -1,28 +1,31 @@
 class_name Battle
 extends RefCounted
-## An auto-resolved field battle (PRD 3.9), fought in three phases:
+## An auto-resolved battle between the units attacking from one region and every
+## unit defending the target region (PRD 3.9, BR-1), fought in three phases:
 ##   1. Ranged: archers, crossbowmen and catapults shoot RANGED_VOLLEYS times.
-##   2. Charge: cavalry strikes first. Units that counter cavalry (spearmen)
-##      brace and strike back at the chargers in the same moment.
+##   2. Charge: cavalry strikes first. Infantry meets the charge: units that
+##      counter cavalry (spearmen) strike back in full, the rest at half strength.
 ##   3. Melee: everyone fights, for up to 6 rounds, until one side's morale breaks.
-## Damage = attack × counter multiplier × terrain × general × morale × random(0.85–1.15)
-##          − defense / 2, with attack scaled by the men left in the regiment.
+## Attacking ranged units shoot from their own region (OR-4): only enemy ranged
+## units can hit them, and an attack by ranged units alone is just the volleys.
+## Damage = attack × counter multiplier × terrain × modifiers × morale × random(0.85–1.15)
+##          − defense / 2, with attack scaled by the soldiers left in the unit.
 ## The same seed always gives the same battle.
 
 const MELEE_ROUNDS := 6
 const RANGED_VOLLEYS := 2
 const ROUT_MORALE := 30.0
-const DAMAGE_SCALE := 2.5        # Turns the PRD's stat numbers into casualties per hit.
+const DAMAGE_SCALE := 2.5        # Turns the PRD's stat numbers into HP lost per hit.
 const MIN_DAMAGE_SHARE := 0.2    # Defense can't cut a hit below this share of its raw damage.
-const MORALE_PER_LOSS := 150.0   # Morale lost for losing 100% of the side's starting men.
-const MORALE_PER_REGIMENT_LOST := 8.0
+const MORALE_PER_LOSS := 150.0   # Morale lost for losing 100% of the side's starting strength.
+const MORALE_PER_UNIT_LOST := 8.0
 const MORALE_OUTNUMBERED := 5.0  # Lost each exchange while below OUTNUMBERED_RATIO of the enemy.
 const OUTNUMBERED_RATIO := 0.67
-const RIVER_PENALTY := 0.75      # Attacker's attack the turn it crosses a river (PRD 3.1).
-const ROUT_LOSS := 0.2           # Extra men a routed side loses while fleeing (BT-4).
-const DESTROYED_BELOW := 5.0     # A regiment with fewer men is destroyed.
-const RANGED_IN_MELEE := 0.5     # Ranged units fight at half strength hand to hand.
+const RIVER_PENALTY := 0.75      # Attacker's attack across a river (PRD 3.1).
+const ROUT_LOSS := 0.2           # Extra HP a routed side loses while fleeing (BT-4).
+const RANGED_IN_MELEE := 0.5     # Ranged units fight at half strength once the melee starts.
 const SIEGE_IN_FIELD := 0.5      # Catapults are weak against troops in the field.
+const MEET_CHARGE := 0.5         # Infantry that doesn't counter cavalry strikes back at this strength.
 const NOTABLE_HIGH := 1.5        # Counter multipliers at or above this are reported.
 const NOTABLE_LOW := 0.6         # ...and at or below this.
 const FORECAST_RUNS := 20
@@ -32,46 +35,69 @@ const FORECAST_RUNS := 20
 class Force:
 	var faction := ""
 	var attacking := false
-	var regiments: Array[Regiment] = []
+	var units: Array[Unit] = []
+	## Attacking ranged units shooting from their own region.
+	var standoff := {}  # Unit -> true
 	var general_mod := 1.0
+	## Walls: damage taken by this side is divided by 1 + wall_bonus (3.10).
+	var wall_bonus := 0.0
 	var morale := 100.0
 	var routed := false
-	var start_men := 0.0
-	var before := []  # [type_id, men] for each regiment at the start, for the report.
+	var start_strength := 0.0
+	var before := []  # [type_id, soldiers] for each unit at the start, for the report.
 
-	func _init(faction_id: String, is_attacker: bool, troops: Array[Regiment], command_mod: float) -> void:
+	func _init(faction_id: String, is_attacker: bool, troops: Array[Unit], command_mod := 1.0) -> void:
 		faction = faction_id
 		attacking = is_attacker
-		regiments = troops
+		units = troops
 		general_mod = command_mod
-		for regiment in regiments:
-			start_men += regiment.men
-			before.append([regiment.type_id, regiment.men])
+		for unit in units:
+			if attacking and unit.type().is_ranged():
+				standoff[unit] = true
+			start_strength += unit.strength()
+			before.append([unit.type_id, unit.soldiers()])
 
-	func alive() -> Array[Regiment]:
-		var standing: Array[Regiment] = []
-		for regiment in regiments:
-			if regiment.men >= DESTROYED_BELOW:
-				standing.append(regiment)
+	func alive() -> Array[Unit]:
+		var standing: Array[Unit] = []
+		for unit in units:
+			if not unit.is_destroyed():
+				standing.append(unit)
 		return standing
 
-	func men() -> float:
+	## Units in the fight itself, not shooting from another region.
+	func engaged() -> Array[Unit]:
+		var found: Array[Unit] = []
+		for unit in alive():
+			if not standoff.has(unit):
+				found.append(unit)
+		return found
+
+	func strength() -> float:
 		var total := 0.0
-		for regiment in alive():
-			total += regiment.men
+		for unit in alive():
+			total += unit.strength()
 		return total
+
+	func all_berserkers() -> bool:
+		var standing := engaged()
+		if standing.is_empty():
+			return false
+		for unit in standing:
+			if not unit.type().berserker:
+				return false
+		return true
 
 
 var attacker: Force
 var defender: Force
 var terrain: TerrainType
 var river_crossing := false
-## "attacker" or "defender".
+## "attacker", "defender", or "" after a ranged-only attack.
 var winner := ""
-## "rout", "destroyed" or "held" (the defender lasted all melee rounds).
+## "rout", "destroyed", "held" (the defender lasted all melee rounds) or "ranged".
 var ending := ""
 var rounds_fought := 0
-## Melee round (or phase name) in which a side routed, for the report.
+## Phase or melee round in which the battle was decided, for the report.
 var rout_moment := ""
 ## "attacker_type>defender_type" -> {attacker, defender, multiplier, damage, attacking}.
 var counter_damage := {}
@@ -87,15 +113,23 @@ func _init(attacking_side: Force, defending_side: Force, battle_terrain: Terrain
 	_rng.seed = battle_seed
 
 
-## Fights the battle, changing the regiments' men in place.
+func ranged_only() -> bool:
+	return attacker.engaged().is_empty()
+
+
+## Fights the battle, changing the units' HP in place.
 func resolve() -> void:
-	var shot_out := false
+	var melee_attack := not ranged_only()
+	var decided := false
 	for volley in RANGED_VOLLEYS:
 		_exchange(_shooters(attacker), _shooters(defender), "ranged")
-		if _finished("the ranged phase"):
-			shot_out = true
+		if melee_attack and _finished("the ranged phase"):
+			decided = true
 			break
-	if not shot_out:
+	if not melee_attack:
+		ending = "ranged"
+		return
+	if not decided:
 		_exchange(_cavalry(attacker) + _bracing(attacker, defender), _cavalry(defender) + _bracing(defender, attacker), "charge")
 		if not _finished("the charge"):
 			for round_number in range(1, MELEE_ROUNDS + 1):
@@ -108,17 +142,18 @@ func resolve() -> void:
 		ending = "held"
 	if ending == "rout":
 		var loser := attacker if winner == "defender" else defender
-		for regiment in loser.alive():
-			regiment.men *= 1.0 - ROUT_LOSS
+		for unit in loser.engaged():
+			if not unit.type().berserker:
+				unit.hp *= 1.0 - ROUT_LOSS
 
 
 func attacker_won() -> bool:
 	return winner == "attacker"
 
 
-## Share of a side's starting men still standing.
+## Share of a side's starting strength still standing.
 func survival(side: Force) -> float:
-	return side.men() / side.start_men if side.start_men > 0 else 0.0
+	return side.strength() / side.start_strength if side.start_strength > 0 else 0.0
 
 
 ## Counter matchups worth mentioning: strong or weak multipliers that actually
@@ -145,44 +180,58 @@ func explain(viewer: String, faction_names: Dictionary) -> PackedStringArray:
 			reasons.append("%s was wiped out in %s." % [loser_name, rout_moment])
 		"held":
 			reasons.append("The defenders held for all %d melee rounds, so the attack failed." % MELEE_ROUNDS)
-	reasons.append("Started with %d attacking men against %d defending." % [roundi(attacker.start_men), roundi(defender.start_men)])
+		"ranged":
+			reasons.append("A ranged attack: the archers shot from their own region and can't take it.")
+	reasons.append("Strength at the start: %d attacking soldiers against %d defending." % [
+		_soldiers_before(attacker), _soldiers_before(defender)])
 	for entry in notable_counters().slice(0, 3):
 		var whose := "Attacking" if entry.attacking else "Defending"
 		if (entry.attacking and attacker.faction == viewer) or (not entry.attacking and defender.faction == viewer):
 			whose = "Your"
 		var verdict := "a strong counter" if entry.multiplier >= NOTABLE_HIGH else "a poor matchup"
-		reasons.append("%s %s against %s: ×%.2f, %s (%d men killed)." % [
+		reasons.append("%s %s against %s: ×%.2f, %s (%d HP of damage)." % [
 			whose, Rules.unit(entry.attacker).display_name.to_lower(), Rules.unit(entry.defender).display_name.to_lower(),
 			entry.multiplier, verdict, roundi(entry.damage)])
 	if terrain.battle_text != "":
 		reasons.append("Fought on %s: %s." % [terrain.display_name.to_lower(), terrain.battle_text])
 	if river_crossing:
 		reasons.append("The attackers crossed a river: −25% attack.")
+	if defender.wall_bonus > 0.0:
+		reasons.append("Walls: the defenders took %d%% less damage." % roundi(100.0 - 100.0 / (1.0 + defender.wall_bonus)))
 	if attacker.general_mod != defender.general_mod:
 		reasons.append("Generals: attackers +%d%%, defenders +%d%% attack from Command." % [
 			roundi((attacker.general_mod - 1.0) * 100), roundi((defender.general_mod - 1.0) * 100)])
 	return reasons
 
 
-## Simulates the battle FORECAST_RUNS times on copies of the regiments and
-## rates the attacker's chances (BT-7). Returns {rating, wins, runs,
-## attacker_survival, defender_survival}.
+## Simulates the battle FORECAST_RUNS times on copies of the units and rates
+## the attacker's chances (BT-7, OR-6). `attacking` and `defending` must
+## return fresh Forces of copied units. Returns {rating, wins, runs,
+## attacker_survival, defender_survival, ranged}.
 static func forecast(attacking: Callable, defending: Callable, battle_terrain: TerrainType,
-		crossing_river: bool, battle_seed: int) -> Dictionary:
+		crossing_river: bool, battle_seed: int, runs := FORECAST_RUNS) -> Dictionary:
 	var wins := 0
 	var attacker_left := 0.0
 	var defender_left := 0.0
-	for run in FORECAST_RUNS:
+	var ranged := false
+	for run in runs:
 		var battle := Battle.new(attacking.call(), defending.call(), battle_terrain, crossing_river, battle_seed + run)
+		ranged = battle.ranged_only()
 		battle.resolve()
 		if battle.attacker_won():
 			wins += 1
 		attacker_left += battle.survival(battle.attacker)
 		defender_left += battle.survival(battle.defender)
-	var win_rate := float(wins) / FORECAST_RUNS
-	var attacker_survival := attacker_left / FORECAST_RUNS
+	var win_rate := float(wins) / runs
+	var attacker_survival := attacker_left / runs
+	var defender_survival := defender_left / runs
 	var rating := "Decisive loss"
-	if win_rate >= 0.9 and attacker_survival >= 0.65:
+	if ranged:
+		# A ranged attack can't win or lose; rate it by the damage traded.
+		var dealt := 1.0 - defender_survival
+		var taken := 1.0 - attacker_survival
+		rating = "Win" if dealt > taken * 1.5 else ("Close" if dealt >= taken else "Loss")
+	elif win_rate >= 0.9 and attacker_survival >= 0.65:
 		rating = "Decisive win"
 	elif win_rate >= 0.6:
 		rating = "Win"
@@ -190,99 +239,115 @@ static func forecast(attacking: Callable, defending: Callable, battle_terrain: T
 		rating = "Close"
 	elif win_rate > 0.1:
 		rating = "Loss"
-	return {"rating": rating, "wins": wins, "runs": FORECAST_RUNS,
-		"attacker_survival": attacker_survival, "defender_survival": defender_left / FORECAST_RUNS}
+	return {"rating": rating, "wins": wins, "runs": runs, "ranged": ranged,
+		"attacker_survival": attacker_survival, "defender_survival": defender_survival}
+
+
+func _soldiers_before(side: Force) -> int:
+	var total := 0
+	for entry in side.before:
+		total += entry[1]
+	return total
 
 
 # --- Phases ------------------------------------------------------------------
 
-## Both sides strike at the same time, so the order of regiments doesn't matter.
-func _exchange(attacking_units: Array[Regiment], defending_units: Array[Regiment], phase: String) -> void:
-	var men_before := {attacker: attacker.men(), defender: defender.men()}
+## Both sides strike at the same time, so the order of units doesn't matter.
+func _exchange(attacking_units: Array[Unit], defending_units: Array[Unit], phase: String) -> void:
+	var strength_before := {attacker: attacker.strength(), defender: defender.strength()}
 	var alive_before := {attacker: attacker.alive().size(), defender: defender.alive().size()}
 	var hits := []
-	for regiment in attacking_units:
-		hits.append(_strike(regiment, attacker, defender, phase))
-	for regiment in defending_units:
-		hits.append(_strike(regiment, defender, attacker, phase))
+	for unit in attacking_units:
+		hits.append(_strike(unit, attacker, defender, phase))
+	for unit in defending_units:
+		hits.append(_strike(unit, defender, attacker, phase))
 	for hit in hits:
 		if hit != null:
-			hit.target.men = maxf(hit.target.men - hit.men_lost, 0.0)
+			hit.target.hp = maxf(hit.target.hp - hit.damage, 0.0)
 	for side: Force in [attacker, defender]:
 		var other := defender if side == attacker else attacker
-		var lost: float = men_before[side] - side.men()
-		side.morale -= MORALE_PER_LOSS * lost / side.start_men
-		side.morale -= MORALE_PER_REGIMENT_LOST * (alive_before[side] - side.alive().size())
-		if side.men() < OUTNUMBERED_RATIO * other.men():
+		var lost: float = strength_before[side] - side.strength()
+		side.morale -= MORALE_PER_LOSS * lost / maxf(side.start_strength, 0.01)
+		side.morale -= MORALE_PER_UNIT_LOST * (alive_before[side] - side.alive().size())
+		if side.strength() < OUTNUMBERED_RATIO * other.strength():
 			side.morale -= MORALE_OUTNUMBERED
 		side.morale = clampf(side.morale, 0.0, 100.0)
 
 
-## One regiment hits its best target. Returns {target, men_lost} or null.
-## In the charge, non-cavalry units (bracing spearmen) only hit cavalry.
-func _strike(regiment: Regiment, side: Force, enemy: Force, phase: String):
-	var targets := enemy.alive()
-	if phase == "charge" and regiment.type().unit_class != "cavalry":
+## One unit hits its best target. Returns {target, damage} or null. Melee
+## blows can't reach attackers shooting from another region, and in the
+## charge, non-cavalry units (bracing spearmen) only hit cavalry.
+func _strike(unit: Unit, side: Force, enemy: Force, phase: String):
+	var shooting := unit.type().is_ranged() and (phase == "ranged" or side.standoff.has(unit))
+	var targets := enemy.alive() if shooting else enemy.engaged()
+	if phase == "charge" and not unit.type().is_cavalry():
 		targets = _cavalry(enemy)
-	if targets.is_empty() or regiment.men < DESTROYED_BELOW:
+	if targets.is_empty() or unit.is_destroyed():
 		return null
-	var unit := regiment.type()
-	var target := _best_target(unit.id, targets)
-	var multiplier := Rules.counters.multiplier(unit.id, target.type_id)
+	var unit_type := unit.type()
+	var target := _best_target(unit.type_id, targets)
+	var multiplier := Rules.counters.multiplier(unit.type_id, target.type_id)
 
 	var phase_mod := 1.0
-	if unit.unit_class == "siege":
+	if unit_type.unit_class == "siege":
 		phase_mod = SIEGE_IN_FIELD
-	elif phase == "melee" and unit.ranged:
+	elif phase == "melee" and unit_type.is_ranged():
 		phase_mod = RANGED_IN_MELEE
-	var raw := unit.attack * regiment.strength() * multiplier * _terrain_mod(unit, side) \
-		* side.general_mod * (0.5 + side.morale / 200.0) * _rng.randf_range(0.85, 1.15) * phase_mod
+	if phase == "charge":
+		if unit_type.is_cavalry():
+			phase_mod *= unit_type.charge_bonus * unit.charge_mod
+		elif multiplier < NOTABLE_HIGH:
+			phase_mod *= MEET_CHARGE
+	var fury := 2.0 - unit.strength() if unit_type.berserker else 1.0  # Berserkers hit harder as they bleed.
+	var raw := unit_type.attack * unit.strength() * multiplier * _terrain_mod(unit_type, side) * fury \
+		* side.general_mod * unit.attack_mod * (0.5 + side.morale / 200.0) * _rng.randf_range(0.85, 1.15) * phase_mod
 	var damage := maxf(raw - target.type().defense / 2.0, raw * MIN_DAMAGE_SHARE) * DAMAGE_SCALE
-	var men_lost := damage / (target.type().hp / Regiment.FULL_STRENGTH)
+	damage /= target.defense_mod * (1.0 + enemy.wall_bonus)
 
-	var key := "%s>%s" % [unit.id, target.type_id]
+	var key := "%s>%s" % [unit.type_id, target.type_id]
 	if not counter_damage.has(key):
-		counter_damage[key] = {"attacker": unit.id, "defender": target.type_id,
+		counter_damage[key] = {"attacker": unit.type_id, "defender": target.type_id,
 			"multiplier": multiplier, "damage": 0.0, "attacking": side.attacking}
-	counter_damage[key].damage += men_lost
-	return {"target": target, "men_lost": men_lost}
+	counter_damage[key].damage += damage
+	return {"target": target, "damage": damage}
 
 
-## The enemy regiment this unit type does best against; ties go to the larger one (BT-2).
-func _best_target(type_id: String, targets: Array[Regiment]) -> Regiment:
+## The enemy unit this unit type does best against; ties go to the stronger one (BT-2).
+func _best_target(type_id: String, targets: Array[Unit]) -> Unit:
 	var best := targets[0]
 	var best_multiplier := Rules.counters.multiplier(type_id, best.type_id)
 	for target in targets:
 		var multiplier := Rules.counters.multiplier(type_id, target.type_id)
-		if multiplier > best_multiplier or (multiplier == best_multiplier and target.men > best.men):
+		if multiplier > best_multiplier or (multiplier == best_multiplier and target.hp > best.hp):
 			best = target
 			best_multiplier = multiplier
 	return best
 
 
-func _terrain_mod(unit: UnitType, side: Force) -> float:
-	var mod: float = terrain.attack_mods.get(unit.unit_class, 1.0)
-	if unit.heavy:
+func _terrain_mod(unit_type: UnitType, side: Force) -> float:
+	var mod: float = terrain.attack_mods.get(unit_type.unit_class, 1.0)
+	if unit_type.heavy:
 		mod *= terrain.heavy_mod
 	if side.attacking:
 		mod *= terrain.attacker_mod
 		if river_crossing:
 			mod *= RIVER_PENALTY
 	else:
-		mod *= terrain.defender_mod * terrain.defending_class_mods.get(unit.unit_class, 1.0)
+		mod *= terrain.defender_mod * terrain.defending_class_mods.get(unit_type.unit_class, 1.0)
 	return mod
 
 
 ## Checks for a destroyed or routed side. A side routs when its morale falls to
-## 30; if both do, the one with less morale routs (the attacker on a tie).
+## 30, unless it's all berserkers; if both rout, the one with less morale does
+## (the attacker on a tie).
 func _finished(moment: String) -> bool:
-	if defender.alive().is_empty() or attacker.alive().is_empty():
+	if defender.alive().is_empty() or attacker.engaged().is_empty():
 		winner = "attacker" if defender.alive().is_empty() else "defender"
 		ending = "destroyed"
 		rout_moment = moment
 		return true
-	var attacker_breaks := attacker.morale <= ROUT_MORALE
-	var defender_breaks := defender.morale <= ROUT_MORALE
+	var attacker_breaks := attacker.morale <= ROUT_MORALE and not attacker.all_berserkers()
+	var defender_breaks := defender.morale <= ROUT_MORALE and not defender.all_berserkers()
 	if not attacker_breaks and not defender_breaks:
 		return false
 	var loser := attacker
@@ -295,31 +360,27 @@ func _finished(moment: String) -> bool:
 	return true
 
 
-func _shooters(side: Force) -> Array[Regiment]:
-	return _where(side, func(r: Regiment): return r.type().ranged)
+func _shooters(side: Force) -> Array[Unit]:
+	return _where(side.alive(), func(u: Unit): return u.type().is_ranged())
 
 
-func _cavalry(side: Force) -> Array[Regiment]:
-	return _where(side, func(r: Regiment): return r.type().unit_class == "cavalry")
+func _cavalry(side: Force) -> Array[Unit]:
+	return _where(side.engaged(), func(u: Unit): return u.type().is_cavalry())
 
 
-## Non-cavalry regiments that hard-counter one of the enemy's cavalry units.
-func _bracing(side: Force, enemy: Force) -> Array[Regiment]:
-	var enemy_cavalry := _cavalry(enemy)
-	return _where(side, func(r: Regiment):
-		if r.type().unit_class == "cavalry":
-			return false
-		for rider in enemy_cavalry:
-			if Rules.counters.multiplier(r.type_id, rider.type_id) >= NOTABLE_HIGH:
-				return true
-		return false)
+## Non-cavalry units that meet the enemy's charge, if the enemy has cavalry.
+func _bracing(side: Force, enemy: Force) -> Array[Unit]:
+	if _cavalry(enemy).is_empty():
+		return []
+	return _where(side.engaged(), func(u: Unit): return not u.type().is_cavalry() and u.type().unit_class != "siege")
 
 
-func _fighters(side: Force) -> Array[Regiment]:
-	return _where(side, func(r: Regiment): return r.type().unit_class != "siege")
+## Everyone fights in the melee except catapults; attackers' archers keep shooting from their region.
+func _fighters(side: Force) -> Array[Unit]:
+	return _where(side.alive(), func(u: Unit): return u.type().unit_class != "siege")
 
 
-func _where(side: Force, predicate: Callable) -> Array[Regiment]:
-	var found: Array[Regiment] = []
-	found.assign(side.alive().filter(predicate))
+func _where(pool: Array[Unit], predicate: Callable) -> Array[Unit]:
+	var found: Array[Unit] = []
+	found.assign(pool.filter(predicate))
 	return found

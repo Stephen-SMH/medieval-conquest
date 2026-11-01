@@ -1,28 +1,45 @@
 class_name MapData
 extends RefCounted
-## The campaign map from data/map.json: factions, province shapes, neighbours,
-## rivers and roads. This is the fixed geography; who owns what is game state.
+## A map from data/maps/<id>.json: region shapes, neighbours, coasts, rivers,
+## roads and start slots for skirmish. This is fixed geography; who owns what
+## is game state. Regions are called provinces in the code.
 
-const DATA_PATH := "res://data/map.json"
+const MAP_DIR := "res://data/maps"
 const EDGE_DETAIL := 3        # Times each border edge is split in half, so borders look hand-drawn.
 const EDGE_ROUGHNESS := 0.08  # Largest sideways bend, as a fraction of the edge length.
 
+var id := ""
+var display_name := ""
 var size := Vector2.ZERO
-var factions := {}       # faction id -> {name, color}
-var provinces := {}      # province id -> data from map.json plus "polygon" and "centroid"
+var provinces := {}      # region id -> data from the map file plus "polygon" and "centroid"
 var province_order: Array[String] = []
 var borders := {}        # border_key(a, b) -> "river" or "road"
-var start_armies := []   # {owner, province, general (or null for a garrison), regiments}
+## Regions where skirmish factions start, in slot order.
+var starts: Array[String] = []
 
 var _vertices := {}      # vertex id -> Vector2
 
+static var _cache := {}
 
-static func load_default() -> MapData:
-	var map := MapData.new()
-	var error := map.load_file(DATA_PATH)
-	if error != OK:
-		push_error("Could not load %s: %s" % [DATA_PATH, error_string(error)])
-	return map
+
+## Loads a map once and shares it; maps never change during a game.
+static func load_map(map_id: String) -> MapData:
+	if not _cache.has(map_id):
+		var map := MapData.new()
+		var error := map.load_file(MAP_DIR.path_join(map_id + ".json"))
+		if error != OK:
+			push_error("Could not load map %s: %s" % [map_id, error_string(error)])
+		_cache[map_id] = map
+	return _cache[map_id]
+
+
+static func list_maps() -> Array[String]:
+	var ids: Array[String] = []
+	for file in ResourceLoader.list_directory(MAP_DIR):
+		if file.ends_with(".json"):
+			ids.append(file.get_basename())
+	ids.sort()
+	return ids
 
 
 func load_file(path: String) -> Error:
@@ -33,21 +50,21 @@ func load_file(path: String) -> Error:
 		return ERR_PARSE_ERROR
 
 	Rules.ensure_loaded()
-	size = Vector2(data.map_size[0], data.map_size[1])
-	for id in data.vertices:
-		_vertices[id] = Vector2(data.vertices[id][0], data.vertices[id][1])
-	for id in data.factions:
-		factions[id] = data.factions[id]
-		factions[id]["color"] = Color(data.factions[id].color)
-	for province in data.provinces:
-		province["population"] = int(province.population)
-		province["polygon"] = _build_polygon(province.vertices)
-		province["centroid"] = polygon_centroid(province.polygon)
-		provinces[province.id] = province
-		province_order.append(province.id)
-	for border in data.borders:
+	id = data.id
+	display_name = data.name
+	size = Vector2(data.size[0], data.size[1])
+	for vertex in data.vertices:
+		_vertices[vertex] = Vector2(data.vertices[vertex][0], data.vertices[vertex][1])
+	for region in data.regions:
+		region["population"] = int(region.population)
+		region["coastal"] = region.get("coastal", false)
+		region["polygon"] = _build_polygon(region.vertices)
+		region["centroid"] = polygon_centroid(region.polygon)
+		provinces[region.id] = region
+		province_order.append(region.id)
+	for border in data.get("borders", []):
 		borders[border_key(border.between[0], border.between[1])] = border.type
-	start_armies = data.get("start_armies", [])
+	starts.assign(data.get("starts", []))
 	return OK
 
 
@@ -55,48 +72,57 @@ static func border_key(a: String, b: String) -> String:
 	return a + "|" + b if a < b else b + "|" + a
 
 
-## Factions that own provinces and play turns (not the rebels).
-func playable_factions() -> Array:
-	return factions.keys().filter(func(id): return not factions[id].get("rebel", false))
-
-
-func neighbours(id: String) -> Array:
-	return provinces[id].neighbours
+func neighbours(region: String) -> Array:
+	return provinces[region].neighbours
 
 
 func are_neighbours(a: String, b: String) -> bool:
 	return b in provinces[a].neighbours
 
 
-func terrain(id: String) -> TerrainType:
-	return Rules.terrains[provinces[id].terrain]
+func terrain(region: String) -> TerrainType:
+	return Rules.terrains[provinces[region].terrain]
 
 
-## "river", "road" or "" for the border between two neighbouring provinces.
+func is_coastal(region: String) -> bool:
+	return provinces[region].coastal
+
+
+func region_name(region: String) -> String:
+	return provinces[region].name
+
+
+## "river", "road" or "" for the border between two neighbouring regions.
 func border_type(a: String, b: String) -> String:
 	return borders.get(border_key(a, b), "")
 
 
-## Cost for an army to move from a province into its neighbour (PRD 3.1 and MV-2).
-func move_cost(from_id: String, to_id: String) -> int:
-	var cost := terrain(to_id).move_cost
-	match border_type(from_id, to_id):
-		"river":
-			cost += 1
-		"road":
-			cost = maxi(cost - 1, 1)
-	return cost
+## Steps between two regions over the neighbour graph (breadth-first).
+func distance(from: String, to: String) -> int:
+	return distances_from(from).get(to, 1 << 30)
 
 
-## The province under a point on the map, or "" for none.
+func distances_from(from: String) -> Dictionary:
+	var result := {from: 0}
+	var frontier := [from]
+	while not frontier.is_empty():
+		var current: String = frontier.pop_front()
+		for next in neighbours(current):
+			if not result.has(next):
+				result[next] = result[current] + 1
+				frontier.append(next)
+	return result
+
+
+## The region under a point on the map, or "" for none.
 func province_at(point: Vector2) -> String:
-	for id in province_order:
-		if Geometry2D.is_point_in_polygon(point, provinces[id].polygon):
-			return id
+	for region in province_order:
+		if Geometry2D.is_point_in_polygon(point, provinces[region].polygon):
+			return region
 	return ""
 
 
-## Vertex-id pairs that two provinces share as a border.
+## Vertex-id pairs that two regions share as a border.
 func shared_edges(a: String, b: String) -> Array:
 	var edges_of_b := {}
 	for edge in _edges(b):
@@ -108,7 +134,16 @@ func shared_edges(a: String, b: String) -> Array:
 	return shared
 
 
-## The points of the border line between two vertices. Both provinces that share
+## Edges of a region that lie on the outside of the map.
+func outer_edges(region: String) -> Array:
+	var found := []
+	for edge in _edges(region):
+		if _on_map_edge(_vertices[edge[0]], _vertices[edge[1]]):
+			found.append(edge)
+	return found
+
+
+## The points of the border line between two vertices. Both regions that share
 ## an edge get exactly the same points, so there are no gaps between them.
 func edge_points(from_id: String, to_id: String) -> PackedVector2Array:
 	var flip := from_id > to_id
@@ -163,8 +198,8 @@ func _build_polygon(vertex_ids: Array) -> PackedVector2Array:
 	return polygon
 
 
-func _edges(id: String) -> Array:
-	var ids: Array = provinces[id].vertices
+func _edges(region: String) -> Array:
+	var ids: Array = provinces[region].vertices
 	var edges := []
 	for i in ids.size():
 		edges.append([ids[i], ids[(i + 1) % ids.size()]])

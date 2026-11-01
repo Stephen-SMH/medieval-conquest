@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="UnitType" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/unit_type.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "yeoman"
+display_name = "Yeoman"
+description = "Cheap, steady spearmen."
+order = 13
+unit_class = "infantry"
+heavy = false
+hp = 95
+attack = 8
+defense = 9
+move_points = 1
+attack_range = 0
+counter_as = "spearmen"
+civilization = "anglish"
+cost_gold = 45
+cost_wood = 10
+cost_iron = 0
+upkeep_gold = 1
+upkeep_food = 1
+required_building = "barracks"

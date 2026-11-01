@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="UnitType" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/unit_type.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "varangian_guard"
+display_name = "Varangian Guard"
+description = "The emperor's axe-bearing guard."
+order = 17
+unit_class = "infantry"
+heavy = true
+hp = 125
+attack = 14
+defense = 10
+move_points = 1
+attack_range = 0
+counter_as = "swordsmen"
+civilization = "byzantine"
+cost_gold = 130
+cost_wood = 0
+cost_iron = 20
+upkeep_gold = 4
+upkeep_food = 1
+required_building = "barracks"

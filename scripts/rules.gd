@@ -34,6 +34,10 @@ static func building(id: String) -> BuildingType:
 	return buildings[id]
 
 
+static func tech_name(id: String) -> String:
+	return id.capitalize()
+
+
 ## The same dictionary, re-inserted in the resources' `order`.
 static func _sorted(by_id: Dictionary) -> Dictionary:
 	var ids := by_id.keys()

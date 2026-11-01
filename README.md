@@ -1,10 +1,11 @@
 # Medieval Conquest
 
-A turn-based medieval strategy game: gather food and gold, recruit counter-based armies, and march them across a province map to conquer.
+A turn-based medieval strategy game in the style of *Strategy & Tactics: Medieval Wars*: every unit is a token on
+a map of regions, and you click a unit, then a neighbouring region, to move or attack.
 
 Godot 4.7, GDScript, Compatibility renderer (desktop and web).
 
-The requirements and game systems are in [PRD.md](PRD.md).
+The requirements are in [PRD.md](PRD.md); version 2 is section 8.
 
 ## Run
 
@@ -14,70 +15,59 @@ Open `project.godot` in Godot 4.7 and press F5, or run `godot --path .` from thi
 
 | Action | Input |
 |---|---|
-| Select a province | Left click |
-| Select an army | Left click its banner (a shield is a garrison with no general) |
-| March the selected army | Right click a province, or left click it twice (the first click shows the path) |
-| Cancel a planned march / deselect | Esc, or click the sea |
+| Select a unit | Click its token |
+| Select a whole stack | Click your region (not a token) |
+| Move / attack | With units selected, click a **green** region to move, a **red** one to attack (a forecast shows first). Right-click works too. |
+| Undo the last move | U, or the Undo button (attacks can't be undone) |
+| Merge, hire a general | Buttons in the unit panel |
+| Build and recruit | Click your region with no units, or "Build and recruit" in the unit panel |
+| See the last battle | The Battle report button |
 | End the turn | Enter, or the End turn button |
-| Build or recruit | Select one of your provinces; the buttons are under its details (hover a button for details or why it's greyed out) |
-| See where a resource comes from | Hover it in the resource bar |
-| Set taxes | The Tax menu in the resource bar |
-| Pan the map | WASD / arrow keys, or drag with any mouse button |
-| Zoom | Mouse wheel (towards the cursor), or `=` / `-` |
-| Map mode: political / terrain / resources | `1` / `2` / `3`, or the buttons at the top |
+| Pan / zoom | WASD, arrow keys or drag / mouse wheel or `=` `-` |
+| Map mode: political / terrain / resources | `1` / `2` / `3` |
+| Deselect | Esc |
 
-## How movement works
+## Unit tokens
 
-- An army's movement points each turn are the lowest speed among its regiments.
-- Entering a province costs its terrain's move cost: roads −1 (minimum 1), rivers +1.
-- An army with full movement points can always enter one province, even if it costs more than its speed.
-- The path line shows a green dot for steps reached this turn and orange for later turns.
-  Unfinished marches continue automatically at the start of the next turn.
-- Entering a province next to an enemy army stops the march (zone of control).
-- You see enemy armies only in your provinces, where your armies stand, and next to those.
+Each token shows the unit type as an icon (shield and spear for infantry, bow for archers, horse for cavalry,
+catapult for siege), the soldier count (1–20), a health bar that goes green → yellow → red, rank stars for
+veterans, and a gold **G** if a general leads it. A diamond marks a civilization's special unit. Greyed-out
+tokens have no orders left this turn.
+
+- **At most 4 units per region.** A unit moves 1 region a turn (cavalry 2) and can either move or attack;
+  cavalry can move 1 and then attack.
+- **Attacks** come from one region. Melee units fight in person. Archers, crossbowmen and catapults shoot from
+  their own region: only enemy archers shoot back, and a ranged attack never takes the region.
+- **If the attack fails**, the survivors stay in the region they attacked from. **If it succeeds**, every defender
+  retreats to a neighbouring region of its own with room, or is destroyed, and the melee attackers move in.
+- **Retreat:** a unit that fought can still move into one of your regions if it has a move point left.
+- **Healing:** a unit that rests in your region regains 2 soldiers a turn (4 with Barracks), paid in gold.
+- **Merging:** two units of the same type in a region merge, up to 20 soldiers; the rank is the soldier-weighted average.
+- **Ranks:** Recruit, Veteran (+10% attack and defense), Elite (+20%), Hero (+30%), earned in battle.
+- **Generals:** +10% attack per Command level for units in their region; lost if their unit is destroyed.
 
 ## How battles work
 
-Marching into a province with an enemy army starts a battle, fought automatically in three phases:
-
-1. **Ranged:** archers, crossbowmen and catapults shoot twice. Catapults are weak against troops in the field.
-2. **Charge:** cavalry strikes first. Spearmen brace and strike back at the riders.
-3. **Melee:** up to 6 rounds, until one side's morale falls to 30 and it routs.
-
-Damage follows the counter table in [data/counters.tres](data/counters.tres) (spearmen ×2.0 against cavalry,
-cavalry ×2.0 against archers, ...), the terrain (the defender's bonus in forests and mountains, cavalry on plains),
-a −25% penalty for attacking across a river, the generals' Command, and morale. Regiments hit softer as they lose men.
-
-- Before an attack you can see, a forecast simulates the battle 20 times and rates it from *Decisive win* to *Decisive loss*.
-- A routed side loses another 20% of its men. A beaten defender retreats to a neighbouring province it owns,
-  or is destroyed if it has none. A beaten attacker stays where it was. If the defenders hold for all 6 rounds, the attack fails.
-- The winner of an attack moves in. Marching into an undefended enemy province captures it.
-- The battle report lists each regiment's losses and explains the result.
+A battle has three phases: two ranged volleys, a cavalry charge (infantry meets it, spearmen at full strength),
+then up to 6 melee rounds until a side's morale falls to 30 and it routs. Damage follows the counter table in
+[data/counters.tres](data/counters.tres) (spearmen ×2.0 against cavalry, cavalry ×2.0 against archers, ...),
+terrain, rivers (−25% for the attacker), walls, generals, ranks and morale. A forecast simulates the battle
+20 times before you confirm. After the battle, tokens shake, losses float up, and the Battle report explains the result.
 
 ## How the economy works
 
 All numbers are in [scripts/game/economy.gd](scripts/game/economy.gd) and the `.tres` files under `data/`.
 
-- **Resources:** gold, food, wood, iron and men (manpower), shared by the whole faction. The resource bar shows
-  each one's change this turn; hover it for the breakdown. Ending the turn applies exactly those changes.
-- **Gold** comes from taxes (population × tax level × happiness) and markets, and pays army upkeep.
-  If gold runs out, 5% of every army deserts.
-- **Food** comes from the land and farms, ×1 in spring, ×1.25 in summer, ×1.5 in autumn and ×0.25 in winter.
-  The population eats 1 per 1,000 people, and supplied armies eat their upkeep. If food runs out, every army
-  loses 10% of its men and provinces become unhappy.
-- **Supply:** armies within 2 provinces of your territory (3 with a Logistics 3 general) eat from the stockpile.
-  Beyond that they forage from the province they stand in; when it runs out they lose 5% a turn.
-- **Winter:** armies outside your territory lose 5% a turn, 10% in the mountains.
-- **Storage:** food up to 500, plus 500 per granary; wood and iron up to 1,000, plus 500 per capital you hold. The rest is lost.
-- **Buildings:** 4 slots per province (6 in a capital), one construction at a time. Lumber camps need forest; mines need hills or mountains.
-- **Recruiting:** each unit needs its building (militia need none) and costs gold, wood or iron, and 100 men.
-  Up to 2 per province per turn; they join the province's garrison at the end of the turn.
-  A garrison needs a general (100 gold) before it can march.
-- **Happiness** moves 10 points a turn towards a target set by taxes, markets, a garrison, the capital and starvation.
-  A conquered province starts at 15. Below 20, a province without a garrison may revolt and raise rebel militia.
-
-Manpower grows by 0.5% of the population a turn, not the PRD's 5%: at 5% one capital would add 7 regiments a turn,
-so manpower would never limit anything.
+- **Resources:** gold, food, wood, iron and soldiers (manpower), shared by the whole faction. The resource bar shows
+  each one's change this turn; hover it for the breakdown.
+- **Gold** comes from taxes and markets and pays unit upkeep and healing. Without gold, 5% of every unit deserts.
+- **Food** comes from the land and farms, ×1 spring, ×1.25 summer, ×1.5 autumn, ×0.25 winter. People and supplied
+  units eat. Without food, every unit loses 10% and nobody heals.
+- **Supply:** units within 2 regions of your territory are supplied; beyond that they forage, and lose 5% a turn when
+  the land is bare. In winter, units outside your territory lose 5% (10% in mountains).
+- **Buildings:** 4 slots per region (6 in a capital). **Recruiting** needs the right building; the unit appears at
+  the end of your turn if the region has room.
+- **Happiness** follows taxes, markets, garrisons and food. Below 20, an empty region may revolt.
 
 ## Tests
 
@@ -90,17 +80,15 @@ godot --headless -s tests/run_tests.gd
 
 ```
 scenes/   Godot scenes (.tscn)
-scripts/  GDScript: views and UI at the top level, game rules in scripts/game/,
-          Resource classes for game data in scripts/data/
-data/     game data: map.json (provinces, borders, factions, starting armies)
-          and .tres rules (terrains, unit types, the counter table)
+scripts/  views and UI at the top level; game rules in scripts/game/; Resource classes in scripts/data/
+data/     maps/*.json (geography), scenarios/*.json (setups), and .tres rules (terrains, units, counters, buildings)
 tests/    headless test suites
-assets/   art, audio, fonts
 ```
 
 ## Progress
 
-- [x] M1 — Province map: selection, neighbours, hover, pan and zoom, map modes, rivers and roads
-- [x] M2 — Armies and movement: regiments, generals, A* paths with turn counts, zone of control, merge and split, fog of war
-- [x] M3 — Battles: auto-resolve in 3 phases with the counter table, terrain, rivers and morale; forecast; battle report; occupation
-- [x] M4 — Economy: five resources with per-turn changes, seasons, food and supply, buildings, recruiting, storage, taxes, happiness and revolts
+- [x] M1–M4 (version 1): province map, armies, battles, economy
+- [x] V1 — Unit tokens: icons, health bars, soldier counts, ranks; 4-unit stacks; move, attack, ranged attack, retreat, undo; battle results; healing and merging; recruiting units
+- [ ] V2 — AI and missions
+- [ ] V3 — Civilizations and campaigns
+- [ ] V4 — Research, hotseat and mobile
