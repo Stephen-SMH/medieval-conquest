@@ -10,6 +10,7 @@ const SUITES := [
 	preload("res://tests/test_v2.gd"),
 	preload("res://tests/test_v3.gd"),
 	preload("res://tests/test_v4.gd"),
+	preload("res://tests/test_v5.gd"),
 	preload("res://tests/test_visuals.gd"),
 	preload("res://tests/test_polish.gd"),
 ]

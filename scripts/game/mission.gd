@@ -8,6 +8,8 @@ extends RefCounted
 ##   "objectives": [{"type": "capture", "regions": [...]},
 ##                  {"type": "hold", "region": "...", "turns": N},
 ##                  {"type": "destroy", "faction": "..."},
+##                  {"type": "destroy_general", "faction": "...", "general": "name"},
+##                  {"type": "survive", "turns": N},
 ##                  {"type": "conquest"}],
 ##   "par": turns for 3 stars (the hard limit is twice that),
 ##   "briefing", "victory_text", "defeat_text".
@@ -62,10 +64,25 @@ static func objectives(state: GameState) -> Array:
 				var target: String = objective.faction
 				list.append({"text": "Destroy %s" % state.faction_name(target),
 					"done": state.factions.has(target) and not state.factions[target].alive})
+			"destroy_general":
+				list.append({"text": "Kill or capture %s of %s" % [objective.general, state.faction_name(objective.faction)],
+					"done": general_unit(state, objective.faction, objective.general) == null})
+			"survive":
+				var survived := mini(state.turn - 1, int(objective.turns))
+				list.append({"text": "Hold out for %d turns (%d so far)" % [int(objective.turns), survived],
+					"done": survived >= int(objective.turns)})
 			"conquest":
 				var rivals := state.living_factions().filter(func(f): return f != faction)
 				list.append({"text": "Defeat every rival", "done": rivals.is_empty()})
 	return list
+
+
+## The unit leading a faction's named general, or null once he is killed or captured.
+static func general_unit(state: GameState, faction: String, general_name: String) -> Unit:
+	for unit in state.units:
+		if unit.owner == faction and unit.general != null and unit.general.name == general_name:
+			return unit
+	return null
 
 
 ## At the end of the mission player's turn: counts turns held for "hold" objectives.

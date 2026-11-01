@@ -11,5 +11,5 @@ tier = 1
 cost_gold = 100
 turns = 2
 requires = Array[String]([])
-description = "+10% infantry defense."
+description = "+10% infantry defense. Needed to recruit pikemen."
 defense = {"infantry": 1.1}

@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="UnitType" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/unit_type.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "pikemen"
+display_name = "Pikemen"
+description = "A hedge of long pikes: ×2.5 against horsemen, but clumsy against swords and easy prey for archers."
+order = 8
+unit_class = "infantry"
+heavy = false
+hp = 105
+attack = 8
+defense = 11
+move_points = 1
+attack_range = 0
+counter_as = ""
+civilization = ""
+cost_gold = 95
+upkeep_gold = 2
+required_building = "barracks"
+required_tech = "chain_mail"

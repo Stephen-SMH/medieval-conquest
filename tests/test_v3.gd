@@ -16,12 +16,12 @@ func run(t) -> void:
 
 func _test_civilizations(t) -> void:
 	Rules.ensure_loaded()
-	t.check(Rules.civilizations.keys() == ["norse", "anglish", "frankish", "byzantine", "saracen"], "five civilizations %s" % [Rules.civilizations.keys()])
+	t.check(Rules.civilizations.keys() == ["norse", "anglish", "frankish", "crusader", "byzantine", "saracen"], "six civilizations %s" % [Rules.civilizations.keys()])
 	var open := Rules.civilizations.keys().filter(func(c): return Rules.civilization(c).unlock_after_campaigns == 0)
-	t.check(open == ["norse", "anglish", "frankish"], "Norse, Anglish and Frankish are open from the start")
+	t.check(open == ["norse", "anglish", "frankish", "crusader"], "Norse, Anglish, Frankish and the Crusader Orders are open from the start")
 	t.check(Rules.civilization("byzantine").unlock_after_campaigns == 1 and Rules.civilization("saracen").unlock_after_campaigns == 2,
 		"Byzantine unlocks after one campaign, Saracen after two")
-	t.check(Rules.units.size() == 18, "18 unit types in all (%d)" % Rules.units.size())
+	t.check(Rules.units.size() == 21, "21 unit types in all (%d)" % Rules.units.size())
 	var specials_ok := true
 	for civ_id in Rules.civilizations:
 		for unit_id in Rules.civilization(civ_id).special_units:
@@ -99,11 +99,11 @@ func _test_bonuses(t) -> void:
 
 func _test_campaigns(t) -> void:
 	var campaigns := Campaigns.all()
-	t.check(campaigns.map(func(c): return c.civ) == ["norse", "anglish", "frankish"], "three campaigns, one per open civilization")
+	t.check(campaigns.map(func(c): return c.civ) == ["norse", "anglish", "frankish", "crusader", "byzantine", "saracen"], "one campaign per civilization")
 	var maps := {}
 	for campaign in campaigns:
-		t.check(campaign.missions.size() == 3, "%s has 3 missions" % campaign.name)
-		for i in 3:
+		t.check(campaign.missions.size() >= 3, "%s has %d missions" % [campaign.name, campaign.missions.size()])
+		for i in campaign.missions.size():
 			var scenario := Campaigns.mission(campaign.id, i)
 			maps[scenario.map] = true
 			var map := MapData.load_map(scenario.map)
@@ -128,12 +128,12 @@ func _test_campaigns(t) -> void:
 			if Mission.par(state) <= 0 or scenario.mission.briefing == "":
 				problems.append("missing par or briefing")
 			t.check(problems.is_empty(), "%s mission %d \"%s\" is valid %s" % [campaign.civ, i + 1, scenario.name, problems])
-	t.check(maps.size() == 3, "each campaign has its own map %s" % [maps.keys()])
+	t.check(maps.size() == campaigns.size(), "each campaign has its own map %s" % [maps.keys()])
 
 	# Every mission can be played through by the AI on both sides without errors.
 	var crashed := []
 	for campaign in campaigns:
-		for i in 3:
+		for i in campaign.missions.size():
 			var state := GameState.from_scenario(Campaigns.mission(campaign.id, i), 5)
 			for step in 12 * state.turn_order.size():
 				if state.is_over():
@@ -153,11 +153,11 @@ func _test_progress(t) -> void:
 	Progress.record("norse", 0, 2)
 	Progress.record("norse", 0, 1)
 	t.check(Progress.stars("norse", 0) == 2 and Progress.mission_unlocked("norse", 1), "finishing a mission keeps the best stars and opens the next")
-	Progress.record("norse", 1, 3)
-	Progress.record("norse", 2, 1)
+	for i in range(1, Campaigns.get_campaign("norse").missions.size()):
+		Progress.record("norse", i, 3 if i == 1 else 1)
 	t.check(Progress.campaign_finished("norse") and Progress.civilization_unlocked("byzantine") and not Progress.civilization_unlocked("saracen"),
 		"finishing a campaign unlocks Byzantine")
-	for i in 3:
+	for i in Campaigns.get_campaign("anglish").missions.size():
 		Progress.record("anglish", i, 1)
 	t.check(Progress.civilization_unlocked("saracen"), "finishing two campaigns unlocks Saracen")
 	DirAccess.remove_absolute(Progress.path)

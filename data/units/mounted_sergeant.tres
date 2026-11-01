@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="UnitType" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/unit_type.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "mounted_sergeant"
+display_name = "Mounted Sergeant"
+description = "Mailed riders of an order's lesser ranks: tougher than light cavalry, and no Stirrups needed."
+order = 21
+unit_class = "cavalry"
+heavy = false
+hp = 110
+attack = 11
+defense = 8
+move_points = 2
+attack_range = 0
+counter_as = "light_cavalry"
+civilization = "crusader"
+cost_gold = 145
+upkeep_gold = 4
+required_building = "stable"

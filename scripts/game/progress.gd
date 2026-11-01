@@ -41,8 +41,17 @@ static func record(campaign_id: String, index: int, earned: int) -> void:
 
 
 ## Missions open in order: the first, then each one after a finished mission.
+## A locked civilization's campaign stays shut until it is unlocked (8.5).
 static func mission_unlocked(campaign_id: String, index: int) -> bool:
+	if not campaign_unlocked(campaign_id):
+		return false
 	return index == 0 or stars(campaign_id, index - 1) > 0
+
+
+## A campaign opens with its civilization.
+static func campaign_unlocked(campaign_id: String) -> bool:
+	var campaign := Campaigns.get_campaign(campaign_id)
+	return not campaign.is_empty() and civilization_unlocked(campaign.civ)
 
 
 static func campaign_finished(campaign_id: String) -> bool:

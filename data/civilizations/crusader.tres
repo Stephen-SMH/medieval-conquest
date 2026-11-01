@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="Civilization" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/civilization.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "crusader"
+display_name = "Crusader Orders"
+faction_name = "Order of the Sunward Keep"
+color = Color(0.77, 0.59, 0.17, 1)
+order = 3
+unlock_after_campaigns = 0
+special_units = Array[String](["brother_knight", "mounted_sergeant"])
+description = "Fighting brotherhoods holding stone keeps on a far shore."
+bonus_text = "Hospitals: resting units heal 2 more soldiers a turn."

@@ -1,0 +1,493 @@
+{
+ "id": "byzantine",
+ "civ": "byzantine",
+ "name": "The Purple and the Gold",
+ "description": "Empress Kassia must win back the straits from rebels, raiders and rivals, starting with an empty treasury.",
+ "missions": [
+  {
+   "id": "byzantine_1",
+   "name": "The Rebel Strategos",
+   "map": "porphyry",
+   "factions": [
+    {
+     "id": "empire",
+     "name": "Empire of the Golden Horn",
+     "civ": "byzantine",
+     "color": "#7a40a0",
+     "human": true,
+     "ai": "balanced"
+    },
+    {
+     "id": "theronike",
+     "name": "Rebels of Theronike",
+     "civ": "byzantine",
+     "color": "#a0507a",
+     "human": false,
+     "ai": "defensive"
+    }
+   ],
+   "owners": {
+    "basilopolis": "empire",
+    "theronike": "theronike",
+    "akrostes": "empire",
+    "kallipora": "theronike",
+    "halkaria": "empire",
+    "myrrhaion": "theronike",
+    "dorylon": "empire"
+   },
+   "capitals": {
+    "empire": "basilopolis",
+    "theronike": "theronike"
+   },
+   "buildings": {
+    "basilopolis": {
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    },
+    "theronike": {
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "empire",
+     "region": "basilopolis",
+     "type": "cataphract",
+     "general": {
+      "name": "Kassia",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "empire",
+     "region": "akrostes",
+     "type": "varangian_guard"
+    },
+    {
+     "owner": "empire",
+     "region": "dorylon",
+     "type": "archers"
+    },
+    {
+     "owner": "empire",
+     "region": "halkaria",
+     "type": "spearmen"
+    },
+    {
+     "owner": "theronike",
+     "region": "theronike",
+     "type": "spearmen",
+     "general": {
+      "name": "Bardas",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "theronike",
+     "region": "kallipora",
+     "type": "archers"
+    },
+    {
+     "owner": "theronike",
+     "region": "myrrhaion",
+     "type": "swordsmen"
+    },
+    {
+     "owner": "neutral",
+     "region": "agia_lumi",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "phylakion",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "porphyra",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "thessamon",
+     "type": "militia",
+     "soldiers": 12
+    }
+   ],
+   "mission": {
+    "player": "empire",
+    "par": 8,
+    "objectives": [
+     {
+      "type": "capture",
+      "regions": ["theronike"]
+     }
+    ],
+    "briefing": "The strategos Bardas has crowned himself in Theronike, a day's march from the capital. Take his city before other governors follow his lead.",
+    "victory_text": "Bardas is led through the capital in chains.",
+    "defeat_text": "Bardas holds Theronike, and other cities wonder who will win."
+   },
+   "campaign": "byzantine",
+   "mission_index": 0
+  },
+  {
+   "id": "byzantine_2",
+   "name": "The Empty Treasury",
+   "map": "porphyry",
+   "factions": [
+    {
+     "id": "empire",
+     "name": "Empire of the Golden Horn",
+     "civ": "byzantine",
+     "color": "#7a40a0",
+     "human": true,
+     "ai": "balanced"
+    },
+    {
+     "id": "kastro",
+     "name": "Sea-Raiders of Kastro Neon",
+     "civ": "norse",
+     "color": "#2e708f",
+     "human": false,
+     "ai": "aggressive"
+    },
+    {
+     "id": "phylakion",
+     "name": "Emir of Phylakion",
+     "civ": "saracen",
+     "color": "#3d8a4a",
+     "human": false,
+     "ai": "defensive"
+    }
+   ],
+   "owners": {
+    "basilopolis": "empire",
+    "kastro_neon": "kastro",
+    "phylakion": "phylakion",
+    "akrostes": "empire",
+    "agia_lumi": "kastro",
+    "dorylon": "phylakion",
+    "halkaria": "empire",
+    "chrysanthe": "kastro",
+    "kerasos": "phylakion",
+    "kallipora": "empire",
+    "thessamon": "kastro"
+   },
+   "capitals": {
+    "empire": "basilopolis",
+    "kastro": "kastro_neon",
+    "phylakion": "phylakion"
+   },
+   "buildings": {
+    "basilopolis": {
+     "market": 2,
+     "barracks": 1,
+     "archery_range": 1,
+     "walls": 2
+    },
+    "kastro_neon": {
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    },
+    "phylakion": {
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "empire",
+     "region": "basilopolis",
+     "type": "varangian_guard",
+     "general": {
+      "name": "Kassia",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "empire",
+     "region": "akrostes",
+     "type": "cataphract"
+    },
+    {
+     "owner": "empire",
+     "region": "halkaria",
+     "type": "archers"
+    },
+    {
+     "owner": "empire",
+     "region": "kallipora",
+     "type": "spearmen"
+    },
+    {
+     "owner": "kastro",
+     "region": "kastro_neon",
+     "type": "berserker",
+     "general": {
+      "name": "Thorvald",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "kastro",
+     "region": "agia_lumi",
+     "type": "huscarl"
+    },
+    {
+     "owner": "kastro",
+     "region": "chrysanthe",
+     "type": "archers"
+    },
+    {
+     "owner": "phylakion",
+     "region": "phylakion",
+     "type": "mamluk",
+     "general": {
+      "name": "Faris",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "phylakion",
+     "region": "dorylon",
+     "type": "ghazi"
+    },
+    {
+     "owner": "phylakion",
+     "region": "kerasos",
+     "type": "archers"
+    },
+    {
+     "owner": "neutral",
+     "region": "porphyra",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "theronike",
+     "type": "militia",
+     "soldiers": 12
+    }
+   ],
+   "mission": {
+    "player": "empire",
+    "par": 7,
+    "objectives": [
+     {
+      "type": "survive",
+      "turns": 6
+     }
+    ],
+    "briefing": "The civil war has emptied the treasury, and sea-raiders and an emir circle the straits. Keep the empire standing for six turns while the markets refill the coffers.",
+    "victory_text": "The coffers fill, the walls hold, and the raiders look for easier prey.",
+    "defeat_text": "With no gold for the guard, the capital opens its gates."
+   },
+   "resources": {
+    "empire": {
+     "gold": 100
+    },
+    "kastro": {
+     "gold": 250
+    }
+   },
+   "campaign": "byzantine",
+   "mission_index": 1
+  },
+  {
+   "id": "byzantine_3",
+   "name": "The Empire Restored",
+   "map": "porphyry",
+   "factions": [
+    {
+     "id": "empire",
+     "name": "Empire of the Golden Horn",
+     "civ": "byzantine",
+     "color": "#7a40a0",
+     "human": true,
+     "ai": "balanced",
+     "techs": ["chain_mail", "stirrups"]
+    },
+    {
+     "id": "phylakion",
+     "name": "Emir of Phylakion",
+     "civ": "saracen",
+     "color": "#3d8a4a",
+     "human": false,
+     "ai": "balanced"
+    },
+    {
+     "id": "kastro",
+     "name": "Order of Kastro Neon",
+     "civ": "crusader",
+     "color": "#c4962c",
+     "human": false,
+     "ai": "aggressive"
+    }
+   ],
+   "owners": {
+    "basilopolis": "empire",
+    "phylakion": "phylakion",
+    "kastro_neon": "kastro",
+    "akrostes": "empire",
+    "dorylon": "phylakion",
+    "agia_lumi": "kastro",
+    "halkaria": "empire",
+    "kerasos": "phylakion",
+    "chrysanthe": "kastro",
+    "kallipora": "empire",
+    "leukotheia": "phylakion",
+    "thessamon": "kastro",
+    "mesoros": "empire",
+    "anemoskala": "phylakion",
+    "porphyra": "kastro",
+    "theronike": "empire"
+   },
+   "capitals": {
+    "empire": "basilopolis",
+    "phylakion": "phylakion",
+    "kastro": "kastro_neon"
+   },
+   "buildings": {
+    "basilopolis": {
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1,
+     "walls": 1
+    },
+    "phylakion": {
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    },
+    "kastro_neon": {
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "empire",
+     "region": "basilopolis",
+     "type": "cataphract",
+     "general": {
+      "name": "Kassia",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "empire",
+     "region": "akrostes",
+     "type": "varangian_guard"
+    },
+    {
+     "owner": "empire",
+     "region": "halkaria",
+     "type": "varangian_guard"
+    },
+    {
+     "owner": "empire",
+     "region": "kallipora",
+     "type": "archers"
+    },
+    {
+     "owner": "empire",
+     "region": "mesoros",
+     "type": "crossbowmen"
+    },
+    {
+     "owner": "empire",
+     "region": "theronike",
+     "type": "pikemen"
+    },
+    {
+     "owner": "phylakion",
+     "region": "phylakion",
+     "type": "mamluk",
+     "general": {
+      "name": "Faris",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "phylakion",
+     "region": "anemoskala",
+     "type": "ghazi"
+    },
+    {
+     "owner": "phylakion",
+     "region": "dorylon",
+     "type": "ghazi"
+    },
+    {
+     "owner": "phylakion",
+     "region": "kerasos",
+     "type": "archers"
+    },
+    {
+     "owner": "kastro",
+     "region": "kastro_neon",
+     "type": "brother_knight",
+     "general": {
+      "name": "Gilles",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "kastro",
+     "region": "agia_lumi",
+     "type": "mounted_sergeant"
+    },
+    {
+     "owner": "kastro",
+     "region": "chrysanthe",
+     "type": "crossbowmen"
+    },
+    {
+     "owner": "kastro",
+     "region": "porphyra",
+     "type": "spearmen"
+    }
+   ],
+   "mission": {
+    "player": "empire",
+    "par": 13,
+    "objectives": [
+     {
+      "type": "conquest"
+     }
+    ],
+    "briefing": "Crusading knights hold Kastro Neon and an emir holds Phylakion. Drive them both from the straits and the empire is whole again.",
+    "victory_text": "From shore to shore the straits fly the purple. The empire is restored.",
+    "defeat_text": "The straits stay divided, and the empire's glory fades."
+   },
+   "resources": {
+    "phylakion": {
+     "gold": 350
+    },
+    "kastro": {
+     "gold": 350
+    }
+   },
+   "campaign": "byzantine",
+   "mission_index": 2
+  }
+ ]
+}
