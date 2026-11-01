@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="TerrainType" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/terrain_type.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "forest"
+display_name = "Forest"
+color = Color(0.31, 0.48, 0.23, 1)
+move_cost = 2
+food_output = 10
+battle_text = "Cavalry −30%, archers −20% attack; defender +10%"
+attack_mods = {"cavalry": 0.7, "ranged": 0.8}
+defender_mod = 1.1

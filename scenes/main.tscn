@@ -1,20 +1,97 @@
 [gd_scene format=3]
 
-[node name="Main" type="Control"]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+[ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
+[ext_resource type="Script" path="res://scripts/map_camera.gd" id="2_camera"]
+[ext_resource type="Script" path="res://scripts/province_panel.gd" id="3_panel"]
 
-[node name="Title" type="Label" parent="."]
-layout_mode = 1
-anchors_preset = 15
+[node name="Main" type="Node2D"]
+script = ExtResource("1_main")
+
+[node name="Map" type="Node2D" parent="."]
+
+[node name="Camera" type="Camera2D" parent="."]
+position = Vector2(780, 350)
+zoom = Vector2(0.8, 0.8)
+script = ExtResource("2_camera")
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="TopBar" type="PanelContainer" parent="UI"]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 8.0
+offset_bottom = 8.0
+
+[node name="Rows" type="VBoxContainer" parent="UI/TopBar"]
+layout_mode = 2
+
+[node name="Modes" type="HBoxContainer" parent="UI/TopBar/Rows"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="ModeLabel" type="Label" parent="UI/TopBar/Rows/Modes"]
+layout_mode = 2
+text = "Map mode:"
+
+[node name="PoliticalButton" type="Button" parent="UI/TopBar/Rows/Modes"]
+layout_mode = 2
+focus_mode = 0
+toggle_mode = true
+text = "Political [1]"
+
+[node name="TerrainButton" type="Button" parent="UI/TopBar/Rows/Modes"]
+layout_mode = 2
+focus_mode = 0
+toggle_mode = true
+text = "Terrain [2]"
+
+[node name="ResourcesButton" type="Button" parent="UI/TopBar/Rows/Modes"]
+layout_mode = 2
+focus_mode = 0
+toggle_mode = true
+text = "Resources [3]"
+
+[node name="Hint" type="Label" parent="UI/TopBar/Rows"]
+modulate = Color(1, 1, 1, 0.7)
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Click: select   Drag / WASD: pan   Wheel: zoom   Esc: deselect"
+
+[node name="ProvincePanel" type="PanelContainer" parent="UI"]
+anchors_preset = 11
+anchor_left = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-grow_horizontal = 2
+offset_left = -296.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 0
 grow_vertical = 2
-text = "Medieval Conquest"
-horizontal_alignment = 1
-vertical_alignment = 1
+script = ExtResource("3_panel")
+
+[node name="Margin" type="MarginContainer" parent="UI/ProvincePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="Content" type="VBoxContainer" parent="UI/ProvincePanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Body" type="RichTextLabel" parent="UI/ProvincePanel/Margin/Content"]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+
+[node name="Separator" type="HSeparator" parent="UI/ProvincePanel/Margin/Content"]
+layout_mode = 2
+
+[node name="LegendTitle" type="Label" parent="UI/ProvincePanel/Margin/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+
+[node name="Legend" type="VBoxContainer" parent="UI/ProvincePanel/Margin/Content"]
+layout_mode = 2
