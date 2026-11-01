@@ -46,3 +46,25 @@ static func apply(tree: SceneTree) -> void:
 	tree.root.content_scale_factor = ui_scale
 	if not OS.has_feature("web") and not OS.has_feature("mobile") and DisplayServer.get_name() != "headless":
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if fullscreen else DisplayServer.WINDOW_MODE_WINDOWED)
+		if not fullscreen and not _window_fitted:
+			_window_fitted = true
+			_fit_window_to_screen()
+
+
+static var _window_fitted := false
+
+
+## The project's 1280x720 window is tiny on a HiDPI screen, so on first launch the window is sized to most of the
+## usable screen at 16:9 and centred. The stretch mode scales the whole interface up with it.
+static func _fit_window_to_screen() -> void:
+	if Engine.is_embedded_in_editor():
+		return
+	var screen := DisplayServer.window_get_current_screen()
+	var usable := DisplayServer.screen_get_usable_rect(screen)
+	var fit := Vector2(usable.size) * 0.85
+	var window_size := Vector2i(fit) if fit.x / fit.y <= 16.0 / 9.0 else Vector2i(roundi(fit.y * 16.0 / 9.0), roundi(fit.y))
+	window_size.y = roundi(window_size.x * 9.0 / 16.0)
+	if window_size.x <= 1280:
+		return
+	DisplayServer.window_set_size(window_size)
+	DisplayServer.window_set_position(usable.position + (usable.size - window_size) / 2)
