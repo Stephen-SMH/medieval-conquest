@@ -4,6 +4,20 @@
 [ext_resource type="Script" path="res://scripts/map_camera.gd" id="2_camera"]
 [ext_resource type="Script" path="res://scripts/province_panel.gd" id="3_panel"]
 [ext_resource type="Script" path="res://scripts/army_panel.gd" id="4_army_panel"]
+[ext_resource type="Script" path="res://scripts/forecast_popup.gd" id="5_forecast"]
+[ext_resource type="Script" path="res://scripts/battle_report.gd" id="6_report"]
+
+[sub_resource type="StyleBoxFlat" id="panel_style"]
+bg_color = Color(0.11, 0.12, 0.15, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.32, 0.29, 0.24, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_main")
@@ -22,6 +36,7 @@ offset_left = 8.0
 offset_top = 8.0
 offset_right = 8.0
 offset_bottom = 8.0
+theme_override_styles/panel = SubResource("panel_style")
 
 [node name="Rows" type="VBoxContainer" parent="UI/TopBar"]
 layout_mode = 2
@@ -70,6 +85,7 @@ offset_bottom = -8.0
 grow_horizontal = 0
 grow_vertical = 2
 script = ExtResource("3_panel")
+theme_override_styles/panel = SubResource("panel_style")
 
 [node name="Margin" type="MarginContainer" parent="UI/ProvincePanel"]
 layout_mode = 2
@@ -110,6 +126,7 @@ offset_bottom = -8.0
 grow_horizontal = 0
 grow_vertical = 2
 script = ExtResource("4_army_panel")
+theme_override_styles/panel = SubResource("panel_style")
 
 [node name="Margin" type="MarginContainer" parent="UI/ArmyPanel"]
 layout_mode = 2
@@ -136,6 +153,7 @@ offset_top = -8.0
 offset_right = 8.0
 offset_bottom = -8.0
 grow_vertical = 0
+theme_override_styles/panel = SubResource("panel_style")
 
 [node name="Rows" type="VBoxContainer" parent="UI/TurnBar"]
 layout_mode = 2
@@ -160,3 +178,99 @@ custom_minimum_size = Vector2(460, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 13
 autowrap_mode = 3
+
+[node name="Dim" type="ColorRect" parent="UI"]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.45)
+
+[node name="ForecastPopup" type="PanelContainer" parent="UI"]
+visible = false
+custom_minimum_size = Vector2(460, 0)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -230.0
+offset_top = -120.0
+offset_right = 230.0
+offset_bottom = 120.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("5_forecast")
+theme_override_styles/panel = SubResource("panel_style")
+
+[node name="Margin" type="MarginContainer" parent="UI/ForecastPopup"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="Rows" type="VBoxContainer" parent="UI/ForecastPopup/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Body" type="RichTextLabel" parent="UI/ForecastPopup/Margin/Rows"]
+layout_mode = 2
+bbcode_enabled = true
+fit_content = true
+
+[node name="Buttons" type="HBoxContainer" parent="UI/ForecastPopup/Margin/Rows"]
+layout_mode = 2
+alignment = 2
+theme_override_constants/separation = 8
+
+[node name="CancelButton" type="Button" parent="UI/ForecastPopup/Margin/Rows/Buttons"]
+layout_mode = 2
+focus_mode = 0
+text = "Cancel [Esc]"
+
+[node name="AttackButton" type="Button" parent="UI/ForecastPopup/Margin/Rows/Buttons"]
+layout_mode = 2
+focus_mode = 0
+text = "Attack!"
+
+[node name="BattleReport" type="PanelContainer" parent="UI"]
+visible = false
+custom_minimum_size = Vector2(600, 560)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -280.0
+offset_right = 300.0
+offset_bottom = 280.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("6_report")
+theme_override_styles/panel = SubResource("panel_style")
+
+[node name="Margin" type="MarginContainer" parent="UI/BattleReport"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="Rows" type="VBoxContainer" parent="UI/BattleReport/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Body" type="RichTextLabel" parent="UI/BattleReport/Margin/Rows"]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+
+[node name="CloseButton" type="Button" parent="UI/BattleReport/Margin/Rows"]
+layout_mode = 2
+size_flags_horizontal = 8
+focus_mode = 0
+text = "Close [Esc]"

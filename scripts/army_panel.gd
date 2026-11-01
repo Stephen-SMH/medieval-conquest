@@ -43,6 +43,7 @@ func show_army(state: GameState, army: Army) -> void:
 			var check := CheckBox.new()
 			check.text = text
 			check.focus_mode = Control.FOCUS_NONE
+			check.add_theme_font_size_override("font_size", 14)
 			_content.add_child(check)
 			_checks.append(check)
 		else:

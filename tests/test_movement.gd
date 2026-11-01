@@ -27,11 +27,6 @@ func run(t) -> void:
 	t.check(garrison.is_garrison() and refused[0].type == "cannot_move" and garrison.province == "kingsvale",
 		"a garrison without a general can't leave its province")
 
-	var blocked := state.order_move(player_army, "kingsvale")
-	t.check(player_army.province == "greywater" and blocked.back().type == "blocked",
-		"moving into an enemy army stops before it (battles come in M3)")
-
-	player_army.reset_movement()
 	var events := state.order_move(player_army, "saltmere")
 	t.check(player_army.province == "ashford" and events.back().type == "zone_of_control" and player_army.movement_left == 0,
 		"zone of control: entering Ashford, next to the Kingsvale garrison, stops the march")

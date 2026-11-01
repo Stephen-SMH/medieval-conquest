@@ -21,10 +21,10 @@ var _graph: ProvinceGraph
 var _next_army_id := 1
 
 
-static func new_game(game_map: MapData, seed := 1) -> GameState:
+static func new_game(game_map: MapData, game_seed := 1) -> GameState:
 	var state := GameState.new()
 	state.map = game_map
-	state.rng.seed = seed
+	state.rng.seed = game_seed
 	state._graph = ProvinceGraph.new(game_map)
 	for id in game_map.province_order:
 		state.owners[id] = game_map.provinces[id].owner
@@ -160,9 +160,10 @@ func order_move(army: Army, destination: String) -> Array:
 
 
 ## Moves the army along its path until it runs out of movement points or has
-## to stop. Events: {"type": "moved", "army", "province"},
-## {"type": "zone_of_control", "army", "province"},
-## {"type": "blocked", "army", "province"} when an enemy army is in the way.
+## to stop. Events, each with "army" and "province":
+##   "moved", "occupied" (took an undefended enemy province),
+##   "zone_of_control" (stopped next to an enemy army),
+##   "battle" (marched into an enemy army; also has "battle": Battle).
 func advance_army(army: Army) -> Array:
 	var events := []
 	while not army.path.is_empty():
@@ -173,18 +174,112 @@ func advance_army(army: Army) -> Array:
 		if not enemy_armies_in(next, army.owner).is_empty():
 			army.path.clear()
 			army.movement_left = 0
-			events.append({"type": "blocked", "army": army, "province": next})
+			var battle := fight(army, next)
+			events.append({"type": "battle", "army": army, "province": next, "battle": battle})
+			if battle.attacker_won() and armies.has(army):
+				army.province = next
+				events.append_array(_occupy_if_enemy(army, next))
 			break
 		army.movement_left = maxi(army.movement_left - cost, 0)
 		army.path.pop_front()
 		army.province = next
 		events.append({"type": "moved", "army": army, "province": next})
+		events.append_array(_occupy_if_enemy(army, next))
 		if in_enemy_zone_of_control(next, army.owner):
 			army.movement_left = 0
 			army.path.clear()
 			events.append({"type": "zone_of_control", "army": army, "province": next})
 			break
 	return events
+
+
+func _occupy_if_enemy(army: Army, province: String) -> Array:
+	if is_enemy(army.owner, owners[province]) and enemy_armies_in(province, army.owner).is_empty():
+		var previous: String = owners[province]
+		owners[province] = army.owner
+		return [{"type": "occupied", "army": army, "province": province, "previous_owner": previous}]
+	return []
+
+
+# --- Battles (PRD 3.9) ------------------------------------------------------
+
+## Fights `army` against every enemy army in `province` and applies the result:
+## destroyed regiments are removed, and a beaten defender retreats to a
+## neighbouring province of its own, or is destroyed if it has nowhere to go.
+## A beaten attacker stays where it was.
+func fight(army: Army, province: String) -> Battle:
+	var defenders := enemy_armies_in(province, army.owner)
+	var sides := _battle_sides(army, defenders, false)
+	var battle := Battle.new(sides[0], sides[1], map.terrain(province),
+		map.border_type(army.province, province) == "river", rng.randi())
+	battle.resolve()
+
+	for involved in [army] + defenders:
+		_remove_destroyed_regiments(involved)
+	if battle.attacker_won():
+		for defender in defenders:
+			if not armies.has(defender):
+				continue
+			var refuge := _retreat_province(defender, province)
+			if refuge == "":
+				remove_army(defender)
+			else:
+				defender.province = refuge
+				defender.path.clear()
+				defender.movement_left = 0
+	return battle
+
+
+## Rates an attack by `army` on `province`, coming from `from` (default: where
+## the army stands), without changing anything (BT-7).
+func forecast_battle(army: Army, province: String, from := "") -> Dictionary:
+	if from == "":
+		from = army.province
+	var defenders := enemy_armies_in(province, army.owner)
+	return Battle.forecast(
+		func(): return _battle_sides(army, defenders, true)[0],
+		func(): return _battle_sides(army, defenders, true)[1],
+		map.terrain(province), map.border_type(from, province) == "river",
+		hash([army.id, province, turn]))
+
+
+## [attacking Force, defending Force]. With `copy`, the sides fight copies of
+## the regiments so a forecast leaves the real ones untouched.
+func _battle_sides(army: Army, defenders: Array[Army], copy: bool) -> Array:
+	var attacking: Array[Regiment] = []
+	for regiment in army.regiments:
+		attacking.append(regiment.copy() if copy else regiment)
+	var defending: Array[Regiment] = []
+	var defender_mod := 1.0
+	for defender in defenders:
+		for regiment in defender.regiments:
+			defending.append(regiment.copy() if copy else regiment)
+		if defender.general != null:
+			defender_mod = maxf(defender_mod, defender.general.attack_mod())
+	var attacker_mod := army.general.attack_mod() if army.general != null else 1.0
+	var defender_faction: String = defenders[0].owner if not defenders.is_empty() else owners[army.province]
+	return [Battle.Force.new(army.owner, true, attacking, attacker_mod),
+		Battle.Force.new(defender_faction, false, defending, defender_mod)]
+
+
+func _remove_destroyed_regiments(army: Army) -> void:
+	var standing: Array[Regiment] = []
+	for regiment in army.regiments:
+		if regiment.men >= Battle.DESTROYED_BELOW:
+			standing.append(regiment)
+	army.regiments = standing
+	if standing.is_empty():
+		remove_army(army)
+	else:
+		army.movement_left = mini(army.movement_left, army.max_movement())
+
+
+## A neighbouring province the army's faction owns with no enemy army in it.
+func _retreat_province(army: Army, from: String) -> String:
+	for neighbour in map.neighbours(from):
+		if owners[neighbour] == army.owner and enemy_armies_in(neighbour, army.owner).is_empty():
+			return neighbour
+	return ""
 
 
 # --- Merge and split (AR-5) -----------------------------------------------

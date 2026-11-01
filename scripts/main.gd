@@ -26,6 +26,8 @@ var _dragging := false
 var _border_layer: BorderLayer
 var _army_layer: ArmyLayer
 var _path_layer: PathLayer
+var _pending_attack := ""  # Destination waiting for the player to confirm the forecast.
+var _report_queue := []    # [Battle, province] pairs still to show.
 
 @onready var _map_root: Node2D = $Map
 @onready var _camera: MapCamera = $Camera
@@ -36,6 +38,9 @@ var _path_layer: PathLayer
 @onready var _date_label: Label = $UI/TurnBar/Rows/Turn/Date
 @onready var _message_label: Label = $UI/TurnBar/Rows/Message
 @onready var _end_turn_button: Button = $UI/TurnBar/Rows/Turn/EndTurnButton
+@onready var _dim: Control = $UI/Dim
+@onready var _forecast_popup: ForecastPopup = $UI/ForecastPopup
+@onready var _battle_report: BattleReport = $UI/BattleReport
 @onready var _mode_buttons := {
 	MapMode.POLITICAL: $UI/TopBar/Rows/Modes/PoliticalButton,
 	MapMode.TERRAIN: $UI/TopBar/Rows/Modes/TerrainButton,
@@ -77,6 +82,9 @@ func _ready() -> void:
 	_army_panel.split_requested.connect(_on_split_requested)
 	_army_panel.merge_requested.connect(_on_merge_requested)
 	_army_panel.appoint_requested.connect(_on_appoint_requested)
+	_forecast_popup.confirmed.connect(_on_attack_confirmed)
+	_forecast_popup.cancelled.connect(_close_forecast)
+	_battle_report.closed.connect(_show_next_report)
 
 	set_mode(MapMode.POLITICAL)
 	select("")
@@ -89,6 +97,14 @@ func _process(_delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if _dim.visible:
+		# A popup is open: Esc closes it, everything else waits.
+		if event.is_action_pressed("deselect"):
+			if _forecast_popup.visible:
+				_close_forecast()
+			elif _battle_report.visible:
+				_show_next_report()
+		return
 	if event.is_action_pressed("map_mode_political"):
 		set_mode(MapMode.POLITICAL)
 	elif event.is_action_pressed("map_mode_terrain"):
@@ -164,14 +180,53 @@ func _can_order(army: Army) -> bool:
 
 # --- Orders and turns --------------------------------------------------------
 
+## Marches the selected army. If the path runs into an enemy army the player
+## can see, the battle forecast is shown first and the march waits for "Attack!".
 func order_move(destination: String) -> void:
 	if not _can_order(selected_army):
 		return
 	var army := selected_army
+	var path := state.find_path(army.province, destination)
+	for i in path.size():
+		if _army_layer.visible_provinces.has(path[i]) and not state.enemy_armies_in(path[i], army.owner).is_empty():
+			var from := army.province if i == 0 else path[i - 1]
+			_pending_attack = destination
+			_forecast_popup.show_forecast(state, army, path[i], state.forecast_battle(army, path[i], from))
+			_dim.visible = true
+			return
+	_march(army, destination)
+
+
+func _march(army: Army, destination: String) -> void:
 	var events := state.order_move(army, destination)
 	pending_destination = ""
 	_report(events)
-	select_army(army)
+	if state.armies.has(army):
+		select_army(army)
+	else:
+		select(destination)
+
+
+func _on_attack_confirmed() -> void:
+	var destination := _pending_attack
+	_close_forecast()
+	_march(selected_army, destination)
+
+
+func _close_forecast() -> void:
+	_pending_attack = ""
+	_forecast_popup.visible = false
+	_dim.visible = false
+
+
+func _show_next_report() -> void:
+	if _report_queue.is_empty():
+		_battle_report.visible = false
+		_dim.visible = false
+		return
+	var next: Array = _report_queue.pop_front()
+	_battle_report.show_battle(state, next[0], next[1])
+	_dim.visible = true
 
 
 func end_turn() -> void:
@@ -184,7 +239,8 @@ func end_turn() -> void:
 		select(selected_id)
 
 
-## Shows the most important movement event in the message line.
+## Shows the most important movement event in the message line, and queues
+## a report for every battle.
 func _report(events: Array) -> void:
 	var message := ""
 	for event in events:
@@ -196,10 +252,17 @@ func _report(events: Array) -> void:
 					message = "%s marched to %s." % [army.display_name(), where]
 			"zone_of_control":
 				message = "%s stopped in %s: enemy army nearby." % [army.display_name(), where]
-			"blocked":
-				message = "%s halted: an enemy army holds %s." % [army.display_name(), where]
+			"occupied":
+				message = "%s captured %s from %s." % [army.display_name(), where, map.factions[event.previous_owner].name]
+			"battle":
+				var battle: Battle = event.battle
+				message = "Battle of %s: the %s won." % [where, "attackers" if battle.attacker_won() else "defenders"]
+				_report_queue.append([battle, event.province])
 	if message != "":
 		_show_message(message)
+	_refresh_world()
+	if not _battle_report.visible and not _report_queue.is_empty():
+		_show_next_report()
 
 
 func _show_message(text: String) -> void:
@@ -338,7 +401,7 @@ func _update_hover() -> void:
 	var id := ""
 	var mouse := get_viewport().get_mouse_position()
 	var over_ui := false
-	for control: Control in [_panel, _army_panel, _top_bar, _turn_bar]:
+	for control: Control in [_panel, _army_panel, _top_bar, _turn_bar, _dim]:
 		over_ui = over_ui or (control.visible and control.get_global_rect().has_point(mouse))
 	if not over_ui and not _dragging:
 		id = map.province_at(get_global_mouse_position())
