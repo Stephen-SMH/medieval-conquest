@@ -6,6 +6,9 @@ extends SceneTree
 ##   <type>_team.png  only the parts that take the faction colour (tunic,
 ##                    shield face), in grey; the game draws it over the figure
 ##                    modulated by the faction colour.
+## and the same pair for each pose variant (<type>_v1.png, <type>_v2.png and
+## their _team layers): the figure turned a little, its weapon held at another
+## angle and its weapon arm higher or lower, so a group isn't a row of copies.
 ##
 ## The 3D models are not in the repository. Fetch them with
 ## tools/fetch_figure_models.sh <dir>, then run, with a window (headless
@@ -23,6 +26,13 @@ const FEET_Y := 0.80  # Where the feet stand, as a fraction of the sprite height
 const PITCH := 34.0  # Camera elevation in degrees.
 const YAW := 28.0  # Camera turn around the figure in degrees.
 const TEAM_GREY := Color(0.82, 0.82, 0.82)
+## The pose variants: an extra turn of the figure in degrees, a tilt added to
+## the weapon's direction, and how far the right arm is raised (radians).
+const VARIANTS := [
+	{"yaw": 0.0, "tilt": Vector3.ZERO, "arm": 0.0},
+	{"yaw": 15.0, "tilt": Vector3(0.0, 0.0, 0.45), "arm": 0.3},
+	{"yaw": -13.0, "tilt": Vector3(0.3, 0.0, -0.3), "arm": -0.25},
+]
 
 ## Every unit: the body parts (modular men), recoloured materials, faction
 ## materials, headgear, weapons and pose. Facing: the figure looks along +Z.
@@ -69,6 +79,7 @@ var viewport: SubViewport
 var stage: Node3D
 var _cache := {}
 var _materials := {}  # MeshInstance3D -> Array of original materials, for the mask pass.
+var _variant: Dictionary = VARIANTS[0]
 
 
 func _initialize() -> void:
@@ -96,12 +107,15 @@ func _run() -> void:
 	for id in UNITS:
 		if not only.is_empty() and not only.has(id):
 			continue
-		var pair: Array = await _render_unit(id)
-		if sheet == "":
-			pair[0].save_png(ProjectSettings.globalize_path(OUT + id + ".png"))
-			pair[1].save_png(ProjectSettings.globalize_path(OUT + id + "_team.png"))
-			print("rendered ", id)
-		images.append(pair)
+		for v in VARIANTS.size():
+			_variant = VARIANTS[v]
+			var pair: Array = await _render_unit(id)
+			var file: String = id if v == 0 else "%s_v%d" % [id, v]
+			if sheet == "":
+				pair[0].save_png(ProjectSettings.globalize_path(OUT + file + ".png"))
+				pair[1].save_png(ProjectSettings.globalize_path(OUT + file + "_team.png"))
+				print("rendered ", file)
+			images.append(pair)
 	if sheet != "":
 		_save_sheet(images, sheet)
 	quit()
@@ -326,6 +340,10 @@ func _pose(skeleton: Skeleton3D, pose: String) -> void:
 		"rider_bow":
 			arms = {"UpperArm.L": Vector3(0.9, 0.12, 0.6), "LowerArm.L": Vector3(0.9, 0.12, 0.5),
 				"UpperArm.R": Vector3(-0.3, 0.1, 0.9), "LowerArm.R": Vector3(0.9, 0.1, 0.1)}
+	# The variant raises or lowers the weapon arm a little.
+	for bone in ["UpperArm.R", "LowerArm.R"]:
+		if arms.has(bone):
+			arms[bone] = (arms[bone] as Vector3).rotated(Vector3.RIGHT, -float(_variant.arm))
 	for bone in ["UpperArm.R", "LowerArm.R", "UpperArm.L", "LowerArm.L"]:
 		if arms.has(bone):
 			_aim(skeleton, bone, arms[bone])
@@ -414,6 +432,7 @@ func _build_soldier(spec: Dictionary) -> Node3D:
 			up = Vector3(-0.2, 1, -0.15)
 		elif pose == "rider_lance":
 			up = Vector3(0.05, 0.35, 1)
+		up += _variant.tilt
 		_hold(weapon, _grip(skeleton, "R"), up, spec.right[2], spec.right[1], Vector3(1, 0, 0.3))
 	if spec.has("left"):
 		var item := _prop("medieval_weapons_pack", spec.left[0], spec.left[1])
@@ -572,7 +591,7 @@ func _render_unit(id: String) -> Array:
 		_build_soldier(spec)
 	_soften(stage)
 	# Every figure looks a little to the viewer's left.
-	stage.rotation.y = deg_to_rad(-18 if not spec.has("horse") else -62)
+	stage.rotation.y = deg_to_rad((-18 if not spec.has("horse") else -62) + float(_variant.yaw))
 	var color := await _capture()
 	_mask_pass(stage)
 	var mask := await _capture()
