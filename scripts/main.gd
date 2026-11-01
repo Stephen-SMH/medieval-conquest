@@ -293,11 +293,13 @@ func _run_other_factions() -> void:
 		SaveGame.save(state, "auto")
 
 
-## Shows the end screen once the game is decided.
+## Shows the end screen once the game is decided, and records campaign stars.
 func _check_end() -> bool:
 	if not state.is_over():
 		return false
 	_refresh_world()
+	if state.result.result == "won" and state.mission.has("campaign") and state.result.winner == state.viewer():
+		Progress.record(state.mission.campaign, int(state.mission.mission_index), int(state.result.stars))
 	_end_screen.show_result(state, state.viewer())
 	_dim.visible = true
 	return true
@@ -310,12 +312,8 @@ func _play_again() -> void:
 	get_tree().reload_current_scene()
 
 
-## The title screen (V4); until then, a new game.
 func _go_to_menu() -> void:
-	if ResourceLoader.exists("res://scenes/title.tscn"):
-		get_tree().change_scene_to_file("res://scenes/title.tscn")
-	else:
-		_play_again()
+	get_tree().change_scene_to_file("res://scenes/menu.tscn")
 
 
 func _open_saves() -> void:

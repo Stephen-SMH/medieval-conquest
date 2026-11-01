@@ -1,0 +1,513 @@
+{
+ "id": "frankish",
+ "civ": "frankish",
+ "name": "Banners of the Valmont",
+ "description": "Duke Robert of Belcourt rides out to make himself king of the Valmont.",
+ "missions": [
+  {
+   "id": "frankish_1",
+   "name": "The Unruly Marches",
+   "map": "valmont",
+   "factions": [
+    {
+     "id": "belcourt",
+     "name": "Duchy of Belcourt",
+     "civ": "frankish",
+     "color": "#2f4fa8",
+     "human": true,
+     "ai": "balanced"
+    },
+    {
+     "id": "brevine",
+     "name": "Lords of Brévine",
+     "civ": "frankish",
+     "color": "#8a6a30",
+     "human": false,
+     "ai": "defensive"
+    }
+   ],
+   "owners": {
+    "belcourt": "belcourt",
+    "brevine": "brevine",
+    "lorvane": "belcourt",
+    "auberive": "brevine",
+    "rochemont": "belcourt",
+    "corlay": "brevine"
+   },
+   "capitals": {
+    "belcourt": "belcourt",
+    "brevine": "brevine"
+   },
+   "buildings": {
+    "belcourt": {
+     "farm": 1,
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    },
+    "brevine": {
+     "farm": 1,
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "belcourt",
+     "region": "belcourt",
+     "type": "knight",
+     "general": {
+      "name": "Robert",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "belcourt",
+     "region": "belcourt",
+     "type": "sergeant"
+    },
+    {
+     "owner": "belcourt",
+     "region": "belcourt",
+     "type": "crossbowmen"
+    },
+    {
+     "owner": "belcourt",
+     "region": "belcourt",
+     "type": "light_cavalry"
+    },
+    {
+     "owner": "brevine",
+     "region": "brevine",
+     "type": "spearmen",
+     "general": {
+      "name": "Aimery",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "brevine",
+     "region": "brevine",
+     "type": "crossbowmen"
+    },
+    {
+     "owner": "brevine",
+     "region": "brevine",
+     "type": "sergeant"
+    },
+    {
+     "owner": "neutral",
+     "region": "castelroux",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "montclair",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "sainte_aube",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "vaudrey",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "vireux",
+     "type": "militia",
+     "soldiers": 12
+    }
+   ],
+   "mission": {
+    "player": "belcourt",
+    "par": 6,
+    "objectives": [
+     {
+      "type": "capture",
+      "regions": ["castelroux", "grandval", "marlenne"]
+     }
+    ],
+    "briefing": "The marches beyond Belcourt answer to no one. Bring three of them under your banner.",
+    "victory_text": "The marches bow to Belcourt.",
+    "defeat_text": "The marches stay wild."
+   },
+   "campaign": "frankish",
+   "mission_index": 0
+  },
+  {
+   "id": "frankish_2",
+   "name": "The Siege of Brévine",
+   "map": "valmont",
+   "factions": [
+    {
+     "id": "belcourt",
+     "name": "Duchy of Belcourt",
+     "civ": "frankish",
+     "color": "#2f4fa8",
+     "human": true,
+     "ai": "balanced"
+    },
+    {
+     "id": "brevine",
+     "name": "Lords of Brévine",
+     "civ": "frankish",
+     "color": "#8a6a30",
+     "human": false,
+     "ai": "defensive"
+    }
+   ],
+   "owners": {
+    "belcourt": "belcourt",
+    "brevine": "brevine",
+    "lorvane": "belcourt",
+    "auberive": "brevine",
+    "rochemont": "belcourt",
+    "corlay": "brevine",
+    "castelroux": "belcourt",
+    "port_sable": "brevine"
+   },
+   "capitals": {
+    "belcourt": "belcourt",
+    "brevine": "brevine"
+   },
+   "buildings": {
+    "belcourt": {
+     "farm": 1,
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1,
+     "siege_workshop": 1
+    },
+    "brevine": {
+     "farm": 1,
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1,
+     "walls": 2
+    }
+   },
+   "units": [
+    {
+     "owner": "belcourt",
+     "region": "belcourt",
+     "type": "knight",
+     "general": {
+      "name": "Robert",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "belcourt",
+     "region": "belcourt",
+     "type": "knight"
+    },
+    {
+     "owner": "belcourt",
+     "region": "belcourt",
+     "type": "sergeant"
+    },
+    {
+     "owner": "belcourt",
+     "region": "belcourt",
+     "type": "sergeant"
+    },
+    {
+     "owner": "belcourt",
+     "region": "castelroux",
+     "type": "crossbowmen"
+    },
+    {
+     "owner": "belcourt",
+     "region": "castelroux",
+     "type": "catapult"
+    },
+    {
+     "owner": "belcourt",
+     "region": "castelroux",
+     "type": "spearmen"
+    },
+    {
+     "owner": "brevine",
+     "region": "brevine",
+     "type": "sergeant",
+     "general": {
+      "name": "Aimery",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "brevine",
+     "region": "brevine",
+     "type": "crossbowmen"
+    },
+    {
+     "owner": "brevine",
+     "region": "brevine",
+     "type": "spearmen"
+    },
+    {
+     "owner": "brevine",
+     "region": "brevine",
+     "type": "swordsmen"
+    },
+    {
+     "owner": "brevine",
+     "region": "auberive",
+     "type": "archers"
+    },
+    {
+     "owner": "neutral",
+     "region": "montclair",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "sainte_aube",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "vaudrey",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "vireux",
+     "type": "militia",
+     "soldiers": 12
+    }
+   ],
+   "mission": {
+    "player": "belcourt",
+    "par": 10,
+    "objectives": [
+     {
+      "type": "capture",
+      "regions": ["brevine"]
+     }
+    ],
+    "briefing": "Lord Aimery has shut himself in his stone keep. Besiege it or storm it, but take Brévine.",
+    "victory_text": "The keep of Brévine opens its gates.",
+    "defeat_text": "Brévine's walls hold."
+   },
+   "campaign": "frankish",
+   "mission_index": 1
+  },
+  {
+   "id": "frankish_3",
+   "name": "King of the Valmont",
+   "map": "valmont",
+   "factions": [
+    {
+     "id": "belcourt",
+     "name": "Kingdom of Belcourt",
+     "civ": "frankish",
+     "color": "#2f4fa8",
+     "human": true,
+     "ai": "balanced"
+    },
+    {
+     "id": "chaumiere",
+     "name": "Norse of Chaumière",
+     "civ": "norse",
+     "color": "#2e708f",
+     "human": false,
+     "ai": "aggressive"
+    },
+    {
+     "id": "vaudrey",
+     "name": "Anglish of Vaudrey",
+     "civ": "anglish",
+     "color": "#b33b3b",
+     "human": false,
+     "ai": "balanced"
+    }
+   ],
+   "owners": {
+    "belcourt": "belcourt",
+    "chaumiere": "chaumiere",
+    "vaudrey": "vaudrey",
+    "lorvane": "belcourt",
+    "castelroux": "chaumiere",
+    "pierrefonde": "vaudrey",
+    "rochemont": "belcourt",
+    "fontmarais": "chaumiere",
+    "sainte_aube": "vaudrey",
+    "grandval": "belcourt",
+    "marlenne": "chaumiere",
+    "auberive": "vaudrey",
+    "ostrel": "belcourt"
+   },
+   "capitals": {
+    "belcourt": "belcourt",
+    "chaumiere": "chaumiere",
+    "vaudrey": "vaudrey"
+   },
+   "buildings": {
+    "belcourt": {
+     "farm": 1,
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    },
+    "chaumiere": {
+     "farm": 1,
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    },
+    "vaudrey": {
+     "farm": 1,
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "belcourt",
+     "region": "belcourt",
+     "type": "knight",
+     "general": {
+      "name": "Robert",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "belcourt",
+     "region": "belcourt",
+     "type": "knight"
+    },
+    {
+     "owner": "belcourt",
+     "region": "belcourt",
+     "type": "sergeant"
+    },
+    {
+     "owner": "belcourt",
+     "region": "belcourt",
+     "type": "sergeant"
+    },
+    {
+     "owner": "belcourt",
+     "region": "grandval",
+     "type": "crossbowmen"
+    },
+    {
+     "owner": "belcourt",
+     "region": "grandval",
+     "type": "crossbowmen"
+    },
+    {
+     "owner": "belcourt",
+     "region": "grandval",
+     "type": "light_cavalry"
+    },
+    {
+     "owner": "belcourt",
+     "region": "grandval",
+     "type": "spearmen"
+    },
+    {
+     "owner": "chaumiere",
+     "region": "chaumiere",
+     "type": "berserker",
+     "general": {
+      "name": "Ragnvald",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "chaumiere",
+     "region": "chaumiere",
+     "type": "huscarl"
+    },
+    {
+     "owner": "chaumiere",
+     "region": "chaumiere",
+     "type": "archers"
+    },
+    {
+     "owner": "chaumiere",
+     "region": "chaumiere",
+     "type": "spearmen"
+    },
+    {
+     "owner": "vaudrey",
+     "region": "vaudrey",
+     "type": "longbowman",
+     "general": {
+      "name": "Edwin",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "vaudrey",
+     "region": "vaudrey",
+     "type": "yeoman"
+    },
+    {
+     "owner": "vaudrey",
+     "region": "vaudrey",
+     "type": "yeoman"
+    },
+    {
+     "owner": "vaudrey",
+     "region": "vaudrey",
+     "type": "swordsmen"
+    },
+    {
+     "owner": "neutral",
+     "region": "brevine",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "montclair",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "vireux",
+     "type": "militia",
+     "soldiers": 12
+    }
+   ],
+   "mission": {
+    "player": "belcourt",
+    "par": 14,
+    "objectives": [
+     {
+      "type": "conquest"
+     }
+    ],
+    "briefing": "Norse settlers and Anglish adventurers have carved out holdings in the Valmont. Drive them out and take the crown.",
+    "victory_text": "Robert is crowned King of the Valmont.",
+    "defeat_text": "The Valmont slips from Robert's grasp."
+   },
+   "campaign": "frankish",
+   "mission_index": 2
+  }
+ ]
+}

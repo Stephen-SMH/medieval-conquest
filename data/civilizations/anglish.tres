@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="Civilization" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/civilization.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "anglish"
+display_name = "Anglish"
+faction_name = "Kingdom of the Weald"
+color = Color(0.70, 0.23, 0.23, 1)
+order = 1
+unlock_after_campaigns = 0
+special_units = Array[String](["longbowman", "yeoman"])
+description = "Stubborn islanders with deadly bows."
+bonus_text = "+15% defense in their own regions."

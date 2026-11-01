@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="Civilization" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/civilization.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "frankish"
+display_name = "Frankish"
+faction_name = "Franklands of Valmont"
+color = Color(0.18, 0.31, 0.66, 1)
+order = 2
+unlock_after_campaigns = 0
+special_units = Array[String](["knight", "sergeant"])
+description = "Proud lords of the heavy horse."
+bonus_text = "Cavalry is 20% cheaper to recruit."

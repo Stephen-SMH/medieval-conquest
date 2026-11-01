@@ -1,0 +1,494 @@
+{
+ "id": "norse",
+ "civ": "norse",
+ "name": "The Saga of the Sea-Wolves",
+ "description": "Jarl Hakon's raiders sail south to carve a kingdom from the Fjordmark.",
+ "missions": [
+  {
+   "id": "norse_1",
+   "name": "Landfall",
+   "map": "fjordmark",
+   "factions": [
+    {
+     "id": "norse",
+     "name": "Hakon's Raiders",
+     "civ": "norse",
+     "color": "#2e708f",
+     "human": true,
+     "ai": "balanced"
+    },
+    {
+     "id": "elmsworth",
+     "name": "Thanes of Elmsworth",
+     "civ": "anglish",
+     "color": "#b33b3b",
+     "human": false,
+     "ai": "defensive"
+    }
+   ],
+   "owners": {
+    "skarholm": "norse",
+    "elmsworth": "elmsworth",
+    "brimstad": "norse",
+    "calder_abbey": "elmsworth",
+    "hollin": "elmsworth"
+   },
+   "capitals": {
+    "norse": "skarholm",
+    "elmsworth": "elmsworth"
+   },
+   "buildings": {
+    "skarholm": {
+     "farm": 1,
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    },
+    "elmsworth": {
+     "farm": 1,
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "norse",
+     "region": "skarholm",
+     "type": "berserker",
+     "general": {
+      "name": "Hakon",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "norse",
+     "region": "skarholm",
+     "type": "spearmen"
+    },
+    {
+     "owner": "norse",
+     "region": "skarholm",
+     "type": "archers"
+    },
+    {
+     "owner": "norse",
+     "region": "skarholm",
+     "type": "huscarl"
+    },
+    {
+     "owner": "elmsworth",
+     "region": "elmsworth",
+     "type": "yeoman",
+     "general": {
+      "name": "Eadric",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "elmsworth",
+     "region": "elmsworth",
+     "type": "spearmen"
+    },
+    {
+     "owner": "elmsworth",
+     "region": "elmsworth",
+     "type": "archers"
+    },
+    {
+     "owner": "neutral",
+     "region": "greyhaven",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "hrafnsey",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "morrow_fen",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "ravensfjord",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "stonereach",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "ulvdal",
+     "type": "militia",
+     "soldiers": 12
+    }
+   ],
+   "mission": {
+    "player": "norse",
+    "par": 5,
+    "objectives": [
+     {
+      "type": "capture",
+      "regions": ["ravensfjord", "ashwick", "morrow_fen"]
+     }
+    ],
+    "briefing": "The longships are beached. Seize the three settlements nearest the shore before the thanes muster.",
+    "victory_text": "The coast is ours. The skalds will sing of this landfall.",
+    "defeat_text": "The raid ends in ash and cold water."
+   },
+   "campaign": "norse",
+   "mission_index": 0
+  },
+  {
+   "id": "norse_2",
+   "name": "The Abbey Road",
+   "map": "fjordmark",
+   "factions": [
+    {
+     "id": "norse",
+     "name": "Hakon's Raiders",
+     "civ": "norse",
+     "color": "#2e708f",
+     "human": true,
+     "ai": "balanced"
+    },
+    {
+     "id": "greyhaven",
+     "name": "Lords of Greyhaven",
+     "civ": "anglish",
+     "color": "#b33b3b",
+     "human": false,
+     "ai": "balanced"
+    }
+   ],
+   "owners": {
+    "skarholm": "norse",
+    "wyrmsby": "greyhaven",
+    "brimstad": "norse",
+    "ashwick": "greyhaven",
+    "ravensfjord": "norse",
+    "greyhaven": "greyhaven",
+    "tornfjell": "greyhaven",
+    "morrow_fen": "greyhaven"
+   },
+   "capitals": {
+    "norse": "skarholm",
+    "greyhaven": "wyrmsby"
+   },
+   "buildings": {
+    "skarholm": {
+     "farm": 1,
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    },
+    "wyrmsby": {
+     "farm": 1,
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1,
+     "walls": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "norse",
+     "region": "skarholm",
+     "type": "berserker",
+     "general": {
+      "name": "Hakon",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "norse",
+     "region": "skarholm",
+     "type": "berserker"
+    },
+    {
+     "owner": "norse",
+     "region": "skarholm",
+     "type": "huscarl"
+    },
+    {
+     "owner": "norse",
+     "region": "skarholm",
+     "type": "archers"
+    },
+    {
+     "owner": "norse",
+     "region": "brimstad",
+     "type": "spearmen"
+    },
+    {
+     "owner": "norse",
+     "region": "brimstad",
+     "type": "light_cavalry"
+    },
+    {
+     "owner": "greyhaven",
+     "region": "wyrmsby",
+     "type": "yeoman",
+     "general": {
+      "name": "Wulfstan",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "greyhaven",
+     "region": "wyrmsby",
+     "type": "longbowman"
+    },
+    {
+     "owner": "greyhaven",
+     "region": "wyrmsby",
+     "type": "spearmen"
+    },
+    {
+     "owner": "greyhaven",
+     "region": "wyrmsby",
+     "type": "swordsmen"
+    },
+    {
+     "owner": "greyhaven",
+     "region": "ashwick",
+     "type": "archers"
+    },
+    {
+     "owner": "neutral",
+     "region": "hrafnsey",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "stonereach",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "ulvdal",
+     "type": "militia",
+     "soldiers": 12
+    }
+   ],
+   "mission": {
+    "player": "norse",
+    "par": 9,
+    "objectives": [
+     {
+      "type": "capture",
+      "regions": ["wyrmsby"]
+     }
+    ],
+    "briefing": "Greyhaven's lords hide behind a palisade with the silver of three abbeys. Take their hall.",
+    "victory_text": "Greyhaven falls, and its silver pays for a hundred new ships.",
+    "defeat_text": "Greyhaven's bowmen hold the road."
+   },
+   "campaign": "norse",
+   "mission_index": 1
+  },
+  {
+   "id": "norse_3",
+   "name": "Throne of the Fjordmark",
+   "map": "fjordmark",
+   "factions": [
+    {
+     "id": "norse",
+     "name": "Jarldom of Hakon",
+     "civ": "norse",
+     "color": "#2e708f",
+     "human": true,
+     "ai": "balanced"
+    },
+    {
+     "id": "kaldvik",
+     "name": "Kaldvik Rebels",
+     "civ": "norse",
+     "color": "#a8742c",
+     "human": false,
+     "ai": "aggressive"
+    },
+    {
+     "id": "stonereach",
+     "name": "Franks of Stonereach",
+     "civ": "frankish",
+     "color": "#2f4fa8",
+     "human": false,
+     "ai": "balanced"
+    }
+   ],
+   "owners": {
+    "skarholm": "norse",
+    "kaldvik": "kaldvik",
+    "elmsworth": "stonereach",
+    "brimstad": "norse",
+    "hrafnsey": "kaldvik",
+    "calder_abbey": "stonereach",
+    "ravensfjord": "norse",
+    "solvbekk": "kaldvik",
+    "hollin": "stonereach",
+    "ashwick": "norse",
+    "ulvdal": "kaldvik",
+    "stonereach": "stonereach"
+   },
+   "capitals": {
+    "norse": "skarholm",
+    "kaldvik": "kaldvik",
+    "stonereach": "elmsworth"
+   },
+   "buildings": {
+    "skarholm": {
+     "farm": 1,
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    },
+    "kaldvik": {
+     "farm": 1,
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    },
+    "elmsworth": {
+     "farm": 1,
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "norse",
+     "region": "skarholm",
+     "type": "berserker",
+     "general": {
+      "name": "Hakon",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "norse",
+     "region": "skarholm",
+     "type": "huscarl"
+    },
+    {
+     "owner": "norse",
+     "region": "skarholm",
+     "type": "huscarl"
+    },
+    {
+     "owner": "norse",
+     "region": "skarholm",
+     "type": "archers"
+    },
+    {
+     "owner": "norse",
+     "region": "ashwick",
+     "type": "spearmen"
+    },
+    {
+     "owner": "norse",
+     "region": "ashwick",
+     "type": "light_cavalry"
+    },
+    {
+     "owner": "norse",
+     "region": "ashwick",
+     "type": "berserker"
+    },
+    {
+     "owner": "kaldvik",
+     "region": "kaldvik",
+     "type": "berserker",
+     "general": {
+      "name": "Sigrid",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "kaldvik",
+     "region": "kaldvik",
+     "type": "spearmen"
+    },
+    {
+     "owner": "kaldvik",
+     "region": "kaldvik",
+     "type": "archers"
+    },
+    {
+     "owner": "kaldvik",
+     "region": "kaldvik",
+     "type": "huscarl"
+    },
+    {
+     "owner": "stonereach",
+     "region": "elmsworth",
+     "type": "knight",
+     "general": {
+      "name": "Odo",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "stonereach",
+     "region": "elmsworth",
+     "type": "sergeant"
+    },
+    {
+     "owner": "stonereach",
+     "region": "elmsworth",
+     "type": "crossbowmen"
+    },
+    {
+     "owner": "stonereach",
+     "region": "elmsworth",
+     "type": "spearmen"
+    },
+    {
+     "owner": "neutral",
+     "region": "greyhaven",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "morrow_fen",
+     "type": "militia",
+     "soldiers": 12
+    }
+   ],
+   "mission": {
+    "player": "norse",
+    "par": 14,
+    "objectives": [
+     {
+      "type": "conquest"
+     }
+    ],
+    "briefing": "A rival jarl and a Frankish count both claim the Fjordmark. There can be only one throne.",
+    "victory_text": "Hakon is crowned king of the Fjordmark. The saga is complete.",
+    "defeat_text": "Another sits on the throne Hakon bled for."
+   },
+   "campaign": "norse",
+   "mission_index": 2
+  }
+ ]
+}

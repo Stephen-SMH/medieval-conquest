@@ -1,17 +1,19 @@
 class_name Rules
 extends RefCounted
 ## Game rules loaded from the .tres files under data/: terrains, unit types,
-## the counter table and buildings. Loaded once and shared.
+## the counter table, buildings and civilizations. Loaded once and shared.
 
 const TERRAIN_DIR := "res://data/terrains"
 const UNIT_DIR := "res://data/units"
 const COUNTERS_PATH := "res://data/counters.tres"
 const BUILDING_DIR := "res://data/buildings"
+const CIVILIZATION_DIR := "res://data/civilizations"
 
 static var terrains := {}  # terrain id -> TerrainType
 static var units := {}     # unit type id -> UnitType, in display order
 static var counters: CounterTable
 static var buildings := {}  # building id -> BuildingType, in display order
+static var civilizations := {}  # civilization id -> Civilization, in display order
 
 static var _loaded := false
 
@@ -22,6 +24,7 @@ static func ensure_loaded() -> void:
 	terrains = _load_dir(TERRAIN_DIR)
 	units = _sorted(_load_dir(UNIT_DIR))
 	buildings = _sorted(_load_dir(BUILDING_DIR))
+	civilizations = _sorted(_load_dir(CIVILIZATION_DIR))
 	counters = load(COUNTERS_PATH)
 	_loaded = true
 
@@ -32,6 +35,10 @@ static func unit(id: String) -> UnitType:
 
 static func building(id: String) -> BuildingType:
 	return buildings[id]
+
+
+static func civilization(id: String) -> Civilization:
+	return civilizations.get(id)
 
 
 static func tech_name(id: String) -> String:

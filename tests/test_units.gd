@@ -79,7 +79,7 @@ func _test_moves(t) -> void:
 func _test_attacks(t) -> void:
 	# BR-2: a failed attack leaves the survivors where they attacked from.
 	var state := Helpers.game({"greywater": "blue", "ashford": "blue", "kingsvale": "red", "highcrag": "red"}, [
-		["blue", "greywater", "militia", 10],
+		["blue", "greywater", "swordsmen"],
 		["red", "kingsvale", "swordsmen"], ["red", "kingsvale", "swordsmen"], ["red", "kingsvale", "spearmen"]])
 	var attacker: Unit = state.units[0]
 	var result := state.attack([attacker], "kingsvale")
@@ -94,8 +94,7 @@ func _test_attacks(t) -> void:
 		state.move_unit(attacker, "ashford")
 		t.check(attacker.province == "ashford", "a unit that fought retreats with its move point")
 	else:
-		t.check(true, "(the attacker was destroyed; retreat checked elsewhere)")
-		t.check(true, "(skipped)")
+		t.check(false, "the attacker should survive to test retreating")
 
 	# BR-3: the beaten defender retreats to a friendly neighbour with room, and the attackers move in.
 	state = Helpers.game({"greywater": "blue", "kingsvale": "red", "highcrag": "red"}, [

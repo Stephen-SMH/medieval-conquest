@@ -1,0 +1,248 @@
+{
+ "id": "fjordmark",
+ "name": "The Fjordmark",
+ "size": [1200, 700],
+ "coast": ["top", "left"],
+ "starts": ["skarholm", "elmsworth", "kaldvik", "wyrmsby"],
+ "vertices": {
+  "v0_0": [0, 0],
+  "v0_1": [114, 0],
+  "v0_2": [226, 0],
+  "v0_3": [342, 0],
+  "v0_4": [502, 0],
+  "v0_5": [604, 0],
+  "v0_6": [730, 0],
+  "v0_7": [843, 0],
+  "v0_8": [954, 0],
+  "v0_9": [1092, 0],
+  "v0_10": [1200, 0],
+  "v1_0": [0, 180],
+  "v1_1": [135, 185],
+  "v1_2": [258, 171],
+  "v1_3": [342, 153],
+  "v1_4": [492, 154],
+  "v1_5": [608, 183],
+  "v1_6": [697, 193],
+  "v1_7": [815, 198],
+  "v1_8": [978, 157],
+  "v1_9": [1092, 190],
+  "v1_10": [1200, 151],
+  "v2_0": [0, 361],
+  "v2_1": [100, 376],
+  "v2_2": [250, 380],
+  "v2_3": [336, 339],
+  "v2_4": [486, 357],
+  "v2_5": [583, 374],
+  "v2_6": [738, 337],
+  "v2_7": [821, 361],
+  "v2_8": [955, 360],
+  "v2_9": [1080, 343],
+  "v2_10": [1200, 320],
+  "v3_0": [0, 502],
+  "v3_1": [118, 539],
+  "v3_2": [236, 540],
+  "v3_3": [362, 549],
+  "v3_4": [488, 514],
+  "v3_5": [581, 498],
+  "v3_6": [696, 548],
+  "v3_7": [860, 541],
+  "v3_8": [939, 535],
+  "v3_9": [1060, 550],
+  "v3_10": [1200, 535],
+  "v4_0": [0, 700],
+  "v4_1": [133, 700],
+  "v4_2": [246, 700],
+  "v4_3": [356, 700],
+  "v4_4": [498, 700],
+  "v4_5": [624, 700],
+  "v4_6": [706, 700],
+  "v4_7": [837, 700],
+  "v4_8": [972, 700],
+  "v4_9": [1090, 700],
+  "v4_10": [1200, 700]
+ },
+ "regions": [
+  {
+   "id": "skarholm",
+   "name": "Skarholm",
+   "terrain": "plains",
+   "population": 13000,
+   "coastal": true,
+   "vertices": ["v0_0", "v0_1", "v0_2", "v1_2", "v1_1", "v1_0"],
+   "neighbours": ["brimstad", "ravensfjord"]
+  },
+  {
+   "id": "ravensfjord",
+   "name": "Ravensfjord",
+   "terrain": "forest",
+   "population": 12000,
+   "coastal": true,
+   "vertices": ["v0_2", "v0_3", "v0_4", "v1_4", "v1_5", "v2_5", "v2_4", "v2_3", "v1_3", "v1_2"],
+   "neighbours": ["ashwick", "brimstad", "morrow_fen", "skarholm", "solvbekk", "ulvdal"]
+  },
+  {
+   "id": "ulvdal",
+   "name": "Ulvdal",
+   "terrain": "mountains",
+   "population": 10000,
+   "coastal": true,
+   "vertices": ["v0_4", "v0_5", "v0_6", "v1_6", "v1_5", "v1_4"],
+   "neighbours": ["kaldvik", "ravensfjord", "solvbekk"]
+  },
+  {
+   "id": "kaldvik",
+   "name": "Kaldvik",
+   "terrain": "plains",
+   "population": 13000,
+   "coastal": true,
+   "vertices": ["v0_6", "v0_7", "v0_8", "v1_8", "v1_7", "v1_6"],
+   "neighbours": ["hrafnsey", "solvbekk", "ulvdal"]
+  },
+  {
+   "id": "hrafnsey",
+   "name": "Hrafnsey",
+   "terrain": "hills",
+   "population": 5300,
+   "coastal": true,
+   "vertices": ["v0_8", "v0_9", "v0_10", "v1_10", "v1_9", "v1_8"],
+   "neighbours": ["kaldvik", "solvbekk"]
+  },
+  {
+   "id": "brimstad",
+   "name": "Brimstad",
+   "terrain": "plains",
+   "population": 12500,
+   "coastal": true,
+   "vertices": ["v1_0", "v1_1", "v1_2", "v1_3", "v2_3", "v2_2", "v2_1", "v2_0"],
+   "neighbours": ["ashwick", "ravensfjord", "skarholm", "tornfjell"]
+  },
+  {
+   "id": "solvbekk",
+   "name": "Sølvbekk",
+   "terrain": "plains",
+   "population": 13100,
+   "coastal": false,
+   "vertices": ["v1_5", "v1_6", "v1_7", "v1_8", "v1_9", "v1_10", "v2_10", "v2_9", "v2_8", "v2_7", "v2_6", "v2_5"],
+   "neighbours": ["calder_abbey", "hollin", "hrafnsey", "kaldvik", "morrow_fen", "ravensfjord", "ulvdal"]
+  },
+  {
+   "id": "tornfjell",
+   "name": "Tornfjell",
+   "terrain": "plains",
+   "population": 11500,
+   "coastal": true,
+   "vertices": ["v2_0", "v2_1", "v2_2", "v3_2", "v3_1", "v3_0"],
+   "neighbours": ["ashwick", "brimstad", "wyrmsby"]
+  },
+  {
+   "id": "ashwick",
+   "name": "Ashwick",
+   "terrain": "marsh",
+   "population": 13300,
+   "coastal": false,
+   "vertices": ["v2_2", "v2_3", "v2_4", "v3_4", "v3_3", "v3_2"],
+   "neighbours": ["brimstad", "greyhaven", "morrow_fen", "ravensfjord", "tornfjell", "wyrmsby"]
+  },
+  {
+   "id": "morrow_fen",
+   "name": "Morrow Fen",
+   "terrain": "plains",
+   "population": 10200,
+   "coastal": false,
+   "vertices": ["v2_4", "v2_5", "v2_6", "v3_6", "v3_5", "v3_4"],
+   "neighbours": ["ashwick", "calder_abbey", "greyhaven", "ravensfjord", "solvbekk", "stonereach"]
+  },
+  {
+   "id": "calder_abbey",
+   "name": "Calder Abbey",
+   "terrain": "plains",
+   "population": 5500,
+   "coastal": false,
+   "vertices": ["v2_6", "v2_7", "v2_8", "v3_8", "v3_7", "v3_6"],
+   "neighbours": ["elmsworth", "hollin", "morrow_fen", "solvbekk", "stonereach"]
+  },
+  {
+   "id": "hollin",
+   "name": "Hollin",
+   "terrain": "marsh",
+   "population": 13500,
+   "coastal": false,
+   "vertices": ["v2_8", "v2_9", "v2_10", "v3_10", "v3_9", "v3_8"],
+   "neighbours": ["calder_abbey", "elmsworth", "solvbekk"]
+  },
+  {
+   "id": "wyrmsby",
+   "name": "Wyrmsby",
+   "terrain": "plains",
+   "population": 13000,
+   "coastal": true,
+   "vertices": ["v3_0", "v3_1", "v3_2", "v3_3", "v4_3", "v4_2", "v4_1", "v4_0"],
+   "neighbours": ["ashwick", "greyhaven", "tornfjell"]
+  },
+  {
+   "id": "greyhaven",
+   "name": "Greyhaven",
+   "terrain": "hills",
+   "population": 8900,
+   "coastal": false,
+   "vertices": ["v3_3", "v3_4", "v3_5", "v4_5", "v4_4", "v4_3"],
+   "neighbours": ["ashwick", "morrow_fen", "stonereach", "wyrmsby"]
+  },
+  {
+   "id": "stonereach",
+   "name": "Stonereach",
+   "terrain": "forest",
+   "population": 6900,
+   "coastal": false,
+   "vertices": ["v3_5", "v3_6", "v3_7", "v4_7", "v4_6", "v4_5"],
+   "neighbours": ["calder_abbey", "elmsworth", "greyhaven", "morrow_fen"]
+  },
+  {
+   "id": "elmsworth",
+   "name": "Elmsworth",
+   "terrain": "plains",
+   "population": 15900,
+   "coastal": false,
+   "vertices": ["v3_7", "v3_8", "v3_9", "v3_10", "v4_10", "v4_9", "v4_8", "v4_7"],
+   "neighbours": ["calder_abbey", "hollin", "stonereach"]
+  }
+ ],
+ "borders": [
+  {
+   "between": ["wyrmsby", "ashwick"],
+   "type": "river"
+  },
+  {
+   "between": ["ashwick", "tornfjell"],
+   "type": "river"
+  },
+  {
+   "between": ["greyhaven", "stonereach"],
+   "type": "river"
+  },
+  {
+   "between": ["stonereach", "calder_abbey"],
+   "type": "river"
+  },
+  {
+   "between": ["calder_abbey", "morrow_fen"],
+   "type": "river"
+  },
+  {
+   "between": ["skarholm", "ravensfjord"],
+   "type": "road"
+  },
+  {
+   "between": ["elmsworth", "stonereach"],
+   "type": "road"
+  },
+  {
+   "between": ["kaldvik", "hrafnsey"],
+   "type": "road"
+  },
+  {
+   "between": ["wyrmsby", "tornfjell"],
+   "type": "road"
+  }
+ ]
+}

@@ -25,7 +25,8 @@ static func to_dict(state: GameState) -> Dictionary:
 	var units := []
 	for unit in state.units:
 		var entry := {"id": unit.id, "type": unit.type_id, "owner": unit.owner, "region": unit.province, "hp": unit.hp,
-			"xp": unit.xp, "move_points_left": unit.move_points_left, "attacked": unit.attacked, "moved": unit.moved}
+			"xp": unit.xp, "move_points_left": unit.move_points_left, "attacked": unit.attacked, "moved": unit.moved,
+			"coastal_moves": unit.coastal_moves}
 		if unit.general != null:
 			entry["general"] = {"name": unit.general.name, "command": unit.general.command, "logistics": unit.general.logistics}
 		units.append(entry)
@@ -85,6 +86,7 @@ static func from_dict(data: Dictionary) -> GameState:
 		unit.move_points_left = int(entry.move_points_left)
 		unit.attacked = entry.attacked
 		unit.moved = entry.moved
+		unit.coastal_moves = int(entry.get("coastal_moves", 0))
 		if entry.has("general"):
 			unit.general = General.new(entry.general.name, int(entry.general.command), int(entry.general.logistics))
 		state.units.append(unit)

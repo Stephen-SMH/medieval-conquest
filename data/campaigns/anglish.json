@@ -1,0 +1,504 @@
+{
+ "id": "anglish",
+ "civ": "anglish",
+ "name": "The Longbow Wars",
+ "description": "Queen Elswyth must hold the Weald against raiders from the sea and a grasping neighbour.",
+ "missions": [
+  {
+   "id": "anglish_1",
+   "name": "Raiders on the Coast",
+   "map": "wealdshire",
+   "factions": [
+    {
+     "id": "weald",
+     "name": "Kingdom of the Weald",
+     "civ": "anglish",
+     "color": "#b33b3b",
+     "human": true,
+     "ai": "balanced"
+    },
+    {
+     "id": "raiders",
+     "name": "Gullmouth Raiders",
+     "civ": "norse",
+     "color": "#2e708f",
+     "human": false,
+     "ai": "aggressive"
+    }
+   ],
+   "owners": {
+    "kingsbarrow": "weald",
+    "gullmouth": "raiders",
+    "oakhollow": "weald",
+    "bowmere": "raiders",
+    "thornbury": "weald"
+   },
+   "capitals": {
+    "weald": "kingsbarrow",
+    "raiders": "gullmouth"
+   },
+   "buildings": {
+    "kingsbarrow": {
+     "farm": 1,
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1,
+     "walls": 1
+    },
+    "gullmouth": {
+     "farm": 1,
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "weald",
+     "region": "kingsbarrow",
+     "type": "longbowman",
+     "general": {
+      "name": "Elswyth",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "weald",
+     "region": "kingsbarrow",
+     "type": "yeoman"
+    },
+    {
+     "owner": "weald",
+     "region": "kingsbarrow",
+     "type": "yeoman"
+    },
+    {
+     "owner": "weald",
+     "region": "kingsbarrow",
+     "type": "spearmen"
+    },
+    {
+     "owner": "weald",
+     "region": "oakhollow",
+     "type": "archers"
+    },
+    {
+     "owner": "raiders",
+     "region": "gullmouth",
+     "type": "berserker",
+     "general": {
+      "name": "Ulf",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "raiders",
+     "region": "gullmouth",
+     "type": "berserker"
+    },
+    {
+     "owner": "raiders",
+     "region": "gullmouth",
+     "type": "huscarl"
+    },
+    {
+     "owner": "raiders",
+     "region": "gullmouth",
+     "type": "archers"
+    },
+    {
+     "owner": "raiders",
+     "region": "bowmere",
+     "type": "spearmen"
+    },
+    {
+     "owner": "neutral",
+     "region": "ashcombe",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "coldmarsh",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "harrowdene",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "larkfield",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "saltcombe",
+     "type": "militia",
+     "soldiers": 12
+    }
+   ],
+   "mission": {
+    "player": "weald",
+    "par": 6,
+    "objectives": [
+     {
+      "type": "hold",
+      "region": "kingsbarrow",
+      "turns": 5
+     }
+    ],
+    "briefing": "Longships have been sighted. Hold Kingsbarrow for five turns until the fyrd arrives.",
+    "victory_text": "The raiders' fury broke on our walls of bowmen.",
+    "defeat_text": "Kingsbarrow burns."
+   },
+   "campaign": "anglish",
+   "mission_index": 0
+  },
+  {
+   "id": "anglish_2",
+   "name": "Burn the Longships",
+   "map": "wealdshire",
+   "factions": [
+    {
+     "id": "weald",
+     "name": "Kingdom of the Weald",
+     "civ": "anglish",
+     "color": "#b33b3b",
+     "human": true,
+     "ai": "balanced"
+    },
+    {
+     "id": "raiders",
+     "name": "Gullmouth Raiders",
+     "civ": "norse",
+     "color": "#2e708f",
+     "human": false,
+     "ai": "balanced"
+    }
+   ],
+   "owners": {
+    "kingsbarrow": "weald",
+    "gullmouth": "raiders",
+    "oakhollow": "weald",
+    "bowmere": "raiders",
+    "thornbury": "weald",
+    "harrowdene": "raiders",
+    "coldmarsh": "weald"
+   },
+   "capitals": {
+    "weald": "kingsbarrow",
+    "raiders": "gullmouth"
+   },
+   "buildings": {
+    "kingsbarrow": {
+     "farm": 1,
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    },
+    "gullmouth": {
+     "farm": 1,
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "weald",
+     "region": "kingsbarrow",
+     "type": "longbowman",
+     "general": {
+      "name": "Elswyth",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "weald",
+     "region": "kingsbarrow",
+     "type": "longbowman"
+    },
+    {
+     "owner": "weald",
+     "region": "kingsbarrow",
+     "type": "yeoman"
+    },
+    {
+     "owner": "weald",
+     "region": "kingsbarrow",
+     "type": "swordsmen"
+    },
+    {
+     "owner": "weald",
+     "region": "coldmarsh",
+     "type": "light_cavalry"
+    },
+    {
+     "owner": "weald",
+     "region": "coldmarsh",
+     "type": "spearmen"
+    },
+    {
+     "owner": "raiders",
+     "region": "gullmouth",
+     "type": "berserker",
+     "general": {
+      "name": "Ulf",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "raiders",
+     "region": "gullmouth",
+     "type": "huscarl"
+    },
+    {
+     "owner": "raiders",
+     "region": "gullmouth",
+     "type": "archers"
+    },
+    {
+     "owner": "raiders",
+     "region": "gullmouth",
+     "type": "spearmen"
+    },
+    {
+     "owner": "raiders",
+     "region": "bowmere",
+     "type": "berserker"
+    },
+    {
+     "owner": "neutral",
+     "region": "ashcombe",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "larkfield",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "saltcombe",
+     "type": "militia",
+     "soldiers": 12
+    }
+   ],
+   "mission": {
+    "player": "weald",
+    "par": 10,
+    "objectives": [
+     {
+      "type": "destroy",
+      "faction": "raiders"
+     }
+    ],
+    "briefing": "Carry the war to Gullmouth and burn the raiders out of the Weald for good.",
+    "victory_text": "No longship will beach on our shore again.",
+    "defeat_text": "The raiders still hold the coast."
+   },
+   "campaign": "anglish",
+   "mission_index": 1
+  },
+  {
+   "id": "anglish_3",
+   "name": "Crown of the Weald",
+   "map": "wealdshire",
+   "factions": [
+    {
+     "id": "weald",
+     "name": "Kingdom of the Weald",
+     "civ": "anglish",
+     "color": "#b33b3b",
+     "human": true,
+     "ai": "balanced"
+    },
+    {
+     "id": "ashcombe",
+     "name": "Count of Ashcombe",
+     "civ": "frankish",
+     "color": "#2f4fa8",
+     "human": false,
+     "ai": "aggressive"
+    },
+    {
+     "id": "wyndle",
+     "name": "Wyndle Free Towns",
+     "civ": "anglish",
+     "color": "#c07a3a",
+     "human": false,
+     "ai": "defensive"
+    }
+   ],
+   "owners": {
+    "kingsbarrow": "weald",
+    "ashcombe": "ashcombe",
+    "wyndle": "wyndle",
+    "oakhollow": "weald",
+    "harrowdene": "ashcombe",
+    "bramblegate": "wyndle",
+    "thornbury": "weald",
+    "bowmere": "ashcombe",
+    "fennick": "wyndle",
+    "coldmarsh": "weald",
+    "larkfield": "ashcombe"
+   },
+   "capitals": {
+    "weald": "kingsbarrow",
+    "ashcombe": "ashcombe",
+    "wyndle": "wyndle"
+   },
+   "buildings": {
+    "kingsbarrow": {
+     "farm": 1,
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    },
+    "ashcombe": {
+     "farm": 1,
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1,
+     "walls": 2
+    },
+    "wyndle": {
+     "farm": 1,
+     "market": 1,
+     "barracks": 1,
+     "archery_range": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "weald",
+     "region": "kingsbarrow",
+     "type": "longbowman",
+     "general": {
+      "name": "Elswyth",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "weald",
+     "region": "kingsbarrow",
+     "type": "longbowman"
+    },
+    {
+     "owner": "weald",
+     "region": "kingsbarrow",
+     "type": "yeoman"
+    },
+    {
+     "owner": "weald",
+     "region": "kingsbarrow",
+     "type": "yeoman"
+    },
+    {
+     "owner": "weald",
+     "region": "coldmarsh",
+     "type": "swordsmen"
+    },
+    {
+     "owner": "weald",
+     "region": "coldmarsh",
+     "type": "heavy_cavalry"
+    },
+    {
+     "owner": "weald",
+     "region": "coldmarsh",
+     "type": "archers"
+    },
+    {
+     "owner": "ashcombe",
+     "region": "ashcombe",
+     "type": "knight",
+     "general": {
+      "name": "Baudouin",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "ashcombe",
+     "region": "ashcombe",
+     "type": "sergeant"
+    },
+    {
+     "owner": "ashcombe",
+     "region": "ashcombe",
+     "type": "crossbowmen"
+    },
+    {
+     "owner": "ashcombe",
+     "region": "ashcombe",
+     "type": "spearmen"
+    },
+    {
+     "owner": "ashcombe",
+     "region": "bowmere",
+     "type": "knight"
+    },
+    {
+     "owner": "wyndle",
+     "region": "wyndle",
+     "type": "yeoman",
+     "general": {
+      "name": "Godric",
+      "command": 2,
+      "logistics": 2
+     }
+    },
+    {
+     "owner": "wyndle",
+     "region": "wyndle",
+     "type": "archers"
+    },
+    {
+     "owner": "wyndle",
+     "region": "wyndle",
+     "type": "spearmen"
+    },
+    {
+     "owner": "neutral",
+     "region": "gullmouth",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "saltcombe",
+     "type": "militia",
+     "soldiers": 12
+    }
+   ],
+   "mission": {
+    "player": "weald",
+    "par": 12,
+    "objectives": [
+     {
+      "type": "capture",
+      "regions": ["ashcombe", "wyndle"]
+     }
+    ],
+    "briefing": "Unite the Weald: take Ashcombe from its Frankish count and bring the free towns of Wyndle under the crown.",
+    "victory_text": "Elswyth is crowned Queen of all the Weald.",
+    "defeat_text": "The Weald stays divided."
+   },
+   "campaign": "anglish",
+   "mission_index": 2
+  }
+ ]
+}

@@ -21,6 +21,8 @@ var move_points_left := 0
 var attacked := false
 ## Set when the unit moved this turn.
 var moved := false
+## Free moves left this turn between two coastal regions (Norse raiding).
+var coastal_moves := 0
 
 ## Battle multipliers worked out by GameState just before a battle: rank,
 ## general, civilization, walls and research.

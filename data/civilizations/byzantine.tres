@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="Civilization" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/civilization.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "byzantine"
+display_name = "Byzantine"
+faction_name = "Empire of the Golden Horn"
+color = Color(0.48, 0.25, 0.63, 1)
+order = 3
+unlock_after_campaigns = 1
+special_units = Array[String](["cataphract", "varangian_guard"])
+description = "Rich heirs of an ancient empire. Unlocked by finishing a campaign."
+bonus_text = "+25% gold from markets."

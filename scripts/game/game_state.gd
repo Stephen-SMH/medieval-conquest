@@ -52,6 +52,9 @@ static func from_scenario(scenario: Dictionary, game_seed := 1) -> GameState:
 	state.map = MapData.load_map(scenario.map)
 	state.scenario_id = scenario.get("id", "")
 	state.mission = scenario.get("mission", {}).duplicate(true)
+	if scenario.has("campaign") and not state.mission.is_empty():
+		state.mission["campaign"] = scenario.campaign
+		state.mission["mission_index"] = scenario.mission_index
 	state.rng.seed = game_seed
 	for entry in scenario.factions:
 		var faction := FactionState.new()
@@ -173,8 +176,10 @@ func is_over() -> bool:
 
 
 func _start_turn() -> void:
+	var coastal := Bonuses.coastal_moves(self, current_faction())
 	for unit in units_of(current_faction()):
 		unit.reset_turn()
+		unit.coastal_moves = coastal
 
 
 func _update_alive() -> void:
@@ -273,7 +278,7 @@ func move_problem(unit: Unit, region: String) -> String:
 		return "not your turn"
 	if not map.are_neighbours(unit.province, region):
 		return "not next to it"
-	if unit.move_points_left < 1:
+	if unit.move_points_left < 1 and not _coastal_step(unit, region):
 		return "no move points left"
 	if not enemy_units_in(region, unit.owner).is_empty():
 		return "enemy units there: attack instead"
@@ -290,10 +295,13 @@ func move_unit(unit: Unit, region: String) -> Array:
 	if move_problem(unit, region) != "":
 		return []
 	undo_stack.append({"unit": unit, "from": unit.province, "move_points": unit.move_points_left,
-		"moved": unit.moved, "region": region, "owner": owners[region],
+		"coastal_moves": unit.coastal_moves, "moved": unit.moved, "region": region, "owner": owners[region],
 		"happiness": provinces[region].happiness})
+	if _coastal_step(unit, region):
+		unit.coastal_moves -= 1  # Norse raiders sail along the coast for free.
+	else:
+		unit.move_points_left -= 1
 	unit.province = region
-	unit.move_points_left -= 1
 	unit.moved = true
 	var events := [{"type": "moved", "unit": unit, "province": region}]
 	events.append_array(_capture(unit.owner, region))
@@ -317,10 +325,16 @@ func undo_last_move() -> bool:
 	var unit: Unit = step.unit
 	unit.province = step.from
 	unit.move_points_left = step.move_points
+	unit.coastal_moves = step.coastal_moves
 	unit.moved = step.moved
 	owners[step.region] = step.owner
 	provinces[step.region].happiness = step.happiness
 	return true
+
+
+## True if this step is between two coastal regions and the unit has a free coastal move.
+func _coastal_step(unit: Unit, region: String) -> bool:
+	return unit.coastal_moves > 0 and map.is_coastal(unit.province) and map.is_coastal(region)
 
 
 func _capture(faction: String, region: String) -> Array:
