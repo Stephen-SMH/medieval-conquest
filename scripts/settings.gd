@@ -73,8 +73,9 @@ static func apply(tree: SceneTree) -> void:
 static var _window_fitted := false
 
 
-## The project's 1280x720 window is tiny on a HiDPI screen, so on first launch the window is sized to most of the
-## usable screen at 16:9 and centred. The stretch mode scales the whole interface up with it.
+## The window size is set in pixels, so a fixed size is tiny on a HiDPI screen and too big on a small one. On first
+## launch the window is sized to most of the usable screen at 16:9 and centred. The stretch mode scales the whole
+## interface with it. Inside the editor's Game tab the editor sizes the window (from the 2560x1440 project override).
 static func _fit_window_to_screen() -> void:
 	if Engine.is_embedded_in_editor():
 		return
@@ -83,7 +84,5 @@ static func _fit_window_to_screen() -> void:
 	var fit := Vector2(usable.size) * 0.85
 	var window_size := Vector2i(fit) if fit.x / fit.y <= 16.0 / 9.0 else Vector2i(roundi(fit.y * 16.0 / 9.0), roundi(fit.y))
 	window_size.y = roundi(window_size.x * 9.0 / 16.0)
-	if window_size.x <= 1280:
-		return
 	DisplayServer.window_set_size(window_size)
 	DisplayServer.window_set_position(usable.position + (usable.size - window_size) / 2)
