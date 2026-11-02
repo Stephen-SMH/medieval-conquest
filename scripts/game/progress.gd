@@ -60,6 +60,31 @@ static func record(campaign_id: String, index: int, crown: int, points := 0, sco
 	_store(data)
 
 
+## A standalone scenario's best result (PRD M), kept like a mission's.
+static func record_scenario(scenario_id: String, crown: int, score := 0) -> void:
+	var data := _load()
+	for field in ["won", "score"]:
+		if not data.has(field):
+			data[field] = {}
+	var key := "scenario:" + scenario_id
+	data.won[key] = true
+	data.stars[key] = maxi(int(data.stars.get(key, 0)), crown)
+	data.score[key] = maxi(int(data.score.get(key, 0)), score)
+	_store(data)
+
+
+static func scenario_won(scenario_id: String) -> bool:
+	return _load().get("won", {}).has("scenario:" + scenario_id)
+
+
+static func scenario_crown(scenario_id: String) -> int:
+	return int(_load().stars.get("scenario:" + scenario_id, 0))
+
+
+static func scenarios_won() -> int:
+	return _load().get("won", {}).keys().filter(func(k): return k.begins_with("scenario:")).size()
+
+
 ## The best scores of every mission added up.
 static func total_score() -> int:
 	var total := 0

@@ -492,3 +492,12 @@ This decision replaces sections 3.3 (resources), 3.4 (food and supply) and 3.12 
 | BV-2 | At the clash a **cracked gold shield** pops up over each side that took losses, then rises and fades. |
 | BV-3 | After a battle the viewer fought (attacking or defending), **"Battle won"** or **"Battle lost"** shows in the middle of the screen for about a second under a gold shield bearing a **✓** (won) or a red **✗** (lost). |
 
+### 8.15 Main menu and scenarios (version 6, M)
+
+| ID | Requirement |
+|---|---|
+| MM-1 | The menu shows the title along the top (with a round quit button on desktops), the chosen screen in the middle, and a **bottom row of square wooden buttons**, each a gold glyph and caption: **Tutorial, Campaigns, Scenarios, Skirmish** (with a link to Hotseat), **Continue, Records, Settings, Credits**. The title screen shows the two armies, how to play in a few lines, your rank and the last game. |
+| MM-2 | **Scenarios** lists every scenario file in `data/scenarios/` with a `listing` (`difficulty` 1–3, `order`, `unlock_after`: scenario wins needed) on a parchment table: a **✓** once won (a **padlock** while locked), the player's **flag**, the map **size** (S up to 25 regions, M up to 45, L above), the **difficulty** in stars and the **name**. The chosen row's map is drawn beside it in its owners' colours, with capitals marked, above its history and a button to the briefing (no Forge). |
+| MM-3 | Besides the Heartlands, the six real maps' historical starts are scenarios (`tools/make_scenarios.py`): 1242 The Battle on the Ice, 1066 The Year of Three Kings, 1429 The Siege of Orléans, 1000 The Age of the Vikings, 1176 Barbarossa and Henry the Lion, 1187 On the Eve of Hattin, each with a history intro in our own words, objectives in the S&T form, garrisons and a scripted event or two. A won scenario keeps its best crown and score (counted in the rank). |
+| MM-4 | **Continue** resumes the autosave and lists the save slots; **Records** shows your rank and score, each campaign's crowns and development points, and the scenarios won; **Credits** lists the sources. |
+

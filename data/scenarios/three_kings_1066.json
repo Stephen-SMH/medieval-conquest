@@ -1,0 +1,395 @@
+{
+ "id": "three_kings_1066",
+ "name": "1066: The Year of Three Kings",
+ "map": "british_isles",
+ "listing": {
+  "difficulty": 1,
+  "order": 3,
+  "unlock_after": 0
+ },
+ "factions": [
+  {
+   "id": "england",
+   "name": "Kingdom of England",
+   "civ": "anglish",
+   "color": "#b5423a",
+   "human": true,
+   "ai": "balanced"
+  },
+  {
+   "id": "scotland",
+   "name": "Kingdom of Scotland",
+   "civ": "",
+   "color": "#3d6fb6",
+   "human": false,
+   "ai": "balanced"
+  },
+  {
+   "id": "norway",
+   "name": "Norwegians",
+   "civ": "norse",
+   "color": "#d1a23a",
+   "human": false,
+   "ai": "aggressive"
+  },
+  {
+   "id": "wales",
+   "name": "Welsh Princes",
+   "civ": "",
+   "color": "#2f7d4a",
+   "human": false,
+   "ai": "defensive"
+  },
+  {
+   "id": "ireland",
+   "name": "Irish Kingdoms",
+   "civ": "",
+   "color": "#7b4fa8",
+   "human": false,
+   "ai": "defensive"
+  }
+ ],
+ "owners": {
+  "bamburgh": "england",
+  "newcastle": "england",
+  "durham": "england",
+  "lancaster": "england",
+  "york": "england",
+  "stamford_bridge": "norway",
+  "doncaster": "england",
+  "lincoln": "england",
+  "chester": "england",
+  "nottingham": "england",
+  "leicester": "england",
+  "shrewsbury": "england",
+  "warwick": "england",
+  "hereford": "england",
+  "gloucester": "england",
+  "bristol": "england",
+  "oxford": "england",
+  "cambridge": "england",
+  "norwich": "england",
+  "colchester": "england",
+  "london": "england",
+  "dover": "england",
+  "hastings": "england",
+  "winchester": "england",
+  "dorchester": "england",
+  "exeter": "england",
+  "bodmin": "england",
+  "carlisle": "scotland",
+  "bangor": "wales",
+  "mathrafal": "wales",
+  "aberystwyth": "wales",
+  "st_davids": "wales",
+  "brecon": "wales",
+  "cardiff": "wales",
+  "galloway": "neutral",
+  "glasgow": "scotland",
+  "roxburgh": "scotland",
+  "edinburgh": "scotland",
+  "dunblane": "scotland",
+  "scone": "scotland",
+  "st_andrews": "scotland",
+  "argyll": "scotland",
+  "aberdeen": "scotland",
+  "elgin": "scotland",
+  "inverness": "scotland",
+  "dornoch": "norway",
+  "caithness": "norway",
+  "lewis": "norway",
+  "dublin": "ireland",
+  "tara": "ireland",
+  "armagh": "ireland",
+  "ailech": "ireland",
+  "tuam": "ireland",
+  "limerick": "ireland",
+  "cashel": "ireland",
+  "waterford": "ireland",
+  "cork": "ireland"
+ },
+ "capitals": {
+  "england": "london",
+  "wales": "bangor",
+  "scotland": "scone",
+  "norway": "caithness",
+  "ireland": "tara"
+ },
+ "buildings": {
+  "bamburgh": {
+   "walls": 1
+  },
+  "durham": {
+   "walls": 1
+  },
+  "york": {
+   "walls": 1
+  },
+  "lincoln": {
+   "walls": 1
+  },
+  "chester": {
+   "walls": 1
+  },
+  "nottingham": {
+   "walls": 1
+  },
+  "warwick": {
+   "walls": 1
+  },
+  "dover": {
+   "walls": 1
+  },
+  "winchester": {
+   "walls": 1
+  },
+  "exeter": {
+   "walls": 1
+  },
+  "carlisle": {
+   "walls": 1
+  },
+  "roxburgh": {
+   "walls": 1
+  },
+  "edinburgh": {
+   "walls": 1
+  },
+  "cashel": {
+   "walls": 1
+  }
+ },
+ "units": [
+  {
+   "owner": "england",
+   "region": "london",
+   "type": "swordsmen",
+   "soldiers": 20
+  },
+  {
+   "owner": "england",
+   "region": "cambridge",
+   "type": "longbowman",
+   "soldiers": 15
+  },
+  {
+   "owner": "england",
+   "region": "colchester",
+   "type": "yeoman",
+   "soldiers": 15
+  },
+  {
+   "owner": "england",
+   "region": "dover",
+   "type": "spearmen",
+   "soldiers": 12
+  },
+  {
+   "owner": "england",
+   "region": "hastings",
+   "type": "archers",
+   "soldiers": 12
+  },
+  {
+   "owner": "england",
+   "region": "oxford",
+   "type": "light_cavalry",
+   "soldiers": 12
+  },
+  {
+   "owner": "england",
+   "region": "winchester",
+   "type": "swordsmen",
+   "soldiers": 12
+  },
+  {
+   "owner": "england",
+   "region": "bristol",
+   "type": "longbowman",
+   "soldiers": 12
+  },
+  {
+   "owner": "england",
+   "region": "dorchester",
+   "type": "yeoman",
+   "soldiers": 12
+  },
+  {
+   "owner": "england",
+   "region": "gloucester",
+   "type": "spearmen",
+   "soldiers": 12
+  },
+  {
+   "owner": "england",
+   "region": "leicester",
+   "type": "archers",
+   "soldiers": 12
+  },
+  {
+   "owner": "england",
+   "region": "lincoln",
+   "type": "light_cavalry",
+   "soldiers": 12
+  },
+  {
+   "owner": "england",
+   "region": "norwich",
+   "type": "swordsmen",
+   "soldiers": 12
+  },
+  {
+   "owner": "scotland",
+   "region": "scone",
+   "type": "swordsmen",
+   "soldiers": 20
+  },
+  {
+   "owner": "scotland",
+   "region": "aberdeen",
+   "type": "spearmen",
+   "soldiers": 15
+  },
+  {
+   "owner": "scotland",
+   "region": "argyll",
+   "type": "archers",
+   "soldiers": 15
+  },
+  {
+   "owner": "scotland",
+   "region": "dunblane",
+   "type": "light_cavalry",
+   "soldiers": 12
+  },
+  {
+   "owner": "scotland",
+   "region": "elgin",
+   "type": "militia",
+   "soldiers": 12
+  },
+  {
+   "owner": "scotland",
+   "region": "inverness",
+   "type": "swordsmen",
+   "soldiers": 12
+  },
+  {
+   "owner": "norway",
+   "region": "caithness",
+   "type": "huscarl",
+   "soldiers": 20
+  },
+  {
+   "owner": "norway",
+   "region": "dornoch",
+   "type": "berserker",
+   "soldiers": 15
+  },
+  {
+   "owner": "wales",
+   "region": "bangor",
+   "type": "swordsmen",
+   "soldiers": 20
+  },
+  {
+   "owner": "wales",
+   "region": "aberystwyth",
+   "type": "spearmen",
+   "soldiers": 15
+  },
+  {
+   "owner": "wales",
+   "region": "mathrafal",
+   "type": "archers",
+   "soldiers": 15
+  },
+  {
+   "owner": "ireland",
+   "region": "tara",
+   "type": "swordsmen",
+   "soldiers": 20
+  },
+  {
+   "owner": "ireland",
+   "region": "ailech",
+   "type": "spearmen",
+   "soldiers": 15
+  },
+  {
+   "owner": "ireland",
+   "region": "armagh",
+   "type": "archers",
+   "soldiers": 15
+  },
+  {
+   "owner": "ireland",
+   "region": "cashel",
+   "type": "light_cavalry",
+   "soldiers": 12
+  },
+  {
+   "owner": "ireland",
+   "region": "dublin",
+   "type": "militia",
+   "soldiers": 12
+  },
+  {
+   "owner": "neutral",
+   "region": "galloway",
+   "type": "militia",
+   "soldiers": 10
+  }
+ ],
+ "mission": {
+  "player": "england",
+  "primary": [
+   {
+    "type": "capture",
+    "regions": [
+     "stamford_bridge"
+    ]
+   }
+  ],
+  "additional": [
+   {
+    "type": "capture",
+    "regions": [
+     "caithness"
+    ],
+    "points": 200
+   },
+   {
+    "type": "hold",
+    "region": "york",
+    "turns": 5
+   }
+  ],
+  "defeat": [
+   {
+    "type": "time",
+    "turns": 12
+   },
+   {
+    "type": "lose_region",
+    "region": "london"
+   }
+  ],
+  "crowns": [
+   5,
+   7,
+   9
+  ],
+  "events": [
+   {
+    "turn": 2,
+    "type": "message",
+    "text": "Word comes from the south: Duke William of Normandy waits for a fair wind across the Channel."
+   }
+  ],
+  "history": "King Edward died in January and Harold Godwinson took the crown. In September Harald Hardrada, king of Norway, sailed up the Humber with Harold's exiled brother Tostig and seized the north.",
+  "briefing": "March north and throw the Norwegians out of Stamford Bridge.",
+  "victory_text": "At Stamford Bridge Hardrada falls, and the age of the great Viking invasions ends with him.",
+  "defeat_text": "The Norwegians hold the north, and Harold's crown slips."
+ }
+}

@@ -1,6 +1,9 @@
 extends Control
-## The menus: campaigns with briefings (PRD CP-4, CP-7), skirmish setup
-## (CP-5), hotseat (CP-6), loading a saved game, and settings.
+## The menus (PRD M): the title along the top, the chosen screen in the
+## middle, and a bottom row of square wooden buttons: Tutorial, Campaigns
+## (with briefings, CP-4, CP-7), Scenarios (a parchment table with a map
+## preview), Skirmish and Hotseat (CP-5, CP-6), Continue (the autosave and
+## the save slots), Records, Settings and Credits.
 
 const GAME_SCENE := "res://scenes/main.tscn"
 const DIFFICULTIES := ["easy", "normal", "hard"]
@@ -25,36 +28,56 @@ func _ready() -> void:
 	background.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(background)
 
-	var columns := HBoxContainer.new()
-	columns.set_anchors_preset(Control.PRESET_FULL_RECT)
-	columns.add_theme_constant_override("separation", 0)
-	add_child(columns)
+	var layout := VBoxContainer.new()
+	layout.set_anchors_preset(Control.PRESET_FULL_RECT)
+	layout.add_theme_constant_override("separation", 0)
+	add_child(layout)
 
-	var side := PanelContainer.new()
-	side.custom_minimum_size = Vector2(300, 0)
-	columns.add_child(side)
-	var buttons := VBoxContainer.new()
-	buttons.add_theme_constant_override("separation", 10)
-	side.add_child(_margin(buttons, 28))
-	_add_label(buttons, "Medieval\nConquest", 40, Color("#f2d16b"))
-	_add_label(buttons, "Regions, banners and steel", 15, Color("#a8b4bf"))
-	buttons.add_child(_spacer(24))
-	for entry in _menu_entries():
-		var button := Button.new()
-		button.text = entry[0]
-		button.custom_minimum_size = Vector2(0, 44)
-		button.add_theme_font_size_override("font_size", 18)
-		button.pressed.connect(entry[1])
-		buttons.add_child(button)
+	# The title along the top; a quit button on the right where quitting makes sense.
+	var header := HBoxContainer.new()
+	header.alignment = BoxContainer.ALIGNMENT_CENTER
+	layout.add_child(_margin(header, 14))
+	var spacer := Control.new()
+	spacer.custom_minimum_size = Vector2(50, 0)
+	header.add_child(spacer)
+	var titles := VBoxContainer.new()
+	titles.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	titles.add_theme_constant_override("separation", -4)
+	header.add_child(titles)
+	var title := _add_label(titles, "Medieval Conquest", 38, Color("#f2d16b"))
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_override("font", load("res://assets/fonts/Cinzel.ttf"))
+	_add_label(titles, "Regions, banners and steel", 15, Color("#c8b48a")).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	if not OS.has_feature("web") and not OS.has_feature("mobile"):
+		var quit := RoundButton.new("exit", 48)
+		quit.tooltip_text = "Quit"
+		quit.pressed.connect(func(): get_tree().quit())
+		header.add_child(quit)
+	else:
+		header.add_child(spacer.duplicate())
 
 	var scroll := ScrollContainer.new()
-	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	columns.add_child(scroll)
+	layout.add_child(scroll)
 	_content = VBoxContainer.new()
 	_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_content.add_theme_constant_override("separation", 10)
-	scroll.add_child(_margin(_content, 32))
+	var content_margin := _margin(_content, 32)
+	content_margin.add_theme_constant_override("margin_top", 6)
+	scroll.add_child(content_margin)
+
+	# The bottom row of square wooden buttons.
+	var bar := PanelContainer.new()
+	layout.add_child(bar)
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 10)
+	bar.add_child(row)
+	for entry in _menu_entries():
+		var button := SquareButton.new(entry[0], entry[1])
+		button.pressed.connect(entry[2])
+		row.add_child(button)
 	_forge = ForgeWindow.new()
 	add_child(_forge)
 	AudioManager.music("menu")
@@ -121,44 +144,32 @@ func _offer_tutorial() -> void:
 	card.position = (shade.size - card.size) / 2.0
 
 
+## The bottom row: [glyph, caption, screen].
 func _menu_entries() -> Array:
-	var entries := [
-		["Tutorial", start_tutorial],
-		["Campaigns", show_campaigns],
-		["Skirmish", show_skirmish],
-		["Hotseat", show_hotseat],
-		["Load game", show_load],
-		["Settings", show_settings],
+	return [
+		["tutorial", "Tutorial", start_tutorial],
+		["campaigns", "Campaigns", show_campaigns],
+		["scenarios", "Scenarios", show_scenarios],
+		["skirmish", "Skirmish", show_skirmish],
+		["continue", "Continue", show_continue],
+		["records", "Records", show_records],
+		["settings", "Settings", show_settings],
+		["credits", "Credits", show_credits],
 	]
-	if not OS.has_feature("web"):
-		entries.append(["Quit", func(): get_tree().quit()])
-	return entries
 
 
 # --- Title ---------------------------------------------------------------------------
 
 func show_title() -> void:
 	_clear()
-	_add_label(_content, "Medieval Conquest", 48, Color("#f2d16b"))
-	_add_text("Every region holds one unit. Click it, then a neighbouring region: a [color=#7fa8f0]blue arrow[/color] marches there, " \
-		+ "a [color=#f07060]red arrow[/color] attacks. Plan every unit, then turn the hourglass: all sides move at once. " \
-		+ "Spears beat horse, horse beats bows, bows beat spears.")
-	var autosave := SaveGame.describe("auto")
-	if autosave != "":
-		_add_text("[b]Last game:[/b] " + autosave)
-		_add_button(_content, "Continue", func(): _start({"save": SaveGame.load_slot("auto")}))
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 10)
-	_content.add_child(row)
-	_add_button(row, "Tutorial", start_tutorial)
-	_add_button(row, "Campaigns", show_campaigns)
-	_add_button(row, "Skirmish", show_skirmish)
-	_add_button(row, "Hotseat", show_hotseat)
-	var done := Progress.campaigns_finished()
-	_add_text("[i]Campaigns finished: %d of %d.[/i]" % [done, Campaigns.all().size()])
 	_content.add_child(Muster.new())
-	_content.add_child(HSeparator.new())
-	_add_text("[font_size=13]" + CREDIT_LINE + "[/font_size]")
+	_add_text("[center]Every region holds one army. Click it, then a neighbouring region (or drag onto it): a [color=#7fa8f0]blue arrow[/color] " \
+		+ "marches there, a [color=#f07060]red arrow[/color] attacks. Plan your orders, then turn the hourglass: your orders play out, " \
+		+ "then each rival takes its turn. Spears beat horse, horse beats bows, bows beat spears.[/center]")
+	var rank := Progress.rank(Progress.total_score())
+	var autosave := SaveGame.describe("auto")
+	_add_text("[center][color=#f3d77e]Your rank: %s[/color]%s[/center]" % [rank.name,
+		"   ·   [b]Last game:[/b] %s" % autosave if autosave != "" else ""])
 
 
 # --- Hotseat ---------------------------------------------------------------------------
@@ -166,6 +177,7 @@ func show_title() -> void:
 func show_hotseat() -> void:
 	_clear()
 	_add_label(_content, "Hotseat", 30)
+	_add_button(_content, "Play against the computer instead", show_skirmish)
 	_add_text("2 to 4 players take turns on this device. Between turns the map is hidden until the next player is ready.")
 	var maps := MapData.list_maps()
 	_add_option("Map", maps.map(func(m): return MapData.load_map(m).display_name), maps.find(_hotseat.map),
@@ -261,6 +273,17 @@ func show_campaigns() -> void:
 ## round buttons for back, the Forge (the anvil) and start.
 func show_briefing(campaign_id: String, index: int) -> void:
 	var scenario := Campaigns.mission(campaign_id, index)
+	_briefing(scenario, "%s — Mission %d" % [Campaigns.get_campaign(campaign_id).name, index + 1], show_campaigns, campaign_id)
+
+
+## A standalone scenario's briefing (PRD M): no Forge, back to the table.
+func show_scenario_briefing(scenario_id: String) -> void:
+	var scenario := Scenarios.get_scenario(scenario_id)
+	_briefing(scenario, "Scenario — %s" % ["★".repeat(int(scenario.listing.difficulty)) + "☆".repeat(3 - int(scenario.listing.difficulty))],
+		show_scenarios.bind(scenario_id), "")
+
+
+func _briefing(scenario: Dictionary, heading: String, back: Callable, campaign_id: String) -> void:
 	var preview := GameState.from_scenario(scenario, 1)
 	var mission: Dictionary = preview.mission
 	_clear()
@@ -268,7 +291,7 @@ func show_briefing(campaign_id: String, index: int) -> void:
 	scroll.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_content.add_child(scroll)
 	var lines := PackedStringArray()
-	lines.append("[center][font_size=16][color=#6b5a40]%s — Mission %d[/color][/font_size]" % [Campaigns.get_campaign(campaign_id).name, index + 1])
+	lines.append("[center][font_size=16][color=#6b5a40]%s[/color][/font_size]" % heading)
 	lines.append("[font_size=34][color=#6a2a14]%s[/color][/font_size][/center]" % scenario.name)
 	for text in [mission.get("history", ""), mission.get("briefing", "")]:
 		if text != "":
@@ -285,8 +308,9 @@ func show_briefing(campaign_id: String, index: int) -> void:
 		lines.append("[b]Crowns:[/b] [color=#9a7a10]gold[/color] by turn %d, [color=#6f7377]silver[/color] by %d, [color=#8a5226]bronze[/color] by %d." % limits)
 	var factions := PackedStringArray()
 	for faction in scenario.factions:
-		factions.append("[color=%s]%s[/color] (%s%s)" % [Color(faction.color).darkened(0.25).to_html(false), faction.name,
-			Rules.civilization(faction.civ).display_name, ", you" if faction.human else ""])
+		var civ := Rules.civilization(faction.get("civ", ""))
+		factions.append("[color=%s]%s[/color]%s" % [Color(faction.color).darkened(0.25).to_html(false), faction.name,
+			" (%s%s)" % [civ.display_name if civ != null else "", ", you" if faction.get("human", false) else ""] if civ != null or faction.get("human", false) else ""])
 	lines.append("[b]Map:[/b] %s, %d regions.  [b]Factions:[/b] %s" % [preview.map.display_name, preview.map.province_order.size(), ", ".join(factions)])
 	scroll.set_text("\n".join(lines))
 
@@ -294,14 +318,16 @@ func show_briefing(campaign_id: String, index: int) -> void:
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", 40)
 	_content.add_child(row)
-	row.add_child(RoundButton.with_caption("back", "Back", show_campaigns))
-	var forge := RoundButton.with_caption("forge", "Forge (%d)" % Progress.development_points(campaign_id), func(): _forge.show_campaign(campaign_id))
-	row.add_child(forge)
-	_forge.changed.connect(func():
-		if is_instance_valid(forge):
-			forge.get_child(1).text = "Forge (%d)" % Progress.development_points(campaign_id))
+	row.add_child(RoundButton.with_caption("back", "Back", back))
+	if campaign_id != "":
+		var forge := RoundButton.with_caption("forge", "Forge (%d)" % Progress.development_points(campaign_id), func(): _forge.show_campaign(campaign_id))
+		row.add_child(forge)
+		_forge.changed.connect(func():
+			if is_instance_valid(forge):
+				forge.get_child(1).text = "Forge (%d)" % Progress.development_points(campaign_id))
 	row.add_child(RoundButton.with_caption("start", "Start", func():
-		_start({"scenario": Forge.equip(scenario, Progress.upgrades(campaign_id)), "seed": randi()})))
+		var upgrades := Progress.upgrades(campaign_id) if campaign_id != "" else {}
+		_start({"scenario": Forge.equip(scenario, upgrades), "seed": randi()})))
 
 
 func _section(title: String, items: Array) -> String:
@@ -314,6 +340,7 @@ func show_skirmish() -> void:
 	_clear()
 	_add_label(_content, "Skirmish", 30)
 	_add_text("Pick a map and a civilization, and conquer every rival.")
+	_add_button(_content, "Hotseat: several players on this device", show_hotseat)
 	var maps := MapData.list_maps()
 	_add_option("Map", maps.map(func(m): return MapData.load_map(m).display_name + " (%d regions)" % MapData.load_map(m).province_order.size()),
 		maps.find(_skirmish.map), func(i): _skirmish.map = maps[i]; show_skirmish())
@@ -352,17 +379,175 @@ static func opponent_civs(own: String, count: int) -> Array:
 
 # --- Loading ----------------------------------------------------------------------
 
-func show_load() -> void:
+## Continue (PRD M): the autosave first, then the save slots.
+func show_continue() -> void:
 	_clear()
-	_add_label(_content, "Load game", 30)
+	_add_label(_content, "Continue", 30)
+	var autosave := SaveGame.describe("auto")
+	if autosave != "":
+		_add_text("[b]Last game:[/b] %s" % autosave)
+		_add_button(_content, "Resume the last game", func(): _start({"save": SaveGame.load_slot("auto")}))
+	else:
+		_add_text("[i]No game to resume yet. Start one from Campaigns, Scenarios or Skirmish.[/i]")
+	_content.add_child(HSeparator.new())
+	_add_label(_content, "Saved games", 20)
 	for slot in SaveGame.SLOTS:
+		if slot == "auto":
+			continue
 		var description := SaveGame.describe(slot)
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 10)
 		_content.add_child(row)
-		_add_label(row, "%s: %s" % ["Autosave" if slot == "auto" else "Slot " + slot, description if description != "" else "empty"], 16)
 		var button := _add_button(row, "Load", func(): _start({"save": SaveGame.load_slot(slot)}))
 		button.disabled = description == ""
+		_add_label(row, "Slot %s: %s" % [slot, description if description != "" else "empty"], 16)
+
+
+# --- Scenarios ---------------------------------------------------------------------
+
+## The Scenarios table (PRD M): on parchment, one row per scenario with a ✓
+## when won (or a padlock while locked), the player's flag, the map size
+## (S, M, L), the difficulty in stars and the name; the chosen one's map
+## beside it, with a button to its briefing.
+func show_scenarios(selected := "") -> void:
+	_clear()
+	_add_label(_content, "Scenarios", 30)
+	var list := Scenarios.all()
+	if selected == "" or Scenarios.get_scenario(selected).is_empty():
+		selected = list[0].id
+	var columns := HBoxContainer.new()
+	columns.add_theme_constant_override("separation", 24)
+	_content.add_child(columns)
+	var paper := PanelContainer.new()
+	paper.theme_type_variation = "Parchment"
+	paper.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	columns.add_child(paper)
+	var table := VBoxContainer.new()
+	table.add_theme_constant_override("separation", 2)
+	paper.add_child(table)
+	table.add_child(_scenario_row({}, false, false))
+	for scenario in list:
+		table.add_child(_scenario_row(scenario, scenario.id == selected, Scenarios.unlocked(scenario)))
+
+	var side := VBoxContainer.new()
+	side.add_theme_constant_override("separation", 10)
+	columns.add_child(side)
+	var chosen := Scenarios.get_scenario(selected)
+	var preview := MapPreview.new()
+	preview.custom_minimum_size = Vector2(380, 280)
+	side.add_child(preview)
+	preview.show_scenario(chosen)
+	var about := RichTextLabel.new()
+	about.bbcode_enabled = true
+	about.fit_content = true
+	about.custom_minimum_size = Vector2(380, 0)
+	about.add_theme_font_size_override("normal_font_size", 15)
+	var history: String = chosen.mission.get("history", chosen.mission.get("briefing", ""))
+	about.text = "[b]%s[/b]\n[i]%s[/i]" % [chosen.name, history]
+	side.add_child(about)
+	if Scenarios.unlocked(chosen):
+		side.add_child(RoundButton.with_caption("start", "Briefing", show_scenario_briefing.bind(selected)))
+	else:
+		_add_label(side, "Locked: win %d scenario%s to open it." % [int(chosen.listing.unlock_after),
+			"" if int(chosen.listing.unlock_after) == 1 else "s"], 15, Color("#c8b48a"))
+
+
+## One row of the table, or its heading row for an empty scenario.
+func _scenario_row(scenario: Dictionary, selected: bool, open: bool) -> Control:
+	var ink := Color("#2f2012")
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	var widths := [26, 30, 40, 70]
+	if scenario.is_empty():
+		for entry in [["", widths[0]], ["", widths[1]], ["Size", widths[2]], ["Difficulty", widths[3]], ["Scenario", 0]]:
+			var label := Label.new()
+			label.text = entry[0]
+			label.custom_minimum_size = Vector2(entry[1], 0)
+			label.add_theme_color_override("font_color", Color("#6a2a14"))
+			label.add_theme_font_size_override("font_size", 14)
+			label.add_theme_font_override("font", load("res://assets/fonts/Cinzel.ttf"))
+			row.add_child(label)
+		return row
+	var button := Button.new()
+	button.flat = true
+	button.focus_mode = Control.FOCUS_NONE
+	button.custom_minimum_size = Vector2(0, 40)
+	button.pressed.connect(show_scenarios.bind(scenario.id))
+	var shade := ColorRect.new()
+	shade.color = Color("#6a2a14", 0.16) if selected else Color(0, 0, 0, 0)
+	shade.set_anchors_preset(Control.PRESET_FULL_RECT)
+	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	button.add_child(shade)
+	row.set_anchors_preset(Control.PRESET_FULL_RECT)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	button.add_child(row)
+	var player: String = scenario.mission.player
+	var faction: Dictionary = scenario.factions.filter(func(f): return f.id == player)[0]
+	var mark := Control.new()
+	mark.custom_minimum_size = Vector2(widths[0], 36)
+	mark.draw.connect(func():
+		var c := mark.size / 2.0
+		if not open:  # A padlock.
+			mark.draw_arc(c + Vector2(0, -3), 6.0, PI, TAU, 12, ink, 2.5, true)
+			mark.draw_rect(Rect2(c + Vector2(-8, -3), Vector2(16, 12)), ink)
+		elif Progress.scenario_won(scenario.id):
+			mark.draw_polyline(PackedVector2Array([c + Vector2(-7, 0), c + Vector2(-2, 6), c + Vector2(8, -7)]), Color("#2e7d32"), 3.5, true))
+	row.add_child(mark)
+	var flag := Control.new()
+	flag.custom_minimum_size = Vector2(widths[1], 36)
+	flag.draw.connect(func():
+		var foot := Vector2(6, 34)
+		flag.draw_line(foot, foot + Vector2(0, -30), ink, 2.0)
+		flag.draw_colored_polygon(PackedVector2Array([foot + Vector2(1, -30), foot + Vector2(20, -27), foot + Vector2(15, -21),
+			foot + Vector2(20, -15), foot + Vector2(1, -16)]), Color(faction.color)))
+	row.add_child(flag)
+	var size_label := Label.new()
+	size_label.text = Scenarios.size_class(scenario)
+	size_label.custom_minimum_size = Vector2(widths[2], 0)
+	size_label.add_theme_color_override("font_color", ink)
+	row.add_child(size_label)
+	var stars := Control.new()
+	stars.custom_minimum_size = Vector2(widths[3], 36)
+	var difficulty := int(scenario.listing.difficulty)
+	stars.draw.connect(func():
+		for i in 3:
+			TypeIcons.draw_star(stars, Vector2(10 + i * 22, 18), 8.0, 1.0 if i < difficulty else 0.25))
+	row.add_child(stars)
+	var name := Label.new()
+	name.text = scenario.name
+	name.add_theme_color_override("font_color", ink if open else ink.lightened(0.4))
+	row.add_child(name)
+	return button
+
+
+# --- Records and credits ------------------------------------------------------------
+
+## Records (PRD M): your rank and score, each campaign's crowns and
+## development points, and the scenarios won.
+func show_records() -> void:
+	_clear()
+	_add_label(_content, "Records", 30)
+	var score := Progress.total_score()
+	var rank := Progress.rank(score)
+	_add_text("[font_size=22][color=#f3d77e]Your rank: %s[/color][/font_size]   %d points%s" % [rank.name, score,
+		"  ·  %d more for %s" % [int(Progress.RANKS[rank.index + 1][1]) - score, rank.next] if rank.next != "" else ""])
+	for campaign in Campaigns.all():
+		var crowns := PackedStringArray()
+		for i in campaign.missions.size():
+			crowns.append(_crown_text(campaign.id, i) if Progress.mission_unlocked(campaign.id, i) else "locked")
+		_add_text("[b]%s[/b] — %s\n[i]%s.[/i]  Development points to spend: %d" % [campaign.name, Rules.civilization(campaign.civ).display_name,
+			", ".join(crowns), Progress.development_points(campaign.id)])
+	var won := Scenarios.all().filter(func(s): return Progress.scenario_won(s.id))
+	_add_text("[b]Scenarios won:[/b] %d of %d%s" % [won.size(), Scenarios.all().size(),
+		"\n" + "\n".join(won.map(func(s): return "  •  %s (%s)" % [s.name, Mission.CROWN_NAMES[Progress.scenario_crown(s.id)] + " crown" if Progress.scenario_crown(s.id) > 0 else "won"])) if not won.is_empty() else ""])
+
+
+func show_credits() -> void:
+	_clear()
+	_add_label(_content, "Credits", 30)
+	_add_text("Medieval Conquest is a turn-based strategy game in the spirit of [i]Strategy & Tactics: Medieval Wars[/i]. " \
+		+ "Its maps, region names, campaigns, art and text are its own.")
+	_add_text(CREDIT_LINE)
 
 
 # --- Helpers ----------------------------------------------------------------------

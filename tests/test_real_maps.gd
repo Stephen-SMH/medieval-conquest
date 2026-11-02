@@ -13,6 +13,51 @@ func run(t) -> void:
 		var data = JSON.parse_string(FileAccess.get_file_as_string(MapData.MAP_DIR.path_join(map_id + ".json")))
 		_check_map(t, MapData.load_map(map_id), data)
 	_test_sea_links(t)
+	_test_scenarios(t)
+
+
+## The standalone scenarios (PRD M): listed in order, each loads with one
+## army per region, soldiers of the right civilization, objectives that
+## aren't done yet, and the texts the briefing needs.
+func _test_scenarios(t) -> void:
+	var list := Scenarios.all()
+	t.check(list.size() >= 7 and list[0].id == "heartlands" and list.all(func(s): return s.listing.has("difficulty")),
+		"the scenarios are listed in order, Heartlands first (%d)" % list.size())
+	var historical := 0
+	for scenario in list:
+		var state := GameState.from_scenario(Scenarios.get_scenario(scenario.id), 1)
+		var problems := []
+		for unit in state.units:
+			for troop in unit.troops:
+				var civ: String = troop.type().civilization
+				if civ != "" and (not state.factions.has(unit.owner) or state.factions[unit.owner].civ != civ):
+					problems.append("%s can't field %s" % [unit.owner, troop.type_id])
+		var where := {}
+		for unit in state.units:
+			if where.has(unit.province):
+				problems.append("two armies in " + unit.province)
+			where[unit.province] = true
+		if Mission.objectives(state).any(func(o): return o.done):
+			problems.append("an objective is done at the start")
+		if Mission.crowns(state).size() != 3 or Mission.time_limit(state) < Mission.crowns(state)[2]:
+			problems.append("crowns or time limit")
+		if not state.factions[Mission.player(state)].human or state.mission.get("briefing", "") == "":
+			problems.append("player or briefing")
+		if state.mission.has("history"):
+			historical += 1
+		t.check(problems.is_empty() and state.mission.scenario == scenario.id and Scenarios.size_class(scenario) in ["S", "M", "L"],
+			"scenario %s loads and is valid %s" % [scenario.id, problems])
+	t.check(historical >= 6, "the real maps' historical starts are scenarios (%d)" % historical)
+
+	Progress.path = "user://test_scenarios_progress.json"
+	Progress.reset()
+	var locked := list.filter(func(s): return not Scenarios.unlocked(s))
+	t.check(Scenarios.unlocked(list[0]) and not locked.is_empty(), "the first scenarios are open, later ones locked")
+	Progress.record_scenario("heartlands", 2, 600)
+	t.check(Progress.scenario_won("heartlands") and Progress.scenario_crown("heartlands") == 2 and Progress.scenarios_won() == 1
+		and Progress.total_score() == 600 and Scenarios.unlocked(Scenarios.get_scenario("orleans_1429")), "a scenario win counts and opens the next")
+	DirAccess.remove_absolute(Progress.path)
+	Progress.path = Progress.PATH
 
 
 ## Armies sail along sea links between ports (PRD J): the two ports are

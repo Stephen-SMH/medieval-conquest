@@ -1,0 +1,350 @@
+{
+ "id": "lake_peipus_1242",
+ "name": "1242: The Battle on the Ice",
+ "map": "livonia",
+ "listing": {
+  "difficulty": 1,
+  "order": 2,
+  "unlock_after": 0
+ },
+ "factions": [
+  {
+   "id": "novgorod",
+   "name": "Republic of Novgorod",
+   "civ": "",
+   "color": "#b5423a",
+   "human": true,
+   "ai": "balanced"
+  },
+  {
+   "id": "order",
+   "name": "Livonian Order",
+   "civ": "crusader",
+   "color": "#e8e0cc",
+   "human": false,
+   "ai": "aggressive"
+  },
+  {
+   "id": "lithuania",
+   "name": "Grand Duchy of Lithuania",
+   "civ": "",
+   "color": "#2f7d4a",
+   "human": false,
+   "ai": "balanced"
+  },
+  {
+   "id": "denmark",
+   "name": "Kingdom of Denmark",
+   "civ": "norse",
+   "color": "#3d6fb6",
+   "human": false,
+   "ai": "defensive"
+  },
+  {
+   "id": "polotsk",
+   "name": "Principality of Polotsk",
+   "civ": "",
+   "color": "#d1a23a",
+   "human": false,
+   "ai": "defensive"
+  }
+ ],
+ "owners": {
+  "riga": "order",
+  "wenden": "order",
+  "kokenhusen": "order",
+  "dunaburg": "order",
+  "fellin": "order",
+  "dorpat": "order",
+  "pernau": "order",
+  "osel": "order",
+  "leal": "order",
+  "paide": "denmark",
+  "reval": "denmark",
+  "wesenberg": "denmark",
+  "narva": "denmark",
+  "goldingen": "neutral",
+  "windau": "neutral",
+  "memel": "neutral",
+  "mitau": "neutral",
+  "telsiai": "lithuania",
+  "kernave": "lithuania",
+  "kaunas": "lithuania",
+  "polotsk": "polotsk",
+  "vitebsk": "polotsk",
+  "smolensk": "neutral",
+  "toropets": "neutral",
+  "novgorod": "novgorod",
+  "staraya_russa": "novgorod",
+  "pskov": "order",
+  "izborsk": "order",
+  "porkhov": "novgorod",
+  "velikiye_luki": "novgorod",
+  "torzhok": "novgorod",
+  "rzhev": "neutral",
+  "valday": "novgorod",
+  "ladoga": "novgorod",
+  "izhora": "novgorod",
+  "koporye": "novgorod",
+  "gdov": "novgorod",
+  "luga": "novgorod",
+  "tikhvin": "novgorod"
+ },
+ "capitals": {
+  "order": "riga",
+  "denmark": "reval",
+  "lithuania": "kernave",
+  "polotsk": "polotsk",
+  "novgorod": "novgorod"
+ },
+ "buildings": {
+  "riga": {
+   "walls": 1
+  },
+  "wenden": {
+   "walls": 1
+  },
+  "dunaburg": {
+   "walls": 1
+  },
+  "fellin": {
+   "walls": 1
+  },
+  "dorpat": {
+   "walls": 1
+  },
+  "reval": {
+   "walls": 1
+  },
+  "kernave": {
+   "walls": 1
+  },
+  "polotsk": {
+   "walls": 1
+  },
+  "smolensk": {
+   "walls": 1
+  },
+  "novgorod": {
+   "walls": 1
+  },
+  "pskov": {
+   "walls": 1
+  },
+  "izborsk": {
+   "walls": 1
+  },
+  "porkhov": {
+   "walls": 1
+  },
+  "ladoga": {
+   "walls": 1
+  },
+  "koporye": {
+   "walls": 1
+  }
+ },
+ "units": [
+  {
+   "owner": "novgorod",
+   "region": "novgorod",
+   "type": "swordsmen",
+   "soldiers": 20
+  },
+  {
+   "owner": "novgorod",
+   "region": "izhora",
+   "type": "spearmen",
+   "soldiers": 15
+  },
+  {
+   "owner": "novgorod",
+   "region": "ladoga",
+   "type": "archers",
+   "soldiers": 15
+  },
+  {
+   "owner": "novgorod",
+   "region": "luga",
+   "type": "light_cavalry",
+   "soldiers": 12
+  },
+  {
+   "owner": "novgorod",
+   "region": "staraya_russa",
+   "type": "militia",
+   "soldiers": 12
+  },
+  {
+   "owner": "novgorod",
+   "region": "tikhvin",
+   "type": "swordsmen",
+   "soldiers": 12
+  },
+  {
+   "owner": "order",
+   "region": "riga",
+   "type": "brother_knight",
+   "soldiers": 20
+  },
+  {
+   "owner": "order",
+   "region": "kokenhusen",
+   "type": "mounted_sergeant",
+   "soldiers": 15
+  },
+  {
+   "owner": "order",
+   "region": "osel",
+   "type": "crossbowmen",
+   "soldiers": 15
+  },
+  {
+   "owner": "order",
+   "region": "wenden",
+   "type": "pikemen",
+   "soldiers": 12
+  },
+  {
+   "owner": "order",
+   "region": "dunaburg",
+   "type": "spearmen",
+   "soldiers": 12
+  },
+  {
+   "owner": "order",
+   "region": "fellin",
+   "type": "brother_knight",
+   "soldiers": 12
+  },
+  {
+   "owner": "lithuania",
+   "region": "kernave",
+   "type": "swordsmen",
+   "soldiers": 20
+  },
+  {
+   "owner": "lithuania",
+   "region": "kaunas",
+   "type": "spearmen",
+   "soldiers": 15
+  },
+  {
+   "owner": "denmark",
+   "region": "reval",
+   "type": "huscarl",
+   "soldiers": 20
+  },
+  {
+   "owner": "denmark",
+   "region": "paide",
+   "type": "berserker",
+   "soldiers": 15
+  },
+  {
+   "owner": "polotsk",
+   "region": "polotsk",
+   "type": "swordsmen",
+   "soldiers": 20
+  },
+  {
+   "owner": "polotsk",
+   "region": "vitebsk",
+   "type": "spearmen",
+   "soldiers": 15
+  },
+  {
+   "owner": "neutral",
+   "region": "goldingen",
+   "type": "militia",
+   "soldiers": 10
+  },
+  {
+   "owner": "neutral",
+   "region": "memel",
+   "type": "militia",
+   "soldiers": 10
+  },
+  {
+   "owner": "neutral",
+   "region": "mitau",
+   "type": "militia",
+   "soldiers": 10
+  },
+  {
+   "owner": "neutral",
+   "region": "rzhev",
+   "type": "militia",
+   "soldiers": 10
+  },
+  {
+   "owner": "neutral",
+   "region": "smolensk",
+   "type": "militia",
+   "soldiers": 10
+  },
+  {
+   "owner": "neutral",
+   "region": "toropets",
+   "type": "militia",
+   "soldiers": 10
+  },
+  {
+   "owner": "neutral",
+   "region": "windau",
+   "type": "militia",
+   "soldiers": 10
+  }
+ ],
+ "mission": {
+  "player": "novgorod",
+  "primary": [
+   {
+    "type": "capture",
+    "regions": [
+     "pskov",
+     "izborsk"
+    ]
+   }
+  ],
+  "additional": [
+   {
+    "type": "capture",
+    "regions": [
+     "dorpat"
+    ],
+    "points": 200
+   }
+  ],
+  "defeat": [
+   {
+    "type": "time",
+    "turns": 14
+   },
+   {
+    "type": "lose_region",
+    "region": "novgorod"
+   }
+  ],
+  "crowns": [
+   6,
+   8,
+   10
+  ],
+  "events": [
+   {
+    "turn": 3,
+    "type": "reinforcements",
+    "faction": "order",
+    "region": "dorpat",
+    "unit": "brother_knight",
+    "soldiers": 8,
+    "text": "The brother knights ride out of Dorpat to meet Alexander's army."
+   }
+  ],
+  "history": "In 1240 the knights of the Livonian Order crossed the border, took Izborsk and were let into Pskov. Novgorod called back Prince Alexander, who drove them from Koporye and now marches on Pskov.",
+  "briefing": "Free Pskov and Izborsk before the Order can gather its strength.",
+  "victory_text": "On the ice of Lake Peipus the Order's charge breaks. Pskov is free, and the Order gives up its conquests.",
+  "defeat_text": "The Order holds Pskov, and its banners creep towards Novgorod."
+ }
+}

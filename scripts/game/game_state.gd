@@ -62,6 +62,8 @@ static func from_scenario(scenario: Dictionary, game_seed := 1) -> GameState:
 	if scenario.has("campaign") and not state.mission.is_empty():
 		state.mission["campaign"] = scenario.campaign
 		state.mission["mission_index"] = scenario.mission_index
+	elif scenario.has("listing") and not state.mission.is_empty():
+		state.mission["scenario"] = scenario.id  # A standalone scenario (PRD M): its result is recorded.
 	state.rng.seed = game_seed
 	for entry in scenario.factions:
 		var faction := FactionState.new()

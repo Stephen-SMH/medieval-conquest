@@ -1,0 +1,436 @@
+{
+ "id": "barbarossa_1176",
+ "name": "1176: Barbarossa and Henry the Lion",
+ "map": "holy_roman_empire",
+ "listing": {
+  "difficulty": 2,
+  "order": 6,
+  "unlock_after": 2
+ },
+ "factions": [
+  {
+   "id": "empire",
+   "name": "Holy Roman Empire",
+   "civ": "frankish",
+   "color": "#d1a23a",
+   "human": true,
+   "ai": "balanced"
+  },
+  {
+   "id": "saxony",
+   "name": "Duchy of Saxony",
+   "civ": "",
+   "color": "#b5423a",
+   "human": false,
+   "ai": "aggressive"
+  },
+  {
+   "id": "bohemia",
+   "name": "Kingdom of Bohemia",
+   "civ": "",
+   "color": "#3d6fb6",
+   "human": false,
+   "ai": "balanced"
+  },
+  {
+   "id": "poland",
+   "name": "Kingdom of Poland",
+   "civ": "",
+   "color": "#7b4fa8",
+   "human": false,
+   "ai": "defensive"
+  }
+ ],
+ "owners": {
+  "utrecht": "neutral",
+  "groningen": "neutral",
+  "deventer": "neutral",
+  "aachen": "empire",
+  "koln": "empire",
+  "munster": "neutral",
+  "paderborn": "neutral",
+  "bremen": "saxony",
+  "hamburg": "saxony",
+  "holstein": "saxony",
+  "lubeck": "saxony",
+  "luneburg": "saxony",
+  "schwerin": "saxony",
+  "rostock": "neutral",
+  "stettin": "neutral",
+  "brandenburg": "neutral",
+  "magdeburg": "neutral",
+  "brunswick": "saxony",
+  "goslar": "empire",
+  "leipzig": "neutral",
+  "meissen": "neutral",
+  "erfurt": "neutral",
+  "kassel": "neutral",
+  "frankfurt": "empire",
+  "mainz": "empire",
+  "trier": "neutral",
+  "metz": "neutral",
+  "speyer": "empire",
+  "strasbourg": "empire",
+  "wurzburg": "empire",
+  "bamberg": "empire",
+  "nurnberg": "empire",
+  "regensburg": "saxony",
+  "cheb": "empire",
+  "ulm": "empire",
+  "augsburg": "empire",
+  "munich": "saxony",
+  "passau": "saxony",
+  "salzburg": "neutral",
+  "innsbruck": "neutral",
+  "linz": "neutral",
+  "vienna": "neutral",
+  "constance": "empire",
+  "zurich": "empire",
+  "basel": "empire",
+  "prague": "bohemia",
+  "plzen": "bohemia",
+  "litomerice": "bohemia",
+  "hradec_kralove": "bohemia",
+  "budweis": "bohemia",
+  "brno": "bohemia",
+  "olomouc": "bohemia",
+  "wroclaw": "poland",
+  "glogow": "poland",
+  "klodzko": "poland",
+  "bautzen": "neutral",
+  "poznan": "poland"
+ },
+ "capitals": {
+  "saxony": "brunswick",
+  "empire": "frankfurt",
+  "bohemia": "prague",
+  "poland": "wroclaw"
+ },
+ "buildings": {
+  "aachen": {
+   "walls": 1
+  },
+  "koln": {
+   "walls": 1
+  },
+  "lubeck": {
+   "walls": 1
+  },
+  "brandenburg": {
+   "walls": 1
+  },
+  "brunswick": {
+   "walls": 1
+  },
+  "meissen": {
+   "walls": 1
+  },
+  "metz": {
+   "walls": 1
+  },
+  "nurnberg": {
+   "walls": 1
+  },
+  "salzburg": {
+   "walls": 1
+  },
+  "vienna": {
+   "walls": 1
+  },
+  "prague": {
+   "walls": 1
+  },
+  "brno": {
+   "walls": 1
+  },
+  "wroclaw": {
+   "walls": 1
+  },
+  "klodzko": {
+   "walls": 1
+  }
+ },
+ "units": [
+  {
+   "owner": "empire",
+   "region": "frankfurt",
+   "type": "knight",
+   "soldiers": 20
+  },
+  {
+   "owner": "empire",
+   "region": "koln",
+   "type": "sergeant",
+   "soldiers": 15
+  },
+  {
+   "owner": "empire",
+   "region": "mainz",
+   "type": "crossbowmen",
+   "soldiers": 15
+  },
+  {
+   "owner": "empire",
+   "region": "speyer",
+   "type": "spearmen",
+   "soldiers": 12
+  },
+  {
+   "owner": "empire",
+   "region": "wurzburg",
+   "type": "archers",
+   "soldiers": 12
+  },
+  {
+   "owner": "empire",
+   "region": "aachen",
+   "type": "light_cavalry",
+   "soldiers": 12
+  },
+  {
+   "owner": "empire",
+   "region": "bamberg",
+   "type": "knight",
+   "soldiers": 12
+  },
+  {
+   "owner": "empire",
+   "region": "goslar",
+   "type": "sergeant",
+   "soldiers": 12
+  },
+  {
+   "owner": "saxony",
+   "region": "brunswick",
+   "type": "swordsmen",
+   "soldiers": 20
+  },
+  {
+   "owner": "saxony",
+   "region": "bremen",
+   "type": "spearmen",
+   "soldiers": 15
+  },
+  {
+   "owner": "saxony",
+   "region": "luneburg",
+   "type": "archers",
+   "soldiers": 15
+  },
+  {
+   "owner": "saxony",
+   "region": "hamburg",
+   "type": "light_cavalry",
+   "soldiers": 12
+  },
+  {
+   "owner": "saxony",
+   "region": "holstein",
+   "type": "militia",
+   "soldiers": 12
+  },
+  {
+   "owner": "bohemia",
+   "region": "prague",
+   "type": "swordsmen",
+   "soldiers": 20
+  },
+  {
+   "owner": "bohemia",
+   "region": "budweis",
+   "type": "spearmen",
+   "soldiers": 15
+  },
+  {
+   "owner": "bohemia",
+   "region": "hradec_kralove",
+   "type": "archers",
+   "soldiers": 15
+  },
+  {
+   "owner": "bohemia",
+   "region": "litomerice",
+   "type": "light_cavalry",
+   "soldiers": 12
+  },
+  {
+   "owner": "poland",
+   "region": "wroclaw",
+   "type": "swordsmen",
+   "soldiers": 20
+  },
+  {
+   "owner": "poland",
+   "region": "glogow",
+   "type": "spearmen",
+   "soldiers": 15
+  },
+  {
+   "owner": "neutral",
+   "region": "bautzen",
+   "type": "militia",
+   "soldiers": 10
+  },
+  {
+   "owner": "neutral",
+   "region": "brandenburg",
+   "type": "militia",
+   "soldiers": 10
+  },
+  {
+   "owner": "neutral",
+   "region": "deventer",
+   "type": "militia",
+   "soldiers": 10
+  },
+  {
+   "owner": "neutral",
+   "region": "erfurt",
+   "type": "militia",
+   "soldiers": 10
+  },
+  {
+   "owner": "neutral",
+   "region": "groningen",
+   "type": "militia",
+   "soldiers": 10
+  },
+  {
+   "owner": "neutral",
+   "region": "innsbruck",
+   "type": "militia",
+   "soldiers": 10
+  },
+  {
+   "owner": "neutral",
+   "region": "kassel",
+   "type": "militia",
+   "soldiers": 10
+  },
+  {
+   "owner": "neutral",
+   "region": "leipzig",
+   "type": "militia",
+   "soldiers": 10
+  },
+  {
+   "owner": "neutral",
+   "region": "linz",
+   "type": "militia",
+   "soldiers": 10
+  },
+  {
+   "owner": "neutral",
+   "region": "magdeburg",
+   "type": "militia",
+   "soldiers": 10
+  },
+  {
+   "owner": "neutral",
+   "region": "meissen",
+   "type": "militia",
+   "soldiers": 10
+  },
+  {
+   "owner": "neutral",
+   "region": "metz",
+   "type": "militia",
+   "soldiers": 10
+  },
+  {
+   "owner": "neutral",
+   "region": "munster",
+   "type": "militia",
+   "soldiers": 10
+  },
+  {
+   "owner": "neutral",
+   "region": "paderborn",
+   "type": "militia",
+   "soldiers": 10
+  },
+  {
+   "owner": "neutral",
+   "region": "rostock",
+   "type": "militia",
+   "soldiers": 10
+  },
+  {
+   "owner": "neutral",
+   "region": "salzburg",
+   "type": "militia",
+   "soldiers": 10
+  },
+  {
+   "owner": "neutral",
+   "region": "stettin",
+   "type": "militia",
+   "soldiers": 10
+  },
+  {
+   "owner": "neutral",
+   "region": "trier",
+   "type": "militia",
+   "soldiers": 10
+  },
+  {
+   "owner": "neutral",
+   "region": "utrecht",
+   "type": "militia",
+   "soldiers": 10
+  },
+  {
+   "owner": "neutral",
+   "region": "vienna",
+   "type": "militia",
+   "soldiers": 10
+  }
+ ],
+ "mission": {
+  "player": "empire",
+  "primary": [
+   {
+    "type": "capture",
+    "regions": [
+     "brunswick"
+    ]
+   }
+  ],
+  "additional": [
+   {
+    "type": "capture",
+    "regions": [
+     "lubeck"
+    ],
+    "points": 150
+   },
+   {
+    "type": "capture",
+    "regions": [
+     "regensburg"
+    ],
+    "points": 150
+   }
+  ],
+  "defeat": [
+   {
+    "type": "time",
+    "turns": 20
+   },
+   {
+    "type": "lose_region",
+    "region": "frankfurt"
+   }
+  ],
+  "crowns": [
+   10,
+   13,
+   16
+  ],
+  "events": [],
+  "history": "Emperor Frederick Barbarossa begged his cousin Henry the Lion, duke of Saxony and Bavaria, for knights against the Italian cities. Henry refused, and the emperor was beaten at Legnano.",
+  "briefing": "Bring the over-mighty duke to heel: take Brunswick, the Lion's seat.",
+  "victory_text": "Henry the Lion is stripped of his duchies and sent into exile; the emperor's word is law again.",
+  "defeat_text": "The Lion keeps his lands, and the emperor's authority is broken."
+ }
+}

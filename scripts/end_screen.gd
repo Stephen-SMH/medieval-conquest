@@ -50,7 +50,7 @@ func show_result(state: GameState, viewer: String) -> void:
 		if Mission.crowns(state).size() == 3:
 			_rows.add_child(_decorations(state, int(result.stars) if won else 0, int(result.get("turns", state.turn))))
 	_rows.add_child(_losses(state, viewer))
-	if mission and state.mission.has("campaign"):
+	if mission and (state.mission.has("campaign") or state.mission.has("scenario")):
 		_rows.add_child(_rank())
 
 	var buttons := HBoxContainer.new()

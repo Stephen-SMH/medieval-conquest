@@ -1,0 +1,365 @@
+{
+ "id": "hattin_1187",
+ "name": "1187: On the Eve of Hattin",
+ "map": "levant",
+ "listing": {
+  "difficulty": 3,
+  "order": 7,
+  "unlock_after": 3
+ },
+ "factions": [
+  {
+   "id": "crusaders",
+   "name": "Crusader States",
+   "civ": "crusader",
+   "color": "#b5423a",
+   "human": true,
+   "ai": "balanced"
+  },
+  {
+   "id": "ayyubids",
+   "name": "Ayyubid Sultanate",
+   "civ": "saracen",
+   "color": "#2f7d4a",
+   "human": false,
+   "ai": "aggressive"
+  },
+  {
+   "id": "seljuks",
+   "name": "Seljuks of Rum",
+   "civ": "saracen",
+   "color": "#d1a23a",
+   "human": false,
+   "ai": "balanced"
+  },
+  {
+   "id": "byzantines",
+   "name": "Byzantine Empire",
+   "civ": "byzantine",
+   "color": "#7b4fa8",
+   "human": false,
+   "ai": "defensive"
+  },
+  {
+   "id": "armenians",
+   "name": "Armenian Cilicia",
+   "civ": "",
+   "color": "#3d6fb6",
+   "human": false,
+   "ai": "defensive"
+  }
+ ],
+ "owners": {
+  "paphos": "byzantines",
+  "lefkosa": "byzantines",
+  "famagusta": "byzantines",
+  "konya": "seljuks",
+  "philomelion": "seljuks",
+  "antalya": "byzantines",
+  "alanya": "byzantines",
+  "laranda": "seljuks",
+  "seleucia": "armenians",
+  "eregli": "seljuks",
+  "nigde": "seljuks",
+  "tarsus": "armenians",
+  "adana": "armenians",
+  "sis": "armenians",
+  "marash": "seljuks",
+  "edessa": "ayyubids",
+  "bira": "ayyubids",
+  "antioch": "crusaders",
+  "st_simeon": "crusaders",
+  "aleppo": "ayyubids",
+  "ma_arra": "ayyubids",
+  "hamah": "ayyubids",
+  "homs": "ayyubids",
+  "tortosa": "crusaders",
+  "krak_des_chevaliers": "crusaders",
+  "tripoli": "crusaders",
+  "palmyra": "ayyubids",
+  "raqqa": "ayyubids",
+  "baalbek": "ayyubids",
+  "beirut": "crusaders",
+  "sidon": "crusaders",
+  "tyre": "crusaders",
+  "banias": "ayyubids",
+  "damascus": "ayyubids",
+  "bostra": "ayyubids",
+  "acre": "crusaders",
+  "safad": "crusaders",
+  "caesarea": "crusaders",
+  "nablus": "crusaders",
+  "jaffa": "crusaders",
+  "jerusalem": "crusaders",
+  "ascalon": "crusaders",
+  "gaza": "crusaders",
+  "kerak": "crusaders",
+  "al_arish": "ayyubids",
+  "damietta": "ayyubids"
+ },
+ "capitals": {
+  "byzantines": "lefkosa",
+  "seljuks": "konya",
+  "armenians": "sis",
+  "ayyubids": "damascus",
+  "crusaders": "jerusalem"
+ },
+ "buildings": {
+  "lefkosa": {
+   "walls": 1
+  },
+  "konya": {
+   "walls": 1
+  },
+  "antalya": {
+   "walls": 1
+  },
+  "sis": {
+   "walls": 1
+  },
+  "marash": {
+   "walls": 1
+  },
+  "edessa": {
+   "walls": 1
+  },
+  "antioch": {
+   "walls": 1
+  },
+  "aleppo": {
+   "walls": 1
+  },
+  "tortosa": {
+   "walls": 1
+  },
+  "krak_des_chevaliers": {
+   "walls": 1
+  },
+  "tripoli": {
+   "walls": 1
+  },
+  "tyre": {
+   "walls": 1
+  },
+  "banias": {
+   "walls": 1
+  },
+  "damascus": {
+   "walls": 1
+  },
+  "bostra": {
+   "walls": 1
+  },
+  "acre": {
+   "walls": 1
+  },
+  "safad": {
+   "walls": 1
+  },
+  "jerusalem": {
+   "walls": 1
+  },
+  "ascalon": {
+   "walls": 1
+  },
+  "kerak": {
+   "walls": 1
+  }
+ },
+ "units": [
+  {
+   "owner": "crusaders",
+   "region": "jerusalem",
+   "type": "brother_knight",
+   "soldiers": 20
+  },
+  {
+   "owner": "crusaders",
+   "region": "ascalon",
+   "type": "mounted_sergeant",
+   "soldiers": 15
+  },
+  {
+   "owner": "crusaders",
+   "region": "gaza",
+   "type": "crossbowmen",
+   "soldiers": 15
+  },
+  {
+   "owner": "crusaders",
+   "region": "jaffa",
+   "type": "pikemen",
+   "soldiers": 12
+  },
+  {
+   "owner": "crusaders",
+   "region": "kerak",
+   "type": "spearmen",
+   "soldiers": 12
+  },
+  {
+   "owner": "crusaders",
+   "region": "nablus",
+   "type": "brother_knight",
+   "soldiers": 12
+  },
+  {
+   "owner": "crusaders",
+   "region": "acre",
+   "type": "mounted_sergeant",
+   "soldiers": 12
+  },
+  {
+   "owner": "crusaders",
+   "region": "caesarea",
+   "type": "crossbowmen",
+   "soldiers": 12
+  },
+  {
+   "owner": "crusaders",
+   "region": "safad",
+   "type": "pikemen",
+   "soldiers": 12
+  },
+  {
+   "owner": "ayyubids",
+   "region": "damascus",
+   "type": "mamluk",
+   "soldiers": 20
+  },
+  {
+   "owner": "ayyubids",
+   "region": "baalbek",
+   "type": "ghazi",
+   "soldiers": 15
+  },
+  {
+   "owner": "ayyubids",
+   "region": "banias",
+   "type": "archers",
+   "soldiers": 15
+  },
+  {
+   "owner": "ayyubids",
+   "region": "bostra",
+   "type": "spearmen",
+   "soldiers": 12
+  },
+  {
+   "owner": "ayyubids",
+   "region": "homs",
+   "type": "light_cavalry",
+   "soldiers": 12
+  },
+  {
+   "owner": "ayyubids",
+   "region": "damietta",
+   "type": "mamluk",
+   "soldiers": 12
+  },
+  {
+   "owner": "ayyubids",
+   "region": "hamah",
+   "type": "ghazi",
+   "soldiers": 12
+  },
+  {
+   "owner": "seljuks",
+   "region": "konya",
+   "type": "mamluk",
+   "soldiers": 20
+  },
+  {
+   "owner": "seljuks",
+   "region": "eregli",
+   "type": "ghazi",
+   "soldiers": 15
+  },
+  {
+   "owner": "seljuks",
+   "region": "laranda",
+   "type": "archers",
+   "soldiers": 15
+  },
+  {
+   "owner": "byzantines",
+   "region": "lefkosa",
+   "type": "cataphract",
+   "soldiers": 20
+  },
+  {
+   "owner": "byzantines",
+   "region": "famagusta",
+   "type": "varangian_guard",
+   "soldiers": 15
+  },
+  {
+   "owner": "byzantines",
+   "region": "paphos",
+   "type": "archers",
+   "soldiers": 15
+  },
+  {
+   "owner": "armenians",
+   "region": "sis",
+   "type": "swordsmen",
+   "soldiers": 20
+  },
+  {
+   "owner": "armenians",
+   "region": "adana",
+   "type": "spearmen",
+   "soldiers": 15
+  }
+ ],
+ "mission": {
+  "player": "crusaders",
+  "primary": [
+   {
+    "type": "capture",
+    "regions": [
+     "damascus"
+    ]
+   }
+  ],
+  "additional": [
+   {
+    "type": "capture",
+    "regions": [
+     "aleppo"
+    ],
+    "points": 300
+   }
+  ],
+  "defeat": [
+   {
+    "type": "time",
+    "turns": 26
+   },
+   {
+    "type": "lose_region",
+    "region": "jerusalem"
+   }
+  ],
+  "crowns": [
+   12,
+   16,
+   20
+  ],
+  "events": [
+   {
+    "turn": 2,
+    "type": "reinforcements",
+    "faction": "ayyubids",
+    "region": "banias",
+    "unit": "mamluk",
+    "soldiers": 10,
+    "text": "Saladin's army gathers on the Golan heights above the Sea of Galilee."
+   }
+  ],
+  "history": "Saladin has united Egypt and Syria under the Ayyubid banner. Reynald of Châtillon has broken the truce by raiding a caravan from Kerak, and the sultan is gathering the largest army the kingdom has ever faced.",
+  "briefing": "History says Jerusalem falls this year. Keep it, and carry the war to Damascus.",
+  "victory_text": "Damascus opens its gates. The kingdom of Jerusalem has outlived the sultan's great host.",
+  "defeat_text": "Jerusalem falls to Saladin, as it did in 1187."
+ }
+}
