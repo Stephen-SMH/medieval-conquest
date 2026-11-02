@@ -4,6 +4,9 @@ extends Node2D
 ## land, double borders where two factions meet, rivers, ships on the coast with
 ## dotted sea lanes for coastal raids, region names in a serif map font, each
 ## region's gold income, and small icons for capitals, castles, towns and camps.
+## Real-geography maps (data/maps with "scenery", "sea_links" or "sea_labels")
+## also get their coastline with shallows, land outside the play area, boats in
+## the ports, dashed sea links between ports, and the names of the seas.
 
 const INK := Color("#2a1a0e")
 const RIVER := Color("#3d6f86")
@@ -15,12 +18,18 @@ const PARCHMENT_SHADER := preload("res://shaders/parchment_overlay.gdshader")
 ## The region name sits this far below the region's centroid (baseline), in this font size.
 const LABEL_BASELINE := 30.0
 const LABEL_SIZE := 19
+const SCENERY := Color("#b9ab8a")
+const SEA_LINK := Color("#16305e")
+const SEA_NAME := Color("#c9dde0", 0.75)
 
 var state: GameState
 var _font: Font
 var _italic: Font
 var _icons := {}
 var _sea: Polygon2D
+## From the map file: sea links, sea names and scenery. Empty for the made-up maps.
+var _extras := {}
+var _coast_lines: Array[PackedVector2Array] = []
 
 
 func _ready() -> void:
@@ -52,15 +61,118 @@ func _ready() -> void:
 	paper.z_index = 1
 	paper.z_as_relative = false
 	add_child(paper)
+	_extras = map_extras(state.map)
+	if is_real_map():
+		_add_real_geography()
+
+
+## Extra drawing data from a real-geography map file: "sea_links", "sea_labels", "scenery".
+static func map_extras(map: MapData) -> Dictionary:
+	var path := MapData.MAP_DIR.path_join(map.id + ".json")
+	if not FileAccess.file_exists(path):
+		return {}
+	var data = JSON.parse_string(FileAccess.get_file_as_string(path))
+	if not (data is Dictionary):
+		return {}
+	var extras := {}
+	for key in ["sea_links", "sea_labels", "scenery"]:
+		if data.has(key):
+			extras[key] = data[key]
+	return extras
+
+
+func is_real_map() -> bool:
+	return not _extras.is_empty()
+
+
+## Land outside the play area, and shallow water along every coast, under the regions.
+func _add_real_geography() -> void:
+	var map := state.map
+	for area in _extras.get("scenery", []):
+		var land := Polygon2D.new()
+		land.polygon = _outline(area.vertices)
+		land.color = SCENERY
+		land.z_index = 0
+		land.z_as_relative = false
+		add_child(land)
+	_coast_lines = coast_lines(map, _extras.get("scenery", []))
+	var shallows := Node2D.new()
+	shallows.z_index = -5
+	shallows.z_as_relative = false
+	shallows.draw.connect(func():
+		for line in _coast_lines:
+			shallows.draw_polyline(line, Color(SHALLOWS, 0.55), 26.0, true)
+			shallows.draw_polyline(line, Color(SHALLOWS.lightened(0.15), 0.5), 10.0, true))
+	add_child(shallows)
+
+
+func _outline(vertex_ids: Array) -> PackedVector2Array:
+	var polygon := PackedVector2Array()
+	for i in vertex_ids.size():
+		var edge := state.map.edge_points(vertex_ids[i], vertex_ids[(i + 1) % vertex_ids.size()])
+		edge.remove_at(edge.size() - 1)
+		polygon.append_array(edge)
+	return polygon
+
+
+## The coastline as long lines: every edge used by only one area (a region or
+## scenery) that isn't on the edge of the map.
+static func coast_lines(map: MapData, scenery: Array) -> Array[PackedVector2Array]:
+	var outlines: Array = []
+	for region in map.province_order:
+		outlines.append(map.provinces[region].vertices)
+	for area in scenery:
+		outlines.append(area.vertices)
+	var uses := {}
+	for ids in outlines:
+		for i in ids.size():
+			var key := MapData.border_key(ids[i], ids[(i + 1) % ids.size()])
+			uses[key] = uses.get(key, 0) + 1
+	var next := {}
+	for ids in outlines:
+		for i in ids.size():
+			var a: String = ids[i]
+			var b: String = ids[(i + 1) % ids.size()]
+			if uses[MapData.border_key(a, b)] == 1:
+				var ends := map.edge_points(a, b)
+				var p := ends[0]
+				var q := ends[ends.size() - 1]
+				var on_frame := (p.x == 0 and q.x == 0) or (p.y == 0 and q.y == 0) \
+					or (p.x == map.size.x and q.x == map.size.x) or (p.y == map.size.y and q.y == map.size.y)
+				if not on_frame:
+					next[a] = b
+	var lines: Array[PackedVector2Array] = []
+	var done := {}
+	for start in next:
+		if done.has(start):
+			continue
+		var line := PackedVector2Array()
+		var at: String = start
+		while next.has(at) and not done.has(at):
+			done[at] = true
+			var points := map.edge_points(at, next[at])
+			if not line.is_empty():
+				points.remove_at(0)
+			line.append_array(points)
+			at = next[at]
+		lines.append(line)
+	return lines
 
 
 func _draw() -> void:
 	var map := state.map
-	# Shallow water along the coast, then the edge of the land.
-	draw_polyline(PackedVector2Array([Vector2.ZERO, Vector2(map.size.x, 0), map.size, Vector2(0, map.size.y), Vector2.ZERO]),
-		Color(SHALLOWS, 0.6), 22.0, true)
-	draw_polyline(PackedVector2Array([Vector2.ZERO, Vector2(map.size.x, 0), map.size, Vector2(0, map.size.y), Vector2.ZERO]),
-		Color(INK, 0.8), 2.5, true)
+	if is_real_map():
+		for line in _coast_lines:
+			draw_polyline(line, Color(INK, 0.75), 2.0, true)
+		draw_polyline(PackedVector2Array([Vector2.ZERO, Vector2(map.size.x, 0), map.size, Vector2(0, map.size.y), Vector2.ZERO]),
+			Color(INK, 0.9), 3.0, true)
+		_draw_sea_names()
+	else:
+		# Shallow water along the coast, then the edge of the land.
+		draw_polyline(PackedVector2Array([Vector2.ZERO, Vector2(map.size.x, 0), map.size, Vector2(0, map.size.y), Vector2.ZERO]),
+			Color(SHALLOWS, 0.6), 22.0, true)
+		draw_polyline(PackedVector2Array([Vector2.ZERO, Vector2(map.size.x, 0), map.size, Vector2(0, map.size.y), Vector2.ZERO]),
+			Color(INK, 0.8), 2.5, true)
 
 	# Double borders where two factions meet: each side gets a line in its own colour.
 	for region in map.province_order:
@@ -80,7 +192,10 @@ func _draw() -> void:
 				draw_polyline(points, RIVER.darkened(0.3), 6.0, true)
 				draw_polyline(points, RIVER.lightened(0.15), 3.5, true)
 
-	_draw_ships()
+	if is_real_map():
+		_draw_ports()
+	else:
+		_draw_ships()
 
 	for region in map.province_order:
 		_draw_label(region)
@@ -132,6 +247,37 @@ func _draw_ships() -> void:
 	for region in ships:
 		var ship: Texture2D = _icons.map_ship
 		draw_texture_rect(ship, Rect2(ships[region] - Vector2(15, 17), Vector2(30, 30)), false, Color("#1a1008", 0.85))
+
+
+## Sea names in italic across the water (and a few land names, like deserts, in ink).
+func _draw_sea_names() -> void:
+	for label in _extras.get("sea_labels", []):
+		var size := int(label.get("size", 30))
+		var text: String = label.text
+		var width := _italic.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
+		var color := Color(INK, 0.45) if label.get("land", false) else SEA_NAME
+		draw_set_transform(Vector2(label.at[0], label.at[1]), deg_to_rad(label.get("angle", 0.0)))
+		draw_string(_italic, Vector2(-width / 2.0, size * 0.35), text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, color)
+		draw_set_transform(Vector2.ZERO)
+
+
+## Dashed sea links between ports, then a boat off each port.
+func _draw_ports() -> void:
+	var map := state.map
+	for link in _extras.get("sea_links", []):
+		var a: Dictionary = map.provinces[link[0]]
+		var b: Dictionary = map.provinces[link[1]]
+		var from := Vector2(a.port_at[0], a.port_at[1])
+		var to := Vector2(b.port_at[0], b.port_at[1])
+		var gap := (to - from).normalized() * 16.0
+		draw_line(from + gap, to - gap, Color("#9fc4d0", 0.35), 6.0, true)
+		draw_dashed_line(from + gap, to - gap, SEA_LINK, 3.0, 12.0)
+	for region in map.province_order:
+		var province: Dictionary = map.provinces[region]
+		if province.has("port_at"):
+			var at := Vector2(province.port_at[0], province.port_at[1])
+			draw_circle(at, 17.0, Color("#9fc4d0", 0.3))
+			draw_texture_rect(_icons.map_ship, Rect2(at - Vector2(15, 16), Vector2(30, 30)), false, Color("#1a1008", 0.9))
 
 
 func _draw_label(region: String) -> void:

@@ -19,6 +19,7 @@ var borders := {}        # border_key(a, b) -> "river" or "road"
 var starts: Array[String] = []
 
 var _vertices := {}      # vertex id -> Vector2
+var _bounds := {}        # region id -> Rect2 around its polygon, made on first use
 
 static var _cache := {}
 
@@ -119,9 +120,18 @@ func distances_from(from: String) -> Dictionary:
 
 
 ## The region under a point on the map, or "" for none.
+## The bounding box check comes first: Geometry2D.is_point_in_polygon can
+## wrongly answer true for points far outside a long, detailed coastline.
 func province_at(point: Vector2) -> String:
+	if _bounds.is_empty():
+		for region in province_order:
+			var polygon: PackedVector2Array = provinces[region].polygon
+			var box := Rect2(polygon[0], Vector2.ZERO)
+			for p in polygon:
+				box = box.expand(p)
+			_bounds[region] = box
 	for region in province_order:
-		if Geometry2D.is_point_in_polygon(point, provinces[region].polygon):
+		if _bounds[region].has_point(point) and Geometry2D.is_point_in_polygon(point, provinces[region].polygon):
 			return region
 	return ""
 

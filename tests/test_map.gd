@@ -45,7 +45,11 @@ func _check_map(t, map: MapData) -> void:
 			mispicked.append(region)
 		total += MapData.polygon_area(map.provinces[region].polygon)
 	t.check(mispicked.is_empty(), "%s: clicking each region's centre picks it %s" % [name, mispicked])
-	t.check(absf(total - map.size.x * map.size.y) < map.size.x * map.size.y * 0.001, "%s: regions tile the map with no gaps" % name)
+	if MapDecor.map_extras(map).is_empty():
+		t.check(absf(total - map.size.x * map.size.y) < map.size.x * map.size.y * 0.001, "%s: regions tile the map with no gaps" % name)
+	else:
+		# Real geography has sea and scenery between the regions.
+		t.check(total < map.size.x * map.size.y, "%s: regions fit inside the map" % name)
 
 	var bad_borders := []
 	for key in map.borders:
@@ -54,8 +58,10 @@ func _check_map(t, map: MapData) -> void:
 			bad_borders.append(key)
 	t.check(bad_borders.is_empty(), "%s: rivers and roads only between neighbours %s" % [name, bad_borders])
 	t.check(map.starts.size() >= 2 and map.starts.all(func(r): return map.provinces.has(r)), "%s: start regions exist %s" % [name, map.starts])
-	var reachable := map.distances_from(map.province_order[0]).size()
-	t.check(reachable == map.province_order.size(), "%s: every region can be reached (%d regions)" % [name, reachable])
+	# Real-geography maps have islands reached by sea links; test_real_maps checks those.
+	if MapDecor.map_extras(map).is_empty():
+		var reachable := map.distances_from(map.province_order[0]).size()
+		t.check(reachable == map.province_order.size(), "%s: every region can be reached (%d regions)" % [name, reachable])
 
 
 func _check_scenario(t, scenario: Dictionary) -> void:
