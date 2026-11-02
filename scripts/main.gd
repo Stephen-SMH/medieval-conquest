@@ -34,6 +34,9 @@ var _effects: Effects
 var _press_button := MOUSE_BUTTON_NONE
 var _press_position := Vector2.ZERO
 var _dragging := false
+## Drag-to-aim (PRD I): the army a left press started on, and whether the drag is aiming it.
+var _aim_unit: Unit = null
+var _aiming := false
 var _touch := TouchGestures.new()
 var _last_human := ""
 var _pass_screen: Control
@@ -167,6 +170,7 @@ func _input(event: InputEvent) -> void:
 			_camera.pan_by_screen(gesture.pan)
 		if _touch.is_multi_touch():
 			_press_button = MOUSE_BUTTON_NONE
+			_stop_aiming()
 	elif event is InputEventMagnifyGesture:
 		_camera.zoom_at(event.position, event.factor)
 	elif event is InputEventPanGesture:
@@ -393,7 +397,7 @@ func _show_unit_info(unit: Unit) -> void:
 	var buttons := []
 	if unit.owner == state.current_faction() and _is_my_turn():
 		if not state.orders.has(unit):
-			lines.append("Click (or drag to) a [color=#2a4fa0]region to move[/color] or an [color=#9b2d20]enemy to attack[/color]; sliders set who goes.")
+			lines.append("Click a [color=#2a4fa0]region to move[/color] or an [color=#9b2d20]enemy to attack[/color], or drag the army onto it; sliders set who goes.")
 		else:
 			var hints := PackedStringArray()
 			if Orders.chain_index(state, unit) >= 0:
@@ -869,8 +873,15 @@ func _handle_mouse_button(event: InputEventMouseButton) -> void:
 			_press_button = event.button_index
 			_press_position = event.position
 			_dragging = event.button_index == MOUSE_BUTTON_MIDDLE
+			# A left press on one of your armies may become a drag that aims it.
+			var unit := _tokens.unit_at(get_global_mouse_position())
+			if event.button_index == MOUSE_BUTTON_LEFT and _placing.is_empty() and _is_my_turn() \
+					and unit != null and unit.owner == state.current_faction():
+				_aim_unit = unit
 	elif event.button_index == _press_button:
-		if not _dragging:
+		if _aiming:
+			_release_aim(get_global_mouse_position())
+		elif not _dragging:
 			var point := get_global_mouse_position()
 			if event.button_index == MOUSE_BUTTON_LEFT:
 				_click(point)
@@ -888,15 +899,53 @@ func _handle_mouse_button(event: InputEventMouseButton) -> void:
 					clear_selection()
 		_press_button = MOUSE_BUTTON_NONE
 		_dragging = false
+		_stop_aiming()
 
 
+## Dragging from one of your armies aims it (PRD I); dragging anywhere else pans the map.
 func _handle_mouse_motion(event: InputEventMouseMotion) -> void:
 	if _press_button == MOUSE_BUTTON_NONE:
 		return
-	if not _dragging and event.position.distance_to(_press_position) > DRAG_THRESHOLD:
-		_dragging = true
-	if _dragging:
+	if not _dragging and not _aiming and event.position.distance_to(_press_position) > DRAG_THRESHOLD:
+		if _aim_unit != null and _is_my_turn():
+			_aiming = true
+			if selected_unit != _aim_unit:
+				AudioManager.sfx("select")
+				select_unit(_aim_unit)
+		else:
+			_dragging = true
+	if _aiming:
+		_aim_at(get_global_mouse_position())
+	elif _dragging:
 		_camera.pan_by_screen(event.relative)
+
+
+## The aiming arrow: onto a lit region it shows the order it would give,
+## elsewhere it follows the pointer.
+func _aim_at(point: Vector2) -> void:
+	var region := map.province_at(point)
+	var plan := Orders.intent(state, _aim_unit, region) if reach.get(region, "") in ["move", "attack"] else {}
+	if not plan.is_empty():
+		_orders.preview = {"from": plan.from, "to": region, "kind": plan.type}
+	else:
+		_orders.preview = {"from": _orders.anchor(_aim_unit.province), "to": point, "kind": "move"}
+	_orders.queue_redraw()
+
+
+## Letting go over a lit region gives the order, just as clicking it would.
+func _release_aim(point: Vector2) -> void:
+	var region := map.province_at(point)
+	_stop_aiming()
+	if selected_unit != null and region != "" and region != selected_unit.province and reach.has(region):
+		order(region)
+
+
+func _stop_aiming() -> void:
+	if _aiming:
+		_orders.preview = {}
+		_orders.queue_redraw()
+	_aim_unit = null
+	_aiming = false
 
 
 func _update_hover() -> void:
@@ -912,6 +961,8 @@ func _update_hover() -> void:
 	hovered_id = region
 	if region != "":
 		_views[region].hovered = true
+	if _aiming:
+		return  # The aiming arrow is drawn by _aim_at().
 	# Preview the arrow the selected unit would get.
 	_orders.preview = {}
 	if selected_unit != null and reach.get(region, "") in ["move", "attack"]:
