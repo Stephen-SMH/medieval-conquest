@@ -1,103 +1,174 @@
 class_name AttackPopup
 extends WoodPopup
-## "How many go?" (PRD OR-3): the window that opens when a unit is given an
-## arrow. For a march or a melee attack, one slider sets how many soldiers
-## the detachment takes; ranged units attacking get two sliders, one for the
-## soldiers who shoot (bow) and one for those who go into melee (crossed
-## swords). By default every soldier not yet given an order goes. Soldiers
-## not sent stay home, where another arrow can still send them elsewhere.
-## Re-opened on an existing order, it changes that order's count and can
-## remove it.
+## "Who goes?" (PRD A, B, OR-3): the window that opens when an army is given
+## an arrow, titled "Attack", "Move" or "Support". One row per soldier type,
+## in two columns: the type's round icon (a star if upgraded), how many go,
+## and a slider. At the bottom, between the check and the X, a TOTAL slider
+## scales every type together. By default every soldier not yet given an
+## order goes; those not sent stay home, where another arrow can still send
+## them elsewhere. Re-opened on an existing order, it changes that order and
+## can remove it. An attack shows the forecast for the soldiers chosen.
 
 signal confirmed(amounts: Dictionary)
 signal remove_requested
 
-var _shoot: HSlider
-var _melee: HSlider
-var _total: Label
+var _sliders := {}  # type id -> HSlider
+var _available := {}
+var _total: HSlider
+var _total_label: Label
+var _forecast: RichTextLabel
+var _forecaster := Callable()
+var _support := false
+var _syncing := false
+var _forecast_due := 0.0
 
 
 ## Opens the window for an arrow from `unit` to `target`. `type` is "move" or
-## "attack"; `available` the most soldiers it may take; `current` the
-## order being changed ({} for a new one); `whole` locks the slider to everyone.
-func show_order(state: GameState, unit: Unit, type: String, target: String, forecast: Dictionary, available: int,
-		current := {}, whole := false, from := "") -> void:
+## "attack"; `available` the soldiers of each type it may take; `current` the
+## order being changed ({} for a new one). `forecaster`, for an attack, takes
+## {type: soldiers} and returns a forecast.
+func show_order(state: GameState, unit: Unit, type: String, target: String, available: Dictionary, current := {},
+		support := false, forecaster := Callable()) -> void:
 	var editing := not current.is_empty()
 	var attack := type == "attack"
-	open(("Attack %s" if attack else "March to %s") % state.map.region_name(target))
-	custom_minimum_size = Vector2(560, 0)
-	var total := maxi(available, 1)
-	var ranged := attack and unit.type().is_ranged()
-	_shoot = null
-	_melee = null
-	if ranged:
-		_shoot = _slider_row("res://assets/icons/archers.svg", total, int(current.get("shoot", total)))
-		if Orders.melee_allowed(state, unit, target, from):
-			_melee = _slider_row("res://assets/icons/ui_swords.svg", total, int(current.get("soldiers", 0)))
-	else:
-		_melee = _slider_row("res://assets/icons/ui_swords.svg" if attack else unit_icon(unit), total, int(current.get("size", total)))
-		_melee.min_value = total if whole else 1
-	_total = Label.new()
-	_total.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_total.add_theme_font_size_override("font_size", 20)
-	body.add_child(_total)
-	if _shoot != null and _melee != null:
-		_shoot.value_changed.connect(func(v): _melee.max_value = total - v; _update(total))
-		_melee.value_changed.connect(func(v): _shoot.max_value = total - v; _update(total))
-		_shoot.max_value = total - _melee.value
-		_melee.max_value = total - _shoot.value
-	elif _shoot != null:
-		_shoot.value_changed.connect(func(_v): _update(total))
-	else:
-		_melee.value_changed.connect(func(_v): _update(total))
-	if attack and not forecast.is_empty():
-		add_text("[i]Forecast for the whole unit: [b]%s[/b] — your strength left %d%%, theirs %d%%.[/i]" % [
-			forecast.rating, roundi(forecast.attacker_survival * 100), roundi(forecast.defender_survival * 100)], 16)
-	if whole:
-		add_text("[i]Your other unit is there: only the whole unit can go, and only if that unit leaves or swaps places.[/i]", 15)
+	_support = support
+	_forecaster = forecaster
+	open("Support" if support else ("Attack" if attack else "Move"))
+	custom_minimum_size = Vector2(620, 0)
+	_available = available.duplicate()
+	_sliders.clear()
+	var where := Label.new()
+	where.text = ("%s → %s" % [state.map.region_name(unit.province), state.map.region_name(target)])
+	where.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	where.add_theme_font_size_override("font_size", 17)
+	body.add_child(where)
+	var grid := GridContainer.new()
+	grid.columns = 2 if available.size() > 1 else 1
+	grid.add_theme_constant_override("h_separation", 22)
+	grid.add_theme_constant_override("v_separation", 8)
+	body.add_child(grid)
+	var chosen: Dictionary = current.get("troops", available)
+	for type_id in available:
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 8)
+		grid.add_child(row)
+		row.add_child(TypeIcons.control(type_id, 40, state.is_upgraded(unit.owner, type_id)))
+		var number := Label.new()
+		number.custom_minimum_size = Vector2(30, 0)
+		number.add_theme_font_size_override("font_size", 22)
+		row.add_child(number)
+		var slider := _slider(int(available[type_id]), int(chosen.get(type_id, 0 if editing else available[type_id])),
+			240 if grid.columns == 2 else 420)
+		slider.value_changed.connect(func(v):
+			number.text = str(int(v))
+			_on_type_changed())
+		number.text = str(int(slider.value))
+		row.add_child(slider)
+		_sliders[type_id] = slider
+	_forecast = add_text("", 16)
+	var note := "Soldiers not sent stay home or can be sent elsewhere."
+	if support:
+		note += " They join the attack already ordered there and fight it as one battle."
 	elif attack:
-		add_text("[i]Soldiers not sent stay home or can be sent elsewhere. Those who fail come back; those who win hold the region.[/i]", 15)
+		note += " Archers shoot from home and only wear the enemy down; the rest go in. Those who win hold the region."
 	else:
-		add_text("[i]Soldiers not sent stay home or can be sent elsewhere. Those who march hold %s as a unit of their own.[/i]" % state.map.region_name(target), 15)
-	_update(total)
+		note += " Those who march hold %s, or join your army there." % state.map.region_name(target)
+	add_text("[i]%s[/i]" % note, 15)
 	if editing:
 		add_button("Remove this order", func():
 			visible = false
 			remove_requested.emit(), body)
-	add_check_and_close(func():
-		var amounts := {"soldiers": int(_melee.value) if _melee != null else 0}
-		if _shoot != null:
-			amounts["shoot"] = int(_shoot.value)
-		visible = false
-		confirmed.emit(amounts))
+	# The footer: check, the TOTAL slider, X.
+	var check := add_button("", _confirm)
+	check.icon = load("res://assets/icons/ui_check.svg")
+	check.expand_icon = true
+	check.custom_minimum_size = Vector2(64, 52)
+	var middle := VBoxContainer.new()
+	middle.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	footer.add_child(middle)
+	_total_label = Label.new()
+	_total_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_total_label.add_theme_font_size_override("font_size", 17)
+	middle.add_child(_total_label)
+	_total = _slider(Orders.total(available), 0, 300)
+	_total.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_total.min_value = 1
+	_total.value_changed.connect(_on_total_changed)
+	middle.add_child(_total)
+	add_close()
+	_on_type_changed()
+	_update_forecast()
 	reset_size()
 
 
-## The old entry point: an attack sending up to every free soldier.
-func show_attack(state: GameState, unit: Unit, target: String, forecast: Dictionary) -> void:
-	show_order(state, unit, "attack", target, forecast, Orders.available(state, unit, target))
+func _process(delta: float) -> void:
+	if _forecast_due > 0.0:
+		_forecast_due -= delta
+		if _forecast_due <= 0.0:
+			_update_forecast()
 
 
-static func unit_icon(unit: Unit) -> String:
-	var unit_type := unit.type()
-	if unit_type.unit_class == "siege":
-		return "res://assets/icons/catapult.svg"
-	if unit_type.is_cavalry():
-		return "res://assets/icons/light_cavalry.svg"
-	if unit_type.is_ranged():
-		return "res://assets/icons/archers.svg"
-	return "res://assets/icons/spearmen.svg"
+## The soldiers chosen, per type.
+func chosen() -> Dictionary:
+	var troops := {}
+	for type_id in _sliders:
+		var count := int(_sliders[type_id].value)
+		if count > 0:
+			troops[type_id] = count
+	return troops
 
 
-func _slider_row(icon: String, maximum: int, value: int) -> HSlider:
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 12)
-	body.add_child(row)
-	row.add_child(WoodPopup.icon_rect(icon, 44))
-	var number := Label.new()
-	number.custom_minimum_size = Vector2(36, 0)
-	number.add_theme_font_size_override("font_size", 24)
-	row.add_child(number)
+func _confirm() -> void:
+	var troops := chosen()
+	if troops.is_empty():
+		troops = Orders.pick(_available, 1)
+	visible = false
+	confirmed.emit({"troops": troops, "support": _support})
+
+
+## The TOTAL slider scales every type together.
+func _on_total_changed(value: float) -> void:
+	if _syncing:
+		return
+	_syncing = true
+	var share := Orders.pick(_available, int(value))
+	for type_id in _sliders:
+		_sliders[type_id].value = int(share.get(type_id, 0))
+	_syncing = false
+	_refresh_total()
+
+
+func _on_type_changed() -> void:
+	if not _syncing and _total != null:
+		_syncing = true
+		_total.value = maxi(Orders.total(chosen()), 1)
+		_syncing = false
+	_refresh_total()
+	_forecast_due = 0.25
+
+
+func _refresh_total() -> void:
+	if _total_label == null:
+		return
+	var sent := Orders.total(chosen())
+	_total_label.text = "TOTAL  %d of %d" % [sent, Orders.total(_available)]
+
+
+func _update_forecast() -> void:
+	if _forecast == null:
+		return
+	if not _forecaster.is_valid() or chosen().is_empty():
+		_forecast.text = ""
+		return
+	var forecast: Dictionary = _forecaster.call(chosen())
+	if forecast.is_empty():
+		_forecast.text = ""
+		return
+	_forecast.text = "[i]Forecast: [b]%s[/b] — your strength left %d%%, theirs %d%%.[/i]" % [
+		forecast.rating, roundi(forecast.attacker_survival * 100), roundi(forecast.defender_survival * 100)]
+
+
+func _slider(maximum: int, value: int, width: float) -> HSlider:
 	var slider := HSlider.new()
 	slider.min_value = 0
 	slider.max_value = maximum
@@ -105,16 +176,7 @@ func _slider_row(icon: String, maximum: int, value: int) -> HSlider:
 	slider.value = clampi(value, 0, maximum)
 	slider.tick_count = mini(maximum + 1, 11)
 	slider.ticks_on_borders = true
+	slider.custom_minimum_size = Vector2(width, 30)
 	slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	slider.custom_minimum_size = Vector2(360, 30)
 	slider.focus_mode = Control.FOCUS_NONE
-	slider.value_changed.connect(func(v): number.text = str(int(v)))
-	number.text = str(int(slider.value))
-	row.add_child(slider)
 	return slider
-
-
-func _update(total: int) -> void:
-	var sent := int(_shoot.value if _shoot != null else 0) + int(_melee.value if _melee != null else 0)
-	var free := total - sent
-	_total.text = "%d of %d soldiers go%s" % [sent, total, ", %d left to send elsewhere or keep home" % free if free > 0 else ""]

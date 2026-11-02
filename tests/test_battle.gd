@@ -1,5 +1,5 @@
 extends RefCounted
-## The battle engine on units: counters, determinism, terrain, morale, ranged
+## The battle engine on troops: counters, determinism, terrain, morale, ranged
 ## attacks, walls and forecasts.
 
 const SEEDS := 30
@@ -59,11 +59,11 @@ func run(t) -> void:
 	t.check(state.forecast_attack(state.units_in("greywater"), "kingsvale") == forecast, "the same forecast twice gives the same answer")
 
 
-func _units(faction: String, types: Array, copies := 1) -> Array[Unit]:
-	var made: Array[Unit] = []
+func _units(_faction: String, types: Array, copies := 1) -> Array[Troop]:
+	var made: Array[Troop] = []
 	for i in copies:
 		for type_id in types:
-			made.append(Unit.new(type_id, faction, "x"))
+			made.append(Troop.new(type_id, UnitType.SOLDIERS))
 	return made
 
 

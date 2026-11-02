@@ -1,16 +1,20 @@
 class_name OrdersLayer
 extends Node2D
 ## Draws planned orders as big spear-shaped arrows from one region to another
-## (PRD 8.3): red to attack, blue to move: a wooden shaft and a steel head
+## (PRD 8.3, B, C): red to attack, blue to move, darker red to support another
+## attack (so several arrows converge on one target): a wooden shaft and a steel head
 ## over a tapered wedge of the order's colour, edged in gold. Only the
-## viewer's own orders show while planning; a fainter arrow previews the order
-## under the mouse. A unit split across several orders has one arrow per
+## orders of the faction whose turn it is show: yours while you plan, an
+## enemy's (where you can see) while its turn plays out. A fainter arrow
+## previews the order under the mouse, or follows the pointer while you drag
+## from your army (PRD I). A unit split across several orders has one arrow per
 ## detachment, each with a small shield showing how many soldiers go.
 ## Clicking an arrow cancels that one order.
 
 const ATTACK := Color("#c8402c")
 const MOVE := Color("#3a6ed0")
 const BESIEGE := Color("#8a5a2a")
+const SUPPORT := Color("#9a2a4a")
 const OUTLINE := Color("#e7b74e")
 const WOOD := Color("#8a5a2e")
 const STEEL := Color("#c9ccd2")
@@ -34,8 +38,11 @@ func _ready() -> void:
 func _draw() -> void:
 	_shapes.clear()
 	var counts := []  # Drawn last, above every arrow and the preview.
+	var seen := state.visible_provinces(state.viewer())
 	for unit: Unit in state.orders:
-		if unit.owner != state.viewer() or not state.units.has(unit):
+		if unit.owner != state.current_faction() or not state.units.has(unit):
+			continue
+		if unit.owner != state.viewer() and not seen.has(unit.province):
 			continue
 		var list: Array = state.orders[unit]
 		for index in list.size():
@@ -43,6 +50,8 @@ func _draw() -> void:
 			var points := route(unit, index)
 			for i in steps.size():
 				var color := MOVE if steps[i].type == "move" else (ATTACK if steps[i].type == "attack" else BESIEGE)
+				if steps[i].type == "attack" and list[index].get("support", false):
+					color = SUPPORT
 				_shapes.append([unit, index, draw_spear(self, points[i], points[i + 1], color, 1.0)])
 			if list.size() > 1 or int(list[index].size) < unit.soldiers():
 				counts.append([points[0].lerp(points[1], 0.42), int(list[index].size)])

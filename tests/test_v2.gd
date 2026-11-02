@@ -125,12 +125,12 @@ func _test_ai(t) -> void:
 	t.check(orders.all(func(o): return o.steps[0].type != "attack"), "the AI won't attack when the forecast is bad")
 
 	state = Helpers.game({"greywater": "blue", "kingsvale": "red", "redfield": "red"}, [
-		["blue", "greywater", "heavy_cavalry"], ["red", "kingsvale", "spearmen", 3]], 7)
+		["blue", "greywater", "heavy_cavalry"], ["red", "kingsvale", "spearmen", 3]], 7, {"resources": {"red": {"gold": 0}}})
 	Helpers.plan_as(state, "red")
 	var hurt: Unit = state.unit_in("kingsvale")
 	AI.play_turn(state)
 	Helpers.resolve(state)
-	t.check(hurt.province == "redfield" or not state.units.has(hurt), "a badly hurt unit pulls back from the front")
+	t.check(hurt.province == "redfield" or not state.units.has(hurt), "a small army pulls back from the front")
 
 	state = Helpers.game({"greywater": "blue", "kingsvale": "red"}, [["blue", "greywater", "heavy_cavalry"]], 7,
 		{"buildings": {"kingsvale": {"barracks": 1}}, "resources": {"red": {"gold": 500, "wood": 200, "manpower": 200}}})

@@ -1,13 +1,14 @@
 extends Node2D
-## The game scene: the painted map, the units and the order arrows, and the
-## planning turn (PRD 8.3). Click one of your units, then a region: a blue
-## arrow moves there, a red one attacks; a slider chooses how many soldiers
-## go. The unit stays selected, so more arrows can send the rest elsewhere;
-## whoever isn't sent stays home. Cavalry detachments can add a second step.
-## Click an arrow to cancel that order; right-click the unit (or press U) to
-## cancel all of them.
-## The hourglass ends your planning; when every faction has planned, the turn
-## resolves and plays out on the map.
+## The game scene: the painted map, the armies and the order arrows, and the
+## turns (PRD 8.3, A, B, C). Click one of your armies, then a region: a blue
+## arrow moves there; an enemy region opens a ring of buttons to attack or,
+## when another of your armies already attacks it, to support that attack.
+## A slider per soldier type (and a TOTAL slider) chooses who goes. The army
+## stays selected, so more arrows can send the rest elsewhere; whoever isn't
+## sent stays home. Cavalry detachments can add a second step. Click an arrow
+## to cancel that order; right-click the army (or press U) to cancel all.
+## The hourglass ends your turn: your orders resolve and play out, then each
+## other faction takes its turn on the map (tap to skip it).
 
 enum MapMode { POLITICAL, TERRAIN }
 
@@ -44,6 +45,9 @@ var _recruit_window: RecruitWindow
 var _popup: WoodPopup
 var _tutorial: Tutorial  # The guided tutorial's steps, in the tutorial mission only.
 var _tutorial_box: TutorialBox
+var _ring: ActionRing
+## Set by a tap while an enemy's turn plays out: skip the rest of it.
+var _skip_enemy := false
 
 @onready var _map_root: Node2D = $Map
 @onready var _camera: MapCamera = $Camera
@@ -87,6 +91,9 @@ func _ready() -> void:
 	_effects.setup(state, _tokens, _views)
 	_map_root.add_child(_effects)
 
+	_ring = ActionRing.new()
+	$UI.add_child(_ring)
+	_ring.chosen.connect(_on_ring)
 	_attack_popup = AttackPopup.new()
 	_recruit_window = RecruitWindow.new()
 	_popup = WoodPopup.new()
@@ -153,8 +160,9 @@ func _input(event: InputEvent) -> void:
 		_camera.zoom_at(event.position, event.factor)
 	elif event is InputEventPanGesture:
 		_camera.pan_by_screen(-event.delta * 8.0)
-	elif _busy and event is InputEventMouseButton and event.pressed:
-		_effects.skip()  # Click to skip the turn's animation.
+	elif _busy and (event is InputEventMouseButton or event is InputEventScreenTouch) and event.pressed:
+		_effects.skip()  # Click to skip the turn's animation...
+		_skip_enemy = true  # ...and the rest of an enemy's turn.
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -195,13 +203,17 @@ func _unhandled_input(event: InputEvent) -> void:
 func select_unit(unit: Unit) -> void:
 	selected_unit = unit
 	selected_region = ""
+	_ring.visible = false
 	_show_unit_info(unit)
+	_hud.show_army(state, unit)
 	_refresh_world()
 
 
 func select_region(region: String) -> void:
 	selected_unit = null
 	selected_region = region
+	_ring.visible = false
+	_hud.show_army(state, null)
 	if region == "":
 		_hud.hide_info()
 	else:
@@ -235,9 +247,10 @@ func _click(point: Vector2) -> void:
 	select_region(region)
 
 
-## Gives the selected unit an order to `region`. A new arrow, or one that
-## changes an existing order's count, asks how many soldiers go; a cavalry
-## detachment's second march just carries on.
+## Gives the selected army an order to `region`. A march, or a change to an
+## existing order, opens the slider window; a new attack first opens the
+## ring of buttons (attack, support, cancel); a cavalry detachment's second
+## march just carries on.
 func order(region: String) -> void:
 	if selected_unit == null or not _is_my_turn():
 		return
@@ -251,13 +264,52 @@ func order(region: String) -> void:
 	if plan.type == "move" and plan.step > 0:
 		_give(unit, "move", region, {})
 		return
-	var current: Dictionary = Orders.orders_of(state, unit)[plan.order] if plan.order >= 0 and plan.step == 0 else {}
-	var forecast := state.forecast_attack([unit], region) if plan.type == "attack" else {}
-	_attack_popup.show_order(state, unit, plan.type, region, forecast, Orders.available(state, unit, region), current,
-		plan.type == "move" and Orders.whole_unit_only(state, unit, region), plan.from)
+	if plan.type == "attack" and plan.order < 0:
+		var actions := ["cancel", "attack"]
+		if Orders.can_support(state, unit, region):
+			actions.append("support")
+		_ring.set_meta("target", region)
+		_ring.set_meta("unit", unit)
+		_ring.open_at(_tokens.get_global_transform_with_canvas() * _tokens.region_anchor(region), actions)
+		return
+	_open_slider(unit, plan.type, region, false)
+
+
+## The ring's choice: attack or support opens the slider window.
+func _on_ring(action: String) -> void:
+	var unit: Unit = _ring.get_meta("unit")
+	var region: String = _ring.get_meta("target")
+	if action == "cancel" or not state.units.has(unit):
+		return
+	_open_slider(unit, "attack", region, action == "support")
+
+
+func _open_slider(unit: Unit, type: String, region: String, support: bool) -> void:
+	var plan := Orders.intent(state, unit, region)
+	var current: Dictionary = Orders.orders_of(state, unit)[plan.order] if not plan.is_empty() and plan.order >= 0 and plan.step == 0 else {}
+	if not current.is_empty():
+		support = current.get("support", false)
+	var forecaster := Callable()
+	if type == "attack":
+		var helpers: Array = []
+		if support:
+			var main := Orders.main_attack(state, unit.owner, region, unit)
+			if main != null:
+				helpers.append(main)
+		forecaster = func(troops: Dictionary) -> Dictionary:
+			var sent := unit.copy()
+			sent.troops.clear()
+			for type_id in troops:
+				var source := unit.troop(type_id)
+				var part := source.copy()
+				part.soldiers = int(troops[type_id])
+				part.hp = source.hp * troops[type_id] / maxf(source.soldiers, 1)
+				sent.troops.append(part)
+			return state.forecast_attack([sent] + helpers, region, 12)
+	_attack_popup.show_order(state, unit, type, region, Orders.available(state, unit, region, type), current, support, forecaster)
 	_attack_popup.set_meta("target", region)
 	_attack_popup.set_meta("unit", unit)
-	_attack_popup.set_meta("type", plan.type)
+	_attack_popup.set_meta("type", type)
 	_dim.visible = true
 
 
@@ -313,19 +365,19 @@ func _cancel_one(unit: Unit, index: int) -> void:
 
 
 func _show_unit_info(unit: Unit) -> void:
-	var unit_type := unit.type()
 	var lines := PackedStringArray()
-	lines.append("[b]%s[/b] — %d of %d soldiers" % [unit_type.display_name, unit.soldiers(), UnitType.SOLDIERS])
-	lines.append("[i]%s Attack %d, defense %d, %s%s.[/i]" % [unit_type.description, unit_type.attack, unit_type.defense,
-		"range %d" % unit_type.attack_range if unit_type.is_ranged() else "melee", ", two steps a turn" if unit_type.is_cavalry() else ""])
+	lines.append("[b]%s army[/b] — %d soldiers: %s" % [state.faction_name(unit.owner), unit.soldiers(), unit.describe()])
+	var health := roundi(unit.health() * 100)
+	if health < 100:
+		lines.append("[i]Health %d%%. Resting in your own region heals it.[/i]" % health)
 	var buttons := []
 	if unit.owner == state.current_faction() and _is_my_turn():
 		if not state.orders.has(unit):
-			lines.append("Click a [color=#2a4fa0]region to move[/color] or an [color=#9b2d20]enemy to attack[/color]; a slider sets how many go.")
+			lines.append("Click (or drag to) a [color=#2a4fa0]region to move[/color] or an [color=#9b2d20]enemy to attack[/color]; sliders set who goes.")
 		else:
 			var hints := PackedStringArray()
 			if Orders.chain_index(state, unit) >= 0:
-				hints.append("Click a region for the detachment's second step.")
+				hints.append("Click a region for the riders' second step.")
 			if Orders.unassigned(state, unit) > 0:
 				hints.append("More arrows send the rest elsewhere.")
 			hints.append("Click an arrow to cancel it.")
@@ -354,7 +406,7 @@ func _show_region_info(region: String) -> void:
 		" (%s)" % ", ".join(extras) if not extras.is_empty() else "", map.terrain(region).display_name, roundi(Economy.region_income(state, region))])
 	var occupant := state.unit_in(region)
 	if occupant != null and (occupant.owner == state.viewer() or state.visible_provinces(state.viewer()).has(region)):
-		lines.append("Held by %s %s (%d soldiers)." % [state.faction_name(occupant.owner), occupant.type().display_name.to_lower(), occupant.soldiers()])
+		lines.append("Held by an army of %s: %d soldiers (%s)." % [state.faction_name(occupant.owner), occupant.soldiers(), occupant.describe()])
 	var buttons := []
 	if owner == state.current_faction() and _is_my_turn():
 		buttons.append(["Recruit here", func(): open_recruit(region)])
@@ -364,7 +416,8 @@ func _show_region_info(region: String) -> void:
 
 # --- Turns -------------------------------------------------------------------------------
 
-## The hourglass: this faction is done planning.
+## The hourglass: your orders resolve and play out, then the other factions
+## take their turns (PRD C).
 func end_turn() -> void:
 	if not _is_my_turn():
 		return
@@ -376,30 +429,56 @@ func end_turn() -> void:
 	clear_selection()
 	var before := _snapshot()
 	var events := state.end_faction_turn()
-	if not events.is_empty():
-		await _show_resolution(events, before)
+	await _show_resolution(events, before)
 	_advance()
 
 
-## Lets the computer factions plan, resolves the turn when everyone has, and
-## stops when a human has to plan.
+## Plays the computer factions' turns one after another, and stops when a
+## human has to plan.
 func _advance() -> void:
 	while not state.is_over():
 		var faction := state.current_faction()
 		if state.factions[faction].human:
 			_start_human_planning()
 			return
-		AI.play_turn(state)
-		var before := _snapshot()
-		var events := state.end_faction_turn()
-		if not events.is_empty():
-			await _show_resolution(events, before)
+		await _enemy_turn(faction)
 	_refresh_world()
 	_check_end()
 
 
+## A computer faction's turn on the map: a brief dark screen with an
+## hourglass, then "Turn: …" with its flag, its arrows, and its orders
+## playing out. A tap skips the rest.
+func _enemy_turn(faction: String) -> void:
+	_busy = true
+	_skip_enemy = false
+	_hud.set_end_turn_enabled(false)
+	var fast := _animation_speed() <= 0.0
+	if not fast:
+		await _hud.curtain(0.6)
+	_hud.show_enemy_turn("Turn: %s" % state.faction_name(faction), state.faction_color(faction), state.factions[faction].civ)
+	AI.play_turn(state)
+	_refresh_world()
+	if not fast and not _skip_enemy:
+		await _pause(0.9)
+	var before := _snapshot()
+	var events := state.end_faction_turn()
+	await _show_resolution(events, before)
+	_hud.hide_enemy_turn()
+
+
+## Waits, unless the player taps to skip the enemy's turn.
+func _pause(seconds: float) -> void:
+	var elapsed := 0.0
+	while elapsed < seconds and not _skip_enemy:
+		await get_tree().process_frame
+		elapsed += get_process_delta_time()
+
+
 func _start_human_planning() -> void:
 	var faction := state.current_faction()
+	_busy = false
+	_hud.set_end_turn_enabled(true)
 	_refresh_world()
 	var humans := state.turn_order.filter(func(f): return state.factions[f].human)
 	if humans.size() > 1 and faction != _last_human and _last_human != "":
@@ -415,7 +494,8 @@ func _start_human_planning() -> void:
 func _snapshot() -> Dictionary:
 	var before := {}
 	for unit in state.units:
-		before[unit] = {"province": unit.province, "hp": unit.hp}
+		before[unit] = Resolver.look(unit)
+		before[unit]["province"] = unit.province
 	return before
 
 
@@ -430,9 +510,8 @@ func _show_resolution(events: Array, before: Dictionary) -> void:
 			_last_battles.append([event.battle, event.province])
 			kinds.append(event.get("kind", "volley"))
 	_hud.set_battles(kinds)
-	await _effects.play(events, before, _animation_speed())
-	_busy = false
-	_hud.set_end_turn_enabled(true)
+	await _effects.play(events, before, 0.0 if _skip_enemy else _animation_speed())
+	_tokens.sync()
 	_report_events(events)
 	_refresh_world()
 	_check_end()

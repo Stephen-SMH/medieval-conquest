@@ -1,14 +1,16 @@
 class_name GameState
 extends RefCounted
 ## Everything that changes during a game: who owns each region, the regions'
-## buildings, the factions' treasuries, the units, the orders
-## planned this turn, and the random number generator. The geography is fixed
-## and lives in MapData; the economy rules are in Economy.
+## buildings, the factions' treasuries, the armies, the orders planned this
+## turn, and the random number generator. The geography is fixed and lives in
+## MapData; the economy rules are in Economy.
 ##
-## Turns are simultaneous (PRD 8.3): every faction plans its orders in turn
-## (Orders), then the Resolver carries them all out together.
+## Turns go faction by faction (PRD C): the current faction plans all its
+## arrows, presses the hourglass, and only its orders resolve (Resolver) and
+## play out; then the next faction takes its turn. When every faction has
+## played, the turn number goes up.
 
-const STACK_LIMIT := 1  # UT-3: one unit per region.
+const STACK_LIMIT := 1  # UT-3: one army per region.
 const SEASONS := ["Spring", "Summer", "Autumn", "Winter"]
 ## Factions that hold regions but never take turns.
 const NON_PLAYABLE := {
@@ -21,29 +23,35 @@ var scenario_id := ""
 var turn := 1
 var factions := {}  # faction id -> FactionState, playable factions only
 var turn_order: Array[String] = []
-## Index into turn_order of the faction planning its orders now.
+## Index into turn_order of the faction whose turn it is.
 var current := 0
 var owners := {}  # region id -> faction id
 var provinces := {}  # region id -> ProvinceState
 var capitals := {}  # faction id -> region id
 var units: Array[Unit] = []
 var rng := RandomNumberGenerator.new()
-## Orders planned this turn: Unit -> {"type": "move"/"attack"/"besiege", "target": region}.
+## Orders planned by the current faction: Unit -> Array of orders (see Orders).
 var orders := {}
-## The scenario's mission (objectives, par...); empty for skirmish and hotseat.
+## The scenario's mission (objectives, crowns...); empty for skirmish and hotseat.
 var mission := {}
-## Turns held for "hold" objectives, by objective index.
+## Mission bookkeeping: turns held, events fired...
 var mission_progress := {}
 ## Soldiers each faction has lost, by unit type: faction -> {type: soldiers}.
 var losses := {}
+## Armies each faction has destroyed: faction -> count.
+var kills := {}
 ## {} while the game goes on; see Mission.evaluate().
 var result := {}
+## Forge upgrades for factions: faction -> {upgrade family: {"attack": level, ...}}.
+var upgrades := {}
 
 var _next_unit_id := 1
 
 
 ## Builds a game from a scenario (data/scenarios/*.json or a mission): the map,
-## factions, owners, capitals, buildings, units and starting resources.
+## factions, owners, capitals, buildings, armies and starting gold. An army
+## entry is {"owner", "region", "type", "soldiers"} or {"owner", "region",
+## "troops": {type: soldiers}}.
 static func from_scenario(scenario: Dictionary, game_seed := 1) -> GameState:
 	var state := GameState.new()
 	state.map = MapData.load_map(scenario.map)
@@ -76,12 +84,18 @@ static func from_scenario(scenario: Dictionary, game_seed := 1) -> GameState:
 		state.provinces[region] = province
 	Economy.stock_mercenaries(state)
 	for entry in scenario.get("units", []):
-		if state.unit_in(entry.region) != null:
-			push_error("Scenario %s puts two units in %s" % [state.scenario_id, entry.region])
+		var army := state.unit_in(entry.region)
+		if army != null and army.owner != entry.owner:
+			push_error("Scenario %s puts two factions' armies in %s" % [state.scenario_id, entry.region])
 			continue
-		var unit := state.add_unit(entry.type, entry.owner, entry.region)
-		if entry.has("soldiers"):
-			unit.set_soldiers(int(entry.soldiers))
+		if army == null:
+			army = state.add_unit("", entry.owner, entry.region)
+		if entry.has("troops"):
+			for troop_type in entry.troops:
+				army.add(troop_type, int(entry.troops[troop_type]))
+		else:
+			army.add(entry.type, int(entry.get("soldiers", UnitType.SOLDIERS)))
+		army.reset_turn()
 	state.update_alive()
 	state.begin_turn()
 	return state
@@ -136,33 +150,62 @@ func date_text() -> String:
 	return "%s, Year %d (turn %d)" % [season(), year(), turn]
 
 
-## Starts a turn: units are fresh, nobody has orders, the first faction plans.
+## Starts a round: the first living faction takes its turn.
 func begin_turn() -> void:
-	orders.clear()
-	for unit in units:
-		unit.reset_turn()
 	current = 0
 	_skip_fallen()
+	begin_faction_turn()
 
 
-## Ends the current faction's planning. When every living faction has planned,
-## the orders are resolved together (PRD 8.3) and the next turn begins.
-## Returns the resolution events, or [] if another faction still has to plan.
+## The current faction's turn starts: its armies are fresh and
+## reinforcements ordered last turn arrive.
+func begin_faction_turn() -> Array:
+	var faction := current_faction()
+	for unit in units_of(faction):
+		unit.reset_turn()
+	var events := Economy.arrivals(self, faction)
+	if current == living_index(0):
+		events.append_array(Mission.start_of_turn(self))
+	return events
+
+
+## Ends the current faction's turn: its orders are resolved and played out
+## (PRD C), then the next living faction's turn starts; after the last one,
+## the turn number goes up. Returns the events, for the animations.
 func end_faction_turn() -> Array:
 	if is_over():
 		return []
+	var events := Resolver.resolve(self, current_faction())
+	update_result()
+	if is_over():
+		orders.clear()
+		return events
+	var wrapped := true
 	for step in turn_order.size():
 		current += 1
 		if current >= turn_order.size():
 			break
 		if factions[current_faction()].alive:
-			return []
-	current = turn_order.size() - 1
-	var events := Resolver.resolve(self)
-	turn += 1
-	begin_turn()
-	update_result()
+			wrapped = false
+			break
+	if wrapped:
+		turn += 1
+		current = 0
+		_skip_fallen()
+		update_result()
+	events.append_array(begin_faction_turn() if not is_over() else [])
 	return events
+
+
+## The index in turn_order of the `n`th living faction.
+func living_index(n: int) -> int:
+	var seen := 0
+	for i in turn_order.size():
+		if factions[turn_order[i]].alive:
+			if seen == n:
+				return i
+			seen += 1
+	return 0
 
 
 func _skip_fallen() -> void:
@@ -196,15 +239,21 @@ func living_factions() -> Array[String]:
 	return alive
 
 
-# --- Units ----------------------------------------------------------------------
+# --- Armies ----------------------------------------------------------------------
 
-func add_unit(type_id: String, owner: String, region: String) -> Unit:
-	var unit := Unit.new(type_id, owner, region)
+## A new army with `soldiers` of `type_id` (none if the type is "").
+func add_unit(type_id: String, owner: String, region: String, soldiers := UnitType.SOLDIERS) -> Unit:
+	var unit := Unit.new(type_id, owner, region, soldiers)
+	register(unit)
+	unit.reset_turn()
+	return unit
+
+
+## Gives an army made elsewhere (a detachment) an id and puts it on the map.
+func register(unit: Unit) -> void:
 	unit.id = _next_unit_id
 	_next_unit_id += 1
-	unit.reset_turn()
 	units.append(unit)
-	return unit
 
 
 func remove_unit(unit: Unit) -> void:
@@ -219,7 +268,7 @@ func unit_by_id(id: int) -> Unit:
 	return null
 
 
-## The unit in a region, or null (one unit per region, UT-3).
+## The army in a region, or null (one per region, UT-3).
 func unit_in(region: String) -> Unit:
 	for unit in units:
 		if unit.province == region:
@@ -251,12 +300,12 @@ func enemy_units_in(region: String, faction: String) -> Array[Unit]:
 	return found
 
 
-## Free places in a region for a faction's units: 1 if empty, else 0.
+## Free places in a region for an army: 1 if empty, else 0.
 func space_in(region: String, _faction := "") -> int:
 	return STACK_LIMIT - units_in(region).size()
 
 
-## Regions a faction can see units in: its own regions, regions its units
+## Regions a faction can see armies in: its own regions, regions its armies
 ## stand in, and every neighbour of those (MP-5).
 func visible_provinces(faction: String) -> Dictionary:
 	var seen := {}
@@ -274,61 +323,63 @@ func visible_provinces(faction: String) -> Dictionary:
 
 
 func attack_range(unit: Unit) -> int:
-	return unit.type().attack_range
+	return unit.max_range()
 
 
 # --- Battles ----------------------------------------------------------------------
 
-## Rates an attack by a unit on the unit in `region` without changing anything (OR-6).
+## Rates an attack by these armies (or detachments) on the army in `region`
+## without changing anything (OR-6).
 func forecast_attack(stack: Array, region: String, runs := Battle.FORECAST_RUNS) -> Dictionary:
 	if stack.is_empty() or enemy_units_in(region, stack[0].owner).is_empty():
 		return {}
-	var attacker: Unit = stack[0]
-	var defender: Unit = enemy_units_in(region, attacker.owner)[0]
-	var attacking: Array[Unit] = [attacker]
-	var defending: Array[Unit] = [defender]
+	var attacking: Array[Unit] = []
+	attacking.assign(stack)
+	var defending: Array[Unit] = [enemy_units_in(region, stack[0].owner)[0]]
 	return Battle.forecast(
 		func(): return forces(attacking, defending, region, true)[0],
 		func(): return forces(attacking, defending, region, true)[1],
 		map.terrain(region), crosses_river(attacking, region),
-		hash([attacker.id, region, turn]), runs)
+		hash([stack[0].id, region, turn]), runs)
 
 
-## [attacking Force, defending Force] for units fighting over `region`. With
+## [attacking Force, defending Force] for armies fighting over `region`. With
 ## `copy`, the forces fight copies so a forecast leaves the real ones untouched.
-## A `field` battle (head-on or contested move) has no walls.
 func forces(attacking: Array[Unit], defenders: Array[Unit], region: String, copy: bool, field := false) -> Array:
-	var attack_units: Array[Unit] = []
+	var attack_troops: Array[Troop] = []
 	for unit in attacking:
-		prepare_for_battle(unit, false, region)
-		attack_units.append(unit.copy() if copy else unit)
-	var defend_units: Array[Unit] = []
+		for troop in unit.troops:
+			prepare_for_battle(troop, unit.owner, false, region, unit.province)
+			attack_troops.append(troop.copy() if copy else troop)
+	var defend_troops: Array[Troop] = []
 	for unit in defenders:
-		prepare_for_battle(unit, not field, region)
-		defend_units.append(unit.copy() if copy else unit)
-	var attacking_force := Battle.Force.new(attacking[0].owner, true, attack_units)
-	var defending_force := Battle.Force.new(defenders[0].owner, false, defend_units)
+		for troop in unit.troops:
+			prepare_for_battle(troop, unit.owner, not field, region, unit.province)
+			defend_troops.append(troop.copy() if copy else troop)
+	var attacking_force := Battle.Force.new(attacking[0].owner, true, attack_troops)
+	var defending_force := Battle.Force.new(defenders[0].owner, false, defend_troops)
 	if not field:
 		defending_force.wall_bonus = Sieges.wall_bonus(self, region, attacking)
 	return [attacking_force, defending_force]
 
 
-## Works out a unit's battle multipliers from its civilization and upgrades.
-func prepare_for_battle(unit: Unit, defending: bool, region: String) -> void:
-	unit.attack_mod = 1.0
-	unit.defense_mod = 1.0
-	unit.charge_mod = 1.0
-	Bonuses.battle(self, unit, defending, region)
+## Works out a troop's battle multipliers from its civilization and upgrades.
+func prepare_for_battle(troop: Troop, owner: String, defending: bool, region: String, from := "") -> void:
+	troop.attack_mod = 1.0
+	troop.defense_mod = 1.0
+	troop.charge_mod = 1.0
+	troop.toughness = 1.0
+	Bonuses.battle(self, troop, owner, defending, region, from)
 
 
 func crosses_river(attacking: Array[Unit], region: String) -> bool:
 	for unit in attacking:
-		if not unit.type().is_ranged() and map.border_type(unit.province, region) == "river":
+		if unit.has_melee() and map.border_type(unit.province, region) == "river":
 			return true
 	return false
 
 
-## A free neighbouring region the unit's faction owns, or "" if there is none.
+## A free neighbouring region the army's faction owns, or "" if there is none.
 func retreat_region(unit: Unit, from: String) -> String:
 	for neighbour in map.neighbours(from):
 		if owners[neighbour] == unit.owner and unit_in(neighbour) == null:
@@ -336,21 +387,34 @@ func retreat_region(unit: Unit, from: String) -> String:
 	return ""
 
 
+## Whether a faction has a Forge upgrade for this soldier type's line (G).
+func is_upgraded(faction: String, type_id: String) -> bool:
+	var lines: Dictionary = upgrades.get(faction, {})
+	var levels: Dictionary = lines.get(TypeIcons.family(type_id), {})
+	return levels.values().any(func(level): return int(level) > 0)
+
+
 ## Adds the soldiers each side lost in a battle to `losses`.
 func record_losses(battle: Battle) -> void:
 	for side: Battle.Force in [battle.attacker, battle.defender]:
 		for i in side.units.size():
-			var unit: Unit = side.units[i]
-			var after := 0 if unit.is_destroyed() else unit.soldiers()
-			var lost: int = side.before[i][1] - after
-			if lost > 0:
-				var by_type: Dictionary = losses.get_or_add(side.faction, {})
-				by_type[side.before[i][0]] = int(by_type.get(side.before[i][0], 0)) + lost
+			var lost: int = side.before[i][1] - side.units[i].soldiers
+			note_loss(side.faction, side.before[i][0], lost)
 
 
-## Removes a unit.
-func destroy(unit: Unit, how: String) -> Array:
+func note_loss(faction: String, type_id: String, lost: int) -> void:
+	if lost > 0:
+		var by_type: Dictionary = losses.get_or_add(faction, {})
+		by_type[type_id] = int(by_type.get(type_id, 0)) + lost
+
+
+## Removes an army. `by` is the faction that destroyed it, if any.
+func destroy(unit: Unit, how: String, by := "") -> Array:
+	for troop in unit.troops:
+		note_loss(unit.owner, troop.type_id, troop.soldiers)
 	remove_unit(unit)
+	if by != "":
+		kills[by] = int(kills.get(by, 0)) + 1
 	return [{"type": "destroyed", "unit": unit, "province": unit.province, "how": how}]
 
 
@@ -373,26 +437,25 @@ func capture(faction: String, region: String, from := "") -> Array:
 ## "" if `source` can join `target`, else why not.
 func merge_problem(target: Unit, source: Unit) -> String:
 	if target == source:
-		return "the same unit"
+		return "the same army"
 	if target.owner != source.owner:
 		return "not the same faction"
-	if target.type_id != source.type_id:
-		return "different unit types"
-	if target.soldiers() >= UnitType.SOLDIERS:
-		return "already %d soldiers" % UnitType.SOLDIERS
+	if target.soldiers() >= Unit.CAP:
+		return "already %d soldiers" % Unit.CAP
 	return ""
 
 
-## Moves soldiers from `source` into `target`, up to 20 (UT-8). Soldiers that
-## don't fit stay in `source`; if none are left, `source` is removed.
-## Returns the soldiers moved.
+## Moves soldiers from `source` into `target`, up to Unit.CAP: compositions
+## add up. Soldiers that don't fit stay in `source` (taken evenly across its
+## types); if none are left, `source` is removed. Returns the soldiers moved.
 func merge(target: Unit, source: Unit) -> int:
 	if merge_problem(target, source) != "":
 		return 0
-	var moving := mini(source.soldiers(), UnitType.SOLDIERS - target.soldiers())
-	target.set_soldiers(target.soldiers() + moving)
+	var room := Unit.CAP - target.soldiers()
+	var moving := mini(source.soldiers(), room)
 	if moving >= source.soldiers():
+		target.absorb(source)
 		remove_unit(source)
 	else:
-		source.set_soldiers(source.soldiers() - moving)
+		target.absorb(source.split(Orders.pick(source.composition(), moving)))
 	return moving

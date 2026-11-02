@@ -249,7 +249,7 @@ func _test_tutorial_steps(t) -> void:
 	tutorial.update(state, null)
 	t.check(tutorial.current().id == "mercenary", "then mercenaries")
 	Helpers.plan_as(state, Tutorial.PLAYER)
-	t.check(Economy.hire(state, "millbrook", "spearmen"), "mercenaries can be hired in Millbrook's town once the spearmen have left")
+	t.check(Economy.hire(state, "millbrook", "spearmen"), "mercenaries can be hired in Millbrook's town (%s)" % Economy.hire_problem(state, "millbrook", "spearmen", Tutorial.PLAYER))
 	tutorial.record("hire")
 	tutorial.update(state, null)
 	t.check(tutorial.current().id == "recruit", "then recruiting")

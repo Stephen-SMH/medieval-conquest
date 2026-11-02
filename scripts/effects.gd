@@ -104,7 +104,7 @@ func _rewind(before: Dictionary) -> void:
 		var visual: TokenLayer.TokenVisual = tokens.visuals[unit]
 		if before.has(unit):
 			visual.region = before[unit].province
-			visual.hp = before[unit].hp
+			visual.show(before[unit])
 		visual.held = true
 		visual.offset = Vector2.ZERO
 		visual.position_override = null
@@ -131,7 +131,7 @@ func _splits(splits: Array) -> void:
 	for event in splits:
 		var home := _visual(event.unit)
 		if home != null:
-			home.hp = event.hp[event.unit]
+			home.show(event.hp[event.unit])
 		var parts: Array = event.parts
 		for k in parts.size():
 			var part: Unit = parts[k]
@@ -139,7 +139,7 @@ func _splits(splits: Array) -> void:
 			visual.unit = part
 			visual.region = event.province
 			visual.owner = part.owner
-			visual.hp = event.hp[part]
+			visual.show(event.hp[part])
 			visual.held = true
 			tokens.visuals[part] = visual
 			# Fan out: alternately right and left, a little further each time.
@@ -175,7 +175,7 @@ func _volleys(volleys: Array) -> void:
 			"volley":
 				var from := tokens.region_anchor(event.origin)
 				var to := tokens.region_anchor(event.province)
-				var stone: bool = event.unit.type().unit_class == "siege"
+				var stone: bool = event.unit.troops.any(func(t): return t.type().unit_class == "siege") and not event.unit.troops.any(func(t): return t.type().unit_class == "ranged")
 				for k in (2 if stone else 7):
 					_projectiles.append({"from": from + Vector2(randf_range(-14, 14), randf_range(-8, 8)),
 						"to": to + Vector2(randf_range(-22, 22), randf_range(-12, 12)), "t": -k * 0.06, "stone": stone})
@@ -297,11 +297,19 @@ func _capture(event: Dictionary) -> void:
 	await _wait(SWEEP / _speed)
 
 
-func _drain(hp: Dictionary, seconds := 0.5) -> void:
-	for unit in hp:
+## Drains (or fills) armies' bars to a snapshot {soldiers, hp, full, troops}.
+func _drain(looks: Dictionary, seconds := 0.5) -> void:
+	for unit in looks:
 		var visual := _visual(unit)
 		if visual != null:
-			_track(visual, "hp", visual.hp, hp[unit], seconds)
+			var look: Dictionary = looks[unit]
+			var from := visual.hp / visual.full * float(look.full)  # Keep the bar where it is while the numbers change.
+			visual.count = int(look.soldiers)
+			visual.full = maxf(float(look.full), 0.001)
+			if look.has("troops"):
+				visual.troops = look.troops.duplicate()
+			visual.hp = from
+			_track(visual, "hp", from, float(look.hp), seconds)
 
 
 ## Dust and sparks where two units clash.
@@ -421,7 +429,8 @@ static func volley_sounds(volleys: Array) -> Array:
 	for event in volleys:
 		if event.type != "volley" or event.get("unit") == null:
 			continue
-		var sound := "catapult" if event.unit.type().unit_class == "siege" else "volley"
+		var engines: bool = event.unit.troops.any(func(t): return t.type().unit_class == "siege")
+		var sound := "catapult" if engines else "volley"
 		if not sounds.has(sound):
 			sounds.append(sound)
 	return sounds
@@ -433,7 +442,7 @@ static func march_sounds(units: Array) -> Array:
 	for unit in units:
 		if unit == null:
 			continue
-		var sound := "hooves" if unit.type().is_cavalry() else "march"
+		var sound := "hooves" if unit.all_cavalry() else "march"
 		if not sounds.has(sound):
 			sounds.append(sound)
 	return sounds

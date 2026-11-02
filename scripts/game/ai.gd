@@ -1,15 +1,17 @@
 class_name AI
 extends RefCounted
-## Plans a computer faction's orders (PRD V2) with the same Orders a person
-## uses: recruit units that counter the enemies it can see, build when poor,
-## pull damaged units back, attack where the forecast is good enough for its
-## personality, besiege walls, capture empty regions and advance. A strong
-## unit sure of its attack may split off a few soldiers to hold an empty region
-## of its own that enemies threaten. The orders are carried out with everyone
-## else's when the turn resolves.
+## Plans a computer faction's orders (PRD V2, C) with the same Orders a person
+## uses, on its own turn: recruit soldiers that counter the enemies it can
+## see, build when poor, pull weak armies back, attack where the forecast is
+## good enough for its personality, join (support) another army's attack when
+## together they can win, besiege walls, capture empty regions and advance. A
+## strong army sure of its attack may split off a few soldiers to hold an
+## empty region of its own that enemies threaten. The orders resolve when the
+## AI ends its turn.
 
 const FORECAST_RUNS := 8  # Fewer than the player's forecast, to keep AI turns fast.
-const RETREAT_BELOW := 0.35  # Units weaker than this pull back from the front.
+const RETREAT_BELOW := 0.35  # Armies with less health than this pull back from the front...
+const RETREAT_SOLDIERS := 4  # ...as do armies this small.
 ## Forecast ratings each personality is willing to attack on.
 const ACCEPT := {
 	"aggressive": ["Decisive win", "Win", "Close"],
@@ -27,12 +29,17 @@ static func play_turn(state: GameState) -> Array:
 	if state.factions[faction].ai == "passive":
 		return []  # The tutorial's raiders stand and wait.
 	_manage_economy(state, faction)
-	var claimed := {}  # Regions some unit already plans to move into.
+	var claimed := {}  # Regions some army already plans to move into.
+	var idle: Array[Unit] = []
 	for unit in _strongest_first(state.units_of(faction)):
 		if _retreat(state, unit, claimed):
 			continue
 		if _attack(state, unit):
 			_garrison(state, unit, claimed)
+			continue
+		idle.append(unit)
+	for unit in idle:
+		if _support(state, unit):
 			continue
 		if _besiege(state, unit):
 			continue
@@ -91,9 +98,12 @@ static func _best_recruit(state: GameState, faction: String, region: String, ene
 		var score := 1.0
 		if not enemies.is_empty():
 			score = 0.0
+			var weight := 0
 			for enemy: Unit in enemies:
-				score += Rules.counters.multiplier(unit_id, enemy.type_id) / maxf(Rules.counters.multiplier(enemy.type_id, unit_id), 0.25)
-			score /= enemies.size()
+				for troop in enemy.troops:
+					score += troop.soldiers * Rules.counters.multiplier(unit_id, troop.type_id) / maxf(Rules.counters.multiplier(troop.type_id, unit_id), 0.25)
+					weight += troop.soldiers
+			score /= maxi(weight, 1)
 		score *= (unit_type.attack + unit_type.defense) * unit_type.hp / 100.0 / sqrt(maxf(unit_type.cost_gold, 1.0))
 		if score > best_score:
 			best_score = score
@@ -105,7 +115,7 @@ static func _best_recruit(state: GameState, faction: String, region: String, ene
 
 ## A badly hurt unit at the front steps back into a safer free region of its own.
 static func _retreat(state: GameState, unit: Unit, claimed: Dictionary) -> bool:
-	if unit.strength() >= RETREAT_BELOW or _threat(state, unit.owner, unit.province) == 0.0:
+	if (unit.health() >= RETREAT_BELOW and unit.soldiers() > RETREAT_SOLDIERS) or _threat(state, unit.owner, unit.province) == 0.0:
 		return false
 	var safest := ""
 	var lowest := _threat(state, unit.owner, unit.province)
@@ -146,7 +156,7 @@ static func _attack(state: GameState, unit: Unit) -> bool:
 ## enemies could walk into, and attacks with the rest.
 static func _garrison(state: GameState, unit: Unit, claimed: Dictionary) -> void:
 	var list := Orders.orders_of(state, unit)
-	if list.size() != 1 or list[0].steps[0].type != "attack" or unit.type().is_ranged() or unit.soldiers() < GARRISON_FROM:
+	if list.size() != 1 or list[0].steps[0].type != "attack" or unit.all_ranged() or unit.soldiers() < GARRISON_FROM:
 		return
 	var target: String = list[0].steps[0].target
 	for neighbour in state.map.neighbours(unit.province):
@@ -161,6 +171,19 @@ static func _garrison(state: GameState, unit: Unit, claimed: Dictionary) -> void
 		if Orders.give(state, unit, "move", neighbour, {"soldiers": guard}) == "":
 			claimed[neighbour] = true
 		return
+
+
+## Joins another army's attack next to it when together the forecast is better.
+static func _support(state: GameState, unit: Unit) -> bool:
+	var accept: Array = ACCEPT.get(state.factions[unit.owner].ai, ACCEPT.balanced)
+	for target in _targets_near(state, unit):
+		var main := Orders.main_attack(state, unit.owner, target, unit)
+		if main == null or Orders.problem(state, unit, "attack", target) != "":
+			continue
+		var forecast := state.forecast_attack([main, unit], target, FORECAST_RUNS)
+		if not forecast.is_empty() and forecast.rating in accept + ["Close"]:
+			return Orders.give(state, unit, "attack", target, {"support": true}) == ""
+	return false
 
 
 static func _besiege(state: GameState, unit: Unit) -> bool:

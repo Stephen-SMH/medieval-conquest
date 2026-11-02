@@ -96,10 +96,10 @@ static func upkeep_mod(state: GameState, faction: String) -> float:
 	return multiplier
 
 
-static func battle(state: GameState, unit: Unit) -> void:
+static func battle(state: GameState, unit: Troop, owner: String) -> void:
 	var unit_class := unit.type().unit_class
 	var melee := not unit.type().is_ranged()
-	for tech: TechType in _known(state, unit.owner):
+	for tech: TechType in _known(state, owner):
 		unit.attack_mod *= tech.attack.get(unit_class, 1.0) * (tech.attack.get("melee", 1.0) if melee else 1.0)
 		unit.defense_mod *= tech.defense.get(unit_class, 1.0)
 		if unit.type().is_cavalry():

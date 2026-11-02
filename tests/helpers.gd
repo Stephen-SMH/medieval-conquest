@@ -47,9 +47,20 @@ static func order(state: GameState, unit: Unit, type: String, target: String, am
 	return Orders.give(state, unit, type, target, amounts)
 
 
-## Ends planning for everyone and resolves the turn. Returns the events.
+## Plays a whole round: each faction in turn resolves the orders it has
+## planned (PRD C), until the turn number goes up. Returns the events.
 static func resolve(state: GameState) -> Array:
-	state.current = state.turn_order.size() - 1
+	var turn := state.turn
+	state.current = state.living_index(0)
+	var events := []
+	while state.turn == turn and not state.is_over():
+		events.append_array(state.end_faction_turn())
+	return events
+
+
+## Resolves only `faction`'s orders and starts the next faction's turn.
+static func resolve_faction(state: GameState, faction: String) -> Array:
+	plan_as(state, faction)
 	return state.end_faction_turn()
 
 

@@ -2,10 +2,10 @@ class_name SaveGame
 extends RefCounted
 ## Saves and loads a whole game as JSON in user://saves/, including the
 ## random number generator, so a loaded game plays on exactly as it would have.
-## Version 3 saves each unit's list of orders (detachments, PRD OR-3); older
-## saves held one order per unit and are converted when loaded.
+## Version 4 saves armies as compositions of troops (PRD A) and each order's
+## troops per type; older saves held one type per unit and are converted.
 
-const VERSION := 3
+const VERSION := 4
 const SAVE_DIR := "user://saves"
 const SLOTS := ["auto", "1", "2", "3"]
 
@@ -27,17 +27,18 @@ static func to_dict(state: GameState) -> Dictionary:
 			"mercenaries": province.mercenaries.duplicate()}
 	var units := []
 	for unit in state.units:
-		var entry := {"id": unit.id, "type": unit.type_id, "owner": unit.owner, "region": unit.province, "hp": unit.hp,
-			"move_points_left": unit.move_points_left, "attacked": unit.attacked, "moved": unit.moved,
-			"coastal_moves": unit.coastal_moves}
-		units.append(entry)
+		var troops := []
+		for troop in unit.troops:
+			troops.append({"type": troop.type_id, "soldiers": troop.soldiers, "hp": troop.hp})
+		units.append({"id": unit.id, "owner": unit.owner, "region": unit.province, "troops": troops,
+			"move_points_left": unit.move_points_left, "attacked": unit.attacked, "moved": unit.moved})
 	return {
 		"version": VERSION, "map": state.map.id, "scenario": state.scenario_id, "turn": state.turn, "current": state.current,
 		"factions": factions, "owners": state.owners.duplicate(), "capitals": state.capitals.duplicate(),
 		"provinces": provinces, "units": units, "next_unit_id": state._next_unit_id,
 		"rng_seed": str(state.rng.seed), "rng_state": str(state.rng.state),
 		"orders": _orders_to_list(state),
-		"mission": state.mission.duplicate(true), "mission_progress": state.mission_progress.duplicate(),
+		"mission": state.mission.duplicate(true), "kills": state.kills.duplicate(), "upgrades": state.upgrades.duplicate(true), "mission_progress": state.mission_progress.duplicate(),
 		"losses": state.losses.duplicate(true),
 		"result": state.result.duplicate(),
 	}
@@ -81,13 +82,21 @@ static func from_dict(data: Dictionary) -> GameState:
 			province.mercenaries[unit_id] = int(entry.mercenaries[unit_id])
 		state.provinces[region] = province
 	for entry in data.units:
-		var unit := Unit.new(entry.type, entry.owner, entry.region)
+		var unit := Unit.new("", entry.owner, entry.region)
 		unit.id = int(entry.id)
-		unit.hp = float(entry.hp)
+		if entry.has("troops"):
+			for saved in entry.troops:
+				var troop := Troop.new(saved.type, int(saved.soldiers))
+				troop.hp = float(saved.hp)
+				unit.add_troop(troop)
+		else:  # Version 1-3: one type per unit, soldiers from HP.
+			var troop := Troop.new(entry.type, 0)
+			troop.hp = float(entry.hp)
+			troop.soldiers = ceili(troop.hp / troop.soldier_hp() - 0.0001)
+			unit.add_troop(troop)
 		unit.move_points_left = int(entry.move_points_left)
 		unit.attacked = entry.attacked
 		unit.moved = entry.moved
-		unit.coastal_moves = int(entry.get("coastal_moves", 0))
 		state.units.append(unit)
 	state._next_unit_id = int(data.next_unit_id)
 	state.rng.seed = int(data.rng_seed)
@@ -96,6 +105,12 @@ static func from_dict(data: Dictionary) -> GameState:
 	for key in data.mission_progress:
 		state.mission_progress[key] = int(data.mission_progress[key])
 	state.result = data.get("result", {}).duplicate()
+	for key in ["stars", "crown", "points"]:
+		if state.result.has(key):
+			state.result[key] = int(state.result[key])
+	for faction in data.get("kills", {}):
+		state.kills[faction] = int(data.kills[faction])
+	state.upgrades = data.get("upgrades", {}).duplicate(true)
 	for faction in data.get("losses", {}):
 		state.losses[faction] = {}
 		for type_id in data.losses[faction]:
@@ -106,37 +121,37 @@ static func from_dict(data: Dictionary) -> GameState:
 		if unit == null:
 			continue
 		var list := []
-		if version >= 3:
-			for order in entry.orders:
-				list.append({"steps": order.steps.duplicate(true), "size": int(order.size), "soldiers": int(order.soldiers), "shoot": int(order.shoot)})
-		else:
-			list.append(_old_order(unit, entry))
+		for order in (entry.orders if version >= 3 else [entry]):
+			var troops := {}
+			if order.has("troops"):
+				for type_id in order.troops:
+					troops[type_id] = int(order.troops[type_id])
+			else:  # Version 1-3: a count of the unit's one type.
+				var size := int(order.get("size", int(order.get("soldiers", unit.soldiers())) + int(order.get("shoot", 0))))
+				troops = {unit.type_id: clampi(size, 1, unit.soldiers())}
+			var saved := {"steps": order.steps.duplicate(true), "troops": troops, "size": Orders.total(troops),
+				"support": order.get("support", false)}
+			if order.has("attackers"):
+				saved["attackers"] = {}
+				for type_id in order.attackers:
+					saved.attackers[type_id] = int(order.attackers[type_id])
+			list.append(saved)
 		state.orders[unit] = list
 	return state
 
 
-## A version 1-2 order (one per unit, the whole unit moving; an attack sending
-## `soldiers` and `shoot`) as a detachment: a single attack sends only those
-## soldiers, and anything else takes the whole unit, as it did then.
-static func _old_order(unit: Unit, entry: Dictionary) -> Dictionary:
-	var soldiers := int(entry.get("soldiers", unit.soldiers()))
-	var shoot := int(entry.get("shoot", 0))
-	var size := unit.soldiers()
-	if entry.steps.size() == 1 and entry.steps[0].type == "attack":
-		size = clampi(soldiers + shoot, 1, unit.soldiers())
-	elif entry.steps.size() == 1:
-		soldiers = size
-	return {"steps": entry.steps.duplicate(true), "size": size, "soldiers": mini(soldiers, size), "shoot": mini(shoot, size)}
-
-
-## Planned orders by unit id, oldest unit first, so saves are stable.
+## Planned orders by army id, oldest army first, so saves are stable.
 static func _orders_to_list(state: GameState) -> Array:
 	var list := []
 	for unit in state.units:
 		if state.orders.has(unit):
 			var orders := []
 			for order in state.orders[unit]:
-				orders.append({"steps": order.steps.duplicate(true), "size": int(order.size), "soldiers": int(order.soldiers), "shoot": int(order.shoot)})
+				var saved := {"steps": order.steps.duplicate(true), "troops": order.troops.duplicate(), "size": int(order.size),
+					"support": order.get("support", false)}
+				if order.has("attackers"):
+					saved["attackers"] = order.attackers.duplicate()
+				orders.append(saved)
 			list.append({"unit": unit.id, "orders": orders})
 	return list
 
@@ -154,7 +169,7 @@ static func save(state: GameState, slot: String) -> Error:
 	var file := FileAccess.open(temporary, FileAccess.WRITE)
 	if file == null:
 		return FileAccess.get_open_error()
-	file.store_string(JSON.stringify(data))
+	file.store_string(JSON.stringify(data, "", true, true))  # Full precision: health is fractional.
 	file.close()
 	return DirAccess.rename_absolute(temporary, path_for(slot))
 

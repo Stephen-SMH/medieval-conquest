@@ -34,6 +34,14 @@ var _banner: OrdersBanner
 var _end_turn: Button
 var _alerts_dot: Control
 var _shield_buttons: Array[Button] = []
+var _army: ArmyBanner
+var _enemy_turn: Control
+var _enemy_text: Label
+var _enemy_flag: Control
+var _enemy_color := Color.WHITE
+var _enemy_civ := ""
+var _skip_label: Label
+var _curtain: ColorRect
 
 
 func _ready() -> void:
@@ -101,6 +109,16 @@ func _ready() -> void:
 	_banner.offset_bottom = 460
 	add_child(_banner)
 
+	# The green cloth banner listing the selected army's soldiers (PRD A).
+	_army = ArmyBanner.new()
+	_army.anchor_left = 1.0
+	_army.anchor_right = 1.0
+	_army.offset_left = -96
+	_army.offset_right = -4
+	_army.offset_top = 128
+	_army.visible = false
+	add_child(_army)
+
 	# The parchment strip for the selection.
 	_info = PanelContainer.new()
 	_info.theme_type_variation = "Parchment"
@@ -157,6 +175,48 @@ func _ready() -> void:
 	banner_row.add_child(_turn_text)
 	_turn_flag.draw.connect(func(): Hud.draw_heraldic_shield(_turn_flag, Rect2(Vector2.ZERO, _turn_flag.size), _turn_color, _turn_civ))
 
+	# An enemy's turn (PRD C): a big faint "Turn: …" with its flag across the
+	# map, and "Tap to skip enemy turn" at the bottom.
+	_enemy_turn = HBoxContainer.new()
+	_enemy_turn.set_anchors_preset(Control.PRESET_CENTER)
+	_enemy_turn.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_enemy_turn.add_theme_constant_override("separation", 22)
+	_enemy_turn.modulate.a = 0.0
+	add_child(_enemy_turn)
+	_enemy_flag = Control.new()
+	_enemy_flag.custom_minimum_size = Vector2(80, 96)
+	_enemy_flag.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_enemy_flag.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_enemy_flag.draw.connect(func(): Hud.draw_heraldic_shield(_enemy_flag, Rect2(Vector2.ZERO, _enemy_flag.size), _enemy_color, _enemy_civ))
+	_enemy_turn.add_child(_enemy_flag)
+	_enemy_text = _label("", 64)
+	_enemy_text.add_theme_font_override("font", load("res://assets/fonts/IMFellEnglish-Italic.ttf"))
+	_enemy_text.add_theme_color_override("font_color", Color(1, 0.96, 0.86))
+	_enemy_text.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.7))
+	_enemy_text.add_theme_constant_override("outline_size", 10)
+	_enemy_turn.add_child(_enemy_text)
+	_skip_label = _label("Tap to skip enemy turn", 22)
+	_skip_label.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	_skip_label.position = Vector2(-200, -60)
+	_skip_label.custom_minimum_size = Vector2(400, 0)
+	_skip_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_skip_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
+	_skip_label.add_theme_constant_override("outline_size", 8)
+	_skip_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_skip_label.visible = false
+	add_child(_skip_label)
+	# Between factions: a brief dark screen with an hourglass in the middle.
+	_curtain = ColorRect.new()
+	_curtain.color = Color(0.03, 0.02, 0.01, 0.92)
+	_curtain.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_curtain.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_curtain.visible = false
+	add_child(_curtain)
+	var glass := _icon("res://assets/icons/ui_hourglass.svg", 110)
+	glass.set_anchors_preset(Control.PRESET_CENTER)
+	glass.position = Vector2(-55, -55)
+	_curtain.add_child(glass)
+
 	_toast = _label("", 18)
 	_toast.set_anchors_preset(Control.PRESET_CENTER_TOP)
 	_toast.position = Vector2(-330, 66)
@@ -189,6 +249,43 @@ func update(state: GameState, has_alerts: bool) -> void:
 func set_battles(kinds: Array) -> void:
 	_banner.enemy = kinds
 	_banner.queue_redraw()
+
+
+## Lists the selected army's soldiers on the green banner, or hides it (null).
+func show_army(state: GameState, unit: Unit) -> void:
+	_army.visible = unit != null
+	_banner.visible = unit == null
+	if unit != null:
+		_army.show_army(state, unit)
+
+
+## The enemy's turn plays: big faint "Turn: …" with its flag, and the skip hint.
+func show_enemy_turn(text: String, color: Color, civ: String) -> void:
+	_enemy_text.text = text
+	_enemy_color = color
+	_enemy_civ = civ
+	_enemy_flag.queue_redraw()
+	_enemy_turn.reset_size()
+	_enemy_turn.position = (size - _enemy_turn.size) / 2.0 - Vector2(0, size.y * 0.12)
+	_skip_label.visible = true
+	create_tween().tween_property(_enemy_turn, "modulate:a", 0.55, 0.3)
+
+
+func hide_enemy_turn() -> void:
+	_skip_label.visible = false
+	create_tween().tween_property(_enemy_turn, "modulate:a", 0.0, 0.3)
+
+
+## The brief dark screen with an hourglass between factions' turns.
+func curtain(seconds: float) -> void:
+	_curtain.visible = true
+	_curtain.modulate.a = 0.0
+	var tween := create_tween()
+	tween.tween_property(_curtain, "modulate:a", 1.0, seconds * 0.35)
+	tween.tween_interval(seconds * 0.3)
+	tween.tween_property(_curtain, "modulate:a", 0.0, seconds * 0.35)
+	await tween.finished
+	_curtain.visible = false
 
 
 func show_info(bbcode: String, buttons: Array) -> void:
@@ -423,3 +520,74 @@ class OrdersBanner:
 				draw_line(at + Vector2(-7, 0), at + Vector2(8, 0), gold, 1.5)
 			_:
 				draw_rect(Rect2(at - Vector2(6, 6), Vector2(12, 12)), gold, false, 2.0)
+
+
+## The green cloth banner on the right edge listing the selected army's
+## soldiers, one small type icon per soldier (PRD A). Hovering or tapping an
+## icon shows a parchment tooltip with the type's name.
+class ArmyBanner:
+	extends Control
+	const ICON := 22.0
+	const COLUMNS := 3
+	var _grid: GridContainer
+	var _tip: PanelContainer
+	var _tip_label: Label
+
+	func _ready() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_grid = GridContainer.new()
+		_grid.columns = COLUMNS
+		_grid.position = Vector2(10, 14)
+		_grid.add_theme_constant_override("h_separation", 4)
+		_grid.add_theme_constant_override("v_separation", 4)
+		add_child(_grid)
+		_tip = PanelContainer.new()
+		_tip.theme_type_variation = "Parchment"
+		_tip.visible = false
+		_tip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_tip_label = Label.new()
+		_tip_label.theme_type_variation = "InkLabel"
+		_tip_label.add_theme_font_size_override("font_size", 15)
+		_tip.add_child(_tip_label)
+		add_child(_tip)
+
+	func show_army(state: GameState, unit: Unit) -> void:
+		for child in _grid.get_children():
+			child.queue_free()
+		for troop in unit.troops:
+			for k in troop.soldiers:
+				var icon := TypeIcons.control(troop.type_id, ICON, state.is_upgraded(unit.owner, troop.type_id))
+				icon.tooltip_text = ""
+				icon.mouse_filter = Control.MOUSE_FILTER_STOP
+				var name := "%s (%d)" % [troop.type().display_name, troop.soldiers]
+				icon.mouse_entered.connect(func(): _show_tip(icon, name))
+				icon.mouse_exited.connect(func(): _tip.visible = false)
+				icon.gui_input.connect(func(event):
+					if event is InputEventScreenTouch or (event is InputEventMouseButton and event.pressed):
+						_show_tip(icon, name))
+				_grid.add_child(icon)
+		var rows := ceili(unit.soldiers() / float(COLUMNS))
+		custom_minimum_size = Vector2(COLUMNS * (ICON + 4) + 16, rows * (ICON + 4) + 40)
+		size = custom_minimum_size
+		offset_left = -size.x - 4
+		offset_bottom = offset_top + size.y
+		queue_redraw()
+
+	func _show_tip(icon: Control, text: String) -> void:
+		_tip_label.text = text
+		_tip.reset_size()
+		_tip.position = Vector2(-_tip.size.x - 6, icon.position.y + _grid.position.y - 4)
+		_tip.visible = true
+
+	func _draw() -> void:
+		var w := size.x
+		var h := size.y
+		var cloth := PackedVector2Array([Vector2(0, 0), Vector2(w, 0), Vector2(w, h), Vector2(w / 2.0, h - 16), Vector2(0, h)])
+		draw_colored_polygon(cloth, Color("#2f5a2a"))
+		for k in 5:
+			draw_line(Vector2(w * (k + 0.5) / 5.0, 2), Vector2(w * (k + 0.5) / 5.0, h - 20), Color(0, 0, 0, 0.06), 3.0)
+		var edge := cloth.duplicate()
+		edge.append(cloth[0])
+		draw_polyline(edge, Color("#e2bd5a", 0.85), 2.0, true)
+		draw_rect(Rect2(-4, -6, w + 8, 8), Color("#5a3a1c"))
+		draw_rect(Rect2(-4, -6, w + 8, 8), Color("#e2bd5a", 0.6), false, 1.0)

@@ -1,13 +1,17 @@
 class_name Battle
 extends RefCounted
-## An auto-resolved battle between the units attacking from one region and every
-## unit defending the target region (PRD 3.9, BR-1), fought in three phases:
+## An auto-resolved battle between the troops attacking a region (one army's
+## detachment, plus any armies supporting the attack) and the troops of the
+## army defending it (PRD 3.9, A, B). Every soldier type fights with its own
+## stats and the counter table, in three phases:
 ##   1. Ranged: archers, crossbowmen and catapults shoot RANGED_VOLLEYS times.
 ##   2. Charge: cavalry strikes first. Infantry meets the charge: units that
 ##      counter cavalry (spearmen) strike back in full, the rest at half strength.
 ##   3. Melee: everyone fights, for up to 6 rounds, until one side's morale breaks.
-## Attacking ranged units shoot from their own region (OR-4): only enemy ranged
-## units can hit them, and an attack by ranged units alone is just the volleys.
+## Attacking ranged troops shoot from their own region (OR-4): only enemy ranged
+## troops can hit them, and an attack by ranged troops alone is just the volleys.
+## Fire only wounds (PRD D): it wears health down and never takes a troop's
+## last soldier, so only melee destroys an army.
 ## Damage = attack × counter multiplier × terrain × modifiers × morale × random(0.85–1.15)
 ##          − defense / 2, with attack scaled by the soldiers left in the unit.
 ## The same seed always gives the same battle.
@@ -31,13 +35,13 @@ const NOTABLE_LOW := 0.6         # ...and at or below this.
 const FORECAST_RUNS := 20
 
 
-## One side of the battle.
+## One side of the battle: troops of one or more armies.
 class Force:
 	var faction := ""
 	var attacking := false
-	var units: Array[Unit] = []
-	## Attacking ranged units shooting from their own region.
-	var standoff := {}  # Unit -> true
+	var units: Array[Troop] = []
+	## Attacking ranged troops shooting from their own region.
+	var standoff := {}  # Troop -> true
 	## Walls: damage taken by this side is divided by 1 + wall_bonus (3.10).
 	var wall_bonus := 0.0
 	## Horse archers shoot and ride off: nobody can shoot back at them.
@@ -47,7 +51,7 @@ class Force:
 	var start_strength := 0.0
 	var before := []  # [type_id, soldiers] for each unit at the start, for the report.
 
-	func _init(faction_id: String, is_attacker: bool, troops: Array[Unit]) -> void:
+	func _init(faction_id: String, is_attacker: bool, troops: Array[Troop]) -> void:
 		faction = faction_id
 		attacking = is_attacker
 		units = troops
@@ -55,18 +59,18 @@ class Force:
 			if attacking and unit.type().is_ranged():
 				standoff[unit] = true
 			start_strength += unit.strength()
-			before.append([unit.type_id, unit.soldiers()])
+			before.append([unit.type_id, unit.soldiers])
 
-	func alive() -> Array[Unit]:
-		var standing: Array[Unit] = []
+	func alive() -> Array[Troop]:
+		var standing: Array[Troop] = []
 		for unit in units:
 			if not unit.is_destroyed():
 				standing.append(unit)
 		return standing
 
-	## Units in the fight itself, not shooting from another region.
-	func engaged() -> Array[Unit]:
-		var found: Array[Unit] = []
+	## Troops in the fight itself, not shooting from another region.
+	func engaged() -> Array[Troop]:
+		var found: Array[Troop] = []
 		for unit in alive():
 			if not standoff.has(unit):
 				found.append(unit)
@@ -122,7 +126,7 @@ func resolve() -> void:
 	var melee_attack := not ranged_only()
 	var decided := false
 	for volley in RANGED_VOLLEYS:
-		var replies: Array[Unit] = []
+		var replies: Array[Troop] = []
 		if not attacker.hit_and_run:
 			replies = _shooters(defender)
 		_exchange(_shooters(attacker), replies, "ranged")
@@ -147,7 +151,7 @@ func resolve() -> void:
 		var loser := attacker if winner == "defender" else defender
 		for unit in loser.engaged():
 			if not unit.type().berserker:
-				unit.hp *= 1.0 - ROUT_LOSS
+				unit.lose_share(ROUT_LOSS)
 
 
 func attacker_won() -> bool:
@@ -184,7 +188,7 @@ func explain(viewer: String, faction_names: Dictionary) -> PackedStringArray:
 		"held":
 			reasons.append("The defenders held for all %d melee rounds, so the attack failed." % MELEE_ROUNDS)
 		"ranged":
-			reasons.append("A ranged attack: the archers shot from their own region and can't take it.")
+			reasons.append("A ranged attack: the archers shot from their own region. Fire only wounds: it can't destroy an army or take a region.")
 	reasons.append("Strength at the start: %d attacking soldiers against %d defending." % [
 		_soldiers_before(attacker), _soldiers_before(defender)])
 	for entry in notable_counters().slice(0, 3):
@@ -253,7 +257,7 @@ func _soldiers_before(side: Force) -> int:
 # --- Phases ------------------------------------------------------------------
 
 ## Both sides strike at the same time, so the order of units doesn't matter.
-func _exchange(attacking_units: Array[Unit], defending_units: Array[Unit], phase: String) -> void:
+func _exchange(attacking_units: Array[Troop], defending_units: Array[Troop], phase: String) -> void:
 	var strength_before := {attacker: attacker.strength(), defender: defender.strength()}
 	var alive_before := {attacker: attacker.alive().size(), defender: defender.alive().size()}
 	var hits := []
@@ -263,7 +267,10 @@ func _exchange(attacking_units: Array[Unit], defending_units: Array[Unit], phase
 		hits.append(_strike(unit, defender, attacker, phase))
 	for hit in hits:
 		if hit != null:
-			hit.target.hp = maxf(hit.target.hp - hit.damage, 0.0)
+			if hit.ranged:
+				hit.target.wound(hit.damage)
+			else:
+				hit.target.hit(hit.damage)
 	for side: Force in [attacker, defender]:
 		var other := defender if side == attacker else attacker
 		var lost: float = strength_before[side] - side.strength()
@@ -274,10 +281,10 @@ func _exchange(attacking_units: Array[Unit], defending_units: Array[Unit], phase
 		side.morale = clampf(side.morale, 0.0, 100.0)
 
 
-## One unit hits its best target. Returns {target, damage} or null. Melee
+## One troop hits its best target. Returns {target, damage, ranged} or null. Melee
 ## blows can't reach attackers shooting from another region, and in the
 ## charge, non-cavalry units (bracing spearmen) only hit cavalry.
-func _strike(unit: Unit, side: Force, enemy: Force, phase: String):
+func _strike(unit: Troop, side: Force, enemy: Force, phase: String):
 	var shooting := unit.type().is_ranged() and (phase == "ranged" or side.standoff.has(unit))
 	var targets := enemy.alive() if shooting else enemy.engaged()
 	if phase == "charge" and not unit.type().is_cavalry():
@@ -298,7 +305,7 @@ func _strike(unit: Unit, side: Force, enemy: Force, phase: String):
 			phase_mod *= unit_type.charge_bonus * unit.charge_mod
 		elif multiplier < NOTABLE_HIGH:
 			phase_mod *= MEET_CHARGE
-	var fury := 2.0 - unit.strength() if unit_type.berserker else 1.0  # Berserkers hit harder as they bleed.
+	var fury := 2.0 - unit.health() if unit_type.berserker else 1.0  # Berserkers hit harder as they bleed.
 	var raw := unit_type.attack * unit.strength() * multiplier * _terrain_mod(unit_type, side) * fury \
 		* unit.attack_mod * (0.5 + side.morale / 200.0) * _rng.randf_range(0.85, 1.15) * phase_mod
 	var damage := maxf(raw - target.type().defense / 2.0, raw * MIN_DAMAGE_SHARE) * DAMAGE_SCALE
@@ -309,11 +316,11 @@ func _strike(unit: Unit, side: Force, enemy: Force, phase: String):
 		counter_damage[key] = {"attacker": unit.type_id, "defender": target.type_id,
 			"multiplier": multiplier, "damage": 0.0, "attacking": side.attacking}
 	counter_damage[key].damage += damage
-	return {"target": target, "damage": damage}
+	return {"target": target, "damage": damage, "ranged": shooting}
 
 
 ## The enemy unit this unit type does best against; ties go to the stronger one (BT-2).
-func _best_target(type_id: String, targets: Array[Unit]) -> Unit:
+func _best_target(type_id: String, targets: Array[Troop]) -> Troop:
 	var best := targets[0]
 	var best_multiplier := Rules.counters.multiplier(type_id, best.type_id)
 	for target in targets:
@@ -360,27 +367,27 @@ func _finished(moment: String) -> bool:
 	return true
 
 
-func _shooters(side: Force) -> Array[Unit]:
-	return _where(side.alive(), func(u: Unit): return u.type().is_ranged())
+func _shooters(side: Force) -> Array[Troop]:
+	return _where(side.alive(), func(u: Troop): return u.type().is_ranged())
 
 
-func _cavalry(side: Force) -> Array[Unit]:
-	return _where(side.engaged(), func(u: Unit): return u.type().is_cavalry())
+func _cavalry(side: Force) -> Array[Troop]:
+	return _where(side.engaged(), func(u: Troop): return u.type().is_cavalry())
 
 
 ## Non-cavalry units that meet the enemy's charge, if the enemy has cavalry.
-func _bracing(side: Force, enemy: Force) -> Array[Unit]:
+func _bracing(side: Force, enemy: Force) -> Array[Troop]:
 	if _cavalry(enemy).is_empty():
 		return []
-	return _where(side.engaged(), func(u: Unit): return not u.type().is_cavalry() and u.type().unit_class != "siege")
+	return _where(side.engaged(), func(u: Troop): return not u.type().is_cavalry() and u.type().unit_class != "siege")
 
 
 ## Everyone fights in the melee except catapults; attackers' archers keep shooting from their region.
-func _fighters(side: Force) -> Array[Unit]:
-	return _where(side.alive(), func(u: Unit): return u.type().unit_class != "siege")
+func _fighters(side: Force) -> Array[Troop]:
+	return _where(side.alive(), func(u: Troop): return u.type().unit_class != "siege")
 
 
-func _where(pool: Array[Unit], predicate: Callable) -> Array[Unit]:
-	var found: Array[Unit] = []
+func _where(pool: Array[Troop], predicate: Callable) -> Array[Troop]:
+	var found: Array[Troop] = []
 	found.assign(pool.filter(predicate))
 	return found

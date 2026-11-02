@@ -84,6 +84,12 @@ static func soldiers_killed(state: GameState, faction: String, unit_type: String
 	return int(state.losses.get(faction, {}).get(unit_type, 0))
 
 
+## At the start of each turn (before the first faction plays): scripted
+## mission events. Returns events for the screen.
+static func start_of_turn(_state: GameState) -> Array:
+	return []
+
+
 ## At the end of the mission player's turn: counts turns held for "hold" objectives.
 static func end_of_turn(state: GameState, faction: String) -> void:
 	if not is_mission(state) or faction != player(state):

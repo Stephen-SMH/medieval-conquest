@@ -45,7 +45,7 @@ func _test_planning(t) -> void:
 	var unit: Unit = state.unit_in("greywater")
 	t.check(Helpers.order(state, unit, "attack", "kingsvale", {"soldiers": 14}) == "", "a unit can send 14 of 20 to attack")
 	t.check(Orders.unassigned(state, unit) == 6, "6 soldiers are left unassigned")
-	t.check(Orders.available(state, unit, "highcrag") == 6, "the next arrow's slider offers the 6 still free")
+	t.check(Orders.total(Orders.available(state, unit, "highcrag")) == 6, "the next arrow's slider offers the 6 still free")
 	t.check(Helpers.order(state, unit, "move", "highcrag", {"soldiers": 4}) == "", "and send 4 of them to march to another region")
 	var list := Orders.orders_of(state, unit)
 	t.check(list.size() == 2 and list[0].size == 14 and list[1].size == 4 and Orders.unassigned(state, unit) == 2,
@@ -73,7 +73,7 @@ func _test_editing_and_cancelling(t) -> void:
 	var unit: Unit = state.unit_in("greywater")
 	Helpers.order(state, unit, "attack", "kingsvale", {"soldiers": 14})
 	Helpers.order(state, unit, "move", "highcrag", {"soldiers": 4})
-	t.check(Orders.available(state, unit, "kingsvale") == 16, "re-drawing to Kingsvale offers its 14 plus the 2 free")
+	t.check(Orders.total(Orders.available(state, unit, "kingsvale")) == 16, "re-drawing to Kingsvale offers its 14 plus the 2 free")
 	t.check(Helpers.order(state, unit, "attack", "kingsvale", {"soldiers": 10}) == "" and Orders.orders_of(state, unit).size() == 2
 		and Orders.orders_of(state, unit)[0].size == 10 and Orders.unassigned(state, unit) == 6,
 		"re-drawing to the same region edits that order's count (14 -> 10), with no second order")
@@ -104,12 +104,10 @@ func _test_friendly_regions(t) -> void:
 	var state := Helpers.game({"greywater": "blue", "ashford": "blue"}, [["blue", "greywater", "swordsmen"], ["blue", "ashford", "archers"]])
 	var unit: Unit = state.unit_in("greywater")
 	Helpers.order(state, unit, "move", "highcrag", {"soldiers": 5})
-	t.check(Orders.problem(state, unit, "move", "ashford").contains("only the whole unit"),
-		"a detachment can't move into a region your unit of another type holds")
-	t.check(Orders.reachable(state, unit).get("ashford") == "blocked", "so it shows grey")
-	Orders.cancel(state, unit)
-	t.check(Helpers.order(state, unit, "move", "ashford", {"soldiers": 5}) == "" and Orders.orders_of(state, unit)[0].size == 20,
-		"the whole unit still may (a swap), and always goes whole")
+	t.check(Helpers.order(state, unit, "move", "ashford", {"soldiers": 5}) == "", "a detachment may march into your army of another type")
+	Helpers.resolve(state)
+	t.check(state.unit_in("ashford").composition() == {"swordsmen": 5, "archers": 20} and unit.soldiers() == 10,
+		"and joins it as a mixed army (%s)" % [state.unit_in("ashford").composition()])
 
 
 func _test_example_turn(t) -> void:
@@ -128,20 +126,20 @@ func _test_example_turn(t) -> void:
 		"4 swordsmen hold Highcrag as a new unit")
 	t.check(victors != null and victors.owner == "blue" and victors.type_id == "swordsmen" and state.owners.kingsvale == "blue",
 		"the 14 took Kingsvale and hold it as a new unit (%d left)" % (victors.soldiers() if victors != null else 0))
-	t.check(_one_per_region(state), "one unit per region after the turn")
+	t.check(_one_per_region(state), "one army per region after the turn")
 
 
 func _test_new_unit_keeps_hp(t) -> void:
 	var state := Helpers.game({"greywater": "blue"}, [["blue", "greywater", "spearmen"]])
 	var unit: Unit = state.unit_in("greywater")
-	unit.hp = unit.type().soldier_hp() * 15.0  # 15 soldiers' worth: 75% of full HP.
+	unit.troops[0].wound(unit.troops[0].full_hp() * 0.25)  # Down to 75% health, still 20 soldiers.
 	var before := unit.hp
 	Helpers.order(state, unit, "move", "highcrag", {"soldiers": 6})
-	Helpers.resolve(state)
+	Helpers.resolve_faction(state, "blue")
 	var part := state.unit_in("highcrag")
-	t.check(part != null and part.type_id == "spearmen", "the new unit keeps its type")
-	t.check(part.soldiers() == 6 and unit.soldiers() == 9, "6 march and 9 stay")
-	t.check(is_equal_approx(part.hp, before * 6.0 / 15.0) and is_equal_approx(unit.hp + part.hp, before),
+	t.check(part != null and part.type_id == "spearmen", "the new army keeps its type")
+	t.check(part.soldiers() == 6 and unit.soldiers() == 14, "6 march and 14 stay")
+	t.check(is_equal_approx(part.hp, before * 6.0 / 20.0) and is_equal_approx(unit.hp + part.hp, before),
 		"HP is shared per soldier and none is lost or made (%.1f + %.1f = %.1f)" % [unit.hp, part.hp, before])
 	t.check(state.owners.highcrag == "blue", "the empty neutral region is captured")
 
@@ -150,10 +148,10 @@ func _test_merge(t) -> void:
 	var state := Helpers.game({"greywater": "blue", "ashford": "blue"}, [["blue", "greywater", "swordsmen"], ["blue", "ashford", "swordsmen", 12]])
 	var unit: Unit = state.unit_in("greywater")
 	var other: Unit = state.unit_in("ashford")
-	t.check(Helpers.order(state, unit, "move", "ashford", {"soldiers": 10}) == "", "a detachment may march into a region held by the same type")
+	t.check(Helpers.order(state, unit, "move", "ashford", {"soldiers": 20}) == "", "a detachment may march into a region held by your army")
 	Helpers.resolve(state)
-	t.check(other.soldiers() == 20 and unit.soldiers() == 12 and unit.province == "greywater" and _one_per_region(state),
-		"it merges up to 20; the 2 who don't fit come home and rejoin (12 at home)")
+	t.check(other.soldiers() == 30 and unit.soldiers() == 2 and unit.province == "greywater" and _one_per_region(state),
+		"it merges up to 30; the 2 who don't fit stay home")
 
 
 func _test_attack_wins(t) -> void:
@@ -233,7 +231,7 @@ func _test_cavalry(t) -> void:
 	Helpers.order(state, horse, "move", "kingsvale", {"soldiers": 12})
 	t.check(Orders.intent(state, horse, "redfield").get("order") == 0 and Orders.intent(state, horse, "redfield").get("type") == "attack",
 		"a click next to the detachment's waypoint gives it a second step")
-	t.check(Helpers.order(state, horse, "attack", "redfield") == "" and Orders.orders_of(state, horse)[0].soldiers == 12,
+	t.check(Helpers.order(state, horse, "attack", "redfield") == "" and Orders.orders_of(state, horse)[0].size == 12,
 		"the 12 move to Kingsvale and then attack Redfield")
 	Helpers.order(state, horse, "move", "highcrag", {"soldiers": 8})
 	Helpers.order(state, horse, "move", "thornwood")
@@ -250,37 +248,26 @@ func _test_cavalry(t) -> void:
 func _test_ranged(t) -> void:
 	var state := Helpers.game({"greywater": "blue", "kingsvale": "red"}, [["blue", "greywater", "archers"], ["red", "kingsvale", "militia", 10]], 5)
 	var archers: Unit = state.unit_in("greywater")
-	Helpers.order(state, archers, "attack", "kingsvale", {"shoot": 12, "soldiers": 0})
+	Helpers.order(state, archers, "attack", "kingsvale", {"soldiers": 12})
 	t.check(Orders.orders_of(state, archers)[0].size == 12 and Orders.unassigned(state, archers) == 8, "12 shoot; their order holds 12")
 	Helpers.order(state, archers, "move", "highcrag", {"soldiers": 5})
 	var events := Helpers.resolve(state)
 	var volleys := Helpers.events_of(events, "volley")
-	t.check(volleys.size() == 1 and volleys[0].shooters == 12, "the 12 shoot")
+	t.check(volleys.size() == 1 and volleys[0].soldiers == 12, "the 12 shoot")
 	t.check(archers.province == "greywater" and archers.soldiers() == 15 and state.unit_in("highcrag").soldiers() == 5 and _one_per_region(state),
 		"the shooters rejoin the 3 at home (15); 5 hold Highcrag")
 
 
 func _test_blocked_and_crowding(t) -> void:
-	# A detachment beaten to an empty region by a stronger unit is blocked, comes home and rejoins.
+	# Two of your detachments heading for the same empty region join up there.
 	var state := Helpers.game({"greywater": "blue", "ashford": "blue"}, [["blue", "greywater", "swordsmen"], ["blue", "ashford", "archers"]], 5)
 	var unit: Unit = state.unit_in("greywater")
 	Helpers.order(state, unit, "move", "northmarch", {"soldiers": 6})
 	Helpers.order(state, unit, "move", "highcrag", {"soldiers": 6})
 	Helpers.order(state, state.unit_in("ashford"), "move", "northmarch")
 	var events := Helpers.resolve(state)
-	t.check(not Helpers.events_of(events, "blocked").is_empty() and state.unit_in("northmarch").type_id == "archers",
-		"the archers take Northmarch first; the 6 swordsmen are blocked")
-	t.check(unit.province == "greywater" and unit.soldiers() == 14 and state.unit_in("highcrag").soldiers() == 6 and _one_per_region(state),
-		"the blocked 6 come home and rejoin the 8 there (14)")
-
-	# A detachment beaten in a fight for an empty region goes home too.
-	state = Helpers.game({"greywater": "blue", "kingsvale": "red"}, [["blue", "greywater", "swordsmen"], ["red", "kingsvale", "knight"]], 5)
-	unit = state.unit_in("greywater")
-	Helpers.order(state, unit, "move", "ashford", {"soldiers": 4})
-	Helpers.order(state, state.unit_in("kingsvale"), "move", "ashford")
-	events = Helpers.resolve(state)
-	t.check(not Helpers.events_of(events, "battle").is_empty() and state.units_in("greywater").size() == 1 and _one_per_region(state),
-		"after a fight for Ashford, the region and Greywater each hold one unit")
+	t.check(state.unit_in("northmarch").composition() == {"swordsmen": 6, "archers": 20} and _one_per_region(state),
+		"the archers and 6 swordsmen meet in Northmarch as one army (%s)" % [state.unit_in("northmarch").composition()])
 
 	# Another unit can't merge into a unit that split this turn, so returning
 	# detachments always fit (no region ends up with two units).
@@ -289,7 +276,7 @@ func _test_blocked_and_crowding(t) -> void:
 	unit = state.unit_in("greywater")
 	Helpers.order(state, unit, "attack", "kingsvale", {"soldiers": 12})
 	Helpers.order(state, state.unit_in("northmarch"), "move", "greywater")
-	events = Helpers.resolve(state)
+	events = Helpers.resolve_faction(state, "blue")
 	t.check(not Helpers.events_of(events, "blocked").is_empty() and state.unit_in("northmarch") != null, "the merge into a splitting unit is blocked")
 	t.check(_one_per_region(state) and unit.soldiers() <= 20 and events.all(func(e): return not e.get("crowded", false)),
 		"the failed attackers fit back home: one unit, %d soldiers" % unit.soldiers())
@@ -321,7 +308,7 @@ func _test_one_per_region(t) -> void:
 			turns += 1
 			if not _one_per_region(state):
 				broken += 1
-	t.check(broken == 0 and crowded == 0, "random split orders over %d turns never leave two units in a region (%d broken, %d fixed by the guard)" % [turns, broken, crowded])
+	t.check(broken == 0 and crowded == 0, "random split orders over %d turns never leave two armies in a region (%d broken, %d fixed by the guard)" % [turns, broken, crowded])
 
 
 func _random_splits(state: GameState, faction: String, rng: RandomNumberGenerator) -> void:
@@ -332,8 +319,8 @@ func _random_splits(state: GameState, faction: String, rng: RandomNumberGenerato
 			var plan := Orders.intent(state, unit, target)
 			if plan.is_empty():
 				continue
-			var free := Orders.available(state, unit, target)
-			Orders.give(state, unit, plan.type, target, {"soldiers": rng.randi_range(1, maxi(free, 1)), "shoot": rng.randi_range(0, maxi(free, 1))})
+			var free := Orders.total(Orders.available(state, unit, target))
+			Orders.give(state, unit, plan.type, target, {"soldiers": rng.randi_range(1, maxi(free, 1))})
 			if Orders.is_spent(state, unit):
 				break
 
@@ -360,7 +347,7 @@ func _test_ai(t) -> void:
 		AI.play_turn(game)
 		game.end_faction_turn()
 		ok = ok and _one_per_region(game)
-	t.check(ok and game.turn > 5, "AI-only games play on (turn %d) with one unit per region" % game.turn)
+	t.check(ok and game.turn > 5, "AI-only games play on (turn %d) with one army per region" % game.turn)
 
 
 func _test_saves(t) -> void:
@@ -373,7 +360,7 @@ func _test_saves(t) -> void:
 	Helpers.order(state, horse, "move", "redfield")
 	Helpers.plan_as(state, "blue")
 	var saved := SaveGame.to_dict(state)
-	t.check(saved.version == 3, "saves are version 3")
+	t.check(saved.version == 4, "saves are version 4")
 	var loaded := SaveGame.from_dict(JSON.parse_string(JSON.stringify(saved)))
 	var loaded_unit := loaded.unit_by_id(unit.id)
 	t.check(Orders.orders_of(loaded, loaded_unit).size() == 2 and Orders.unassigned(loaded, loaded_unit) == 2
@@ -392,7 +379,7 @@ func _test_saves(t) -> void:
 	var converted := SaveGame.from_dict(JSON.parse_string(JSON.stringify(data)))
 	var attack: Array = Orders.orders_of(converted, converted.unit_in("greywater"))
 	var march: Array = Orders.orders_of(converted, converted.unit_in("ashford"))
-	t.check(attack.size() == 1 and attack[0].size == 12 and attack[0].soldiers == 12 and march.size() == 1 and march[0].size == 20,
+	t.check(attack.size() == 1 and attack[0].size == 12 and attack[0].troops == {"swordsmen": 12} and march.size() == 1 and march[0].size == 20,
 		"a version 2 save loads: the attack sends its 12, the march the whole unit")
 
 

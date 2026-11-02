@@ -4,10 +4,11 @@ extends RefCounted
 ## asks "does this faction get something extra?" comes through here.
 
 const ANGLISH_HOME_DEFENSE := 1.15
+const NORSE_SHORE_ATTACK := 1.15  # Sea-wolves: attacks on coastal regions.
 const FRANKISH_CAVALRY_COST := 0.8
 const BYZANTINE_MARKETS := 1.25
 const SARACEN_MERCENARIES := 0.75
-const CRUSADER_HEALING := 2  # Extra soldiers a resting unit regains each turn.
+
 
 
 static func civ(state: GameState, faction: String) -> String:
@@ -34,18 +35,15 @@ static func mercenary_cost(state: GameState, faction: String) -> float:
 	return SARACEN_MERCENARIES if civ(state, faction) == "saracen" else 1.0
 
 
-## Crusader hospitals: extra soldiers a resting unit heals each turn.
-static func extra_healing(state: GameState, faction: String) -> int:
-	return CRUSADER_HEALING if civ(state, faction) == "crusader" else 0
+## Crusader hospitals: armies in their own regions heal even after marching or fighting.
+static func heals_on_the_move(state: GameState, faction: String) -> bool:
+	return civ(state, faction) == "crusader"
 
 
-## Norse raiding: moves 2 regions along the coast.
-static func coastal_moves(state: GameState, faction: String) -> int:
-	return 1 if civ(state, faction) == "norse" else 0
-
-
-## Adds civilization and research bonuses to a unit's battle multipliers.
-static func battle(state: GameState, unit: Unit, defending: bool, region: String) -> void:
-	if defending and civ(state, unit.owner) == "anglish" and state.owners.get(region) == unit.owner:
-		unit.defense_mod *= ANGLISH_HOME_DEFENSE
-	Research.battle(state, unit)
+## Adds civilization and research bonuses to a troop's battle multipliers.
+static func battle(state: GameState, troop: Troop, owner: String, defending: bool, region: String, _from := "") -> void:
+	if defending and civ(state, owner) == "anglish" and state.owners.get(region) == owner:
+		troop.defense_mod *= ANGLISH_HOME_DEFENSE
+	if not defending and civ(state, owner) == "norse" and state.map.is_coastal(region):
+		troop.attack_mod *= NORSE_SHORE_ATTACK
+	Research.battle(state, troop, owner)

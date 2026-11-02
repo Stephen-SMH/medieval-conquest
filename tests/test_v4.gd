@@ -81,13 +81,13 @@ func _test_research_effects(t) -> void:
 		"the researched units no longer need research")
 	t.check(Sieges.duration(state, "kingsvale", "blue") == 1, "Siege Engineering: sieges take 1 turn less")
 	blue.techs.erase("drill")
-	state.prepare_for_battle(state.unit_in("greywater"), true, "greywater")
-	state.prepare_for_battle(state.unit_in("kingsvale"), false, "greywater")
-	state.prepare_for_battle(state.unit_in("northmarch"), false, "greywater")
-	t.check(is_equal_approx(state.unit_in("greywater").defense_mod, 1.1) and is_equal_approx(state.unit_in("greywater").attack_mod, 1.1),
+	state.prepare_for_battle(state.unit_in("greywater").troops[0], "blue", true, "greywater")
+	state.prepare_for_battle(state.unit_in("kingsvale").troops[0], "blue", false, "greywater")
+	state.prepare_for_battle(state.unit_in("northmarch").troops[0], "blue", false, "greywater")
+	t.check(is_equal_approx(state.unit_in("greywater").troops[0].defense_mod, 1.1) and is_equal_approx(state.unit_in("greywater").troops[0].attack_mod, 1.1),
 		"Chain Mail +10% infantry defense, Tempered Steel +10% melee attack")
-	t.check(is_equal_approx(state.unit_in("kingsvale").attack_mod, 1.15), "Composite Bows: +15% ranged attack")
-	t.check(is_equal_approx(state.unit_in("northmarch").charge_mod, 1.15), "Stirrups: +15% cavalry charge")
+	t.check(is_equal_approx(state.unit_in("kingsvale").troops[0].attack_mod, 1.15), "Composite Bows: +15% ranged attack")
+	t.check(is_equal_approx(state.unit_in("northmarch").troops[0].charge_mod, 1.15), "Stirrups: +15% cavalry charge")
 
 
 func _test_hotseat(t) -> void:

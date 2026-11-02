@@ -34,18 +34,18 @@ func _test_special_units(t) -> void:
 	var never_routed := true
 	var fought_on := false
 	for s in 20:
-		var attackers: Array[Unit] = []
+		var attackers: Array[Troop] = []
 		for i in 3:
-			attackers.append(Unit.new("berserker", "a", "x"))
-		var defenders: Array[Unit] = []
+			attackers.append(Troop.new("berserker", 20))
+		var defenders: Array[Troop] = []
 		for i in 4:
-			defenders.append(Unit.new("heavy_cavalry", "d", "x"))
+			defenders.append(Troop.new("heavy_cavalry", 20))
 		var battle := Battle.new(Battle.Force.new("a", true, attackers), Battle.Force.new("d", false, defenders), Rules.terrains.plains, false, s)
 		battle.resolve()
 		never_routed = never_routed and not battle.attacker.routed
 		fought_on = fought_on or battle.attacker.morale <= Battle.ROUT_MORALE
 	t.check(never_routed and fought_on, "berserkers never rout, even with their morale broken")
-	var mixed: Array[Unit] = [Unit.new("berserker", "a", "x"), Unit.new("militia", "a", "x")]
+	var mixed: Array[Troop] = [Troop.new("berserker", 20), Troop.new("militia", 20)]
 	t.check(not Battle.Force.new("a", true, mixed).all_berserkers(), "a mixed force can still rout")
 
 	# Longbowmen shoot 2 regions away; ordinary archers don't.
@@ -57,7 +57,7 @@ func _test_special_units(t) -> void:
 		"longbowmen reach 2 regions, archers only 1")
 	t.check(Orders.reachable(state, longbow).get("redfield") == "attack", "the target 2 regions away lights up red")
 	Helpers.order(state, longbow, "attack", "redfield")
-	var events := Helpers.resolve(state)
+	var events := Helpers.resolve_faction(state, "blue")
 	t.check(Helpers.events_of(events, "volley").size() == 1 and longbow.province == "greywater" and state.owners.redfield == "red",
 		"the longbow volley flies 2 regions and takes nothing")
 
@@ -65,21 +65,19 @@ func _test_special_units(t) -> void:
 
 
 func _test_bonuses(t) -> void:
-	# Norse: raiding 2 regions along the coast in one move.
-	var state := Helpers.game({"northmarch": "blue"}, [["blue", "northmarch", "berserker"], ["red", "eastwold", "militia"]], 7, {"blue_civ": "norse"})
-	var raider: Unit = state.unit_in("northmarch")
-	t.check(state.map.is_coastal("northmarch") and state.map.is_coastal("greywater") and state.map.is_coastal("highcrag"), "the north coast is coastal")
-	t.check(Helpers.order(state, raider, "move", "highcrag") == "", "Norse units can sail 2 regions along the coast")
-	Helpers.resolve(state)
-	t.check(raider.province == "highcrag", "and land there in one turn")
-	state = Helpers.game({"northmarch": "blue"}, [["blue", "northmarch", "spearmen"]], 7, {"blue_civ": "anglish"})
-	t.check(Orders.problem(state, state.unit_in("northmarch"), "move", "highcrag") == "not next to it", "other civilizations can't")
+	# Norse: sea-wolves attack coastal regions 15% harder (the old coastal raid is gone: sea routes are for everyone).
+	var state := Helpers.game({"northmarch": "blue", "greywater": "red"}, [["blue", "northmarch", "berserker"], ["red", "greywater", "militia"]], 7, {"blue_civ": "norse"})
+	var raider: Troop = state.unit_in("northmarch").troops[0]
+	state.prepare_for_battle(raider, "blue", false, "greywater")
+	t.check(state.map.is_coastal("greywater") and is_equal_approx(raider.attack_mod, 1.15), "Norse attacks on a coastal region get +15%")
+	state.prepare_for_battle(raider, "blue", false, "kingsvale")
+	t.check(not state.map.is_coastal("kingsvale") and raider.attack_mod == 1.0, "but not inland")
 
 	# Anglish: +15% defense at home.
 	state = Helpers.game({"greywater": "blue", "kingsvale": "red"}, [["blue", "greywater", "yeoman"], ["blue", "kingsvale", "yeoman"]], 7, {"blue_civ": "anglish"})
-	state.prepare_for_battle(state.units[0], true, "greywater")
-	state.prepare_for_battle(state.units[1], true, "kingsvale")
-	t.check(is_equal_approx(state.units[0].defense_mod, 1.15) and state.units[1].defense_mod == 1.0, "Anglish units defend 15% better in their own regions")
+	state.prepare_for_battle(state.units[0].troops[0], "blue", true, "greywater")
+	state.prepare_for_battle(state.units[1].troops[0], "blue", true, "kingsvale")
+	t.check(is_equal_approx(state.units[0].troops[0].defense_mod, 1.15) and state.units[1].troops[0].defense_mod == 1.0, "Anglish units defend 15% better in their own regions")
 
 	# Frankish: cheaper cavalry.
 	state = Helpers.game({"greywater": "blue"}, [], 7, {"blue_civ": "frankish", "red_civ": "norse"})

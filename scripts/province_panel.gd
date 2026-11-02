@@ -79,9 +79,9 @@ func show_province(state: GameState, id: String) -> void:
 	var units_here := state.units_in(id)
 	if seen.has(id) and not units_here.is_empty():
 		lines.append("")
-		lines.append("[b]Units here (%d/%d)[/b]" % [units_here.size(), GameState.STACK_LIMIT])
+		lines.append("[b]Army here[/b]")
 		for unit in units_here:
-			lines.append("•  %s, %d soldiers (%s)" % [unit.type().display_name, unit.soldiers(), state.faction_name(unit.owner)])
+			lines.append("•  %s: %d soldiers (%s)" % [state.faction_name(unit.owner), unit.soldiers(), unit.describe()])
 	_body.text = "\n".join(lines)
 
 	if own:

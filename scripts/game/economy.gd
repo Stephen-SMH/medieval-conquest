@@ -11,10 +11,11 @@ const TOWN_INCOME := 5.0
 const CAPITAL_INCOME := 10.0
 const DESERTION_LOSS := 0.05         # Units lose soldiers when there's no gold to pay them.
 
-const HEAL_SOLDIERS := 2             # UT-7: soldiers a resting unit regains in a friendly region...
-const HEAL_SOLDIERS_BARRACKS := 4    # ...or with Barracks.
-## Gold per soldier healed, as a share of a soldier's recruiting cost.
-const HEAL_COST_SHARE := 1.0
+## UT-7: an army resting in its own region regains this share of its lost
+## health each turn (Barracks: all of it). Healing restores health, not
+## soldiers: new soldiers come from reinforcements.
+const HEAL_SHARE := 0.5
+const HEAL_SHARE_BARRACKS := 1.0
 
 const SLOTS := 4                     # PV-1
 const CAPITAL_SLOTS := 6
@@ -91,7 +92,10 @@ static func deltas(state: GameState, faction_id: String) -> Dictionary:
 
 
 static func unit_upkeep(state: GameState, unit: Unit) -> float:
-	return unit.type().upkeep_gold * unit.strength() * Research.upkeep_mod(state, unit.owner)
+	var total := 0.0
+	for troop in unit.troops:
+		total += troop.type().upkeep_gold * troop.soldiers / float(UnitType.SOLDIERS)
+	return total * Research.upkeep_mod(state, unit.owner)
 
 
 # --- Buildings (3.11) -------------------------------------------------------------
@@ -186,14 +190,16 @@ static func recruit_problem(state: GameState, region: String, unit_id: String, f
 	return ""
 
 
-## Recruits need an empty region, or a unit of the same type there to reinforce.
-static func _room_problem(state: GameState, region: String, unit_id: String) -> String:
+## Reinforcements join the army in the region (up to Unit.CAP soldiers), one
+## order per region per turn.
+static func _room_problem(state: GameState, region: String, _unit_id: String) -> String:
 	if state.provinces[region].recruits.size() >= MAX_RECRUITS_PER_TURN:
 		return "one recruit per region per turn"
 	var occupant := state.unit_in(region)
-	if occupant != null and (occupant.type_id != unit_id or occupant.soldiers() >= UnitType.SOLDIERS):
-		return "no room: one unit per region (a %s can only be reinforced)" % occupant.type().display_name.to_lower() \
-			if occupant.owner == state.owners[region] else "enemy units are here"
+	if occupant != null and occupant.owner != state.owners[region]:
+		return "enemy units are here"
+	if occupant != null and occupant.soldiers() >= Unit.CAP:
+		return "the army here already has %d soldiers" % Unit.CAP
 	return ""
 
 
@@ -262,18 +268,38 @@ static func _restock(state: GameState) -> void:
 
 # --- Healing (UT-7) ---------------------------------------------------------------
 
-## Gold to heal one soldier of this type.
-static func heal_cost(unit_type: UnitType) -> float:
-	return unit_type.cost_gold / float(UnitType.SOLDIERS) * HEAL_COST_SHARE
+## The share of its lost health an army would regain at the end of this turn.
+static func heal_share(state: GameState, unit: Unit) -> float:
+	if state.owners.get(unit.province) != unit.owner:
+		return 0.0
+	if (unit.moved or unit.attacked) and not Bonuses.heals_on_the_move(state, unit.owner):
+		return 0.0
+	return HEAL_SHARE_BARRACKS if state.provinces[unit.province].level("barracks") > 0 else HEAL_SHARE
 
 
-## Soldiers a unit would heal at the end of this turn if the gold allows.
-static func heal_amount(state: GameState, unit: Unit) -> int:
-	if unit.moved or unit.attacked or state.owners[unit.province] != unit.owner:
-		return 0
-	var rate := HEAL_SOLDIERS_BARRACKS if state.provinces[unit.province].level("barracks") > 0 else HEAL_SOLDIERS
-	rate += Bonuses.extra_healing(state, unit.owner)
-	return mini(rate, UnitType.SOLDIERS - unit.soldiers())
+# --- Arrivals --------------------------------------------------------------------
+
+## Reinforcements ordered last turn arrive at the start of the owner's turn,
+## joining the army there (up to Unit.CAP).
+static func arrivals(state: GameState, faction_id: String) -> Array:
+	var events := []
+	for region in state.map.province_order:
+		var province: ProvinceState = state.provinces[region]
+		if state.owners[region] != faction_id or province.recruits.is_empty():
+			continue
+		for unit_id in province.recruits:
+			var army := state.unit_in(region)
+			if army != null and army.owner != faction_id:
+				break
+			if army == null:
+				army = state.add_unit("", faction_id, region)
+			var count := mini(UnitType.SOLDIERS, Unit.CAP - army.soldiers())
+			army.add(unit_id, count)
+			army.reset_turn()
+			events.append({"type": "economy", "faction": faction_id, "kind": "good",
+				"text": "%d %s arrived in %s." % [count, Rules.unit(unit_id).display_name.to_lower(), state.map.region_name(region)]})
+		province.recruits.clear()
+	return events
 
 
 # --- End of turn --------------------------------------------------------------------
@@ -291,23 +317,20 @@ static func process_faction(state: GameState, faction_id: String) -> Array:
 	if faction.resources.gold < 0.0:
 		faction.resources.gold = 0.0
 		for unit in own_units:
-			unit.hp *= 1.0 - DESERTION_LOSS
+			for troop in unit.troops:
+				var before := troop.soldiers
+				troop.lose_share(DESERTION_LOSS)
+				state.note_loss(faction_id, troop.type_id, before - troop.soldiers)
 		note.call("bad", "No gold to pay the troops: %d%% of every unit deserted." % roundi(DESERTION_LOSS * 100))
 
-	# Healing units that rested in a friendly region (UT-7).
-	var healed := 0
+	# Armies that rested in their own regions heal (UT-7).
 	for unit in own_units:
-		var amount := heal_amount(state, unit)
-		var cost := heal_cost(unit.type())
-		amount = mini(amount, floori(faction.resources.gold / cost) if cost > 0.0 else amount)
-		if amount > 0 and not unit.is_destroyed():
-			unit.set_soldiers(unit.soldiers() + amount)
-			faction.resources.gold -= amount * cost
-			healed += amount
-	if healed > 0:
-		note.call("good", "%d soldiers healed in resting units." % healed)
+		var share := heal_share(state, unit)
+		if share > 0.0:
+			for troop in unit.troops:
+				troop.heal(share)
 
-	# Construction, research and recruits.
+	# Construction and research.
 	for region in state.map.province_order:
 		if state.owners[region] != faction_id:
 			continue
@@ -319,19 +342,7 @@ static func process_faction(state: GameState, faction_id: String) -> Array:
 				province.buildings[province.construction] = province.level(province.construction) + 1
 				note.call("good", "%s finished in %s." % [Rules.building(province.construction).display_name, where])
 				province.construction = ""
-		if not province.recruits.is_empty() and not blockaded(state, region):
-			var waiting: Array[String] = []
-			for unit_id in province.recruits:
-				var occupant := state.unit_in(region)
-				if occupant == null:
-					state.add_unit(unit_id, faction_id, region)
-					note.call("good", "New %s ready in %s." % [Rules.unit(unit_id).display_name.to_lower(), where])
-				elif occupant.owner == faction_id and occupant.type_id == unit_id and occupant.soldiers() < UnitType.SOLDIERS:
-					occupant.set_soldiers(UnitType.SOLDIERS)
-					note.call("good", "The %s in %s were reinforced." % [Rules.unit(unit_id).display_name.to_lower(), where])
-				else:
-					waiting.append(unit_id)
-			province.recruits = waiting
+
 	events.append_array(Research.advance(state, faction_id))
 	if faction_id == state.living_factions()[0]:
 		_restock(state)

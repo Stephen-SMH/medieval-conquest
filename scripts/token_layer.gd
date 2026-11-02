@@ -1,9 +1,11 @@
 class_name TokenLayer
 extends Node2D
-## Draws each unit as a small group of painted figures on its region
-## (PRD UT-2): three to five soldiers (two or three riders, one or two
-## engines) depending on its soldiers, in the faction's colours, the faction's
-## banner on a pole behind them, a thin health bar with a white tip, the soldier number in
+## Draws each army as a small group of painted figures on its region
+## (PRD UT-2, A): two to four figures of the types it holds (the dominant
+## type first; riders and engines too), in the faction's colours, the faction's
+## banner on a pole behind them, one total number and one health bar (green
+## when unhurt, yellow when damaged, red when badly hurt), a soft green glow and
+## a small green marker under the selected army, a thin health bar with a white tip, the soldier number in
 ## italic, a red X once every soldier has an order (and no detachment can take
 ## another step), and while only some of them have orders, a small shield with
 ## how many are left at home.
@@ -16,6 +18,7 @@ const SCREEN_HEIGHT := 64.0  # Token height on screen, in pixels, at any zoom.
 const MIN_WORLD := 42.0
 const MAX_WORLD := 90.0
 const GOLD := Color("#e2bd5a")
+const SELECT := Color("#5fd35a")
 const INK := Color("#1d130a")
 const HP_DRAIN_PER_SECOND := 0.9
 ## The painted figures (tools/render_figures.gd): a sprite per unit type, plus a
@@ -45,7 +48,10 @@ class TokenVisual:
 	var unit: Unit
 	var region := ""
 	var owner := ""
-	var hp := 0.0  # Shown HP; drains towards the unit's real HP.
+	var hp := 0.0  # Shown HP; drains towards the army's real HP.
+	var full := 1.0  # Shown full health: the bar is hp ÷ full.
+	var count := 0  # Shown soldiers.
+	var troops := {}  # Shown composition, {type: soldiers}.
 	var alpha := 1.0
 	var sink := 0.0  # 0 to 1 as a destroyed unit sinks away.
 	var offset := Vector2.ZERO  # Extra offset (advance, recoil, bob).
@@ -55,7 +61,17 @@ class TokenVisual:
 	var held := false
 
 	func soldiers() -> int:
-		return clampi(ceili(hp / unit.type().soldier_hp() - 0.0001), 0, UnitType.SOLDIERS)
+		return count
+
+	## Shows an army as it is, or as a snapshot {soldiers, hp, full, troops}.
+	func show(look: Dictionary) -> void:
+		count = int(look.soldiers)
+		full = maxf(float(look.full), 0.001)
+		hp = float(look.hp)
+		troops = look.get("troops", troops).duplicate()
+
+	func health() -> float:
+		return clampf(hp / full, 0.0, 1.0) if count > 0 else 0.0
 
 
 var state: GameState
@@ -88,8 +104,13 @@ func _process(delta: float) -> void:
 	for visual: TokenVisual in visuals.values():
 		if visual.held or not state.units.has(visual.unit):
 			continue
+		if visual.count != visual.unit.soldiers() or visual.troops != visual.unit.composition():
+			visual.count = visual.unit.soldiers()
+			visual.full = maxf(visual.unit.full_hp(), 0.001)
+			visual.troops = visual.unit.composition()
+			changed = true
 		if not is_equal_approx(visual.hp, visual.unit.hp):
-			visual.hp = move_toward(visual.hp, visual.unit.hp, visual.unit.max_hp() * HP_DRAIN_PER_SECOND * delta)
+			visual.hp = move_toward(visual.hp, visual.unit.hp, visual.full * HP_DRAIN_PER_SECOND * delta)
 			changed = true
 	if changed or not ghosts.is_empty():
 		queue_redraw()
@@ -102,7 +123,7 @@ func sync(snap_hp := false) -> void:
 		if visual == null:
 			visual = TokenVisual.new()
 			visual.unit = unit
-			visual.hp = unit.hp
+			visual.show(Resolver.look(unit))
 			visuals[unit] = visual
 		visual.region = unit.province
 		visual.owner = unit.owner
@@ -111,6 +132,9 @@ func sync(snap_hp := false) -> void:
 		visual.alpha = 1.0
 		visual.sink = 0.0
 		visual.held = false
+		visual.count = unit.soldiers()
+		visual.full = maxf(unit.full_hp(), 0.001)
+		visual.troops = unit.composition()
 		if snap_hp:
 			visual.hp = unit.hp
 	for unit in visuals.keys():
@@ -198,11 +222,17 @@ func _draw_unit(visual: TokenVisual, centre: Vector2, size: float) -> void:
 	var faction_color := state.faction_color(visual.owner)
 	var foot := centre + Vector2(0, size * 0.45)
 
-	# Selection: a pulsing gold ring on the ground.
+	# Selection: a soft green glow on the ground and a small green marker under the figures.
 	if selected.has(unit):
-		var pulse := 0.5 + 0.5 * sin(_time * 5.0)
-		_draw_ellipse(foot, Vector2(size * (0.8 + 0.06 * pulse), size * 0.26), Color(GOLD, (0.25 + 0.25 * pulse) * alpha))
-		_draw_ellipse_outline(foot, Vector2(size * (0.8 + 0.06 * pulse), size * 0.26), Color(GOLD.lightened(0.3), 0.9 * alpha), maxf(size * 0.05, 1.5))
+		var pulse := 0.5 + 0.5 * sin(_time * 4.0)
+		for k in 4:
+			_draw_ellipse(foot + Vector2(0, -size * 0.1), Vector2(size * (0.95 - k * 0.13 + 0.04 * pulse), size * (0.42 - k * 0.07)),
+				Color(SELECT, (0.08 + 0.04 * pulse) * alpha))
+		var tip := foot + Vector2(0, size * 0.1)
+		draw_colored_polygon(PackedVector2Array([tip, tip + Vector2(-size * 0.1, size * 0.13), tip + Vector2(size * 0.1, size * 0.13)]),
+			Color(SELECT.lightened(0.2), 0.95 * alpha))
+		draw_polyline(PackedVector2Array([tip, tip + Vector2(-size * 0.1, size * 0.13), tip + Vector2(size * 0.1, size * 0.13), tip]),
+			Color(INK, 0.8 * alpha), maxf(size * 0.02, 1.0), true)
 	_draw_ellipse(foot, Vector2(size * 0.6, size * 0.15), Color(0, 0, 0, 0.26 * alpha))
 
 	# The faction's banner on a pole behind the figures.
@@ -210,18 +240,18 @@ func _draw_unit(visual: TokenVisual, centre: Vector2, size: float) -> void:
 	var pole_foot := foot + Vector2(size * 0.4, -size * 0.1)
 	draw_banner(self, pole_foot, size * 1.3, faction_color, civ, alpha)
 
-	# The painted figures: three to five soldiers, two or three riders, one or two engines.
-	# Each figure gets its own pose variant, a slightly different size, place
-	# and shade, so a group doesn't look like a row of copies.
-	var spots: Array = figure_spots(unit.type(), visual.soldiers())
-	var variants := variant_count(unit.type_id)
+	# The painted figures: two to four, of the types the army holds. Each
+	# figure gets its own pose variant, a slightly different size, place and
+	# shade, so a group doesn't look like a row of copies.
+	var plan := figure_plan(visual.troops if not visual.troops.is_empty() else {unit.type_id: visual.soldiers()})
 	var sprite := size * 0.68 / FIGURE_MAN  # A standing man is 0.68 token sizes tall.
 	var team_color := faction_color.lightened(0.12)
 	var o := maxf(size * 0.012, 0.6)
-	for i in spots.size():
-		var look := figure_look(unit.get_instance_id(), i, variants)
-		var textures := _figure(unit.type_id, look.variant)
-		var feet: Vector2 = foot + (spots[i] + look.offset) * size
+	for i in plan.size():
+		var type_id: String = plan[i][0]
+		var look := figure_look(unit.get_instance_id(), i, variant_count(type_id))
+		var textures := _figure(type_id, look.variant)
+		var feet: Vector2 = foot + (plan[i][1] + look.offset) * size
 		var shown: float = sprite * look.scale
 		var rect := Rect2(feet - Vector2(shown * 0.5, shown * FIGURE_FEET), Vector2(shown, shown))
 		for shift in [Vector2(o, 0), Vector2(-o, 0), Vector2(0, o), Vector2(0, -o)]:
@@ -234,9 +264,8 @@ func _draw_unit(visual: TokenVisual, centre: Vector2, size: float) -> void:
 	# A thin health bar with a white tip, the soldiers under it, and a red X when spent.
 	var bar := Rect2(foot + Vector2(-size * 0.4, size * 0.12), Vector2(size * 0.8, maxf(size * 0.055, 2.5)))
 	draw_rect(bar.grow(1.0), Color(INK, 0.85 * alpha))
-	var health := clampf(visual.hp / unit.max_hp(), 0.0, 1.0)
-	var fill := Color("#c8402c").lerp(Color("#e0c040"), clampf(health * 2.0, 0.0, 1.0)) if health < 0.5 \
-		else Color("#e0c040").lerp(Color("#6ac74a"), (health - 0.5) * 2.0)
+	var health := visual.health()
+	var fill := health_color(health)
 	draw_rect(Rect2(bar.position, Vector2(bar.size.x * health, bar.size.y)), Color(fill, alpha))
 	if health > 0.02:
 		draw_rect(Rect2(bar.position + Vector2(bar.size.x * health - 2.0, 0), Vector2(2.0, bar.size.y)), Color(1, 1, 1, alpha))
@@ -267,7 +296,51 @@ func _draw_home_badge(at: Vector2, count: int, size: float, alpha: float) -> voi
 	draw_string(_number_font, at + Vector2(-r, font_size * 0.3), str(count), HORIZONTAL_ALIGNMENT_CENTER, r * 2.0, font_size, Color(INK, alpha))
 
 
-## Where the figures of a unit stand: more figures as it has more soldiers.
+## The health bar's colour: green when unhurt, yellow once damaged, red when badly hurt.
+static func health_color(health: float) -> Color:
+	if health >= 0.999:
+		return Color("#6ac74a")
+	if health >= 0.4:
+		return Color("#e0c040")
+	return Color("#c8402c")
+
+
+## Which figures an army shows and where they stand: [[type id, offset], ...],
+## back to front. Two to four figures as it grows; each type present gets one
+## (most soldiers first, up to four types) and the dominant type the rest.
+## Riders and engines stand at the back.
+static func figure_plan(troops: Dictionary) -> Array:
+	var total := 0
+	var types := troops.keys()
+	for type_id in types:
+		total += int(troops[type_id])
+	if total <= 0:
+		return []
+	types.sort_custom(func(a, b): return int(troops[a]) > int(troops[b]) or (int(troops[a]) == int(troops[b]) and Rules.unit(a).order < Rules.unit(b).order))
+	if types.size() == 1:
+		var single: String = types[0]
+		var spots := figure_spots(Rules.unit(single), total)
+		return spots.map(func(spot): return [single, spot])
+	var figures := 2 if total <= 3 else (3 if total <= 10 else 4)
+	figures = maxi(figures, mini(types.size(), 4))
+	var shown: Array = types.slice(0, mini(types.size(), figures))
+	while shown.size() < figures:
+		shown.append(types[0])
+	# Mounted and engines at the back, foot in front; each row centred.
+	var back := shown.filter(func(t): return Rules.unit(t).is_cavalry() or Rules.unit(t).unit_class == "siege")
+	var front := shown.filter(func(t): return not (Rules.unit(t).is_cavalry() or Rules.unit(t).unit_class == "siege"))
+	if front.is_empty():
+		front = [back.pop_back()]
+	var plan := []
+	for row in [[back, -0.1, 0.62], [front, 0.05, 0.42]]:
+		var members: Array = row[0]
+		for k in members.size():
+			var x: float = (k - (members.size() - 1) / 2.0) * row[2]
+			plan.append([members[k], Vector2(x, row[1])])
+	return plan
+
+
+## Where the figures of a one-type army stand: more figures as it has more soldiers.
 static func figure_spots(unit_type: UnitType, soldiers: int) -> Array:
 	if unit_type.unit_class == "siege":
 		return SIEGE_SPOTS[1 if soldiers <= 10 else 2]

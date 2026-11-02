@@ -21,7 +21,13 @@ var checks := 0
 
 
 func _init() -> void:
+	var only := Array(OS.get_cmdline_user_args())
 	for suite_script in SUITES:
+		if not only.is_empty() and not only.any(func(name): return suite_script.resource_path.contains(name)):
+			continue
+		if not suite_script.can_instantiate():
+			check(false, "%s compiles" % suite_script.resource_path.get_file())
+			continue
 		var suite = suite_script.new()
 		print("\n== %s" % suite_script.resource_path.get_file())
 		suite.run(self)

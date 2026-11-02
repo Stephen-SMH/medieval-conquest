@@ -39,10 +39,10 @@ func _test_roster(t) -> void:
 	t.check(missing.is_empty(), "the counter table covers every pair of unit types %s" % [missing])
 
 
-func _units(faction: String, type_id: String, copies: int) -> Array[Unit]:
-	var made: Array[Unit] = []
+func _units(_faction: String, type_id: String, copies: int) -> Array[Troop]:
+	var made: Array[Troop] = []
 	for i in copies:
-		made.append(Unit.new(type_id, faction, "x"))
+		made.append(Troop.new(type_id, UnitType.SOLDIERS))
 	return made
 
 
@@ -136,9 +136,10 @@ func _test_crusader_bonus(t) -> void:
 		["blue", "greywater", "spearmen", 10], ["red", "kingsvale", "spearmen", 10]], 7, {"blue_civ": "crusader", "red_civ": "frankish"})
 	var crusader: Unit = state.unit_in("greywater")
 	var other: Unit = state.unit_in("kingsvale")
-	t.check(Economy.heal_amount(state, crusader) == Economy.HEAL_SOLDIERS + Bonuses.CRUSADER_HEALING
-		and Economy.heal_amount(state, other) == Economy.HEAL_SOLDIERS, "Crusader hospitals heal 2 more soldiers a turn (%d vs %d)" % [
-			Economy.heal_amount(state, crusader), Economy.heal_amount(state, other)])
+	crusader.moved = true
+	other.moved = true
+	t.check(Economy.heal_share(state, crusader) > 0.0 and Economy.heal_share(state, other) == 0.0,
+		"Crusader hospitals heal armies at home even after they marched or fought")
 	t.check(Economy.roster(state, "blue").has("brother_knight") and not Economy.roster(state, "red").has("brother_knight")
 		and Economy.roster(state, "red").has("pikemen"), "only the Crusader Orders recruit Brother Knights; everyone can field pikemen")
 	t.check(Economy.recruit_problem(state, "greywater", "pikemen", "blue") != "", "pikemen need Chain Mail first")

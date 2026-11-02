@@ -31,8 +31,8 @@ func run(t) -> void:
 	state = Helpers.game({"greywater": "blue"}, [["blue", "greywater", "spearmen", 10]], 5)
 	var gold: float = state.factions.blue.resources.gold + Economy.deltas(state, "blue").gold
 	Helpers.resolve(state)
-	t.check(state.unit_in("greywater").soldiers() == 12 and is_equal_approx(state.factions.blue.resources.gold, gold - 2 * Economy.heal_cost(Rules.unit("spearmen"))),
-		"healing 2 soldiers costs gold (%.1f each for spearmen)" % Economy.heal_cost(Rules.unit("spearmen")))
+	t.check(state.unit_in("greywater").soldiers() == 10 and is_equal_approx(state.factions.blue.resources.gold, gold),
+		"resting heals health only, and it's free")
 
 	# Buildings cost gold only.
 	state = Helpers.game({"greywater": "blue", "northmarch": "blue", "ashford": "blue"}, [], 5,

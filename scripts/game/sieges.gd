@@ -36,7 +36,11 @@ static func wall_bonus(state: GameState, region: String, attacking: Array[Unit])
 	var level := walls(state, region)
 	if level == 0 or (breached(state, region) and not attacking.is_empty() and state.provinces[region].siege_faction == attacking[0].owner):
 		return 0.0
-	var catapults := attacking.filter(func(u: Unit): return u.type().unit_class == "siege").size()
+	var catapults := 0.0
+	for unit in attacking:
+		for troop in unit.troops:
+			if troop.type().unit_class == "siege":
+				catapults += troop.soldiers / float(UnitType.SOLDIERS)
 	return maxf(WALL_BONUS[level] - CATAPULT_CUT * catapults, 0.0)
 
 
@@ -53,9 +57,9 @@ static func besiege_problem(state: GameState, stack: Array, region: String) -> S
 	if province.siege_faction == faction:
 		return "already besieging it"
 	for unit: Unit in stack:
-		if not unit.type().is_ranged() and map_adjacent(state, unit, region) and not unit.attacked:
+		if unit.has_melee() and map_adjacent(state, unit, region) and not unit.attacked:
 			return ""
-	return "needs a melee unit next to it that hasn't fought this turn"
+	return "needs an army with melee soldiers next to it that hasn't fought this turn"
 
 
 static func map_adjacent(state: GameState, unit: Unit, region: String) -> bool:
@@ -85,7 +89,7 @@ static func advance(state: GameState, faction: String) -> Array:
 			continue
 		var still_there := false
 		for unit in state.units_of(faction):
-			if not unit.type().is_ranged() and state.map.are_neighbours(unit.province, region):
+			if unit.has_melee() and state.map.are_neighbours(unit.province, region):
 				still_there = true
 		if not still_there or state.owners[region] == faction:
 			province.siege_faction = ""
@@ -96,6 +100,9 @@ static func advance(state: GameState, faction: String) -> Array:
 		if breached(state, region):
 			for unit in state.units_in(region):
 				if unit.owner != faction:
-					unit.hp *= 1.0 - STARVATION
+					for troop in unit.troops:
+						var before := troop.soldiers
+						troop.lose_share(STARVATION)
+						state.note_loss(unit.owner, troop.type_id, before - troop.soldiers)
 			events.append({"type": "siege_breached", "province": region, "faction": faction})
 	return events

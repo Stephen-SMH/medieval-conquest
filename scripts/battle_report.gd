@@ -44,7 +44,7 @@ func show_battle(state: GameState, battle: Battle, region: String, viewer: Strin
 			roundi(side.morale), ", routed" if side.routed else ""])
 		for i in side.units.size():
 			var unit := side.units[i]
-			var after := "destroyed" if unit.is_destroyed() else "%d" % unit.soldiers()
+			var after := "destroyed" if unit.is_destroyed() else "%d" % unit.soldiers
 			var note := " (shot from its own region)" if side.standoff.has(unit) else ""
 			lines.append("    %s: %d → %s soldiers%s" % [unit.type().display_name, side.before[i][1], after, note])
 	_body.text = "\n".join(lines)
