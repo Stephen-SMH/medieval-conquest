@@ -116,20 +116,77 @@
   },
   "wolin": {
    "walls": 1
+  },
+  "zealand": {
+   "walls": 1
+  },
+  "trondheim": {
+   "walls": 1
+  },
+  "uppsala": {
+   "walls": 1
   }
  },
  "units": [
   {
-   "owner": "danes",
-   "region": "zealand",
-   "type": "huscarl",
-   "soldiers": 20
+   "owner": "norway",
+   "region": "bergen",
+   "type": "archers",
+   "soldiers": 10
+  },
+  {
+   "owner": "norway",
+   "region": "borgund",
+   "type": "berserker",
+   "soldiers": 15
   },
   {
    "owner": "danes",
    "region": "funen",
    "type": "berserker",
    "soldiers": 15
+  },
+  {
+   "owner": "swedes",
+   "region": "gavle",
+   "type": "berserker",
+   "soldiers": 15
+  },
+  {
+   "owner": "danes",
+   "region": "halmstad",
+   "type": "light_cavalry",
+   "soldiers": 12
+  },
+  {
+   "owner": "swedes",
+   "region": "halsingland",
+   "type": "light_cavalry",
+   "soldiers": 12
+  },
+  {
+   "owner": "norway",
+   "region": "hamar",
+   "type": "archers",
+   "soldiers": 15
+  },
+  {
+   "owner": "empire",
+   "region": "hamburg",
+   "type": "knight",
+   "soldiers": 20
+  },
+  {
+   "owner": "empire",
+   "region": "holstein",
+   "type": "sergeant",
+   "soldiers": 15
+  },
+  {
+   "owner": "danes",
+   "region": "jelling",
+   "type": "huscarl",
+   "soldiers": 12
   },
   {
    "owner": "danes",
@@ -141,78 +198,6 @@
    "owner": "danes",
    "region": "lund",
    "type": "spearmen",
-   "soldiers": 12
-  },
-  {
-   "owner": "danes",
-   "region": "halmstad",
-   "type": "light_cavalry",
-   "soldiers": 12
-  },
-  {
-   "owner": "danes",
-   "region": "jelling",
-   "type": "huscarl",
-   "soldiers": 12
-  },
-  {
-   "owner": "norway",
-   "region": "trondheim",
-   "type": "huscarl",
-   "soldiers": 20
-  },
-  {
-   "owner": "norway",
-   "region": "borgund",
-   "type": "berserker",
-   "soldiers": 15
-  },
-  {
-   "owner": "norway",
-   "region": "hamar",
-   "type": "archers",
-   "soldiers": 15
-  },
-  {
-   "owner": "norway",
-   "region": "bergen",
-   "type": "spearmen",
-   "soldiers": 12
-  },
-  {
-   "owner": "norway",
-   "region": "oslo",
-   "type": "light_cavalry",
-   "soldiers": 12
-  },
-  {
-   "owner": "swedes",
-   "region": "uppsala",
-   "type": "huscarl",
-   "soldiers": 20
-  },
-  {
-   "owner": "swedes",
-   "region": "gavle",
-   "type": "berserker",
-   "soldiers": 15
-  },
-  {
-   "owner": "swedes",
-   "region": "stockholm",
-   "type": "archers",
-   "soldiers": 15
-  },
-  {
-   "owner": "swedes",
-   "region": "vasteras",
-   "type": "spearmen",
-   "soldiers": 12
-  },
-  {
-   "owner": "swedes",
-   "region": "halsingland",
-   "type": "light_cavalry",
    "soldiers": 12
   },
   {
@@ -228,22 +213,52 @@
    "soldiers": 12
   },
   {
+   "owner": "norway",
+   "region": "oslo",
+   "type": "spearmen",
+   "soldiers": 10
+  },
+  {
+   "owner": "swedes",
+   "region": "stockholm",
+   "type": "archers",
+   "soldiers": 15
+  },
+  {
+   "owner": "norway",
+   "region": "tonsberg",
+   "type": "berserker",
+   "soldiers": 15
+  },
+  {
+   "owner": "norway",
+   "region": "trondheim",
+   "type": "huscarl",
+   "soldiers": 16
+  },
+  {
    "owner": "swedes",
    "region": "tuna",
    "type": "archers",
    "soldiers": 12
   },
   {
-   "owner": "empire",
-   "region": "hamburg",
-   "type": "knight",
+   "owner": "swedes",
+   "region": "uppsala",
+   "type": "huscarl",
    "soldiers": 20
   },
   {
-   "owner": "empire",
-   "region": "holstein",
-   "type": "sergeant",
-   "soldiers": 15
+   "owner": "swedes",
+   "region": "vasteras",
+   "type": "spearmen",
+   "soldiers": 12
+  },
+  {
+   "owner": "danes",
+   "region": "zealand",
+   "type": "huscarl",
+   "soldiers": 20
   },
   {
    "owner": "neutral",
@@ -323,7 +338,7 @@
   "defeat": [
    {
     "type": "time",
-    "turns": 20
+    "turns": 24
    },
    {
     "type": "lose_region",
@@ -331,14 +346,19 @@
    }
   ],
   "crowns": [
-   10,
-   13,
-   16
+   12,
+   16,
+   20
   ],
   "events": [],
   "history": "Olaf Tryggvason rules Norway from Nidaros and presses the new faith on its chieftains. King Sweyn Forkbeard of Denmark, the Swedes and the exiled jarls of Lade have sworn to bring him down.",
   "briefing": "Take Trondheim, Olaf's seat, and claim Viken in the south for the Danish crown.",
   "victory_text": "Olaf's longships are taken off Svolder, and Norway is shared among the victors.",
   "defeat_text": "Olaf keeps his throne, and the Danes go home empty-handed."
+ },
+ "resources": {
+  "danes": {
+   "gold": 600
+  }
  }
 }

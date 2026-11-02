@@ -2,7 +2,12 @@
 real maps' historical starts ("history" in data/maps/<map>.json): who holds
 what in that year, plus armies, a mission in the S&T form (PRD H) and a
 listing for the Scenarios table (difficulty 1-3, order, and how many
-scenario wins unlock it). Garrisons are laid out from each capital outwards.
+scenario wins unlock it). Garrisons are laid out from each capital outwards;
+every region an objective names and every region the player must not lose
+gets one too, capitals get walls, and a scenario may change owners
+("owners": {region: faction}), give a realm its own army types
+("faction_armies": {faction: [type, ...]}) and place armies itself
+("armies": {region: [type, soldiers]}, for its owner).
 
     python3 tools/make_scenarios.py
 """
@@ -32,6 +37,8 @@ SCENARIOS = [
         "additional": [{"type": "capture", "regions": ["dorpat"], "points": 200}],
         "defeat": [{"type": "lose_region", "region": "novgorod"}],
         "crowns": [6, 8, 10], "time": 14,
+        "faction_armies": {"novgorod": ["spearmen", "archers", "pikemen", "light_cavalry", "swordsmen"]},
+        "armies": {"pskov": ["brother_knight", 14], "izborsk": ["crossbowmen", 12], "novgorod": ["pikemen", 20], "luga": ["spearmen", 14]},
         "events": [{"turn": 3, "type": "reinforcements", "faction": "order", "region": "dorpat", "unit": "brother_knight", "soldiers": 8,
                     "text": "The brother knights ride out of Dorpat to meet Alexander's army."}],
         "victory": "On the ice of Lake Peipus the Order's charge breaks. Pskov is free, and the Order gives up its conquests.",
@@ -42,12 +49,15 @@ SCENARIOS = [
         "listing": {"difficulty": 1, "order": 3, "unlock_after": 0},
         "history": "King Edward died in January and Harold Godwinson took the crown. In September Harald Hardrada, king of "
                    "Norway, sailed up the Humber with Harold's exiled brother Tostig and seized the north.",
-        "briefing": "March north and throw the Norwegians out of Stamford Bridge.",
-        "primary": [{"type": "capture", "regions": ["stamford_bridge"]}],
-        "additional": [{"type": "capture", "regions": ["caithness"], "points": 200},
-                       {"type": "hold", "region": "york", "turns": 5}],
+        "briefing": "York has opened its gates to Hardrada after his victory at Fulford. March north, retake York and "
+                    "throw the Norwegians out of Stamford Bridge.",
+        "primary": [{"type": "capture", "regions": ["stamford_bridge", "york"]}],
+        "additional": [{"type": "capture", "regions": ["caithness"], "points": 200}],
         "defeat": [{"type": "lose_region", "region": "london"}],
-        "crowns": [5, 7, 9], "time": 12,
+        "crowns": [6, 9, 12], "time": 15,
+        "owners": {"york": "norway"},
+        "armies": {"stamford_bridge": ["huscarl", 18], "york": ["berserker", 12], "london": ["swordsmen", 20], "doncaster": ["yeoman", 16],
+                   "lincoln": ["archers", 12], "durham": ["spearmen", 12], "lancaster": ["spearmen", 0], "newcastle": ["archers", 0]},
         "events": [{"turn": 2, "type": "message",
                     "text": "Word comes from the south: Duke William of Normandy waits for a fair wind across the Channel."}],
         "victory": "At Stamford Bridge Hardrada falls, and the age of the great Viking invasions ends with him.",
@@ -62,7 +72,10 @@ SCENARIOS = [
         "primary": [{"type": "capture", "regions": ["reims"]}],
         "additional": [{"type": "capture", "regions": ["paris"], "points": 300}],
         "defeat": [{"type": "lose_region", "region": "orleans"}, {"type": "lose_region", "region": "bourges"}],
-        "crowns": [8, 11, 14], "time": 18,
+        "crowns": [9, 12, 16], "time": 20,
+        "armies": {"orleans": ["pikemen", 22], "bourges": ["knight", 24], "chartres": ["longbowman", 10], "reims": ["swordsmen", 10],
+                   "paris": ["longbowman", 14], "le_mans": ["spearmen", 0], "avranches": ["archers", 0], "beauvais": ["archers", 0]},
+        "gold": {"france": 600},
         "events": [{"turn": 1, "type": "reinforcements", "faction": "france", "region": "chinon", "unit": "sergeant", "soldiers": 10,
                     "text": "Joan of Arc arrives at Chinon with a relief force for Orléans."}],
         "victory": "Charles is crowned at Reims with Joan beside him, and the war turns at last.",
@@ -77,14 +90,16 @@ SCENARIOS = [
         "primary": [{"type": "capture", "regions": ["trondheim"]}],
         "additional": [{"type": "capture", "regions": ["oslo", "tonsberg"], "points": 200}],
         "defeat": [{"type": "lose_region", "region": "zealand"}],
-        "crowns": [10, 13, 16], "time": 20,
+        "crowns": [12, 16, 20], "time": 24,
+        "armies": {"trondheim": ["huscarl", 16], "bergen": ["archers", 10], "oslo": ["spearmen", 10]},
+        "gold": {"danes": 600},
         "events": [],
         "victory": "Olaf's longships are taken off Svolder, and Norway is shared among the victors.",
         "defeat_text": "Olaf keeps his throne, and the Danes go home empty-handed.",
     },
     {
         "map": "holy_roman_empire", "id": "barbarossa_1176", "name": "1176: Barbarossa and Henry the Lion",
-        "listing": {"difficulty": 2, "order": 6, "unlock_after": 2},
+        "listing": {"difficulty": 3, "order": 6, "unlock_after": 2},
         "history": "Emperor Frederick Barbarossa begged his cousin Henry the Lion, duke of Saxony and Bavaria, for knights "
                    "against the Italian cities. Henry refused, and the emperor was beaten at Legnano.",
         "briefing": "Bring the over-mighty duke to heel: take Brunswick, the Lion's seat.",
@@ -93,22 +108,34 @@ SCENARIOS = [
                        {"type": "capture", "regions": ["regensburg"], "points": 150}],
         "defeat": [{"type": "lose_region", "region": "frankfurt"}],
         "crowns": [10, 13, 16], "time": 20,
-        "events": [],
+        "faction_armies": {"saxony": ["pikemen", "crossbowmen", "spearmen", "swordsmen", "archers"]},
+        "armies": {"brunswick": ["pikemen", 20], "luneburg": ["crossbowmen", 14], "goslar": ["knight", 20], "frankfurt": ["sergeant", 24],
+                   "mainz": ["crossbowmen", 16]},
+        "walls": {"frankfurt": 2},
+        "events": [{"turn": 4, "type": "reinforcements", "faction": "saxony", "region": "brunswick", "unit": "crossbowmen", "soldiers": 4,
+                    "text": "Henry the Lion calls his Saxon vassals to Brunswick."}],
         "victory": "Henry the Lion is stripped of his duchies and sent into exile; the emperor's word is law again.",
         "defeat_text": "The Lion keeps his lands, and the emperor's authority is broken.",
     },
     {
         "map": "levant", "id": "hattin_1187", "name": "1187: On the Eve of Hattin",
-        "listing": {"difficulty": 3, "order": 7, "unlock_after": 3},
+        "listing": {"difficulty": 2, "order": 7, "unlock_after": 3},
         "history": "Saladin has united Egypt and Syria under the Ayyubid banner. Reynald of Châtillon has broken the truce "
                    "by raiding a caravan from Kerak, and the sultan is gathering the largest army the kingdom has ever faced.",
         "briefing": "History says Jerusalem falls this year. Keep it, and carry the war to Damascus.",
         "primary": [{"type": "capture", "regions": ["damascus"]}],
         "additional": [{"type": "capture", "regions": ["aleppo"], "points": 300}],
         "defeat": [{"type": "lose_region", "region": "jerusalem"}],
-        "crowns": [12, 16, 20], "time": 26,
+        "crowns": [10, 14, 18], "time": 22,
+        "gold": {"ayyubids": 900},
+        "faction_armies": {"ayyubids": ["mamluk", "pikemen", "ghazi", "archers", "spearmen"]},
+        "armies": {"damascus": ["pikemen", 28], "banias": ["ghazi", 18], "bostra": ["pikemen", 16], "baalbek": ["archers", 14],
+                   "jerusalem": ["brother_knight", 18]},
+        "walls": {"damascus": 2, "jerusalem": 2},
         "events": [{"turn": 2, "type": "reinforcements", "faction": "ayyubids", "region": "banias", "unit": "mamluk", "soldiers": 10,
-                    "text": "Saladin's army gathers on the Golan heights above the Sea of Galilee."}],
+                    "text": "Saladin's army gathers on the Golan heights above the Sea of Galilee."},
+                   {"turn": 4, "type": "reinforcements", "faction": "ayyubids", "region": "damascus", "unit": "ghazi", "soldiers": 2,
+                    "text": "Volunteers stream into Damascus to defend the sultan's city."}],
         "victory": "Damascus opens its gates. The kingdom of Jerusalem has outlived the sultan's great host.",
         "defeat_text": "Jerusalem falls to Saladin, as it did in 1187.",
     },
@@ -141,18 +168,39 @@ def order_from(graph, start, regions):
 def build(spec):
     data, graph = load_map(spec["map"])
     history = data["history"]
-    owners = history["owners"]
+    owners = dict(history["owners"])
+    owners.update(spec.get("owners", {}))
     player = next(f["id"] for f in history["factions"] if f.get("human"))
-    units = []
+    civ_of = {f["id"]: f.get("civ", "") for f in history["factions"]}
+    armies = {}  # region -> (type, soldiers), for the region's owner
     for faction in history["factions"]:
         held = order_from(graph, history["capitals"][faction["id"]], [r for r, f in owners.items() if f == faction["id"]])
-        kinds = ARMIES[faction.get("civ", "")]
+        kinds = spec.get("faction_armies", {}).get(faction["id"], ARMIES[faction.get("civ", "")])
         # About one army for every two regions, the capital's the strongest.
         for i, region in enumerate(held[: max(2, (len(held) + 1) // 2)]):
-            units.append({"owner": faction["id"], "region": region, "type": kinds[i % len(kinds)],
-                          "soldiers": 20 if i == 0 else 15 if i < 3 else 12})
+            armies[region] = (kinds[i % len(kinds)], 20 if i == 0 else 15 if i < 3 else 12)
+    # Every region an objective names, and every region the player must keep, is held by an army.
+    named = []
+    for objective in spec["primary"] + spec["additional"]:
+        named += objective.get("regions", []) + ([objective["region"]] if "region" in objective else [])
+    named += [d["region"] for d in spec["defeat"] if "region" in d]
+    for region in named:
+        owner = owners[region]
+        if region not in armies and owner != "neutral":
+            armies[region] = (spec.get("faction_armies", {}).get(owner, ARMIES[civ_of[owner]])[1], 15)
+    for region, (kind, soldiers) in spec.get("armies", {}).items():
+        if soldiers > 0:
+            armies[region] = (kind, soldiers)
+        else:
+            armies.pop(region, None)  # No army there.
+    units = [{"owner": owners[r], "region": r, "type": kind, "soldiers": soldiers}
+             for r, (kind, soldiers) in sorted(armies.items()) if owners[r] != "neutral"]
     for region in sorted(r for r, f in owners.items() if f == "neutral"):
         units.append({"owner": "neutral", "region": region, "type": "militia", "soldiers": 10})
+    buildings = json.loads(json.dumps(history["buildings"]))
+    for region in list(history["capitals"].values()) + list(spec.get("walls", {})):
+        level = spec.get("walls", {}).get(region, 1)
+        buildings.setdefault(region, {})["walls"] = max(buildings.get(region, {}).get("walls", 0), level)
     mission = {
         "player": player, "primary": spec["primary"], "additional": spec["additional"],
         "defeat": [{"type": "time", "turns": spec["time"]}] + spec["defeat"],
@@ -166,7 +214,8 @@ def build(spec):
     return {
         "id": spec["id"], "name": spec["name"], "map": spec["map"], "listing": spec["listing"],
         "factions": history["factions"], "owners": owners, "capitals": history["capitals"],
-        "buildings": history["buildings"], "units": units, "mission": mission,
+        "buildings": buildings, "units": units, "mission": mission,
+        **({"resources": {f: {"gold": g} for f, g in spec["gold"].items()}} if "gold" in spec else {}),
     }
 
 

@@ -163,103 +163,19 @@
   },
   "carcassonne": {
    "walls": 1
+  },
+  "london": {
+   "walls": 1
+  },
+  "nantes": {
+   "walls": 1
   }
  },
  "units": [
   {
-   "owner": "england",
-   "region": "london",
+   "owner": "burgundy",
+   "region": "amiens",
    "type": "swordsmen",
-   "soldiers": 20
-  },
-  {
-   "owner": "england",
-   "region": "dover",
-   "type": "longbowman",
-   "soldiers": 15
-  },
-  {
-   "owner": "england",
-   "region": "winchester",
-   "type": "yeoman",
-   "soldiers": 15
-  },
-  {
-   "owner": "england",
-   "region": "caen",
-   "type": "spearmen",
-   "soldiers": 12
-  },
-  {
-   "owner": "england",
-   "region": "calais",
-   "type": "archers",
-   "soldiers": 12
-  },
-  {
-   "owner": "england",
-   "region": "dorchester",
-   "type": "light_cavalry",
-   "soldiers": 12
-  },
-  {
-   "owner": "england",
-   "region": "avranches",
-   "type": "swordsmen",
-   "soldiers": 12
-  },
-  {
-   "owner": "england",
-   "region": "chartres",
-   "type": "longbowman",
-   "soldiers": 12
-  },
-  {
-   "owner": "england",
-   "region": "crecy",
-   "type": "yeoman",
-   "soldiers": 12
-  },
-  {
-   "owner": "france",
-   "region": "bourges",
-   "type": "knight",
-   "soldiers": 20
-  },
-  {
-   "owner": "france",
-   "region": "clermont",
-   "type": "sergeant",
-   "soldiers": 15
-  },
-  {
-   "owner": "france",
-   "region": "limoges",
-   "type": "crossbowmen",
-   "soldiers": 15
-  },
-  {
-   "owner": "france",
-   "region": "moulins",
-   "type": "spearmen",
-   "soldiers": 12
-  },
-  {
-   "owner": "france",
-   "region": "orleans",
-   "type": "archers",
-   "soldiers": 12
-  },
-  {
-   "owner": "france",
-   "region": "poitiers",
-   "type": "light_cavalry",
-   "soldiers": 12
-  },
-  {
-   "owner": "france",
-   "region": "tours",
-   "type": "knight",
    "soldiers": 12
   },
   {
@@ -267,18 +183,6 @@
    "region": "angers",
    "type": "sergeant",
    "soldiers": 12
-  },
-  {
-   "owner": "france",
-   "region": "cahors",
-   "type": "crossbowmen",
-   "soldiers": 12
-  },
-  {
-   "owner": "burgundy",
-   "region": "dijon",
-   "type": "swordsmen",
-   "soldiers": 20
   },
   {
    "owner": "burgundy",
@@ -293,21 +197,87 @@
    "soldiers": 15
   },
   {
+   "owner": "france",
+   "region": "bourges",
+   "type": "knight",
+   "soldiers": 24
+  },
+  {
+   "owner": "england",
+   "region": "caen",
+   "type": "spearmen",
+   "soldiers": 12
+  },
+  {
+   "owner": "france",
+   "region": "cahors",
+   "type": "crossbowmen",
+   "soldiers": 12
+  },
+  {
+   "owner": "england",
+   "region": "calais",
+   "type": "archers",
+   "soldiers": 12
+  },
+  {
+   "owner": "england",
+   "region": "chartres",
+   "type": "longbowman",
+   "soldiers": 10
+  },
+  {
+   "owner": "france",
+   "region": "clermont",
+   "type": "sergeant",
+   "soldiers": 15
+  },
+  {
+   "owner": "england",
+   "region": "crecy",
+   "type": "yeoman",
+   "soldiers": 12
+  },
+  {
+   "owner": "burgundy",
+   "region": "dijon",
+   "type": "swordsmen",
+   "soldiers": 20
+  },
+  {
+   "owner": "england",
+   "region": "dorchester",
+   "type": "light_cavalry",
+   "soldiers": 12
+  },
+  {
+   "owner": "england",
+   "region": "dover",
+   "type": "longbowman",
+   "soldiers": 15
+  },
+  {
+   "owner": "france",
+   "region": "limoges",
+   "type": "crossbowmen",
+   "soldiers": 15
+  },
+  {
+   "owner": "england",
+   "region": "london",
+   "type": "swordsmen",
+   "soldiers": 20
+  },
+  {
    "owner": "burgundy",
    "region": "macon",
    "type": "light_cavalry",
    "soldiers": 12
   },
   {
-   "owner": "burgundy",
-   "region": "troyes",
-   "type": "militia",
-   "soldiers": 12
-  },
-  {
-   "owner": "burgundy",
-   "region": "amiens",
-   "type": "swordsmen",
+   "owner": "france",
+   "region": "moulins",
+   "type": "spearmen",
    "soldiers": 12
   },
   {
@@ -317,9 +287,51 @@
    "soldiers": 20
   },
   {
+   "owner": "france",
+   "region": "orleans",
+   "type": "pikemen",
+   "soldiers": 22
+  },
+  {
+   "owner": "england",
+   "region": "paris",
+   "type": "longbowman",
+   "soldiers": 14
+  },
+  {
+   "owner": "france",
+   "region": "poitiers",
+   "type": "light_cavalry",
+   "soldiers": 12
+  },
+  {
+   "owner": "england",
+   "region": "reims",
+   "type": "swordsmen",
+   "soldiers": 10
+  },
+  {
    "owner": "brittany",
    "region": "rennes",
    "type": "spearmen",
+   "soldiers": 15
+  },
+  {
+   "owner": "france",
+   "region": "tours",
+   "type": "knight",
+   "soldiers": 12
+  },
+  {
+   "owner": "burgundy",
+   "region": "troyes",
+   "type": "militia",
+   "soldiers": 12
+  },
+  {
+   "owner": "england",
+   "region": "winchester",
+   "type": "yeoman",
    "soldiers": 15
   },
   {
@@ -381,7 +393,7 @@
   "defeat": [
    {
     "type": "time",
-    "turns": 18
+    "turns": 20
    },
    {
     "type": "lose_region",
@@ -393,9 +405,9 @@
    }
   ],
   "crowns": [
-   8,
-   11,
-   14
+   9,
+   12,
+   16
   ],
   "events": [
    {
@@ -412,5 +424,10 @@
   "briefing": "Hold Orléans, then open the road to Reims, where French kings are crowned.",
   "victory_text": "Charles is crowned at Reims with Joan beside him, and the war turns at last.",
   "defeat_text": "Orléans falls, and the road south lies open to the English."
+ },
+ "resources": {
+  "france": {
+   "gold": 600
+  }
  }
 }

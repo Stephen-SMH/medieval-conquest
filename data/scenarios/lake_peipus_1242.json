@@ -146,64 +146,10 @@
  },
  "units": [
   {
-   "owner": "novgorod",
-   "region": "novgorod",
-   "type": "swordsmen",
-   "soldiers": 20
-  },
-  {
-   "owner": "novgorod",
-   "region": "izhora",
-   "type": "spearmen",
-   "soldiers": 15
-  },
-  {
-   "owner": "novgorod",
-   "region": "ladoga",
-   "type": "archers",
-   "soldiers": 15
-  },
-  {
-   "owner": "novgorod",
-   "region": "luga",
-   "type": "light_cavalry",
-   "soldiers": 12
-  },
-  {
-   "owner": "novgorod",
-   "region": "staraya_russa",
-   "type": "militia",
-   "soldiers": 12
-  },
-  {
-   "owner": "novgorod",
-   "region": "tikhvin",
-   "type": "swordsmen",
-   "soldiers": 12
-  },
-  {
    "owner": "order",
-   "region": "riga",
-   "type": "brother_knight",
-   "soldiers": 20
-  },
-  {
-   "owner": "order",
-   "region": "kokenhusen",
+   "region": "dorpat",
    "type": "mounted_sergeant",
    "soldiers": 15
-  },
-  {
-   "owner": "order",
-   "region": "osel",
-   "type": "crossbowmen",
-   "soldiers": 15
-  },
-  {
-   "owner": "order",
-   "region": "wenden",
-   "type": "pikemen",
-   "soldiers": 12
   },
   {
    "owner": "order",
@@ -218,10 +164,16 @@
    "soldiers": 12
   },
   {
-   "owner": "lithuania",
-   "region": "kernave",
-   "type": "swordsmen",
-   "soldiers": 20
+   "owner": "order",
+   "region": "izborsk",
+   "type": "crossbowmen",
+   "soldiers": 12
+  },
+  {
+   "owner": "novgorod",
+   "region": "izhora",
+   "type": "archers",
+   "soldiers": 15
   },
   {
    "owner": "lithuania",
@@ -230,10 +182,40 @@
    "soldiers": 15
   },
   {
-   "owner": "denmark",
-   "region": "reval",
-   "type": "huscarl",
+   "owner": "lithuania",
+   "region": "kernave",
+   "type": "swordsmen",
    "soldiers": 20
+  },
+  {
+   "owner": "order",
+   "region": "kokenhusen",
+   "type": "mounted_sergeant",
+   "soldiers": 15
+  },
+  {
+   "owner": "novgorod",
+   "region": "ladoga",
+   "type": "pikemen",
+   "soldiers": 15
+  },
+  {
+   "owner": "novgorod",
+   "region": "luga",
+   "type": "spearmen",
+   "soldiers": 14
+  },
+  {
+   "owner": "novgorod",
+   "region": "novgorod",
+   "type": "pikemen",
+   "soldiers": 20
+  },
+  {
+   "owner": "order",
+   "region": "osel",
+   "type": "crossbowmen",
+   "soldiers": 15
   },
   {
    "owner": "denmark",
@@ -248,10 +230,46 @@
    "soldiers": 20
   },
   {
+   "owner": "order",
+   "region": "pskov",
+   "type": "brother_knight",
+   "soldiers": 14
+  },
+  {
+   "owner": "denmark",
+   "region": "reval",
+   "type": "huscarl",
+   "soldiers": 20
+  },
+  {
+   "owner": "order",
+   "region": "riga",
+   "type": "brother_knight",
+   "soldiers": 20
+  },
+  {
+   "owner": "novgorod",
+   "region": "staraya_russa",
+   "type": "swordsmen",
+   "soldiers": 12
+  },
+  {
+   "owner": "novgorod",
+   "region": "tikhvin",
+   "type": "spearmen",
+   "soldiers": 12
+  },
+  {
    "owner": "polotsk",
    "region": "vitebsk",
    "type": "spearmen",
    "soldiers": 15
+  },
+  {
+   "owner": "order",
+   "region": "wenden",
+   "type": "pikemen",
+   "soldiers": 12
   },
   {
    "owner": "neutral",

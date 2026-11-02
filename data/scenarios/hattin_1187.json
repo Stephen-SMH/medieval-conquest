@@ -3,7 +3,7 @@
  "name": "1187: On the Eve of Hattin",
  "map": "levant",
  "listing": {
-  "difficulty": 3,
+  "difficulty": 2,
   "order": 7,
   "unlock_after": 3
  },
@@ -145,7 +145,7 @@
    "walls": 1
   },
   "damascus": {
-   "walls": 1
+   "walls": 2
   },
   "bostra": {
    "walls": 1
@@ -157,7 +157,7 @@
    "walls": 1
   },
   "jerusalem": {
-   "walls": 1
+   "walls": 2
   },
   "ascalon": {
    "walls": 1
@@ -169,14 +169,74 @@
  "units": [
   {
    "owner": "crusaders",
-   "region": "jerusalem",
-   "type": "brother_knight",
-   "soldiers": 20
+   "region": "acre",
+   "type": "mounted_sergeant",
+   "soldiers": 12
+  },
+  {
+   "owner": "armenians",
+   "region": "adana",
+   "type": "spearmen",
+   "soldiers": 15
+  },
+  {
+   "owner": "ayyubids",
+   "region": "aleppo",
+   "type": "pikemen",
+   "soldiers": 15
   },
   {
    "owner": "crusaders",
    "region": "ascalon",
    "type": "mounted_sergeant",
+   "soldiers": 15
+  },
+  {
+   "owner": "ayyubids",
+   "region": "baalbek",
+   "type": "archers",
+   "soldiers": 14
+  },
+  {
+   "owner": "ayyubids",
+   "region": "banias",
+   "type": "ghazi",
+   "soldiers": 18
+  },
+  {
+   "owner": "ayyubids",
+   "region": "bostra",
+   "type": "pikemen",
+   "soldiers": 16
+  },
+  {
+   "owner": "crusaders",
+   "region": "caesarea",
+   "type": "crossbowmen",
+   "soldiers": 12
+  },
+  {
+   "owner": "ayyubids",
+   "region": "damascus",
+   "type": "pikemen",
+   "soldiers": 28
+  },
+  {
+   "owner": "ayyubids",
+   "region": "damietta",
+   "type": "mamluk",
+   "soldiers": 12
+  },
+  {
+   "owner": "seljuks",
+   "region": "eregli",
+   "type": "ghazi",
+   "soldiers": 15
+  },
+  {
+   "owner": "byzantines",
+   "region": "famagusta",
+   "type": "varangian_guard",
    "soldiers": 15
   },
   {
@@ -186,10 +246,28 @@
    "soldiers": 15
   },
   {
+   "owner": "ayyubids",
+   "region": "hamah",
+   "type": "pikemen",
+   "soldiers": 12
+  },
+  {
+   "owner": "ayyubids",
+   "region": "homs",
+   "type": "spearmen",
+   "soldiers": 12
+  },
+  {
    "owner": "crusaders",
    "region": "jaffa",
    "type": "pikemen",
    "soldiers": 12
+  },
+  {
+   "owner": "crusaders",
+   "region": "jerusalem",
+   "type": "brother_knight",
+   "soldiers": 18
   },
   {
    "owner": "crusaders",
@@ -198,82 +276,10 @@
    "soldiers": 12
   },
   {
-   "owner": "crusaders",
-   "region": "nablus",
-   "type": "brother_knight",
-   "soldiers": 12
-  },
-  {
-   "owner": "crusaders",
-   "region": "acre",
-   "type": "mounted_sergeant",
-   "soldiers": 12
-  },
-  {
-   "owner": "crusaders",
-   "region": "caesarea",
-   "type": "crossbowmen",
-   "soldiers": 12
-  },
-  {
-   "owner": "crusaders",
-   "region": "safad",
-   "type": "pikemen",
-   "soldiers": 12
-  },
-  {
-   "owner": "ayyubids",
-   "region": "damascus",
-   "type": "mamluk",
-   "soldiers": 20
-  },
-  {
-   "owner": "ayyubids",
-   "region": "baalbek",
-   "type": "ghazi",
-   "soldiers": 15
-  },
-  {
-   "owner": "ayyubids",
-   "region": "banias",
-   "type": "archers",
-   "soldiers": 15
-  },
-  {
-   "owner": "ayyubids",
-   "region": "bostra",
-   "type": "spearmen",
-   "soldiers": 12
-  },
-  {
-   "owner": "ayyubids",
-   "region": "homs",
-   "type": "light_cavalry",
-   "soldiers": 12
-  },
-  {
-   "owner": "ayyubids",
-   "region": "damietta",
-   "type": "mamluk",
-   "soldiers": 12
-  },
-  {
-   "owner": "ayyubids",
-   "region": "hamah",
-   "type": "ghazi",
-   "soldiers": 12
-  },
-  {
    "owner": "seljuks",
    "region": "konya",
    "type": "mamluk",
    "soldiers": 20
-  },
-  {
-   "owner": "seljuks",
-   "region": "eregli",
-   "type": "ghazi",
-   "soldiers": 15
   },
   {
    "owner": "seljuks",
@@ -288,10 +294,10 @@
    "soldiers": 20
   },
   {
-   "owner": "byzantines",
-   "region": "famagusta",
-   "type": "varangian_guard",
-   "soldiers": 15
+   "owner": "crusaders",
+   "region": "nablus",
+   "type": "brother_knight",
+   "soldiers": 12
   },
   {
    "owner": "byzantines",
@@ -300,16 +306,16 @@
    "soldiers": 15
   },
   {
+   "owner": "crusaders",
+   "region": "safad",
+   "type": "pikemen",
+   "soldiers": 12
+  },
+  {
    "owner": "armenians",
    "region": "sis",
    "type": "swordsmen",
    "soldiers": 20
-  },
-  {
-   "owner": "armenians",
-   "region": "adana",
-   "type": "spearmen",
-   "soldiers": 15
   }
  ],
  "mission": {
@@ -334,7 +340,7 @@
   "defeat": [
    {
     "type": "time",
-    "turns": 26
+    "turns": 22
    },
    {
     "type": "lose_region",
@@ -342,9 +348,9 @@
    }
   ],
   "crowns": [
-   12,
-   16,
-   20
+   10,
+   14,
+   18
   ],
   "events": [
    {
@@ -355,11 +361,25 @@
     "unit": "mamluk",
     "soldiers": 10,
     "text": "Saladin's army gathers on the Golan heights above the Sea of Galilee."
+   },
+   {
+    "turn": 4,
+    "type": "reinforcements",
+    "faction": "ayyubids",
+    "region": "damascus",
+    "unit": "ghazi",
+    "soldiers": 2,
+    "text": "Volunteers stream into Damascus to defend the sultan's city."
    }
   ],
   "history": "Saladin has united Egypt and Syria under the Ayyubid banner. Reynald of Châtillon has broken the truce by raiding a caravan from Kerak, and the sultan is gathering the largest army the kingdom has ever faced.",
   "briefing": "History says Jerusalem falls this year. Keep it, and carry the war to Damascus.",
   "victory_text": "Damascus opens its gates. The kingdom of Jerusalem has outlived the sultan's great host.",
   "defeat_text": "Jerusalem falls to Saladin, as it did in 1187."
+ },
+ "resources": {
+  "ayyubids": {
+   "gold": 900
+  }
  }
 }

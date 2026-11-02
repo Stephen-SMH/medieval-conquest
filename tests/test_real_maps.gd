@@ -49,6 +49,18 @@ func _test_scenarios(t) -> void:
 			"scenario %s loads and is valid %s" % [scenario.id, problems])
 	t.check(historical >= 6, "the real maps' historical starts are scenarios (%d)" % historical)
 
+	# Each plays three turns with the computer on every side, events included.
+	var stalled := []
+	for scenario in list:
+		var state := GameState.from_scenario(Scenarios.get_scenario(scenario.id), 4)
+		state.factions[Mission.player(state)].human = false
+		while not state.is_over() and state.turn <= 3:
+			AI.play_turn(state)
+			state.end_faction_turn()
+		if state.turn <= 3 and not state.is_over():
+			stalled.append(scenario.id)
+	t.check(stalled.is_empty(), "every scenario plays on with the computer on every side %s" % [stalled])
+
 	Progress.path = "user://test_scenarios_progress.json"
 	Progress.reset()
 	var locked := list.filter(func(s): return not Scenarios.unlocked(s))

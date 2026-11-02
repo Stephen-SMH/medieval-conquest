@@ -54,7 +54,7 @@
   "newcastle": "england",
   "durham": "england",
   "lancaster": "england",
-  "york": "england",
+  "york": "norway",
   "stamford_bridge": "norway",
   "doncaster": "england",
   "lincoln": "england",
@@ -157,96 +157,39 @@
   },
   "cashel": {
    "walls": 1
+  },
+  "london": {
+   "walls": 1
+  },
+  "bangor": {
+   "walls": 1
+  },
+  "scone": {
+   "walls": 1
+  },
+  "caithness": {
+   "walls": 1
+  },
+  "tara": {
+   "walls": 1
   }
  },
  "units": [
   {
-   "owner": "england",
-   "region": "london",
-   "type": "swordsmen",
-   "soldiers": 20
-  },
-  {
-   "owner": "england",
-   "region": "cambridge",
-   "type": "longbowman",
-   "soldiers": 15
-  },
-  {
-   "owner": "england",
-   "region": "colchester",
-   "type": "yeoman",
-   "soldiers": 15
-  },
-  {
-   "owner": "england",
-   "region": "dover",
-   "type": "spearmen",
-   "soldiers": 12
-  },
-  {
-   "owner": "england",
-   "region": "hastings",
-   "type": "archers",
-   "soldiers": 12
-  },
-  {
-   "owner": "england",
-   "region": "oxford",
-   "type": "light_cavalry",
-   "soldiers": 12
-  },
-  {
-   "owner": "england",
-   "region": "winchester",
-   "type": "swordsmen",
-   "soldiers": 12
-  },
-  {
-   "owner": "england",
-   "region": "bristol",
-   "type": "longbowman",
-   "soldiers": 12
-  },
-  {
-   "owner": "england",
-   "region": "dorchester",
-   "type": "yeoman",
-   "soldiers": 12
-  },
-  {
-   "owner": "england",
-   "region": "gloucester",
-   "type": "spearmen",
-   "soldiers": 12
-  },
-  {
-   "owner": "england",
-   "region": "leicester",
-   "type": "archers",
-   "soldiers": 12
-  },
-  {
-   "owner": "england",
-   "region": "lincoln",
-   "type": "light_cavalry",
-   "soldiers": 12
-  },
-  {
-   "owner": "england",
-   "region": "norwich",
-   "type": "swordsmen",
-   "soldiers": 12
-  },
-  {
-   "owner": "scotland",
-   "region": "scone",
-   "type": "swordsmen",
-   "soldiers": 20
-  },
-  {
    "owner": "scotland",
    "region": "aberdeen",
+   "type": "spearmen",
+   "soldiers": 15
+  },
+  {
+   "owner": "wales",
+   "region": "aberystwyth",
+   "type": "spearmen",
+   "soldiers": 15
+  },
+  {
+   "owner": "ireland",
+   "region": "ailech",
    "type": "spearmen",
    "soldiers": 15
   },
@@ -257,33 +200,9 @@
    "soldiers": 15
   },
   {
-   "owner": "scotland",
-   "region": "dunblane",
-   "type": "light_cavalry",
-   "soldiers": 12
-  },
-  {
-   "owner": "scotland",
-   "region": "elgin",
-   "type": "militia",
-   "soldiers": 12
-  },
-  {
-   "owner": "scotland",
-   "region": "inverness",
-   "type": "swordsmen",
-   "soldiers": 12
-  },
-  {
-   "owner": "norway",
-   "region": "caithness",
-   "type": "huscarl",
-   "soldiers": 20
-  },
-  {
-   "owner": "norway",
-   "region": "dornoch",
-   "type": "berserker",
+   "owner": "ireland",
+   "region": "armagh",
+   "type": "archers",
    "soldiers": 15
   },
   {
@@ -293,33 +212,21 @@
    "soldiers": 20
   },
   {
-   "owner": "wales",
-   "region": "aberystwyth",
-   "type": "spearmen",
-   "soldiers": 15
+   "owner": "england",
+   "region": "bristol",
+   "type": "longbowman",
+   "soldiers": 12
   },
   {
-   "owner": "wales",
-   "region": "mathrafal",
-   "type": "archers",
-   "soldiers": 15
-  },
-  {
-   "owner": "ireland",
-   "region": "tara",
-   "type": "swordsmen",
+   "owner": "norway",
+   "region": "caithness",
+   "type": "huscarl",
    "soldiers": 20
   },
   {
-   "owner": "ireland",
-   "region": "ailech",
-   "type": "spearmen",
-   "soldiers": 15
-  },
-  {
-   "owner": "ireland",
-   "region": "armagh",
-   "type": "archers",
+   "owner": "england",
+   "region": "cambridge",
+   "type": "longbowman",
    "soldiers": 15
   },
   {
@@ -329,9 +236,147 @@
    "soldiers": 12
   },
   {
+   "owner": "england",
+   "region": "colchester",
+   "type": "yeoman",
+   "soldiers": 15
+  },
+  {
+   "owner": "england",
+   "region": "doncaster",
+   "type": "yeoman",
+   "soldiers": 16
+  },
+  {
+   "owner": "england",
+   "region": "dorchester",
+   "type": "yeoman",
+   "soldiers": 12
+  },
+  {
+   "owner": "norway",
+   "region": "dornoch",
+   "type": "berserker",
+   "soldiers": 15
+  },
+  {
+   "owner": "england",
+   "region": "dover",
+   "type": "spearmen",
+   "soldiers": 12
+  },
+  {
    "owner": "ireland",
    "region": "dublin",
    "type": "militia",
+   "soldiers": 12
+  },
+  {
+   "owner": "scotland",
+   "region": "dunblane",
+   "type": "light_cavalry",
+   "soldiers": 12
+  },
+  {
+   "owner": "england",
+   "region": "durham",
+   "type": "spearmen",
+   "soldiers": 12
+  },
+  {
+   "owner": "scotland",
+   "region": "elgin",
+   "type": "militia",
+   "soldiers": 12
+  },
+  {
+   "owner": "england",
+   "region": "gloucester",
+   "type": "spearmen",
+   "soldiers": 12
+  },
+  {
+   "owner": "england",
+   "region": "hastings",
+   "type": "archers",
+   "soldiers": 12
+  },
+  {
+   "owner": "scotland",
+   "region": "inverness",
+   "type": "swordsmen",
+   "soldiers": 12
+  },
+  {
+   "owner": "england",
+   "region": "leicester",
+   "type": "archers",
+   "soldiers": 12
+  },
+  {
+   "owner": "norway",
+   "region": "lewis",
+   "type": "archers",
+   "soldiers": 15
+  },
+  {
+   "owner": "england",
+   "region": "lincoln",
+   "type": "archers",
+   "soldiers": 12
+  },
+  {
+   "owner": "england",
+   "region": "london",
+   "type": "swordsmen",
+   "soldiers": 20
+  },
+  {
+   "owner": "wales",
+   "region": "mathrafal",
+   "type": "archers",
+   "soldiers": 15
+  },
+  {
+   "owner": "england",
+   "region": "norwich",
+   "type": "swordsmen",
+   "soldiers": 12
+  },
+  {
+   "owner": "england",
+   "region": "oxford",
+   "type": "light_cavalry",
+   "soldiers": 12
+  },
+  {
+   "owner": "scotland",
+   "region": "scone",
+   "type": "swordsmen",
+   "soldiers": 20
+  },
+  {
+   "owner": "norway",
+   "region": "stamford_bridge",
+   "type": "huscarl",
+   "soldiers": 18
+  },
+  {
+   "owner": "ireland",
+   "region": "tara",
+   "type": "swordsmen",
+   "soldiers": 20
+  },
+  {
+   "owner": "england",
+   "region": "winchester",
+   "type": "swordsmen",
+   "soldiers": 12
+  },
+  {
+   "owner": "norway",
+   "region": "york",
+   "type": "berserker",
    "soldiers": 12
   },
   {
@@ -347,7 +392,8 @@
    {
     "type": "capture",
     "regions": [
-     "stamford_bridge"
+     "stamford_bridge",
+     "york"
     ]
    }
   ],
@@ -358,17 +404,12 @@
      "caithness"
     ],
     "points": 200
-   },
-   {
-    "type": "hold",
-    "region": "york",
-    "turns": 5
    }
   ],
   "defeat": [
    {
     "type": "time",
-    "turns": 12
+    "turns": 15
    },
    {
     "type": "lose_region",
@@ -376,9 +417,9 @@
    }
   ],
   "crowns": [
-   5,
-   7,
-   9
+   6,
+   9,
+   12
   ],
   "events": [
    {
@@ -388,7 +429,7 @@
    }
   ],
   "history": "King Edward died in January and Harold Godwinson took the crown. In September Harald Hardrada, king of Norway, sailed up the Humber with Harold's exiled brother Tostig and seized the north.",
-  "briefing": "March north and throw the Norwegians out of Stamford Bridge.",
+  "briefing": "York has opened its gates to Hardrada after his victory at Fulford. March north, retake York and throw the Norwegians out of Stamford Bridge.",
   "victory_text": "At Stamford Bridge Hardrada falls, and the age of the great Viking invasions ends with him.",
   "defeat_text": "The Norwegians hold the north, and Harold's crown slips."
  }

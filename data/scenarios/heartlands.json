@@ -2,7 +2,7 @@
  "id": "heartlands",
  "name": "The Heartlands",
  "map": "heartlands",
- "listing": {"difficulty": 1, "order": 1, "unlock_after": 0},
+ "listing": {"difficulty": 2, "order": 1, "unlock_after": 0},
  "factions": [
   {
    "id": "aldmere",

@@ -3,7 +3,7 @@
  "name": "1176: Barbarossa and Henry the Lion",
  "map": "holy_roman_empire",
  "listing": {
-  "difficulty": 2,
+  "difficulty": 3,
   "order": 6,
   "unlock_after": 2
  },
@@ -148,39 +148,12 @@
   },
   "klodzko": {
    "walls": 1
+  },
+  "frankfurt": {
+   "walls": 2
   }
  },
  "units": [
-  {
-   "owner": "empire",
-   "region": "frankfurt",
-   "type": "knight",
-   "soldiers": 20
-  },
-  {
-   "owner": "empire",
-   "region": "koln",
-   "type": "sergeant",
-   "soldiers": 15
-  },
-  {
-   "owner": "empire",
-   "region": "mainz",
-   "type": "crossbowmen",
-   "soldiers": 15
-  },
-  {
-   "owner": "empire",
-   "region": "speyer",
-   "type": "spearmen",
-   "soldiers": 12
-  },
-  {
-   "owner": "empire",
-   "region": "wurzburg",
-   "type": "archers",
-   "soldiers": 12
-  },
   {
    "owner": "empire",
    "region": "aachen",
@@ -194,45 +167,15 @@
    "soldiers": 12
   },
   {
-   "owner": "empire",
-   "region": "goslar",
-   "type": "sergeant",
-   "soldiers": 12
+   "owner": "saxony",
+   "region": "bremen",
+   "type": "crossbowmen",
+   "soldiers": 15
   },
   {
    "owner": "saxony",
    "region": "brunswick",
-   "type": "swordsmen",
-   "soldiers": 20
-  },
-  {
-   "owner": "saxony",
-   "region": "bremen",
-   "type": "spearmen",
-   "soldiers": 15
-  },
-  {
-   "owner": "saxony",
-   "region": "luneburg",
-   "type": "archers",
-   "soldiers": 15
-  },
-  {
-   "owner": "saxony",
-   "region": "hamburg",
-   "type": "light_cavalry",
-   "soldiers": 12
-  },
-  {
-   "owner": "saxony",
-   "region": "holstein",
-   "type": "militia",
-   "soldiers": 12
-  },
-  {
-   "owner": "bohemia",
-   "region": "prague",
-   "type": "swordsmen",
+   "type": "pikemen",
    "soldiers": 20
   },
   {
@@ -242,9 +185,45 @@
    "soldiers": 15
   },
   {
+   "owner": "empire",
+   "region": "frankfurt",
+   "type": "sergeant",
+   "soldiers": 24
+  },
+  {
+   "owner": "poland",
+   "region": "glogow",
+   "type": "spearmen",
+   "soldiers": 15
+  },
+  {
+   "owner": "empire",
+   "region": "goslar",
+   "type": "knight",
+   "soldiers": 20
+  },
+  {
+   "owner": "saxony",
+   "region": "hamburg",
+   "type": "swordsmen",
+   "soldiers": 12
+  },
+  {
+   "owner": "saxony",
+   "region": "holstein",
+   "type": "archers",
+   "soldiers": 12
+  },
+  {
    "owner": "bohemia",
    "region": "hradec_kralove",
    "type": "archers",
+   "soldiers": 15
+  },
+  {
+   "owner": "empire",
+   "region": "koln",
+   "type": "sergeant",
    "soldiers": 15
   },
   {
@@ -254,16 +233,52 @@
    "soldiers": 12
   },
   {
+   "owner": "saxony",
+   "region": "lubeck",
+   "type": "crossbowmen",
+   "soldiers": 15
+  },
+  {
+   "owner": "saxony",
+   "region": "luneburg",
+   "type": "crossbowmen",
+   "soldiers": 14
+  },
+  {
+   "owner": "empire",
+   "region": "mainz",
+   "type": "crossbowmen",
+   "soldiers": 16
+  },
+  {
+   "owner": "bohemia",
+   "region": "prague",
+   "type": "swordsmen",
+   "soldiers": 20
+  },
+  {
+   "owner": "saxony",
+   "region": "regensburg",
+   "type": "crossbowmen",
+   "soldiers": 15
+  },
+  {
+   "owner": "empire",
+   "region": "speyer",
+   "type": "spearmen",
+   "soldiers": 12
+  },
+  {
    "owner": "poland",
    "region": "wroclaw",
    "type": "swordsmen",
    "soldiers": 20
   },
   {
-   "owner": "poland",
-   "region": "glogow",
-   "type": "spearmen",
-   "soldiers": 15
+   "owner": "empire",
+   "region": "wurzburg",
+   "type": "archers",
+   "soldiers": 12
   },
   {
    "owner": "neutral",
@@ -427,7 +442,17 @@
    13,
    16
   ],
-  "events": [],
+  "events": [
+   {
+    "turn": 4,
+    "type": "reinforcements",
+    "faction": "saxony",
+    "region": "brunswick",
+    "unit": "crossbowmen",
+    "soldiers": 4,
+    "text": "Henry the Lion calls his Saxon vassals to Brunswick."
+   }
+  ],
   "history": "Emperor Frederick Barbarossa begged his cousin Henry the Lion, duke of Saxony and Bavaria, for knights against the Italian cities. Henry refused, and the emperor was beaten at Legnano.",
   "briefing": "Bring the over-mighty duke to heel: take Brunswick, the Lion's seat.",
   "victory_text": "Henry the Lion is stripped of his duchies and sent into exile; the emperor's word is law again.",
