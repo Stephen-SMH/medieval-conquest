@@ -295,7 +295,7 @@ func _draw_label(region: String) -> void:
 		draw_texture_rect(_icons.ui_coins, Rect2(coin_at, Vector2(15, 15)), false, Color("#3a2410", 0.9))
 		draw_string(_italic, coin_at + Vector2(17, 13), str(income), HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color("#3a2410"))
 
-	# Little icons beside the name: crown for a capital, tower for walls, tent or houses for mercenaries.
+	# Little icons beside the name: crown for a capital, tower for walls, tent or houses where reinforcements arrive.
 	var icons := []
 	if state.is_capital(region):
 		icons.append("map_crown")

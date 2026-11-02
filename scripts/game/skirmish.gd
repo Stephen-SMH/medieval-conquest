@@ -40,7 +40,7 @@ static func build(map_id: String, players: Array, difficulty := "normal", game_s
 		var capital: String = starts[i]
 		scenario.capitals[id] = capital
 		scenario.owners[capital] = id
-		scenario.buildings[capital] = {"market": 1, "barracks": 1, "archery_range": 1}
+		scenario.buildings[capital] = {"market": 1, "barracks": 1}
 	# Each player takes up to two neighbouring regions, one at a time in turn, so nobody is left out.
 	var held := {}
 	for faction in scenario.factions:

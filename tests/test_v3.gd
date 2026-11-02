@@ -89,10 +89,10 @@ func _test_bonuses(t) -> void:
 		{"blue_civ": "byzantine", "buildings": {"greywater": {"market": 2}, "eastwold": {"market": 2}}})
 	t.check(Economy.region_income(state, "greywater") == 30.0 and Economy.region_income(state, "eastwold") == 26.0, "Byzantine markets earn 25% more (20 vs 16)")
 
-	# Saracen: cheaper mercenaries.
+	# Saracen: cheaper reinforcements.
 	state = Helpers.game({"ashford": "blue", "kingsvale": "red"}, [], 7, {"blue_civ": "saracen", "red_civ": "norse"})
-	t.check(Economy.mercenary_price(Rules.unit("spearmen"), state, "blue") == 79.0 and Economy.mercenary_price(Rules.unit("spearmen"), state, "red") == 105.0,
-		"Saracen mercenaries cost 25% less")
+	t.check(is_equal_approx(Economy.soldier_price(state, "blue", Rules.unit("spearmen")), 7.0 * 0.85)
+		and is_equal_approx(Economy.soldier_price(state, "red", Rules.unit("spearmen")), 7.0), "Saracen reinforcements cost 15% less")
 
 
 func _test_campaigns(t) -> void:

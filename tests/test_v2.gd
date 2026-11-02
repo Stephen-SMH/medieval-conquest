@@ -87,7 +87,7 @@ func _test_saves(t) -> void:
 	var scenario: Dictionary = (load("res://scripts/session.gd") as GDScript).call("load_scenario", "heartlands")
 	var state := GameState.from_scenario(scenario, 3)
 	Economy.start_building(state, "greywater", "market")
-	Economy.hire(state, "ashford", "crossbowmen")
+	Economy.buy(state, "ashford", Economy.bundle_of(state, state.owners.ashford, "crossbowmen"))
 	Orders.give(state, state.unit_in("northmarch"), "move", "ashford")
 	Orders.give(state, state.unit_in("ashford"), "attack", "kingsvale", {"soldiers": 12})
 	var saved := SaveGame.to_dict(state)
@@ -136,7 +136,7 @@ func _test_ai(t) -> void:
 		{"buildings": {"kingsvale": {"barracks": 1}}, "resources": {"red": {"gold": 500, "wood": 200, "manpower": 200}}})
 	Helpers.plan_as(state, "red")
 	AI.play_turn(state)
-	t.check("spearmen" in state.provinces.kingsvale.recruits, "facing cavalry, the AI recruits spearmen %s" % [state.provinces.kingsvale.recruits])
+	t.check(state.provinces.kingsvale.recruits.any(func(b): return b.type == "spearmen"), "facing cavalry, the AI buys spearmen %s" % [state.provinces.kingsvale.recruits])
 
 	# A whole game with no humans: it must finish with a winner, quickly, without errors.
 	var scenario: Dictionary = (load("res://scripts/session.gd") as GDScript).call("load_scenario", "heartlands")

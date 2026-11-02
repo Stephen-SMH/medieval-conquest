@@ -19,5 +19,4 @@ counter_as = "archers"
 civilization = "saracen"
 cost_gold = 160
 upkeep_gold = 4
-required_building = "stable"
 skirmisher = true

@@ -1,6 +1,6 @@
 extends RefCounted
-## The gold economy (PRD 8.9): region income, upkeep, desertion, healing,
-## buildings, recruiting and mercenary prices.
+## The gold economy (PRD 8.9, E): region income, upkeep, desertion, healing,
+## buildings and reinforcement bundles.
 
 const Helpers := preload("res://tests/helpers.gd")
 
@@ -13,6 +13,7 @@ func run(t) -> void:
 	t.check(Economy.region_income(state, "northmarch") == 10.0, "a plain region pays 10 gold a turn")
 	t.check(Economy.region_income(state, "ashford") == 15.0, "a town pays 15")
 	t.check(Economy.region_income(state, "greywater") == 28.0, "a capital with a market pays 10 + 10 + 8 = 28")
+	t.check(Economy.base_income(state, "ashford") == 15.0, "a map's own income would replace these (the real maps set 5, 10 or 15)")
 	var blue: FactionState = state.factions.blue
 	var before: float = blue.resources.gold
 	var change: float = Economy.deltas(state, "blue").gold
@@ -44,12 +45,60 @@ func run(t) -> void:
 	t.check(state.provinces.greywater.level("market") == 1 and Economy.region_income(state, "greywater") == 28.0,
 		"once built, the market adds 8 gold a turn")
 	t.check(Economy.building_cost(Rules.building("walls"), 3).gold == 840.0, "a castle (walls level 3) costs 6 × 140 gold")
-	state.provinces.ashford.buildings = {"market": 1, "barracks": 1, "archery_range": 1, "stable": 1}
-	t.check(Economy.build_problem(state, "ashford", "siege_workshop", "blue") == "no free building slots"
-		and Economy.slots(state, "greywater") == 6, "4 slots, 6 in a capital")
+	state.provinces.ashford.buildings = {"market": 1, "barracks": 1, "walls": 1}
+	t.check(Economy.used_slots(state, "ashford") == 3 and Economy.slots(state, "ashford") == 4 and Economy.slots(state, "greywater") == 6,
+		"4 slots, 6 in a capital")
+	t.check(not Rules.buildings.has("archery_range") and not Rules.buildings.has("stable") and not Rules.buildings.has("siege_workshop"),
+		"no buildings are needed to raise soldiers (PRD E)")
 
-	# Recruiting.
-	t.check(Economy.recruit_problem(state, "northmarch", "spearmen", "blue") == "needs: barracks", "spearmen need a barracks")
-	t.check(Economy.recruit_problem(state, "ashford", "berserker", "blue").begins_with("only the Norse"), "special units belong to one civilization")
-	t.check(Economy.unit_cost(state, "blue", Rules.unit("swordsmen")) == {"gold": 120.0}, "swordsmen cost 120 gold (90 + iron folded in)")
-	t.check(Economy.mercenary_price(Rules.unit("spearmen")) == 105.0, "mercenaries cost 1.5 × the unit's gold price")
+	_test_bundles(t)
+
+
+## Reinforcements come in fixed bundles, go to the capital, towns and camps,
+## and arrive next turn (PRD E).
+func _test_bundles(t) -> void:
+	var state := Helpers.game({"greywater": "blue", "northmarch": "blue", "ashford": "blue"}, [["blue", "ashford", "spearmen", 25]], 5,
+		{"capitals": {"blue": "greywater"}, "resources": {"blue": {"gold": 1000}}})
+	var bundles := Economy.bundles(state, "blue")
+	var types := bundles.map(func(b): return b.type)
+	t.check(types.has("spearmen") and not types.has("berserker") and not types.has("heavy_cavalry"),
+		"bundles of the base roster: not another civilization's soldiers, nor ones that need research")
+	var small := Economy.bundle_of(state, "blue", "archers")
+	var large := Economy.bundle_of(state, "blue", "archers", true)
+	t.check(small == {"type": "archers", "soldiers": 5, "price": 45} and large == {"type": "archers", "soldiers": 10, "price": 75},
+		"archers come 5 for 45 gold or 10 for 75 (%s, %s)" % [small, large])
+	var riders := Economy.bundle_of(state, "blue", "light_cavalry")
+	t.check(riders.soldiers < small.soldiers and riders.price >= small.price, "dearer soldiers come in smaller bundles (%s)" % [riders])
+	t.check(bundles.all(func(b): return b.soldiers <= Economy.MAX_BUNDLE and int(b.price) % 5 == 0), "a bundle holds at most 10 soldiers; prices are in fives")
+	t.check(Economy.recruit_point(state, "greywater", "blue") and Economy.recruit_point(state, "ashford", "blue")
+		and not Economy.recruit_point(state, "northmarch", "blue"), "reinforcements go to the capital, towns and camps")
+	t.check(Economy.bundle_targets(state, large, "blue") == ["greywater"], "and only where they fit: Ashford's 25 have no room for 10 more")
+	t.check(Economy.buy(state, "ashford", small) and state.factions.blue.resources.gold == 955.0, "5 do fit; the price is paid at once")
+	t.check(Economy.bundle_problem(state, "ashford", small, "blue").begins_with("this province already") and Economy.recruit_closed(state, "ashford", "blue"),
+		"one order per province per turn; the map marks it with a no-sign")
+	t.check(Economy.buy(state, "greywater", large) and not Economy.recruit_closed(state, "northmarch", "blue"), "the capital takes another order")
+	t.check(state.unit_in("ashford").soldiers() == 25 and state.unit_in("greywater") == null, "they don't arrive this turn")
+	var events := Helpers.resolve(state)
+	t.check(state.unit_in("ashford").composition() == {"spearmen": 25, "archers": 5} and state.unit_in("greywater").composition() == {"archers": 10},
+		"next turn they join the army there, or form a new one")
+	var arrived := Helpers.events_of(events, "arrived").map(func(e): return e.text)
+	t.check(arrived.size() == 2 and arrived.has("Reinforcements arrived in Ashford: Archers – 5."),
+		"each arrival is reported")
+	t.check(Economy.recruit_closed(state, "ashford", "blue") and state.provinces.ashford.recruits.is_empty(), "a province whose army is full is closed too")
+	state.factions.blue.resources.gold = 10.0
+	t.check(Economy.bundle_problem(state, "greywater", small, "blue") == "not enough gold", "bundles cost gold")
+
+	# Soldiers who no longer fit when they arrive are paid back.
+	state = Helpers.game({"ashford": "blue"}, [["blue", "ashford", "spearmen", 20]], 5, {"resources": {"blue": {"gold": 1000}}})
+	Economy.buy(state, "ashford", small)
+	state.unit_in("ashford").add("spearmen", 8)
+	var gold: float = state.factions.blue.resources.gold
+	Economy.arrivals(state, "blue")
+	t.check(state.unit_in("ashford").soldiers() == Unit.CAP and is_equal_approx(state.factions.blue.resources.gold, gold + 27.0),
+		"only 2 of 5 fit: the other 3's share of the price comes back")
+
+	# A captured province loses the reinforcements on their way to it.
+	state = Helpers.game({"ashford": "blue"}, [], 5, {"resources": {"blue": {"gold": 1000}}})
+	Economy.buy(state, "ashford", small)
+	state.capture("red", "ashford")
+	t.check(state.provinces.ashford.recruits.is_empty() and Economy.arrivals(state, "red").is_empty(), "the new owner doesn't get them")

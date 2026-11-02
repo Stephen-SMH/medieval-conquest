@@ -142,7 +142,7 @@ func _test_crusader_bonus(t) -> void:
 		"Crusader hospitals heal armies at home even after they marched or fought")
 	t.check(Economy.roster(state, "blue").has("brother_knight") and not Economy.roster(state, "red").has("brother_knight")
 		and Economy.roster(state, "red").has("pikemen"), "only the Crusader Orders recruit Brother Knights; everyone can field pikemen")
-	t.check(Economy.recruit_problem(state, "greywater", "pikemen", "blue") != "", "pikemen need Chain Mail first")
+	t.check(Economy.bundle_of(state, "blue", "pikemen").is_empty(), "pikemen need Chain Mail first")
 
 
 func _test_new_objectives(t) -> void:

@@ -14,7 +14,7 @@ from collections import deque
 
 CIV_COLORS = {"norse": "#2e708f", "anglish": "#b33b3b", "frankish": "#2f4fa8", "crusader": "#c4962c",
               "byzantine": "#7a40a0", "saracen": "#3d8a4a"}
-CAPITAL_BUILDINGS = {"market": 1, "barracks": 1, "archery_range": 1}
+CAPITAL_BUILDINGS = {"market": 1, "barracks": 1}
 
 
 def load_map(map_id):
@@ -295,7 +295,7 @@ write("frankish", "frankish", "Banners of the Valmont",
     ], [{"type": "capture", "regions": ["capital:brevine"]}], 10,
         "Lord Aimery has shut himself in his stone keep. Besiege it or storm it, but take Brévine.",
         "The keep of Brévine opens its gates.",
-        "Brévine's walls hold.", walls={"brevine": 2}, extra_buildings={"belcourt": {"siege_workshop": 1}}),
+        "Brévine's walls hold.", walls={"brevine": 2}),
     mission("valmont", "frankish_4", "The Lowland Towns", "belcourt", [
         {"id": "belcourt", "name": "Duchy of Belcourt", "civ": "frankish", "start": 0, "size": 4, "general": "Robert",
          "units": ["knight", "light_cavalry", "sergeant", "crossbowmen", "knight"]},

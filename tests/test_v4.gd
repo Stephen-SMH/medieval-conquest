@@ -51,14 +51,13 @@ func _test_research_flow(t) -> void:
 func _test_research_effects(t) -> void:
 	var state := Helpers.game({"greywater": "blue", "kingsvale": "blue", "highcrag": "blue"}, [
 		["blue", "greywater", "spearmen"], ["blue", "kingsvale", "archers"], ["blue", "northmarch", "heavy_cavalry"]], 7,
-		{"buildings": {"greywater": {"market": 2, "siege_workshop": 1, "stable": 1, "barracks": 1}, "kingsvale": {"walls": 1}},
+		{"buildings": {"greywater": {"market": 2, "barracks": 1}, "kingsvale": {"walls": 1}},
 			"resources": {"blue": {"gold": 5000}}})
 	var blue: FactionState = state.factions.blue
 	var plains := Economy.region_income(state, "kingsvale")
 	var mountains := Economy.region_income(state, "highcrag")
 	var upkeep := Economy.unit_upkeep(state, state.unit_in("greywater"))
-	t.check(Economy.recruit_problem(state, "greywater", "catapult", "blue") == "needs research: Siege Engineering"
-		and Economy.recruit_problem(state, "greywater", "heavy_cavalry", "blue") == "needs research: Stirrups",
+	t.check(Economy.bundle_of(state, "blue", "catapult").is_empty() and Economy.bundle_of(state, "blue", "heavy_cavalry").is_empty(),
 		"catapults need Siege Engineering and heavy cavalry needs Stirrups")
 	t.check(Sieges.duration(state, "kingsvale", "blue") == 2, "a palisade holds out 2 turns")
 
@@ -76,9 +75,8 @@ func _test_research_effects(t) -> void:
 	t.check(is_equal_approx(Economy.unit_upkeep(state, state.unit_in("greywater")), upkeep * 0.8), "Logistics: upkeep costs 20% less")
 
 	blue.techs.assign(Rules.techs.keys())
-	t.check(not Economy.recruit_problem(state, "greywater", "catapult", "blue").begins_with("needs research")
-		and not Economy.recruit_problem(state, "greywater", "heavy_cavalry", "blue").begins_with("needs research"),
-		"the researched units no longer need research")
+	t.check(not Economy.bundle_of(state, "blue", "catapult").is_empty() and not Economy.bundle_of(state, "blue", "heavy_cavalry").is_empty(),
+		"the researched units can be bought")
 	t.check(Sieges.duration(state, "kingsvale", "blue") == 1, "Siege Engineering: sieges take 1 turn less")
 	blue.techs.erase("drill")
 	state.prepare_for_battle(state.unit_in("greywater").troops[0], "blue", true, "greywater")

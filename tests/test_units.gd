@@ -328,9 +328,9 @@ func _test_healing_and_recruits(t) -> void:
 		roundi(rested.health() * 100), roundi(marched.health() * 100)])
 
 	state = Helpers.game({"greywater": "blue"}, [["blue", "greywater", "spearmen", 10]], 7,
-		{"resources": {"blue": {"gold": 1000}}, "buildings": {"greywater": {"archery_range": 1}}})
+		{"resources": {"blue": {"gold": 1000}}, "capitals": {"blue": "greywater"}})
 	Helpers.plan_as(state, "blue")
-	t.check(Economy.recruit(state, "greywater", "archers"), "you can order reinforcements of another type for your army")
+	t.check(Economy.buy(state, "greywater", Economy.bundle_of(state, "blue", "archers", true)), "you can order reinforcements of another type for your army")
 	t.check(state.unit_in("greywater").composition() == {"spearmen": 10}, "they don't arrive this turn")
 	Helpers.resolve(state)
-	t.check(state.unit_in("greywater").composition() == {"spearmen": 10, "archers": 20}, "next turn they join the army there")
+	t.check(state.unit_in("greywater").composition() == {"spearmen": 10, "archers": 10}, "next turn they join the army there")

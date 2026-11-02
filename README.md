@@ -19,7 +19,7 @@ menu: campaigns, skirmish, or a saved game.
 | Select a unit | Click its figures |
 | Plan a move or attack | With a unit selected, click a **blue** region to move or a **red** one to attack. An attack opens a slider for how many soldiers to send (archers: how many shoot and how many fight hand to hand). Cavalry can then click a second step. |
 | Cancel an order | Click the unit again, its arrow, or press U |
-| Recruit, hire mercenaries | The helmet shield (top left) or R, for the selected region of yours |
+| Buy reinforcements | The helmet shield (top left) or R: pick a bundle, confirm, then click a lit province |
 | Treasury and research | The coin shield (top left) |
 | Menu: save/load, research, battle report, map mode, main menu | The pause shield (top right) or Esc |
 | Messages from the last turn | The ! shield (bottom right) |
@@ -48,9 +48,10 @@ strongest first), then captures and the gold.
 ## Gold
 
 Gold is the only resource. Every region pays 10 gold a turn (shown on the map), towns 15, the capital 10 more, and
-markets 8 more per level. Gold pays for units, mercenaries, healing, buildings, research and upkeep; if it runs out,
-soldiers desert. **Mercenaries** are hired only in regions with a town or camp icon, from a limited stock that refills
-slowly.
+markets 8 more per level (the real-history maps set 5, 10 or 15 per region). Gold pays for reinforcements,
+buildings, research and upkeep; if it runs out, soldiers desert. **Reinforcements** come in fixed bundles (e.g. 5
+archers for 45 gold, 10 for 75), go to your capital or a province with a town or camp icon, one order per province a
+turn, and arrive at the start of your next turn.
 
 ## How battles work
 
@@ -77,7 +78,7 @@ game-icons.net (CC BY 3.0); the fonts are Cinzel and IM FELL English (OFL). The 
 | Frankish | open | Knight (+25% charge), Sergeant | Cavalry 20% cheaper |
 | Crusader Orders | open | Brother Knight (best-armoured heavy horse), Mounted Sergeant | Hospitals: resting units heal 2 more soldiers |
 | Byzantine | finish 1 campaign | Cataphract, Varangian Guard | +25% gold from markets |
-| Saracen | finish 2 campaigns | Mamluk (shoots and rides off untouched), Ghazi | Mercenaries cost 25% less |
+| Saracen | finish 2 campaigns | Mamluk (shoots and rides off untouched), Ghazi | Reinforcements cost 15% less |
 
 21 unit types in all, including Pikemen in the base roster (×2.5 against cavalry, weak to archers and swords; need
 Chain Mail). Special units use their base unit's line in the counter table (a Yeoman counts as Spearmen, a Knight as

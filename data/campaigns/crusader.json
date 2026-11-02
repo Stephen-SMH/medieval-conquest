@@ -42,13 +42,11 @@
    "buildings": {
     "castel_aubade": {
      "market": 1,
-     "barracks": 1,
-     "archery_range": 1
+     "barracks": 1
     },
     "jebel_nur": {
      "market": 1,
-     "barracks": 1,
-     "archery_range": 1
+     "barracks": 1
     }
    },
    "units": [
@@ -158,13 +156,11 @@
     "castel_aubade": {
      "market": 1,
      "barracks": 1,
-     "archery_range": 1,
      "walls": 1
     },
     "mont_pelerin": {
      "market": 1,
-     "barracks": 1,
-     "archery_range": 1
+     "barracks": 1
     }
    },
    "units": [
@@ -290,13 +286,11 @@
    "buildings": {
     "castel_aubade": {
      "market": 1,
-     "barracks": 1,
-     "archery_range": 1
+     "barracks": 1
     },
     "jebel_nur": {
      "market": 1,
-     "barracks": 1,
-     "archery_range": 1
+     "barracks": 1
     }
    },
    "units": [
@@ -443,19 +437,16 @@
    "buildings": {
     "castel_aubade": {
      "market": 1,
-     "barracks": 1,
-     "archery_range": 1
+     "barracks": 1
     },
     "jebel_nur": {
      "market": 1,
      "barracks": 1,
-     "archery_range": 1,
      "walls": 1
     },
     "khirbat": {
      "market": 1,
      "barracks": 1,
-     "archery_range": 1,
      "walls": 1
     }
    },

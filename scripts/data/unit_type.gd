@@ -36,8 +36,6 @@ extends Resource
 @export var cost_gold := 50
 ## Gold a full unit costs each turn.
 @export var upkeep_gold := 1
-## Building a region needs before it can recruit this unit; "" for none.
-@export var required_building := ""
 
 
 const SOLDIERS := 20

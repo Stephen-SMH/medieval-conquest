@@ -18,7 +18,8 @@ const TURN_FADE_IN := 0.3
 const TURN_HOLD := 1.0
 const TURN_FADE_OUT := 0.5
 
-var _gold_label: Label
+var _gold: Odometer
+var _prompt: Label
 var _turn_label: Label
 var _info: PanelContainer
 var _info_text: RichTextLabel
@@ -69,8 +70,9 @@ func _ready() -> void:
 	row.add_theme_constant_override("separation", 10)
 	plaque.add_child(row)
 	row.add_child(_icon("res://assets/icons/ui_coins.svg", 30))
-	_gold_label = _label("0", 24)
-	row.add_child(_gold_label)
+	_gold = Odometer.new(28)
+	_gold.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(_gold)
 	var gap := Control.new()
 	gap.custom_minimum_size = Vector2(60, 0)
 	row.add_child(gap)
@@ -217,6 +219,17 @@ func _ready() -> void:
 	glass.position = Vector2(-55, -55)
 	_curtain.add_child(glass)
 
+	# "Select a province": the top bar's prompt while reinforcements wait for a place.
+	_prompt = _label("", 26)
+	_prompt.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	_prompt.position = Vector2(-300, 100)
+	_prompt.custom_minimum_size = Vector2(600, 0)
+	_prompt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_prompt.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
+	_prompt.add_theme_constant_override("outline_size", 8)
+	_prompt.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_prompt)
+
 	_toast = _label("", 18)
 	_toast.set_anchors_preset(Control.PRESET_CENTER_TOP)
 	_toast.position = Vector2(-330, 66)
@@ -233,7 +246,7 @@ func _ready() -> void:
 
 func update(state: GameState, has_alerts: bool) -> void:
 	var faction: FactionState = state.factions.get(state.viewer())
-	_gold_label.text = str(roundi(faction.resources.gold)) if faction != null else "—"
+	_gold.set_value(roundi(faction.resources.gold) if faction != null else 0)
 	_turn_label.text = str(state.turn)
 	_alerts_dot.visible = has_alerts
 	var entries := []
@@ -342,6 +355,11 @@ static func turn_banner_position(screen: Vector2, banner: Vector2) -> Vector2:
 ## How long the turn banner shows, in seconds, from fading in to gone.
 static func turn_banner_seconds() -> float:
 	return TURN_FADE_IN + TURN_HOLD + TURN_FADE_OUT
+
+
+## A standing prompt under the top bar ("" hides it).
+func prompt(text: String) -> void:
+	_prompt.text = text
 
 
 func toast(text: String) -> void:

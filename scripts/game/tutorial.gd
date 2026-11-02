@@ -3,7 +3,7 @@ extends RefCounted
 ## The guided tutorial mission: a small map (data/tutorial/) and a list of
 ## steps, each teaching one thing and waiting until the player has done it:
 ## select a unit, march, cancel, attack with the split slider, cavalry's two
-## steps and the red X, the hourglass, gold income, mercenaries and recruiting.
+## steps and the red X, the hourglass, gold income and reinforcements.
 ## The game scene shows the current step in a parchment box (TutorialBox) and
 ## reports what the player does with record().
 
@@ -26,10 +26,8 @@ const STEPS := [
 		"text": "Every unit has its orders. Turn the [b]hourglass[/b] (bottom right, or Enter) to end your turn: every side moves at once and the turn plays out on the map. Click to skip the show."},
 	{"id": "treasury", "title": "Gold",
 		"text": "Every region you hold pays [b]gold[/b] each turn: the number under its name. Towns and your capital pay more. Press the [b]coin shield[/b] (top left) to see your treasury."},
-	{"id": "mercenary", "title": "Mercenaries",
-		"text": "[b]Towns[/b] (houses) and [b]camps[/b] (tent) hire mercenaries. Click [b]Millbrook[/b], press [b]Recruit here[/b] and pick a card with a red number: how many are for hire. They arrive at the end of the turn."},
-	{"id": "recruit", "title": "Recruit",
-		"text": "Your own troops are trained in any empty region you hold. Click [b]Oakhollow[/b], your capital, press [b]Recruit here[/b] and choose a unit. It costs gold and is ready at the end of the turn."},
+	{"id": "reinforce", "title": "Reinforcements",
+		"text": "New soldiers come in bundles. Press the [b]knight shield[/b] (top left, or R) and pick a card: so many soldiers of one type for a price. Confirm, then click a lit province: your [b]capital[/b], a [b]town[/b] (houses) or a [b]camp[/b] (tent). They join the army there next turn; each province takes one order a turn."},
 	{"id": "finish", "title": "Ready for war",
 		"text": "That's everything. Take Ravensford if you like, or head for the campaigns. Spears beat horse, horse beats bows, bows beat spears. Good luck!"},
 ]
@@ -96,9 +94,7 @@ func is_done(id: String, state: GameState, selected: Unit) -> bool:
 			return state.turn > start_turn
 		"treasury":
 			return int(actions.get("treasury", 0)) > 0
-		"mercenary":
-			return int(actions.get("hire", 0)) > 0
-		"recruit":
+		"reinforce":
 			return int(actions.get("recruit", 0)) > 0
 	return false  # "finish" waits for the player to close the tutorial.
 

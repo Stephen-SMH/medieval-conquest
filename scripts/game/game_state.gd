@@ -80,9 +80,9 @@ static func from_scenario(scenario: Dictionary, game_seed := 1) -> GameState:
 		state.owners[region] = scenario.get("owners", {}).get(region, "neutral")
 		var province := ProvinceState.new()
 		for building_id in scenario.get("buildings", {}).get(region, {}):
-			province.buildings[building_id] = int(scenario.buildings[region][building_id])
+			if Rules.buildings.has(building_id):  # Archery ranges, stables and siege workshops are gone (PRD E).
+				province.buildings[building_id] = int(scenario.buildings[region][building_id])
 		state.provinces[region] = province
-	Economy.stock_mercenaries(state)
 	for entry in scenario.get("units", []):
 		var army := state.unit_in(entry.region)
 		if army != null and army.owner != entry.owner:

@@ -46,13 +46,11 @@
     "kingsbarrow": {
      "market": 1,
      "barracks": 1,
-     "archery_range": 1,
      "walls": 1
     },
     "gullmouth": {
      "market": 1,
-     "barracks": 1,
-     "archery_range": 1
+     "barracks": 1
     }
    },
    "units": [
@@ -179,13 +177,11 @@
    "buildings": {
     "kingsbarrow": {
      "market": 1,
-     "barracks": 1,
-     "archery_range": 1
+     "barracks": 1
     },
     "wyndle": {
      "market": 1,
-     "barracks": 1,
-     "archery_range": 1
+     "barracks": 1
     }
    },
    "units": [
@@ -314,13 +310,11 @@
    "buildings": {
     "kingsbarrow": {
      "market": 1,
-     "barracks": 1,
-     "archery_range": 1
+     "barracks": 1
     },
     "gullmouth": {
      "market": 1,
-     "barracks": 1,
-     "archery_range": 1
+     "barracks": 1
     }
    },
    "units": [
@@ -451,13 +445,11 @@
     "kingsbarrow": {
      "market": 1,
      "barracks": 1,
-     "archery_range": 1,
      "walls": 1
     },
     "ashcombe": {
      "market": 1,
-     "barracks": 1,
-     "archery_range": 1
+     "barracks": 1
     }
    },
    "units": [
@@ -602,19 +594,16 @@
    "buildings": {
     "kingsbarrow": {
      "market": 1,
-     "barracks": 1,
-     "archery_range": 1
+     "barracks": 1
     },
     "ashcombe": {
      "market": 1,
      "barracks": 1,
-     "archery_range": 1,
      "walls": 2
     },
     "wyndle": {
      "market": 1,
-     "barracks": 1,
-     "archery_range": 1
+     "barracks": 1
     }
    },
    "units": [

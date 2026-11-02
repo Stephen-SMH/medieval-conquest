@@ -360,7 +360,7 @@ func _test_saves(t) -> void:
 	Helpers.order(state, horse, "move", "redfield")
 	Helpers.plan_as(state, "blue")
 	var saved := SaveGame.to_dict(state)
-	t.check(saved.version == 4, "saves are version 4")
+	t.check(saved.version == 5, "saves are version 5")
 	var loaded := SaveGame.from_dict(JSON.parse_string(JSON.stringify(saved)))
 	var loaded_unit := loaded.unit_by_id(unit.id)
 	t.check(Orders.orders_of(loaded, loaded_unit).size() == 2 and Orders.unassigned(loaded, loaded_unit) == 2

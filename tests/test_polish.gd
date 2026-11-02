@@ -204,7 +204,7 @@ func _test_tutorial_map(t) -> void:
 	t.check(symmetric, "tutorial neighbours are mutual and share a border")
 	t.check(not MapData.list_maps().has(scenario.map), "the tutorial map isn't offered for skirmish or hotseat")
 	var sites := map.province_order.map(func(r): return map.provinces[r].get("site", ""))
-	t.check(sites.has("town") and sites.has("camp"), "the tutorial map has a town and a camp for mercenaries")
+	t.check(sites.has("town") and sites.has("camp"), "the tutorial map has a town and a camp for reinforcements")
 
 
 func _test_tutorial_steps(t) -> void:
@@ -247,13 +247,11 @@ func _test_tutorial_steps(t) -> void:
 	t.check(tutorial.current().id == "treasury", "after the turn it teaches gold")
 	tutorial.record("treasury")
 	tutorial.update(state, null)
-	t.check(tutorial.current().id == "mercenary", "then mercenaries")
+	t.check(tutorial.current().id == "reinforce", "then reinforcements")
 	Helpers.plan_as(state, Tutorial.PLAYER)
-	t.check(Economy.hire(state, "millbrook", "spearmen"), "mercenaries can be hired in Millbrook's town (%s)" % Economy.hire_problem(state, "millbrook", "spearmen", Tutorial.PLAYER))
-	tutorial.record("hire")
-	tutorial.update(state, null)
-	t.check(tutorial.current().id == "recruit", "then recruiting")
-	t.check(Economy.recruit(state, "oakhollow", "spearmen"), "a unit can be recruited in the capital")
+	var bundle := Economy.bundle_of(state, Tutorial.PLAYER, "spearmen")
+	t.check(Economy.bundle_targets(state, bundle, Tutorial.PLAYER).has("oakhollow") and Economy.buy(state, "millbrook", bundle),
+		"a bundle can go to the capital or Millbrook's town (%s)" % Economy.bundle_problem(state, "millbrook", bundle, Tutorial.PLAYER))
 	tutorial.record("recruit")
 	tutorial.update(state, null)
 	t.check(tutorial.current().id == "finish" and not tutorial.finished(), "the last step waits for the player to finish")

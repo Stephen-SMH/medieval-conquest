@@ -19,5 +19,4 @@ counter_as = "heavy_cavalry"
 civilization = "byzantine"
 cost_gold = 290
 upkeep_gold = 7
-required_building = "stable"
 required_tech = "stirrups"

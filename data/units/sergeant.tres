@@ -19,4 +19,3 @@ counter_as = "spearmen"
 civilization = "frankish"
 cost_gold = 105
 upkeep_gold = 2
-required_building = "barracks"
