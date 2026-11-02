@@ -7,13 +7,21 @@ extends Node2D
 ## border, dust and sparks fly, the defender recoils and the numbers drain; a
 ## failed attacker marches back; a destroyed unit fades and sinks; a captured
 ## region fills with its new colour from the attacker's side as a banner drops
-## in. The results are already decided: this only shows them. A click skips.
+## in. While a region is fought over, gold crossed swords hang above it, and
+## a cracked gold shield pops over each side that takes losses (PRD L); when
+## the viewer fought, battle_ended() lets the HUD say "Battle won" or "lost".
+## The results are already decided: this only shows them. A click skips.
+
+## A battle the viewer fought is over: `won` from the viewer's side.
+signal battle_ended(won: bool)
 
 const MARCH := 0.7
 const VOLLEY := 0.85
 const CLASH := 0.9
 const SWEEP := 0.8
 const AI_FAST := 1.8  # Moves by computer factions play this much faster.
+const CRACK_SECONDS := 0.9
+const GOLD := Color("#e2bd5a")
 
 var state: GameState
 var tokens: TokenLayer
@@ -22,6 +30,9 @@ var views := {}
 var _tracks := []  # Running animations; see _track().
 var _projectiles := []  # {from, to, t, stone}
 var _banners := []  # {at, color, t}
+var _fights := []  # {at, t}: crossed swords over a region being fought over.
+var _cracks := []  # {at, t}: a cracked shield over a unit that was hit.
+var _swords: Texture2D
 var _speed := 1.0
 var _skip := false
 var _clock := 0.0
@@ -32,6 +43,7 @@ func setup(game: GameState, token_layer: TokenLayer, region_views: Dictionary) -
 	tokens = token_layer
 	views = region_views
 	z_index = 8
+	_swords = load("res://assets/icons/ui_swords.svg")
 
 
 func skip() -> void:
@@ -95,6 +107,8 @@ func play(events: Array, before: Dictionary, speed: float) -> void:
 	_tracks.clear()
 	_projectiles.clear()
 	_banners.clear()
+	_fights.clear()
+	_cracks.clear()
 	queue_redraw()
 
 
@@ -224,11 +238,18 @@ func _battle(event: Dictionary) -> void:
 	var from := tokens.region_anchor(event.origin)
 	var to := tokens.region_anchor(event.province)
 	var border := from.lerp(to, 0.5)
+	var fight := {"at": to + Vector2(0, -tokens.token_size() * 1.25), "t": 0.0}
+	_fights.append(fight)
 	if attacker != null:
 		_track(attacker, "offset", attacker.offset, border - from, 0.4 / pace)
 	await _wait(0.4 / pace)
 	_sound("clash")
 	_clash_effects(border)
+	for side in [[attacker, from], [defender, to]]:
+		var visual: TokenLayer.TokenVisual = side[0]
+		var after: Dictionary = event.hp.get(visual.unit, {}) if visual != null else {}
+		if not after.is_empty() and float(after.hp) / maxf(float(after.full), 0.001) < visual.hp / visual.full - 0.005:
+			_cracks.append({"at": side[1] + Vector2(0, -tokens.token_size() * 0.75), "t": 0.0})
 	if defender != null:
 		var away := (to - from).normalized() * tokens.token_size() * 0.35
 		_track(defender, "offset", Vector2.ZERO, away, 0.15 / pace)
@@ -236,6 +257,14 @@ func _battle(event: Dictionary) -> void:
 		_track(defender, "offset", away, Vector2.ZERO, 0.3 / pace)
 	_drain(event.hp, CLASH / pace)
 	await _wait(CLASH / pace)
+	_fights.erase(fight)
+	queue_redraw()
+	var viewer := state.viewer()
+	var defending: String = event.other.owner if event.get("other") != null else ""
+	if viewer in [event.unit.owner, defending]:
+		var battle: Battle = event.battle
+		battle_ended.emit(battle.attacker_won() == (event.unit.owner == viewer))
+		await _wait(1.1 / pace)
 
 
 func _march_back(unit) -> void:
@@ -355,7 +384,7 @@ func _track(visual: TokenLayer.TokenVisual, kind: String, from, to, seconds: flo
 
 func _process(delta: float) -> void:
 	_clock += delta
-	if _tracks.is_empty() and _projectiles.is_empty() and _banners.is_empty():
+	if _tracks.is_empty() and _projectiles.is_empty() and _banners.is_empty() and _fights.is_empty() and _cracks.is_empty():
 		return
 	var step := 1000.0 if _skip else delta
 	for track in _tracks:
@@ -386,6 +415,9 @@ func _process(delta: float) -> void:
 	for banner in _banners:
 		banner.t += step * _speed
 	_banners = _banners.filter(func(b): return b.t < 2.5)
+	for entry in _fights + _cracks:
+		entry.t += step * _speed
+	_cracks = _cracks.filter(func(c): return c.t < CRACK_SECONDS)
 	tokens.queue_redraw()
 	queue_redraw()
 
@@ -409,6 +441,19 @@ func _draw() -> void:
 			draw_line(at - direction * size * 0.25, at, Color("#2a1a0e"), maxf(size * 0.03, 1.2))
 			draw_colored_polygon(PackedVector2Array([at + direction * size * 0.06, at - direction.orthogonal() * size * 0.03,
 				at + direction.orthogonal() * size * 0.03]), Color("#2a1a0e"))
+	# Gold crossed swords over each region being fought over, swelling as it goes on.
+	for fight in _fights:
+		var grow := minf(fight.t / 0.25, 1.0)
+		var pulse := 1.0 + 0.06 * sin(fight.t * 9.0)
+		var s := size * 0.95 * grow * pulse
+		var box := Rect2(fight.at - Vector2(s, s) / 2.0, Vector2(s, s))
+		draw_circle(fight.at, s * 0.62, Color(0.1, 0.06, 0.02, 0.55 * grow))
+		draw_texture_rect(_swords, box.grow(s * 0.06), false, Color(0, 0, 0, 0.5 * grow))
+		draw_texture_rect(_swords, box, false, Color(GOLD, grow))
+	# A cracked gold shield pops over each side that was hit, then fades.
+	for crack in _cracks:
+		var k: float = crack.t / CRACK_SECONDS
+		draw_cracked_shield(self, crack.at + Vector2(0, -k * size * 0.3), size * (0.32 + 0.1 * minf(k * 4.0, 1.0)), 1.0 - k * k)
 	# Banners dropping into captured regions.
 	for banner in _banners:
 		var k := clampf(banner.t / 0.5, 0.0, 1.0)
@@ -421,6 +466,33 @@ func _draw() -> void:
 		draw_colored_polygon(PackedVector2Array([top, top + Vector2(size * 0.45, 0), top + Vector2(size * 0.45, size * 0.6),
 			top + Vector2(size * 0.22, size * 0.48), top + Vector2(0, size * 0.6)]), Color(banner.color, alpha))
 		draw_circle(top, size * 0.05, Color("#e2bd5a", alpha))
+
+
+## A gold heater shield with a dark crack down it, `r` its half width.
+static func draw_cracked_shield(canvas: CanvasItem, at: Vector2, r: float, alpha := 1.0) -> void:
+	var shape := shield_points(at, r)
+	canvas.draw_colored_polygon(shape, Color(0, 0, 0, 0.4 * alpha))
+	canvas.draw_colored_polygon(shield_points(at, r * 0.86), Color(GOLD, alpha))
+	canvas.draw_colored_polygon(shield_points(at + Vector2(-r * 0.1, -r * 0.1), r * 0.45), Color(1, 0.95, 0.75, 0.25 * alpha))
+	var crack := PackedVector2Array([at + Vector2(-r * 0.05, -r * 0.95), at + Vector2(r * 0.15, -r * 0.45), at + Vector2(-r * 0.12, -r * 0.05),
+		at + Vector2(r * 0.18, r * 0.35), at + Vector2(-r * 0.02, r * 0.85)])
+	canvas.draw_polyline(crack, Color("#2a1a0c", alpha), maxf(r * 0.12, 1.5), true)
+	canvas.draw_line(at + Vector2(-r * 0.12, -r * 0.05), at + Vector2(-r * 0.5, r * 0.15), Color("#2a1a0c", alpha), maxf(r * 0.07, 1.0), true)
+
+
+## The outline of a heater shield around `at`, `r` its half width: a flat
+## top, sides that run straight down a little, then curve in to the point.
+static func shield_points(at: Vector2, r: float) -> PackedVector2Array:
+	var points := PackedVector2Array([at + Vector2(-r, -r), at + Vector2(r, -r)])
+	var side := []
+	for i in range(1, 12):
+		var a := float(i) / 11.0
+		side.append(Vector2(r * sqrt(maxf(1.0 - a * a, 0.0)), -r * 0.6 + a * r * 1.75))
+	for p in side:
+		points.append(at + p)
+	for i in range(side.size() - 2, -1, -1):
+		points.append(at + Vector2(-side[i].x, side[i].y))
+	return points
 
 
 ## The sounds a group of volleys makes: arrows whistle, catapults throw.

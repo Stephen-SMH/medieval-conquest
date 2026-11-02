@@ -33,6 +33,9 @@ var _crown_icon: TextureRect
 var _crown_label: Label
 var _swords_label: Label
 var _notes: VBoxContainer
+var _battle_card: Control
+var _battle_text: Label
+var _battle_won := true
 var _info: PanelContainer
 var _info_text: RichTextLabel
 var _info_buttons: HBoxContainer
@@ -281,6 +284,23 @@ func _ready() -> void:
 	_notes.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_notes)
 
+	# "Battle won/lost" with a shield bearing a check or a cross (PRD L).
+	_battle_card = Control.new()
+	_battle_card.set_anchors_preset(Control.PRESET_CENTER)
+	_battle_card.custom_minimum_size = Vector2(360, 210)
+	_battle_card.position = Vector2(-180, -150)
+	_battle_card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_battle_card.modulate.a = 0.0
+	_battle_card.draw.connect(_draw_battle_card)
+	add_child(_battle_card)
+	_battle_text = _label("", 34)
+	_battle_text.position = Vector2(0, 150)
+	_battle_text.size = Vector2(360, 50)
+	_battle_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_battle_text.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
+	_battle_text.add_theme_constant_override("outline_size", 10)
+	_battle_card.add_child(_battle_text)
+
 	_toast = _label("", 18)
 	_toast.set_anchors_preset(Control.PRESET_CENTER_TOP)
 	_toast.position = Vector2(-330, 66)
@@ -415,6 +435,39 @@ static func turn_banner_position(screen: Vector2, banner: Vector2) -> Vector2:
 ## How long the turn banner shows, in seconds, from fading in to gone.
 static func turn_banner_seconds() -> float:
 	return TURN_FADE_IN + TURN_HOLD + TURN_FADE_OUT
+
+
+## "Battle won" or "Battle lost" in the middle of the screen for a moment,
+## under a gold shield bearing a check or a cross (PRD L).
+func battle_result(won: bool) -> void:
+	_battle_won = won
+	_battle_text.text = "Battle won" if won else "Battle lost"
+	_battle_text.add_theme_color_override("font_color", Color("#f3d77e") if won else Color("#f08070"))
+	_battle_card.queue_redraw()
+	_battle_card.pivot_offset = _battle_card.size / 2.0
+	_battle_card.scale = Vector2(0.85, 0.85)
+	var tween := create_tween()
+	tween.set_parallel()
+	tween.tween_property(_battle_card, "modulate:a", 1.0, 0.15)
+	tween.tween_property(_battle_card, "scale", Vector2.ONE, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.chain().tween_interval(0.6)
+	tween.chain().tween_property(_battle_card, "modulate:a", 0.0, 0.35)
+
+
+func _draw_battle_card() -> void:
+	var at := Vector2(_battle_card.size.x / 2.0, 70)
+	var r := 56.0
+	_battle_card.draw_circle(at + Vector2(0, 10), 92, Color(0, 0, 0, 0.35))
+	_battle_card.draw_colored_polygon(Effects.shield_points(at + Vector2(0, 4), r), Color(0, 0, 0, 0.5))
+	_battle_card.draw_colored_polygon(Effects.shield_points(at, r), Color("#9c7a2c"))
+	_battle_card.draw_colored_polygon(Effects.shield_points(at, r * 0.86), GOLD if _battle_won else Color("#b8a27a"))
+	var ink := Color("#2a1a0c")
+	if _battle_won:
+		_battle_card.draw_polyline(PackedVector2Array([at + Vector2(-r * 0.42, 0), at + Vector2(-r * 0.1, r * 0.35), at + Vector2(r * 0.48, -r * 0.4)]),
+			ink, r * 0.2, true)
+	else:
+		_battle_card.draw_line(at + Vector2(-r * 0.38, -r * 0.38), at + Vector2(r * 0.38, r * 0.42), Color("#8a1e14"), r * 0.18, true)
+		_battle_card.draw_line(at + Vector2(r * 0.38, -r * 0.38), at + Vector2(-r * 0.38, r * 0.42), Color("#8a1e14"), r * 0.18, true)
 
 
 ## A parchment note at the top left (a scripted event, PRD H). It fades

@@ -132,6 +132,7 @@ func _ready() -> void:
 	_end_screen.menu.connect(_go_to_menu)
 	_end_screen.next_mission.connect(_next_mission)
 	_hud.objectives_pressed.connect(open_objectives)
+	_effects.battle_ended.connect(_hud.battle_result)
 	_build_pause_menu()
 	_build_pass_screen()
 	Hud.react_all($UI)

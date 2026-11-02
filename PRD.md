@@ -484,3 +484,11 @@ This decision replaces sections 3.3 (resources), 3.4 (food and supply) and 3.12 
 | PM-3 | **Surrender** (on your own turn, after a yes/no) loses a mission or a one-player game; in hotseat the realm leaves the war, its armies disbanded and its regions neutral, and the next player goes on. |
 | PM-4 | **Objectives** opens the objectives list (MS-3); **info** shows the map, the date, each realm's regions and soldiers, and your treasury. |
 
+### 8.14 Battle visuals (version 6, L)
+
+| ID | Requirement |
+|---|---|
+| BV-1 | While a region is fought over during playback, **gold crossed swords** hang above it on a dark disc, swelling in and pulsing gently, until the clash is over. |
+| BV-2 | At the clash a **cracked gold shield** pops up over each side that took losses, then rises and fades. |
+| BV-3 | After a battle the viewer fought (attacking or defending), **"Battle won"** or **"Battle lost"** shows in the middle of the screen for about a second under a gold shield bearing a **✓** (won) or a red **✗** (lost). |
+
