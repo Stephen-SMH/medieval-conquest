@@ -1,94 +1,59 @@
-# Handoff: where the work stopped (2026-11-02)
+# Handoff: where the work stopped (2026-11-02, second session)
 
 The game is being made to play like HeroCraft's **S&T: Medieval Wars** (Android), using only our own art and text. Never use HeroCraft assets.
 Run the tests with `godot --headless -s tests/run_tests.gd` (Godot 4.7.2). They must report `0 failed`.
+After adding a script with a new `class_name`, run `godot --headless --import` once, or other scripts can't find the class.
 
 ## Branches
 
 | Branch | State |
 |---|---|
-| `main` | Stable; tests pass (506 checks). Stages F, A, B, C, D below are done. |
-| `wip/st-rules-bundles-forge-missions` | **Unfinished** work on stages E/G/H, stopped mid-edit and untested. Use it as a starting point or redo it. |
-| `real-maps` | **Finished**, not merged: 6 real-history maps (619 checks passed on that branch). Merge into main. A small conflict is likely in `MapData.province_at` (`scripts/map_data.gd`). |
+| `main` | `real-maps` merged in. Tests pass. |
+| `st-rules-pass` | **The S&T rules pass, stages E to M, done** on top of `main` (647 checks pass). Not merged into `main` and not pushed yet. |
+| `wip/st-rules-bundles-forge-missions` (remote) | Old unfinished start on E/G/H. Superseded by `st-rules-pass`; can be deleted. |
 
-## S&T rules pass: progress
+## S&T rules pass: all done (PRD 8.7, 8.9, 8.11–8.15)
 
-Done on main:
-- **F:** generals and ranks removed.
-- **A:** mixed armies (one army per region, mixing soldier types).
-- **D:** ranged fire only wounds; it never eliminates.
-- **C:** turns are taken faction by faction, not simultaneously.
-- **B:** Support orders join a friendly attack.
+- **F, A, D, C, B** (first session): no generals or ranks, mixed armies, ranged fire only wounds, faction-by-faction turns, support orders.
+- **E** reinforcement bundles (`Economy.bundles`, `scripts/ui/recruit_window.gd`, `odometer.gd`, `site_marks.gd`). Save version 5.
+- **G** the Forge replaces research (`scripts/game/forge.gd`, `scripts/ui/forge_window.gd`, `Progress.upgrades`). Techs and research are gone.
+- **H** S&T missions (`scripts/game/mission.gd`): primary/additional/defeat, crowns, scripted events and notes, briefing scroll (`briefing_scroll.gd`), victory screen (`end_screen.gd`), rank. Old missions (`objectives`/`par`) convert on load. Save version 6.
+- **I** drag from an army to aim its order (`main.gd`: `_aim_unit`, `_aim_at`).
+- **J** sea links are neighbours across a "sea" border (`MapData`); landings fight like river crossings.
+- **K** pause menu (`scripts/ui/pause_menu.gd`): restart, resume, objectives, surrender, info, exit.
+- **L** battle visuals (`effects.gd`): gold crossed swords, cracked shields, "Battle won/lost" card (`Hud.battle_result`).
+- **M** main menu with a bottom row of square buttons (`square_button.gd`), Scenarios table with map preview (`scenarios.gd`, `map_preview.gd`), Continue, Records, Credits. Six historical scenarios from the real maps' starts, made by `python3 tools/make_scenarios.py`.
 
-Still to do (in this order):
-- **E. Recruiting by bundles.**
-  - Cards are fixed bundles, e.g. 2 archers for 100, 4 swordsmen for 300, 6 cavalry for 500, 12 archers for 700.
-  - Buying asks "Buy the selected reinforcements? Price N".
-  - Then the top bar says "Select a province" and only your town/camp provinces are lit.
-  - The bundle arrives **next turn**.
-  - The footer says "Reinforcements ordered here arrive next turn".
-  - Gold shows as an odometer (000600).
-  - A used or unavailable camp shows a red no-sign over its tent.
-- **G. Forge between missions.**
-  - Missions award **development points**.
-  - The Forge (anvil button on the briefing) buys permanent per-type upgrades.
-  - An upgraded type shows a ★ on its icon.
-  - Remove in-mission research.
-- **H. Missions like S&T.**
-  - Each mission has a PRIMARY objective, ADDITIONAL objectives and DEFEAT conditions. Defeat examples: primary not done in N turns, lose all troops, lose X before turn N.
-  - Gold/silver/bronze **crowns** for finishing within e.g. 8/10/12 turns.
-  - HUD: gold, turn, crown with turns left (counting down), and crossed swords with the remaining primary count.
-  - Scripted events show a parchment note at the top left ("Enemy reinforcements arrived in the province of X: <unit> – 2").
-  - **Briefing:** a parchment scroll with a history intro and the objectives, plus round buttons for anvil, start and back.
-  - **Victory screen:**
-    - objectives with ✓/✗ and their points, plus development points
-    - decorations (crown thresholds) and turns taken
-    - losses and enemy losses by type icon
-    - "Your rank: Serf…" with a progress bar
-    - back, restart and next buttons
-- **I.** Drag-to-aim arrows, with click-click still working.
-- **J.** Sea crossing along `sea_links: [[a, b], ...]` between port regions, drawn as dashed lines between boat icons.
-- **K.** Pause menu: a bottom bar with restart, resume, objectives, surrender, info and exit.
-- **L.** Battle visuals:
-  - gold crossed swords on a region while it fights
-  - a cracked gold shield on hits
-  - a "Battle lost/won" overlay with a ✓ shield
-- **M.** Main menu:
-  - a bottom row of square wooden buttons: Campaigns, Scenarios, Skirmish/Hotseat, Continue, Records, Settings, Credits, plus Tutorial
-  - a Scenarios parchment table (done ✓, flag, size S/M/L, difficulty stars, name) with a map preview and padlocks
+## Known issues and notes
 
-The real maps add per-region `income` (5/10/15), `port`, `port_at`, `town_at`, `fortress`, plus `sea_links`, `sea_labels`, `scenery` and a `history` start. The game must use `region.income` when it is present.
+- **Balance:** bundles made soldiers dearer (a soldier costs a tenth of the old 20-soldier price). With `tools/sim_campaigns.gd`, some old conquest finales got harder (Norse 5, Anglish 5, Crusader 3, Byzantine 3). These campaigns are due to be replaced (below), so they weren't retuned.
+- **Scenario balance:** checked only with an AI stand-in that keeps its must-hold regions garrisoned (the script is not in the repo; it's like `sim_campaigns.gd` but over `Scenarios.all()`). Heartlands loses its capital quickly with that stand-in; a person does better.
+- `tests/test_v2.gd` writes save slot 3 into the real `user://saves` (it did before this session too).
 
-## After the rules pass: real-history campaigns (user approved)
+## Next: real-history campaigns (user approved)
 
 Rewrite the campaigns as real history on the real maps, with our own wording:
-- England, France, Crusades and Vikings
-- ~11 standalone historical scenarios, e.g. 1013 invasion of England, Lake Peipus 1242, Stamford Bridge 1066, Third Crusade 1191, siege of Orléans 1429
-
-Each needs a history-style briefing and objectives in the H format. Then update the tutorial and the PRD (section 8).
+- England, France, Crusades and Vikings, in the H mission format (primary/additional/defeat, crowns, events, a `history` intro).
+- More standalone historical scenarios. Done so far: 1242 Battle on the Ice, 1066 Year of Three Kings, 1429 Siege of Orléans, 1000 Svolder, 1176 Barbarossa, 1187 Hattin. Still to add, e.g. 1013 invasion of England and 1191 Third Crusade.
+- `tools/make_scenarios.py` shows the pattern: start from a map's `history` owners, override owners and armies per mission, and garrison the objective regions.
+- Then update the tutorial and the PRD (section 8). `tests/test_v3.gd` and `tests/test_v5.gd` expect six campaigns and 25 missions; they will need updating with the new campaigns.
 
 ## Facts about S&T confirmed from the user's video stills
 
 - **Soldier-type icons:** bow, crossbow, crossed spears, lion shield (heavy infantry), horse head (cavalry), pitchfork (militia/peasant levy). Civ variants have their own names, e.g. "Norwegian archers".
 - **Upgrades:** a ★ marks an upgraded type. Mixing types gives no bonus by itself.
-- **Selected army:**
-  - A green cloth banner on the right lists its soldiers, one icon each.
-  - Tapping an icon shows a name tooltip.
-  - The army gets a green glow.
-- **Attack and Move popups:**
-  - one row per type (icon, count, slider) in two columns
-  - a total slider at the bottom between ✓ and ✕
-- **The ⚔+ (Support) button:** it sits in the ring that appears on a target region (✕ / ⚔ / ⚔+).
-- **Turns:**
-  - Each side plays its own turn with its arrows drawn.
-  - The screen shows "Turn: Kingdom of England" plus the flag, and "Tap to skip enemy turn".
+- **Selected army:** a green cloth banner on the right lists its soldiers, one icon each; tapping an icon shows a name tooltip; the army gets a green glow.
+- **Attack and Move popups:** one row per type (icon, count, slider) in two columns; a total slider at the bottom between ✓ and ✕.
+- **The ⚔+ (Support) button** sits in the ring that appears on a target region (✕ / ⚔ / ⚔+).
+- **Turns:** each side plays its own turn with its arrows drawn; "Turn: Kingdom of England" plus the flag, and "Tap to skip enemy turn".
 - **Cavalry and the red X:** cavalry moves twice. A red X marks a spent army. The health bar turns yellow when damaged.
 - **Scale:** maps have 40–60 regions. Skirmish maps show a crown with about 70 turns left.
 - **Free game:** skip all shop and in-app-purchase screens and the "buy gold" button.
 
 ## Environment notes
 
-- **Android:** Android builds need JDK 17 and the SDK (already set up on the first machine). See the README section "Build for Android".
-- **Screenshots:** take them in a window, not headless. The scene-based capture script `shot.gd` lived in the first machine's scratchpad. Write a new one on the new machine.
+- **Godot:** installed with `brew install --cask godot` (4.7.2) on the second machine.
+- **Android:** Android builds need JDK 17 and the SDK (set up on the first machine). See the README section "Build for Android".
+- **Screenshots:** take them in a window, not headless. A scene-based capture script lives only in the session scratchpad: it loads `scenes/main.tscn` or `scenes/menu.tscn`, runs a small action against the scene root, waits some frames and saves the viewport. Point `Settings.config_path` and `Progress.path` at scratch files first so the player's own settings and progress aren't touched. The main scene still autosaves to `user://saves/slot_auto.json`.
 - **GitHub account:** use **Stephen-SMH** for GitHub, never AvocadoRiri.
 - **Commit trailer:** end commit messages with `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>` (or your own model's line).
