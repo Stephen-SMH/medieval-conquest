@@ -139,7 +139,8 @@ func _test_turn_banner(t) -> void:
 	var screen := Vector2(1280, 720)
 	var banner := Vector2(520, 62)
 	var at := Hud.turn_banner_position(screen, banner)
-	t.check(is_equal_approx(at.x + banner.x / 2.0, screen.x / 2.0) and at.y >= 64.0, "the turn banner is centred under the plaque")
+	t.check(is_equal_approx(at.x + banner.x / 2.0, screen.x / 2.0) and at.y > screen.y * 0.6 and at.y + banner.y < screen.y,
+		"the turn banner is centred low over the map, as in S&T")
 	t.check(Hud.turn_banner_seconds() <= 2.0, "the turn banner is gone within 2 seconds (it was 2.7)")
 
 

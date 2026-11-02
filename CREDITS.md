@@ -79,8 +79,9 @@ so the white shape can be tinted; the shapes are unchanged.
 | `assets/fonts/IMFellEnglish-Regular.ttf`, `assets/fonts/IMFellEnglish-Italic.ttf` | [IM FELL English](https://github.com/google/fonts/tree/main/ofl/imfellenglish) | Igino Marini | [SIL OFL 1.1](assets/fonts/IMFellEnglish-OFL.txt) |
 | `assets/fonts/NotoSansSymbols2-Symbols.ttf` | [Noto Sans Symbols 2](https://github.com/google/fonts/tree/main/ofl/notosanssymbols2) | The Noto Project Authors | [SIL OFL 1.1](assets/fonts/NotoSansSymbols2-OFL.txt) |
 | `assets/fonts/NotoSansMath-Arrows.ttf` | [Noto Sans Math](https://github.com/google/fonts/tree/main/ofl/notosansmath) | The Noto Project Authors | [SIL OFL 1.1](assets/fonts/NotoSansMath-OFL.txt) |
+| `assets/fonts/GrenzeGotisch.ttf` | [Grenze Gotisch](https://github.com/google/fonts/tree/main/ofl/grenzegotisch) | The Grenze Gotisch Project Authors (Omnibus-Type) | [SIL OFL 1.1](assets/fonts/GrenzeGotisch-OFL.txt) |
 
-Cinzel and IM FELL English are unmodified copies from the google/fonts repository. The two Noto fonts are
+Cinzel, IM FELL English and Grenze Gotisch (the variable font) are unmodified copies from the google/fonts repository. The two Noto fonts are
 cut down to their symbol blocks, with their line height lowered to IM FELL English's, by
 [tools/make_symbol_fonts.sh](tools/make_symbol_fonts.sh); they supply ★ ☆ ✓ ✗ ■ → − where the game fonts have
 none.

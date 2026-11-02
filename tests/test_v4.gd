@@ -105,12 +105,12 @@ func _test_touch(t) -> void:
 
 func _test_settings_and_exports(t) -> void:
 	Settings.ensure_loaded()
-	var was := Settings.show_forecast
-	Settings.show_forecast = false
+	var was := Settings.animation
+	Settings.animation = "fast"
 	Settings.save()
 	var config := ConfigFile.new()
-	t.check(config.load(Settings.PATH) == OK and config.get_value("game", "show_forecast") == false, "settings are saved to user://settings.cfg")
-	Settings.show_forecast = was
+	t.check(config.load(Settings.PATH) == OK and config.get_value("game", "animation") == "fast", "settings are saved to user://settings.cfg")
+	Settings.animation = was
 	Settings.save()
 
 	var presets := ConfigFile.new()

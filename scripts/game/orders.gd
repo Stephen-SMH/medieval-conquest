@@ -11,9 +11,12 @@ extends RefCounted
 ## an attack. In an attack the ranged soldiers shoot and the rest go into
 ## melee; ranged soldiers alone only shoot (and may reach 2 regions with
 ## longbows). A **support** order adds a detachment to another army's attack
-## on the same region, so they fight as one battle. A siege takes the whole
-## army. Nothing happens until the hourglass: then the Resolver carries out
-## the current faction's orders.
+## on the same region, so they fight as one battle; supporters fight from home
+## and never move in. A siege takes the whole army. A region holds at most
+## Unit.CAP soldiers: an order into it gets only the **room** left by the army
+## there (less those ordered out) and the soldiers already ordered in. Nothing
+## happens until the hourglass: then the Resolver carries out the current
+## faction's orders.
 ##
 ## state.orders[unit] is an Array of orders, each
 ##   {"steps": [{"type": "move"/"attack"/"besiege", "target": region}, ...],
@@ -101,6 +104,82 @@ static func all_cavalry(troops: Dictionary) -> bool:
 
 static func all_ranged(troops: Dictionary) -> bool:
 	return not troops.is_empty() and troops.keys().all(func(t): return Rules.unit(t).is_ranged())
+
+
+static func has_ranged(troops: Dictionary) -> bool:
+	return troops.keys().any(func(t): return Rules.unit(t).is_ranged())
+
+
+# --- Room in a region -----------------------------------------------------------------
+
+## Where an order's soldiers end the turn if it goes to plan: [[region,
+## soldiers], ...], with "" for home. Supporters and archers-only volleys stay
+## where they shoot or fight from; in a cavalry march-then-attack, those who
+## don't attack wait at the waypoint.
+static func arrivals(order: Dictionary) -> Array:
+	var steps: Array = order.steps
+	var last: Dictionary = steps.back()
+	var origin: String = "" if steps.size() == 1 else steps[-2].target
+	if last.type == "besiege":
+		return [["", int(order.size)]]
+	if last.type == "move":
+		return [[last.target, int(order.size)]]
+	var attacking: Dictionary = order.get("attackers", order.troops)
+	var goes_in: bool = not order.get("support", false) and not all_ranged(attacking)
+	var result := [[last.target if goes_in else origin, total(attacking)]]
+	var waiting := total(order.troops) - total(attacking)
+	if waiting > 0:
+		result.append([origin, waiting])
+	return result
+
+
+## How many more of `faction`'s soldiers `region` can take this turn:
+## Unit.CAP, less the army there (but not those ordered out) and the soldiers
+## already ordered in. Order `skip` of `skip_unit` (one being changed) doesn't
+## count. An ally's army there leaves no room.
+static func room(state: GameState, faction: String, region: String, skip_unit: Unit = null, skip := -1) -> int:
+	var occupant := state.unit_in(region)
+	if occupant != null and occupant.owner != faction and not state.is_enemy(faction, occupant.owner):
+		return 0
+	var used := occupant.soldiers() if occupant != null and occupant.owner == faction else 0
+	for unit: Unit in state.orders:
+		if unit.owner != faction or not state.units.has(unit):
+			continue
+		var list: Array = state.orders[unit]
+		for i in list.size():
+			if unit == skip_unit and i == skip:
+				continue
+			for arrival in arrivals(list[i]):
+				var at: String = arrival[0] if arrival[0] != "" else unit.province
+				if unit.province == region and at != region:
+					used -= int(arrival[1])
+				elif unit.province != region and at == region:
+					used += int(arrival[1])
+	return Unit.CAP - used
+
+
+## The room an order from `unit` to `target` gets (the order being changed
+## doesn't count against itself), or -1 when its soldiers don't go in: a
+## support or a siege.
+static func room_for(state: GameState, unit: Unit, target: String, type := "move", support := false) -> int:
+	if type == "besiege" or (support and type == "attack"):
+		return -1
+	var plan := intent(state, unit, target)
+	return maxi(room(state, unit.owner, target, unit, plan.order if not plan.is_empty() else -1), 0)
+
+
+## `troops` cut down to `space` places. An attack of archers only needs none
+## (they shoot from home); with no room at all, an attack keeps only its archers.
+static func fit(troops: Dictionary, space: int, type := "move") -> Dictionary:
+	if space < 0 or total(troops) <= space or (type == "attack" and all_ranged(troops)):
+		return troops
+	if space == 0 and type == "attack":
+		var archers := {}
+		for type_id in troops:
+			if Rules.unit(type_id).is_ranged():
+				archers[type_id] = troops[type_id]
+		return archers
+	return pick(troops, space)
 
 
 ## The order whose first arrow points at `target`, or -1.
@@ -227,16 +306,17 @@ static func problem(state: GameState, unit: Unit, type: String, target: String, 
 		if not replacing and uses_region(state, unit, target):
 			return "another detachment already goes there"
 	var occupant := state.unit_in(target)
+	var going: Dictionary = orders_of(state, unit)[chained].troops if step_index > 0 else unit.composition()
+	var space := room(state, unit.owner, target, unit, chained if step_index > 0 else -1)
+	var full := "it is full (%d soldiers at most)" % Unit.CAP
 	match type:
 		"move":
 			if not state.map.are_neighbours(origin, target):
 				return "not next to it"
-			if occupant == null or occupant == unit:
-				return ""
-			if state.is_enemy(unit.owner, occupant.owner):
+			if occupant != null and occupant != unit and state.is_enemy(unit.owner, occupant.owner):
 				return "an enemy army is there: attack instead"
-			if occupant.soldiers() >= Unit.CAP and not state.orders.has(occupant):
-				return "that army already has %d soldiers" % Unit.CAP
+			if space <= 0 or (step_index > 0 and space < total(going)):
+				return full
 			return ""
 		"attack":
 			if occupant == null or not state.is_enemy(unit.owner, occupant.owner):
@@ -244,10 +324,12 @@ static func problem(state: GameState, unit: Unit, type: String, target: String, 
 			var distance := state.map.distance(origin, target)
 			if distance > 1:
 				var reach := 0
-				for type_id in (orders_of(state, unit)[chained].troops if step_index > 0 else unit.composition()):
+				for type_id in going:
 					reach = maxi(reach, Rules.unit(type_id).attack_range)
 				if distance > reach:
 					return "out of range"
+			if space <= 0 and not has_ranged(going) and not can_support(state, unit, target):
+				return full
 			return ""
 		"besiege":
 			if step_index > 0:
@@ -294,13 +376,19 @@ static func give(state: GameState, unit: Unit, type: String, target: String, amo
 	if support and not can_support(state, unit, target):
 		return "no attack of yours to support there"
 	var plan := intent(state, unit, target)
+	var space := room_for(state, unit, target, type, support)
 	if not plan.is_empty() and plan.type == type and plan.order >= 0:
 		var order: Dictionary = orders_of(state, unit)[plan.order]
 		if plan.step == 0:
-			_set_troops(order, _wanted(available(state, unit, target, type), amounts))
+			var troops := fit(_wanted(available(state, unit, target, type), amounts), space, type)
+			if total(troops) <= 0:
+				return "%s is full (%d soldiers at most)" % [state.map.region_name(target), Unit.CAP]
+			_set_troops(order, troops)
 			order.support = support
 			return ""
-		var going: Dictionary = _wanted(order.troops, amounts) if type == "attack" else order.troops.duplicate()
+		var going: Dictionary = fit(_wanted(order.troops, amounts), space, type) if type == "attack" else order.troops.duplicate()
+		if total(going) <= 0:
+			return "%s is full (%d soldiers at most)" % [state.map.region_name(target), Unit.CAP]
 		order.steps.append({"type": type, "target": target})
 		if type == "attack":
 			order["attackers"] = going  # Those who attack after the march; the rest wait at the waypoint.
@@ -310,11 +398,11 @@ static func give(state: GameState, unit: Unit, type: String, target: String, amo
 	if fresh != "":
 		return fresh
 	var pool := available(state, unit, target, type)
+	var wanted := fit(_wanted(pool, amounts), space, type)
+	if total(wanted) <= 0:
+		return "no soldiers can go there" if total(pool) <= 0 else "%s is full (%d soldiers at most)" % [state.map.region_name(target), Unit.CAP]
 	if _replaceable(state, unit) or not state.orders.has(unit):
 		state.orders[unit] = []
-	var wanted := _wanted(pool, amounts)
-	if total(wanted) <= 0:
-		return "no soldiers can go there"
 	var order := {"steps": [{"type": type, "target": target}], "troops": {}, "size": 0, "support": support}
 	_set_troops(order, wanted)
 	state.orders[unit].append(order)

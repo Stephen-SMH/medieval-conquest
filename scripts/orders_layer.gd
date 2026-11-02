@@ -9,7 +9,10 @@ extends Node2D
 ## previews the order under the mouse, or follows the pointer while you drag
 ## from your army (PRD I). A unit split across several orders has one arrow per
 ## detachment, each with a small shield showing how many soldiers go.
-## Clicking an arrow cancels that one order.
+## Clicking an arrow cancels that one order. When the hourglass is pressed
+## the arrows stay on the map while the turn plays out, as in S&T (`playing`):
+## the arrows aimed at a battle burn while it's fought, and each arrow goes
+## once its order has been carried out.
 
 const ATTACK := Color("#c8402c")
 const MOVE := Color("#3a6ed0")
@@ -28,6 +31,11 @@ var preview := {}
 
 var _shapes := []  # [Unit, order index, PackedVector2Array], for clicking.
 var _font: Font
+## The arrows of a turn being played out: [{from, to (the last target),
+## points, colors, count}], from snapshot(). Empty while planning.
+var playing := []
+var _burning := {}  # target region -> true while its battle is fought
+var _clock := 0.0
 
 
 func _ready() -> void:
@@ -35,9 +43,10 @@ func _ready() -> void:
 	_font = load("res://assets/fonts/IMFellEnglish-Italic.ttf")
 
 
-func _draw() -> void:
-	_shapes.clear()
-	var counts := []  # Drawn last, above every arrow and the preview.
+## The arrows the current faction's orders show now: [{unit, index, from,
+## to, points, colors, count}] (count 0 when the arrow sends the whole army).
+func arrows() -> Array:
+	var result := []
 	var seen := state.visible_provinces(state.viewer())
 	for unit: Unit in state.orders:
 		if unit.owner != state.current_faction() or not state.units.has(unit):
@@ -47,14 +56,64 @@ func _draw() -> void:
 		var list: Array = state.orders[unit]
 		for index in list.size():
 			var steps: Array = list[index].steps
-			var points := route(unit, index)
-			for i in steps.size():
-				var color := MOVE if steps[i].type == "move" else (ATTACK if steps[i].type == "attack" else BESIEGE)
-				if steps[i].type == "attack" and list[index].get("support", false):
-					color = SUPPORT
-				_shapes.append([unit, index, draw_spear(self, points[i], points[i + 1], color, 1.0)])
-			if list.size() > 1 or int(list[index].size) < unit.soldiers():
-				counts.append([points[0].lerp(points[1], 0.42), int(list[index].size)])
+			var colors := []
+			for step in steps:
+				var color := MOVE if step.type == "move" else (ATTACK if step.type == "attack" else BESIEGE)
+				colors.append(SUPPORT if step.type == "attack" and list[index].get("support", false) else color)
+			var count := int(list[index].size) if list.size() > 1 or int(list[index].size) < unit.soldiers() else 0
+			result.append({"unit": unit, "index": index, "from": unit.province, "to": steps.back().target,
+				"points": route(unit, index), "colors": colors, "count": count})
+	return result
+
+
+## Keeps this turn's arrows on the map while it plays out.
+func snapshot() -> void:
+	playing = arrows()
+	_burning.clear()
+	queue_redraw()
+
+
+## The arrows aimed at `region` burn while its battle is fought.
+func burn(region: String, on := true) -> void:
+	if on:
+		_burning[region] = true
+	else:
+		_burning.erase(region)
+	queue_redraw()
+
+
+## Removes the arrows to `region` (only those from `from`, if given): their
+## orders have been carried out.
+func drop(region: String, from := "") -> void:
+	playing = playing.filter(func(a): return a.to != region or (from != "" and a.from != from))
+	queue_redraw()
+
+
+func stop_playing() -> void:
+	playing.clear()
+	_burning.clear()
+	queue_redraw()
+
+
+func _process(delta: float) -> void:
+	if not _burning.is_empty():
+		_clock += delta
+		queue_redraw()
+
+
+func _draw() -> void:
+	_shapes.clear()
+	var counts := []  # Drawn last, above every arrow and the preview.
+	for arrow in (playing if not playing.is_empty() else arrows()):
+		var points: Array = arrow.points
+		for i in points.size() - 1:
+			var shape := draw_spear(self, points[i], points[i + 1], arrow.colors[i], 1.0)
+			if arrow.has("unit"):
+				_shapes.append([arrow.unit, arrow.index, shape])
+			if _burning.has(arrow.to) and i == points.size() - 2:
+				_draw_fire(points[i], points[i + 1])
+		if arrow.count > 0:
+			counts.append([points[0].lerp(points[1], 0.42), arrow.count])
 	if not preview.is_empty():
 		var ends: Array = route_through([preview.from, preview.to]) if preview.from is String else [preview.from, preview.to]
 		draw_spear(self, ends[0], ends[1], MOVE if preview.kind == "move" else ATTACK, 0.45)
@@ -90,6 +149,29 @@ func _draw_count(at: Vector2, count: int) -> void:
 	var font_size := int(r * 1.25)
 	var width := _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
 	draw_string(_font, at + Vector2(-width / 2.0, font_size * 0.36), text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, Color("#1d130a"))
+
+
+## Flames licking along an arrow whose battle is being fought, as in S&T:
+## flickering orange and yellow tongues that run toward the target.
+func _draw_fire(from: Vector2, to: Vector2) -> void:
+	var g := spear_geometry(from, to)
+	if g.is_empty():
+		return
+	var direction: Vector2 = g.direction
+	var normal: Vector2 = g.normal
+	var length: float = (g.end - g.start).length()
+	var count := maxi(int(length / 9.0), 4)
+	for k in count:
+		var t := fposmod(float(k) / count + _clock * 0.9, 1.0)
+		var at: Vector2 = g.start + direction * length * t
+		var width: float = lerpf(g.tail, 5.0, t) * 0.8
+		var flicker := 0.6 + 0.4 * sin(_clock * 17.0 + k * 2.3)
+		var side := normal * sin(k * 1.7 + _clock * 6.0) * width * 0.5
+		var tip := at + side - normal * width * 0.1 + direction * 10.0 * flicker
+		var flame := PackedVector2Array([at + side + normal * width * 0.45 * flicker, tip, at + side - normal * width * 0.45 * flicker,
+			at + side - direction * 6.0])
+		draw_colored_polygon(flame, Color(1.0, 0.42 + 0.3 * flicker, 0.08, 0.55 * flicker))
+		draw_circle(at + side * 0.5, width * 0.18 * flicker, Color(1.0, 0.9, 0.45, 0.6 * flicker))
 
 
 ## The points an arrow through these regions runs through, clear of their names.

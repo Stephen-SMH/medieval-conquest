@@ -5,7 +5,6 @@ extends RefCounted
 const PATH := "user://settings.cfg"
 const UI_SCALES := [0.9, 1.0, 1.25, 1.5]
 
-static var show_forecast := true
 ## "normal", "fast" or "off".
 static var animation := "normal"
 static var fullscreen := false
@@ -27,7 +26,6 @@ static func ensure_loaded() -> void:
 	var config := ConfigFile.new()
 	if config.load(config_path) != OK:
 		return
-	show_forecast = config.get_value("game", "show_forecast", true)
 	fullscreen = config.get_value("display", "fullscreen", false)
 	ui_scale = config.get_value("display", "ui_scale", 1.0)
 	animation = config.get_value("game", "animation", "normal")
@@ -38,7 +36,6 @@ static func ensure_loaded() -> void:
 
 ## Resets to the defaults and reads the file again, so values from a missing file never linger.
 static func load_again() -> void:
-	show_forecast = true
 	animation = "normal"
 	fullscreen = false
 	ui_scale = 1.0
@@ -51,7 +48,6 @@ static func load_again() -> void:
 
 static func save() -> void:
 	var config := ConfigFile.new()
-	config.set_value("game", "show_forecast", show_forecast)
 	config.set_value("display", "fullscreen", fullscreen)
 	config.set_value("display", "ui_scale", ui_scale)
 	config.set_value("game", "animation", animation)

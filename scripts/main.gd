@@ -105,7 +105,7 @@ func _ready() -> void:
 	_map_root.add_child(_tokens)
 	_orders.tokens = _tokens
 	_effects = Effects.new()
-	_effects.setup(state, _tokens, _views)
+	_effects.setup(state, _tokens, _views, _orders)
 	_map_root.add_child(_effects)
 
 	_ring = ActionRing.new()
@@ -118,7 +118,6 @@ func _ready() -> void:
 		$UI.add_child(popup)
 		popup.closed.connect(_close_popups)
 	_attack_popup.confirmed.connect(_on_attack_amounts)
-	_attack_popup.remove_requested.connect(_on_remove_order)
 	_recruit_window.bundle_chosen.connect(_on_bundle_chosen)
 	_hud.recruit_pressed.connect(open_recruit)
 	_hud.treasury_pressed.connect(open_treasury)
@@ -320,24 +319,8 @@ func _open_slider(unit: Unit, type: String, region: String, support: bool) -> vo
 	var current: Dictionary = Orders.orders_of(state, unit)[plan.order] if not plan.is_empty() and plan.order >= 0 and plan.step == 0 else {}
 	if not current.is_empty():
 		support = current.get("support", false)
-	var forecaster := Callable()
-	if type == "attack":
-		var helpers: Array = []
-		if support:
-			var main := Orders.main_attack(state, unit.owner, region, unit)
-			if main != null:
-				helpers.append(main)
-		forecaster = func(troops: Dictionary) -> Dictionary:
-			var sent := unit.copy()
-			sent.troops.clear()
-			for type_id in troops:
-				var source := unit.troop(type_id)
-				var part := source.copy()
-				part.soldiers = int(troops[type_id])
-				part.hp = source.hp * troops[type_id] / maxf(source.soldiers, 1)
-				sent.troops.append(part)
-			return state.forecast_attack([sent] + helpers, region, 12)
-	_attack_popup.show_order(state, unit, type, region, Orders.available(state, unit, region, type), current, support, forecaster)
+	_attack_popup.show_order(state, unit, type, region, Orders.available(state, unit, region, type), current, support,
+		Orders.room_for(state, unit, region, type, support))
 	_attack_popup.set_meta("target", region)
 	_attack_popup.set_meta("unit", unit)
 	_attack_popup.set_meta("type", type)
@@ -358,15 +341,6 @@ func _give(unit: Unit, type: String, region: String, amounts: Dictionary) -> voi
 	else:
 		AudioManager.sfx("order")
 	_after_order(unit)
-
-
-## "Remove this order" in the slider window of an existing order.
-func _on_remove_order() -> void:
-	var unit: Unit = _attack_popup.get_meta("unit")
-	var index := Orders.index_to(state, unit, _attack_popup.get_meta("target"))
-	_close_popups()
-	if index >= 0:
-		_cancel_one(unit, index)
 
 
 ## The unit stays selected for more arrows until every soldier has one.
@@ -464,6 +438,7 @@ func end_turn() -> void:
 	_last_human = state.current_faction()
 	clear_selection()
 	var before := _snapshot()
+	_orders.snapshot()
 	var events := state.end_faction_turn()
 	await _show_resolution(events, before)
 	_advance()
@@ -482,22 +457,20 @@ func _advance() -> void:
 	_check_end()
 
 
-## A computer faction's turn on the map: a brief dark screen with an
-## hourglass, then "Turn: …" with its flag, its arrows, and its orders
-## playing out. A tap skips the rest.
+## A computer faction's turn on the map, as in S&T: "Turn: …" with its flag
+## at the bottom, its arrows, and its orders playing out. A tap skips the rest.
 func _enemy_turn(faction: String) -> void:
 	_busy = true
 	_skip_enemy = false
 	_hud.set_end_turn_enabled(false)
 	var fast := _animation_speed() <= 0.0
-	if not fast:
-		await _hud.curtain(0.6)
 	_hud.show_enemy_turn("Turn: %s" % state.faction_name(faction), state.faction_color(faction), state.factions[faction].civ)
 	AI.play_turn(state)
 	_refresh_world()
 	if not fast and not _skip_enemy:
 		await _pause(0.9)
 	var before := _snapshot()
+	_orders.snapshot()
 	var events := state.end_faction_turn()
 	await _show_resolution(events, before)
 	_hud.hide_enemy_turn()
@@ -547,6 +520,7 @@ func _show_resolution(events: Array, before: Dictionary) -> void:
 			kinds.append(event.get("kind", "volley"))
 	_hud.set_battles(kinds)
 	await _effects.play(events, before, 0.0 if _skip_enemy else _animation_speed())
+	_orders.stop_playing()
 	_tokens.sync()
 	_report_events(events)
 	_refresh_world()
@@ -570,15 +544,10 @@ func _report_events(events: Array) -> void:
 			"captured":
 				if event.faction == viewer or event.previous_owner == viewer:
 					notes.append("%s took %s." % [state.faction_name(event.faction), map.region_name(event.province)])
-			"battle":
-				var battle: Battle = event.battle
-				notes.append("Battle of %s: the %s won." % [map.region_name(event.province), "attackers" if battle.attacker_won() else "defenders"])
 			"siege_breached":
 				notes.append("The walls of %s are breached." % map.region_name(event.province))
 	_messages = notes
 	_show_new_notes()
-	if not notes.is_empty():
-		_hud.toast(notes[0] + ("  (+%d more: see the ! shield)" % (notes.size() - 1) if notes.size() > 1 else ""))
 
 
 func _check_end() -> bool:
@@ -728,6 +697,7 @@ func _surrender() -> void:
 		return
 	_last_human = state.current_faction()
 	var before := _snapshot()
+	_orders.snapshot()
 	var events := state.end_faction_turn()
 	await _show_resolution(events, before)
 	_advance()

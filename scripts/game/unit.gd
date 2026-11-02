@@ -9,9 +9,9 @@ extends RefCounted
 ## picks its icon where only one is shown. There are no generals or ranks:
 ## troops only get stronger through the Forge's upgrades.
 
-## Most soldiers one region's army may hold (PRD A: raised from 20 to 30 so a
-## mixed army has room for several types).
-const CAP := 30
+## Most soldiers one region may hold, as in S&T. Soldiers ordered to march or
+## attack out of a region free their places for others (Orders.room).
+const CAP := 20
 
 var id := 0
 var owner := ""

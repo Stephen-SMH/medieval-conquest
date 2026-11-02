@@ -1,16 +1,18 @@
 class_name Effects
 extends Node2D
-## Plays a resolved turn on the map (PRD BR-4), in the order it was resolved:
-## units that split into detachments step apart into separate figure groups,
-## all volleys together (arrows arc, catapults throw stones), then marches,
-## clashes and captures; detachments that come home march back into their unit. Units march with a bob; an attacker advances to the
-## border, dust and sparks fly, the defender recoils and the numbers drain; a
-## failed attacker marches back; a destroyed unit fades and sinks; a captured
-## region fills with its new colour from the attacker's side as a banner drops
-## in. While a region is fought over, gold crossed swords hang above it, and
-## a cracked gold shield pops over each side that takes losses (PRD L); when
-## the viewer fought, battle_ended() lets the HUD say "Battle won" or "lost".
-## The results are already decided: this only shows them. A click skips.
+## Plays a resolved turn on the map (PRD BR-4) as S&T does, in the order it
+## was resolved. The turn's arrows stay on the map (OrdersLayer.playing) and
+## each goes once its order is carried out. Units that split into
+## detachments step apart into separate figure groups; volleys fly (arrows
+## arc, catapults throw stones); in a battle the arrows aimed at the region
+## burn while gold crossed swords hang over it, dust and sparks fly there,
+## the numbers drain and a cracked gold shield pops over each side that
+## takes losses (PRD L); a beaten army fades and sinks, the winners march in
+## and the region fills with its new colour from the attacker's side as a
+## banner drops in. Marches slide with a bob; detachments that come home
+## march back into their army. When the viewer fought, battle_ended() lets
+## the HUD say "Battle won" or "Battle lost". The results are already
+## decided: this only shows them. A click skips.
 
 ## A battle the viewer fought is over: `won` from the viewer's side.
 signal battle_ended(won: bool)
@@ -18,6 +20,7 @@ signal battle_ended(won: bool)
 const MARCH := 0.7
 const VOLLEY := 0.85
 const CLASH := 0.9
+const BURN := 0.9  # How long the arrows burn before the losses show.
 const SWEEP := 0.8
 const AI_FAST := 1.8  # Moves by computer factions play this much faster.
 const CRACK_SECONDS := 0.9
@@ -25,6 +28,7 @@ const GOLD := Color("#e2bd5a")
 
 var state: GameState
 var tokens: TokenLayer
+var orders: OrdersLayer
 var views := {}
 
 var _tracks := []  # Running animations; see _track().
@@ -38,10 +42,11 @@ var _skip := false
 var _clock := 0.0
 
 
-func setup(game: GameState, token_layer: TokenLayer, region_views: Dictionary) -> void:
+func setup(game: GameState, token_layer: TokenLayer, region_views: Dictionary, orders_layer: OrdersLayer) -> void:
 	state = game
 	tokens = token_layer
 	views = region_views
+	orders = orders_layer
 	z_index = 8
 	_swords = load("res://assets/icons/ui_swords.svg")
 
@@ -109,6 +114,7 @@ func play(events: Array, before: Dictionary, speed: float) -> void:
 	_banners.clear()
 	_fights.clear()
 	_cracks.clear()
+	orders.stop_playing()
 	queue_redraw()
 
 
@@ -210,6 +216,8 @@ func _volleys(volleys: Array) -> void:
 	for event in drains:
 		if event.type == "destroyed":
 			_fade_now(event.unit)
+		elif event.type == "volley":
+			orders.drop(event.province)
 	await _wait(0.4 / _speed)
 
 
@@ -222,11 +230,15 @@ func _marches(marches: Array) -> void:
 		match event.type:
 			"moved":
 				_march_now(event.unit if _visual(event.unit) != null else event.get("main"), event.province, MARCH / pace)
+				orders.drop(event.province, event.from)
 			"swapped":
 				_march_now(event.unit, event.province, MARCH / pace)
 				_march_now(event.other, event.from, MARCH / pace)
+				orders.drop(event.province, event.from)
+				orders.drop(event.from, event.province)
 			"merged":
 				_march_now(event.unit, event.province, MARCH / pace, true)
+				orders.drop(event.province, event.from)
 		longest = maxf(longest, MARCH / pace)
 	await _wait(longest)
 
@@ -237,27 +249,22 @@ func _battle(event: Dictionary) -> void:
 	var pace := _pace(event.unit)
 	var from := tokens.region_anchor(event.origin)
 	var to := tokens.region_anchor(event.province)
-	var border := from.lerp(to, 0.5)
 	var fight := {"at": to + Vector2(0, -tokens.token_size() * 1.25), "t": 0.0}
 	_fights.append(fight)
-	if attacker != null:
-		_track(attacker, "offset", attacker.offset, border - from, 0.4 / pace)
-	await _wait(0.4 / pace)
+	orders.burn(event.province)
 	_sound("clash")
-	_clash_effects(border)
+	await _wait(BURN / pace)
+	_clash_effects(to)
 	for side in [[attacker, from], [defender, to]]:
 		var visual: TokenLayer.TokenVisual = side[0]
 		var after: Dictionary = event.hp.get(visual.unit, {}) if visual != null else {}
 		if not after.is_empty() and float(after.hp) / maxf(float(after.full), 0.001) < visual.hp / visual.full - 0.005:
 			_cracks.append({"at": side[1] + Vector2(0, -tokens.token_size() * 0.75), "t": 0.0})
-	if defender != null:
-		var away := (to - from).normalized() * tokens.token_size() * 0.35
-		_track(defender, "offset", Vector2.ZERO, away, 0.15 / pace)
-		await _wait(0.15 / pace)
-		_track(defender, "offset", away, Vector2.ZERO, 0.3 / pace)
 	_drain(event.hp, CLASH / pace)
 	await _wait(CLASH / pace)
 	_fights.erase(fight)
+	orders.burn(event.province, false)
+	orders.drop(event.province)
 	queue_redraw()
 	var viewer := state.viewer()
 	var defending: String = event.other.owner if event.get("other") != null else ""

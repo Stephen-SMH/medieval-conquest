@@ -20,7 +20,7 @@ const GOLD := Color("#e2bd5a")
 ## Crown colours: none, bronze, silver, gold.
 const CROWN_COLORS := [Color(0.45, 0.42, 0.38, 0.8), Color("#c0793a"), Color("#d4d8dc"), Color("#f0c64a")]
 const NOTE_SECONDS := 8.0
-const TURN_BANNER_TOP := 96.0  # Below the plaque and the toast line.
+const TURN_BANNER_HEIGHT := 0.8  # The turn banner's middle, as a share of the screen's height.
 const TURN_FADE_IN := 0.3
 const TURN_HOLD := 1.0
 const TURN_FADE_OUT := 0.5
@@ -33,9 +33,8 @@ var _crown_icon: TextureRect
 var _crown_label: Label
 var _swords_label: Label
 var _notes: VBoxContainer
-var _battle_card: Control
+var _battle_dim: ColorRect
 var _battle_text: Label
-var _battle_won := true
 var _info: PanelContainer
 var _info_text: RichTextLabel
 var _info_buttons: HBoxContainer
@@ -51,13 +50,7 @@ var _end_turn: Button
 var _alerts_dot: Control
 var _shield_buttons: Array[Button] = []
 var _army: ArmyBanner
-var _enemy_turn: Control
-var _enemy_text: Label
-var _enemy_flag: Control
-var _enemy_color := Color.WHITE
-var _enemy_civ := ""
 var _skip_label: Label
-var _curtain: ColorRect
 
 
 func _ready() -> void:
@@ -187,83 +180,39 @@ func _ready() -> void:
 	_info_buttons.add_theme_constant_override("separation", 8)
 	column.add_child(_info_buttons)
 
-	# The turn banner: a cloth banner under the plaque with the faction's
-	# shield inside it, left of the calligraphy. It's sized to its text and
-	# fades quickly, so it never sits over the map's names for long.
-	_turn_banner = PanelContainer.new()
-	var cloth := StyleBoxFlat.new()
-	cloth.bg_color = Color(0.17, 0.1, 0.05, 0.9)
-	cloth.border_color = GOLD
-	cloth.set_border_width_all(2)
-	cloth.set_corner_radius_all(6)
-	cloth.content_margin_left = 16
-	cloth.content_margin_right = 26
-	cloth.content_margin_top = 6
-	cloth.content_margin_bottom = 6
-	cloth.shadow_color = Color(0, 0, 0, 0.35)
-	cloth.shadow_size = 6
-	_turn_banner.add_theme_stylebox_override("panel", cloth)
+	# The turn banner, as in S&T: "Turn: Kingdom of …" in light gothic letters
+	# low over the map, with the faction's flag after it, and no plate behind.
+	# It fades after a moment on your turn and stays through an enemy's.
+	_turn_banner = HBoxContainer.new()
+	_turn_banner.add_theme_constant_override("separation", 14)
 	_turn_banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_turn_banner.modulate.a = 0.0
 	add_child(_turn_banner)
-	var banner_row := HBoxContainer.new()
-	banner_row.add_theme_constant_override("separation", 14)
-	banner_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_turn_banner.add_child(banner_row)
-	_turn_flag = Control.new()  # The faction's heraldic shield, inside the banner beside the text.
+	_turn_text = _label("", 36)
+	_turn_text.add_theme_font_override("font", load("res://assets/fonts/GrenzeGotisch.ttf"))
+	_turn_text.add_theme_color_override("font_color", Color("#f2ead8"))
+	_turn_text.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.75))
+	_turn_text.add_theme_constant_override("shadow_offset_x", 2)
+	_turn_text.add_theme_constant_override("shadow_offset_y", 2)
+	_turn_text.add_theme_constant_override("shadow_outline_size", 4)
+	_turn_text.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_turn_banner.add_child(_turn_text)
+	_turn_flag = Control.new()  # The faction's heraldic shield, after the text.
 	_turn_flag.custom_minimum_size = Vector2(40, 48)
 	_turn_flag.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_turn_flag.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	banner_row.add_child(_turn_flag)
-	_turn_text = _label("", 34)
-	_turn_text.add_theme_font_override("font", load("res://assets/fonts/IMFellEnglish-Italic.ttf"))
-	_turn_text.add_theme_color_override("font_color", Color(1, 0.96, 0.86))
-	_turn_text.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.6))
-	_turn_text.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	banner_row.add_child(_turn_text)
+	_turn_banner.add_child(_turn_flag)
 	_turn_flag.draw.connect(func(): Hud.draw_heraldic_shield(_turn_flag, Rect2(Vector2.ZERO, _turn_flag.size), _turn_color, _turn_civ))
-
-	# An enemy's turn (PRD C): a big faint "Turn: …" with its flag across the
-	# map, and "Tap to skip enemy turn" at the bottom.
-	_enemy_turn = HBoxContainer.new()
-	_enemy_turn.set_anchors_preset(Control.PRESET_CENTER)
-	_enemy_turn.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_enemy_turn.add_theme_constant_override("separation", 22)
-	_enemy_turn.modulate.a = 0.0
-	add_child(_enemy_turn)
-	_enemy_flag = Control.new()
-	_enemy_flag.custom_minimum_size = Vector2(80, 96)
-	_enemy_flag.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	_enemy_flag.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_enemy_flag.draw.connect(func(): Hud.draw_heraldic_shield(_enemy_flag, Rect2(Vector2.ZERO, _enemy_flag.size), _enemy_color, _enemy_civ))
-	_enemy_turn.add_child(_enemy_flag)
-	_enemy_text = _label("", 64)
-	_enemy_text.add_theme_font_override("font", load("res://assets/fonts/IMFellEnglish-Italic.ttf"))
-	_enemy_text.add_theme_color_override("font_color", Color(1, 0.96, 0.86))
-	_enemy_text.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.7))
-	_enemy_text.add_theme_constant_override("outline_size", 10)
-	_enemy_turn.add_child(_enemy_text)
-	_skip_label = _label("Tap to skip enemy turn", 22)
-	_skip_label.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
-	_skip_label.position = Vector2(-200, -60)
-	_skip_label.custom_minimum_size = Vector2(400, 0)
+	_skip_label = _label("Tap to skip enemy turn", 30)
+	_skip_label.add_theme_font_override("font", load("res://assets/fonts/GrenzeGotisch.ttf"))
+	_skip_label.add_theme_color_override("font_color", Color("#f2ead8"))
+	_skip_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.75))
+	_skip_label.add_theme_constant_override("shadow_offset_x", 2)
+	_skip_label.add_theme_constant_override("shadow_offset_y", 2)
 	_skip_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_skip_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
-	_skip_label.add_theme_constant_override("outline_size", 8)
 	_skip_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_skip_label.visible = false
 	add_child(_skip_label)
-	# Between factions: a brief dark screen with an hourglass in the middle.
-	_curtain = ColorRect.new()
-	_curtain.color = Color(0.03, 0.02, 0.01, 0.92)
-	_curtain.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_curtain.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_curtain.visible = false
-	add_child(_curtain)
-	var glass := _icon("res://assets/icons/ui_hourglass.svg", 110)
-	glass.set_anchors_preset(Control.PRESET_CENTER)
-	glass.position = Vector2(-55, -55)
-	_curtain.add_child(glass)
 
 	# "Select a province": the top bar's prompt while reinforcements wait for a place.
 	_prompt = _label("", 26)
@@ -284,22 +233,26 @@ func _ready() -> void:
 	_notes.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_notes)
 
-	# "Battle won/lost" with a shield bearing a check or a cross (PRD L).
-	_battle_card = Control.new()
-	_battle_card.set_anchors_preset(Control.PRESET_CENTER)
-	_battle_card.custom_minimum_size = Vector2(360, 210)
-	_battle_card.position = Vector2(-180, -150)
-	_battle_card.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_battle_card.modulate.a = 0.0
-	_battle_card.draw.connect(_draw_battle_card)
-	add_child(_battle_card)
-	_battle_text = _label("", 34)
-	_battle_text.position = Vector2(0, 150)
-	_battle_text.size = Vector2(360, 50)
+	# "Battle won" or "Battle lost" as in S&T: big white gothic letters in the
+	# middle of the screen while the map dims (PRD L).
+	_battle_dim = ColorRect.new()
+	_battle_dim.color = Color(0, 0, 0, 0.4)
+	_battle_dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_battle_dim.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_battle_dim.modulate.a = 0.0
+	add_child(_battle_dim)
+	_battle_text = _label("", 64)
+	_battle_text.add_theme_font_override("font", load("res://assets/fonts/GrenzeGotisch.ttf"))
+	_battle_text.add_theme_color_override("font_color", Color("#f6f1e6"))
+	_battle_text.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
+	_battle_text.add_theme_constant_override("shadow_offset_x", 3)
+	_battle_text.add_theme_constant_override("shadow_offset_y", 3)
+	_battle_text.add_theme_constant_override("shadow_outline_size", 6)
 	_battle_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_battle_text.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
-	_battle_text.add_theme_constant_override("outline_size", 10)
-	_battle_card.add_child(_battle_text)
+	_battle_text.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_battle_text.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_battle_text.modulate.a = 0.0
+	add_child(_battle_text)
 
 	_toast = _label("", 18)
 	_toast.set_anchors_preset(Control.PRESET_CENTER_TOP)
@@ -352,33 +305,23 @@ func show_army(state: GameState, unit: Unit) -> void:
 		_army.show_army(state, unit)
 
 
-## The enemy's turn plays: big faint "Turn: …" with its flag, and the skip hint.
+## An enemy's turn plays, as in S&T: its "Turn: …" stays at the bottom and
+## "Tap to skip enemy turn" shows in the middle of the screen.
 func show_enemy_turn(text: String, color: Color, civ: String) -> void:
-	_enemy_text.text = text
-	_enemy_color = color
-	_enemy_civ = civ
-	_enemy_flag.queue_redraw()
-	_enemy_turn.reset_size()
-	_enemy_turn.position = (size - _enemy_turn.size) / 2.0 - Vector2(0, size.y * 0.12)
+	_set_turn(text, color, civ)
+	_skip_label.reset_size()
+	_skip_label.position = ((size - _skip_label.size) / 2.0).round()
 	_skip_label.visible = true
-	create_tween().tween_property(_enemy_turn, "modulate:a", 0.55, 0.3)
+	_turn_tween = create_tween()
+	_turn_tween.tween_property(_turn_banner, "modulate:a", 1.0, TURN_FADE_IN)
 
 
 func hide_enemy_turn() -> void:
 	_skip_label.visible = false
-	create_tween().tween_property(_enemy_turn, "modulate:a", 0.0, 0.3)
-
-
-## The brief dark screen with an hourglass between factions' turns.
-func curtain(seconds: float) -> void:
-	_curtain.visible = true
-	_curtain.modulate.a = 0.0
-	var tween := create_tween()
-	tween.tween_property(_curtain, "modulate:a", 1.0, seconds * 0.35)
-	tween.tween_interval(seconds * 0.3)
-	tween.tween_property(_curtain, "modulate:a", 0.0, seconds * 0.35)
-	await tween.finished
-	_curtain.visible = false
+	if _turn_tween != null and _turn_tween.is_valid():
+		_turn_tween.kill()
+	_turn_tween = create_tween()
+	_turn_tween.tween_property(_turn_banner, "modulate:a", 0.0, TURN_FADE_OUT)
 
 
 func show_info(bbcode: String, buttons: Array) -> void:
@@ -411,8 +354,16 @@ func is_over_ui(point: Vector2) -> bool:
 	return false
 
 
-## "Turn: Kingdom of …" fades in and out across the map, with the faction's shield.
+## "Turn: Kingdom of …" with the faction's flag fades in and out low over the map.
 func show_turn(text: String, color: Color, civ := "") -> void:
+	_set_turn(text, color, civ)
+	_turn_tween = create_tween()
+	_turn_tween.tween_property(_turn_banner, "modulate:a", 1.0, TURN_FADE_IN)
+	_turn_tween.tween_interval(TURN_HOLD)
+	_turn_tween.tween_property(_turn_banner, "modulate:a", 0.0, TURN_FADE_OUT)
+
+
+func _set_turn(text: String, color: Color, civ: String) -> void:
 	_turn_text.text = text
 	_turn_color = color
 	_turn_civ = civ
@@ -421,53 +372,28 @@ func show_turn(text: String, color: Color, civ := "") -> void:
 	_turn_banner.position = turn_banner_position(size, _turn_banner.size)
 	if _turn_tween != null and _turn_tween.is_valid():
 		_turn_tween.kill()
-	_turn_tween = create_tween()
-	_turn_tween.tween_property(_turn_banner, "modulate:a", 1.0, TURN_FADE_IN)
-	_turn_tween.tween_interval(TURN_HOLD)
-	_turn_tween.tween_property(_turn_banner, "modulate:a", 0.0, TURN_FADE_OUT)
 
 
-## Where the turn banner goes: centred under the gold-and-turn plaque.
+## Where the turn banner goes: centred, low over the map, as in S&T.
 static func turn_banner_position(screen: Vector2, banner: Vector2) -> Vector2:
-	return Vector2(roundf((screen.x - banner.x) / 2.0), TURN_BANNER_TOP)
+	return Vector2(roundf((screen.x - banner.x) / 2.0), roundf(screen.y * TURN_BANNER_HEIGHT - banner.y / 2.0))
 
 
-## How long the turn banner shows, in seconds, from fading in to gone.
+## How long the turn banner shows on your turn, in seconds, from fading in to gone.
 static func turn_banner_seconds() -> float:
 	return TURN_FADE_IN + TURN_HOLD + TURN_FADE_OUT
 
 
-## "Battle won" or "Battle lost" in the middle of the screen for a moment,
-## under a gold shield bearing a check or a cross (PRD L).
+## "Battle won" or "Battle lost" in the middle of the dimmed screen for a moment.
 func battle_result(won: bool) -> void:
-	_battle_won = won
 	_battle_text.text = "Battle won" if won else "Battle lost"
-	_battle_text.add_theme_color_override("font_color", Color("#f3d77e") if won else Color("#f08070"))
-	_battle_card.queue_redraw()
-	_battle_card.pivot_offset = _battle_card.size / 2.0
-	_battle_card.scale = Vector2(0.85, 0.85)
 	var tween := create_tween()
 	tween.set_parallel()
-	tween.tween_property(_battle_card, "modulate:a", 1.0, 0.15)
-	tween.tween_property(_battle_card, "scale", Vector2.ONE, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tween.chain().tween_interval(0.6)
-	tween.chain().tween_property(_battle_card, "modulate:a", 0.0, 0.35)
-
-
-func _draw_battle_card() -> void:
-	var at := Vector2(_battle_card.size.x / 2.0, 70)
-	var r := 56.0
-	_battle_card.draw_circle(at + Vector2(0, 10), 92, Color(0, 0, 0, 0.35))
-	_battle_card.draw_colored_polygon(Effects.shield_points(at + Vector2(0, 4), r), Color(0, 0, 0, 0.5))
-	_battle_card.draw_colored_polygon(Effects.shield_points(at, r), Color("#9c7a2c"))
-	_battle_card.draw_colored_polygon(Effects.shield_points(at, r * 0.86), GOLD if _battle_won else Color("#b8a27a"))
-	var ink := Color("#2a1a0c")
-	if _battle_won:
-		_battle_card.draw_polyline(PackedVector2Array([at + Vector2(-r * 0.42, 0), at + Vector2(-r * 0.1, r * 0.35), at + Vector2(r * 0.48, -r * 0.4)]),
-			ink, r * 0.2, true)
-	else:
-		_battle_card.draw_line(at + Vector2(-r * 0.38, -r * 0.38), at + Vector2(r * 0.38, r * 0.42), Color("#8a1e14"), r * 0.18, true)
-		_battle_card.draw_line(at + Vector2(r * 0.38, -r * 0.38), at + Vector2(-r * 0.38, r * 0.42), Color("#8a1e14"), r * 0.18, true)
+	tween.tween_property(_battle_dim, "modulate:a", 1.0, 0.2)
+	tween.tween_property(_battle_text, "modulate:a", 1.0, 0.2)
+	tween.chain().tween_interval(0.9)
+	tween.chain().tween_property(_battle_dim, "modulate:a", 0.0, 0.3)
+	tween.parallel().tween_property(_battle_text, "modulate:a", 0.0, 0.3)
 
 
 ## A parchment note at the top left (a scripted event, PRD H). It fades

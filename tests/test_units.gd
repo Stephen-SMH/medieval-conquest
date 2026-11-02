@@ -37,7 +37,7 @@ func _test_armies(t) -> void:
 	t.check(part.composition() == {"spearmen": 5, "archers": 5} and unit.composition() == {"militia": 8, "spearmen": 15},
 		"splitting takes soldiers per type")
 	t.check(Orders.pick({"militia": 8, "archers": 2}, 5) == {"militia": 4, "archers": 1}, "a count spreads over the types in proportion")
-	t.check(Unit.CAP == 30, "a region's army holds up to 30 soldiers")
+	t.check(Unit.CAP == 20, "a region holds up to 20 soldiers, as in S&T")
 	t.check(not ("xp" in unit) and not ("general" in unit), "armies have no experience, ranks or generals")
 
 
@@ -72,26 +72,26 @@ func _test_wounds(t) -> void:
 
 
 func _test_one_per_region(t) -> void:
-	var state := Helpers.game({"greywater": "blue", "ashford": "blue"}, [["blue", "greywater", "spearmen"], ["blue", "ashford", "archers", 6]], 7,
+	var state := Helpers.game({"greywater": "blue", "ashford": "blue"}, [["blue", "greywater", "spearmen", 14], ["blue", "ashford", "archers", 6]], 7,
 		{"resources": {"blue": {"gold": 1000}}})
 	t.check(GameState.STACK_LIMIT == 1 and state.space_in("greywater") == 0 and state.space_in("northmarch") == 1, "a region holds one army")
 	var archers: Unit = state.unit_in("ashford")
 	Helpers.order(state, archers, "move", "greywater")
 	Helpers.resolve(state)
 	var army := state.unit_in("greywater")
-	t.check(not state.units.has(archers) and army.composition() == {"spearmen": 20, "archers": 6} and state.units_in("greywater").size() == 1,
+	t.check(not state.units.has(archers) and army.composition() == {"spearmen": 14, "archers": 6} and state.units_in("greywater").size() == 1,
 		"marching into your own army merges the types into one army: %s" % [army.composition()])
 
 
 func _test_merge_swap_block(t) -> void:
-	var state := Helpers.game({"greywater": "blue", "ashford": "blue"}, [["blue", "ashford", "spearmen", 15], ["blue", "greywater", "militia", 20]])
+	var state := Helpers.game({"greywater": "blue", "ashford": "blue"}, [["blue", "ashford", "spearmen", 15], ["blue", "greywater", "militia", 10]])
 	var a: Unit = state.unit_in("ashford")
 	Helpers.order(state, a, "move", "greywater")
 	var events := Helpers.resolve(state)
-	t.check(state.unit_in("greywater").soldiers() == 30 and a.province == "ashford" and a.soldiers() == 5 and Helpers.events_of(events, "merged").size() == 1,
-		"a merge stops at 30; the other 5 stay behind")
+	t.check(state.unit_in("greywater").soldiers() == 20 and a.province == "ashford" and a.soldiers() == 5 and Helpers.events_of(events, "merged").size() == 1,
+		"a march into your army takes only the 10 who fit; the other 5 stay behind")
 
-	state = Helpers.game({"greywater": "blue", "ashford": "blue"}, [["blue", "ashford", "spearmen"], ["blue", "greywater", "archers"]])
+	state = Helpers.game({"greywater": "blue", "ashford": "blue"}, [["blue", "ashford", "spearmen", 12], ["blue", "greywater", "archers", 8]])
 	a = state.unit_in("ashford")
 	var b: Unit = state.unit_in("greywater")
 	Helpers.order(state, b, "move", "ashford")
@@ -99,14 +99,14 @@ func _test_merge_swap_block(t) -> void:
 	events = Helpers.resolve(state)
 	t.check(a.province == "greywater" and b.province == "ashford" and Helpers.events_of(events, "swapped").size() == 1, "two whole armies can swap regions")
 
-	state = Helpers.game({"greywater": "blue", "ashford": "blue"}, [["blue", "ashford", "spearmen", 30], ["blue", "greywater", "archers", 30]])
-	t.check(Orders.problem(state, state.unit_in("greywater"), "move", "ashford").contains("30"), "you can't march into a full army that stays")
+	state = Helpers.game({"greywater": "blue", "ashford": "blue"}, [["blue", "ashford", "spearmen", 20], ["blue", "greywater", "archers", 20]])
+	t.check(Orders.problem(state, state.unit_in("greywater"), "move", "ashford").contains("full"), "you can't march into a full army that stays")
 
 
 func _test_attacks(t) -> void:
 	# Several plain attacks on one region fight one after another, strongest first.
 	var state := Helpers.game({"greywater": "blue", "ashford": "blue", "kingsvale": "red"}, [
-		["blue", "greywater", "militia"], ["blue", "ashford", "heavy_cavalry"], ["red", "kingsvale", "spearmen", 6]], 3)
+		["blue", "greywater", "militia", 8], ["blue", "ashford", "heavy_cavalry", 10], ["red", "kingsvale", "spearmen", 6]], 3)
 	var weak: Unit = state.unit_in("greywater")
 	var strong: Unit = state.unit_in("ashford")
 	Helpers.order(state, weak, "attack", "kingsvale")
@@ -288,10 +288,12 @@ func _test_faction_turns(t) -> void:
 	var first: Unit = game.units_of("norse")[0]
 	var target := ""
 	for neighbour in game.map.neighbours(first.province):
-		if target == "" and Orders.problem(game, first, "move", neighbour) == "":
-			target = neighbour
-			if game.unit_in(neighbour) != null:
-				game.remove_unit(game.unit_in(neighbour))  # Make room, so the march shows.
+		var there := game.unit_in(neighbour)
+		if target == "" and (there == null or there.owner == first.owner):
+			if there != null:
+				game.remove_unit(there)  # Make room, so the march shows.
+			if Orders.problem(game, first, "move", neighbour) == "":
+				target = neighbour
 	Orders.give(game, first, "move", target)
 	game.end_faction_turn()
 	t.check(first.province == target and game.current_faction() == "anglish", "the first human's orders play out before the second plans (%s to %s)" % [first.province, target])

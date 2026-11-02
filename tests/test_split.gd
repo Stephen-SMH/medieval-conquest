@@ -101,12 +101,12 @@ func _test_red_x(t) -> void:
 
 
 func _test_friendly_regions(t) -> void:
-	var state := Helpers.game({"greywater": "blue", "ashford": "blue"}, [["blue", "greywater", "swordsmen"], ["blue", "ashford", "archers"]])
+	var state := Helpers.game({"greywater": "blue", "ashford": "blue"}, [["blue", "greywater", "swordsmen"], ["blue", "ashford", "archers", 15]])
 	var unit: Unit = state.unit_in("greywater")
 	Helpers.order(state, unit, "move", "highcrag", {"soldiers": 5})
 	t.check(Helpers.order(state, unit, "move", "ashford", {"soldiers": 5}) == "", "a detachment may march into your army of another type")
 	Helpers.resolve(state)
-	t.check(state.unit_in("ashford").composition() == {"swordsmen": 5, "archers": 20} and unit.soldiers() == 10,
+	t.check(state.unit_in("ashford").composition() == {"swordsmen": 5, "archers": 15} and unit.soldiers() == 10,
 		"and joins it as a mixed army (%s)" % [state.unit_in("ashford").composition()])
 
 
@@ -150,8 +150,8 @@ func _test_merge(t) -> void:
 	var other: Unit = state.unit_in("ashford")
 	t.check(Helpers.order(state, unit, "move", "ashford", {"soldiers": 20}) == "", "a detachment may march into a region held by your army")
 	Helpers.resolve(state)
-	t.check(other.soldiers() == 30 and unit.soldiers() == 2 and unit.province == "greywater" and _one_per_region(state),
-		"it merges up to 30; the 2 who don't fit stay home")
+	t.check(other.soldiers() == 20 and unit.soldiers() == 12 and unit.province == "greywater" and _one_per_region(state),
+		"of the 20 asked, only the 8 who fit go; 12 stay home")
 
 
 func _test_attack_wins(t) -> void:
@@ -266,18 +266,19 @@ func _test_blocked_and_crowding(t) -> void:
 	Helpers.order(state, unit, "move", "highcrag", {"soldiers": 6})
 	Helpers.order(state, state.unit_in("ashford"), "move", "northmarch")
 	var events := Helpers.resolve(state)
-	t.check(state.unit_in("northmarch").composition() == {"swordsmen": 6, "archers": 20} and _one_per_region(state),
-		"the archers and 6 swordsmen meet in Northmarch as one army (%s)" % [state.unit_in("northmarch").composition()])
+	t.check(state.unit_in("northmarch").composition() == {"swordsmen": 6, "archers": 14} and _one_per_region(state),
+		"6 swordsmen and the 14 archers who fit meet in Northmarch as one army of 20 (%s)" % [state.unit_in("northmarch").composition()])
 
-	# Another unit can't merge into a unit that split this turn, so returning
-	# detachments always fit (no region ends up with two units).
+	# Attacks resolve before marches: the beaten attackers are home first, and
+	# a march into their places takes only those who still fit.
 	state = Helpers.game({"greywater": "blue", "northmarch": "blue", "kingsvale": "red"}, [["blue", "greywater", "militia"],
 		["blue", "northmarch", "militia", 10], ["red", "kingsvale", "swordsmen"]], 4)
 	unit = state.unit_in("greywater")
 	Helpers.order(state, unit, "attack", "kingsvale", {"soldiers": 12})
 	Helpers.order(state, state.unit_in("northmarch"), "move", "greywater")
 	events = Helpers.resolve_faction(state, "blue")
-	t.check(not Helpers.events_of(events, "blocked").is_empty() and state.unit_in("northmarch") != null, "the merge into a splitting unit is blocked")
+	var kinds: Array = events.map(func(e): return e.type)
+	t.check(kinds.find("battle") >= 0 and kinds.find("battle") < kinds.find("merged"), "the attack is fought before Northmarch's soldiers march in")
 	t.check(_one_per_region(state) and unit.soldiers() <= 20 and events.all(func(e): return not e.get("crowded", false)),
 		"the failed attackers fit back home: one unit, %d soldiers" % unit.soldiers())
 

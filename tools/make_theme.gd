@@ -22,7 +22,10 @@ func _init() -> void:
 	DirAccess.make_dir_recursive_absolute(OUT)
 	if "theme" in OS.get_cmdline_user_args():
 		_build_theme()
+	elif "frame" in OS.get_cmdline_user_args():
+		_save_frame_parts()
 	else:
+		_save_frame_parts()
 		_save(_parchment(256, 256), "parchment.png")
 		_save(_paper(256), "paper.png")
 		_save(_wood(256, 256), "wood.png")
@@ -92,6 +95,61 @@ func _wood(width: int, height: int) -> Image:
 			var stripes := 0.5 + 0.5 * sin((x + g * 60.0) * 0.45)
 			var c := WOOD_DARK.lerp(WOOD_LIGHT, stripes * 0.45 + _n(fine, x, y) * 0.3)
 			image.set_pixel(x, y, c)
+	return image
+
+
+## The order windows' wood and iron (as in S&T): straight vertical grain
+## that tiles, and a light grey iron for the riveted frame bars. The windows
+## draw them themselves (StFrame), cut at the corners.
+func _save_frame_parts() -> void:
+	_save(_planks(256, 256), "planks.png")
+	_save(_iron(64), "iron.png")
+
+
+## Fine straight vertical grain in mid brown. Every column's shade comes from
+## sums of whole waves across the width, so the texture tiles both ways.
+func _planks(width: int, height: int) -> Image:
+	var image := Image.create(width, height, false, Image.FORMAT_RGBA8)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 41
+	var waves := []  # [waves across the width, phase, weight]
+	for k in 26:
+		waves.append([rng.randi_range(6, 110), rng.randf() * TAU, rng.randf_range(0.3, 1.0)])
+	var columns := PackedFloat32Array()
+	for x in width:
+		var v := 0.0
+		var total := 0.0
+		for wave in waves:
+			v += wave[2] * sin(TAU * wave[0] * x / width + wave[1])
+			total += wave[2]
+		columns.append(v / total)
+	var lines := PackedFloat32Array()  # A few darker grain lines.
+	lines.resize(width)
+	for k in 22:
+		var at := rng.randi_range(0, width - 1)
+		lines[at] = rng.randf_range(0.4, 1.0)
+	var flecks := _noise(53, 0.6)
+	for y in height:
+		var row := TAU * y / height
+		for x in width:
+			var shade := 0.5 + columns[x] * 1.6 + 0.06 * sin(row * 2.0 + x * 0.7) + (_n(flecks, x, y * 0.15) - 0.5) * 0.12
+			shade -= lines[x] * 0.35
+			image.set_pixel(x, y, Color("#3f2716").lerp(Color("#7a5434"), clampf(shade, 0.0, 1.0)))
+	return image
+
+
+## Light grey iron with faint mottling, for the frame bars.
+func _iron(size: int) -> Image:
+	var image := Image.create(size, size, false, Image.FORMAT_RGBA8)
+	var mottle := _noise(61, 0.08)
+	var grit := _noise(67, 0.9)
+	for y in size:
+		for x in size:
+			var a := TAU * x / size
+			var b := TAU * y / size
+			var m := _n(mottle, cos(a) * 40.0 + 100.0, sin(a) * 40.0 + cos(b) * 40.0)
+			var shade := 0.55 + (m - 0.5) * 0.5 + (_n(grit, x, y) - 0.5) * 0.18
+			image.set_pixel(x, y, Color("#6f6c64").lerp(Color("#bdb9ae"), clampf(shade, 0.0, 1.0)))
 	return image
 
 

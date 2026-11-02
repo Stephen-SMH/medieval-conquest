@@ -6,25 +6,29 @@ extends RefCounted
 ##      into detachments: the soldiers with no order stay home as the army;
 ##      if everyone goes, the army itself leads the largest detachment. Each
 ##      type's health is shared out per soldier;
-##   1. moves into empty or friendly regions (merges add the compositions, up
-##      to Unit.CAP; two whole armies trading places swap);
-##   2. sieges, then attacks. The attacks on one region are grouped: each
+##   1. sieges, then attacks. The attacks on one region are grouped: each
 ##      plain attack, with every support order that joins it (PRD B), is one
 ##      battle. Attacks of ranged soldiers only are volleys and go first;
-##      then the others, strongest first, and later ones face whatever is left;
+##      then the others, strongest first, and later ones face whatever is left.
+##      Supporters fight from home and never move in (as in S&T);
+##   2. moves into empty or friendly regions (merges add the compositions, up
+##      to Unit.CAP; two whole armies trading places swap). Attacks go first
+##      so that beaten attackers are home before others march in: a march
+##      that no longer fits only partly merges, and the rest stay put;
 ##   3. detachments that end the turn in their home region (failed, blocked
 ##      or only shooting) rejoin their army; then captures;
 ##   4. the faction's end of turn: income, upkeep, healing and sieges.
 ## Steps 1-2 run once for every detachment's first step and again for a
-## cavalry detachment's second step. A detachment that moves into an empty
+## cavalry detachment's second step. No region ends the turn with more than
+## Unit.CAP soldiers. A detachment that moves into an empty
 ## region, or wins an attack and finds the region empty, stays there as an
 ## army of its own. Returns the events in the order they happened.
 
 
 static func resolve(state: GameState, faction: String) -> Array:
 	var events := []
-	# group: each detachment -> the army it split from; homes: region -> that army.
-	var ctx := {"plan": {}, "stopped": {}, "entered": [], "group": {}, "homes": {}, "faction": faction}
+	# group: each detachment -> the army it split from.
+	var ctx := {"plan": {}, "stopped": {}, "entered": [], "group": {}, "faction": faction}
 	events.append_array(_split(state, faction, ctx))
 	for wave in Orders.CAVALRY_STEPS:
 		var steps := {}
@@ -33,8 +37,8 @@ static func resolve(state: GameState, faction: String) -> Array:
 				steps[unit] = ctx.plan[unit].steps[wave]
 		if steps.is_empty():
 			break
-		events.append_array(_moves(state, steps, ctx))
 		events.append_array(_attacks(state, steps, ctx, wave))
+		events.append_array(_moves(state, steps, ctx))
 	events.append_array(_reunite(state, ctx))
 	events.append_array(_one_per_region(state))
 	events.append_array(_captures(state, ctx))
@@ -98,7 +102,6 @@ static func _split(state: GameState, faction: String, ctx: Dictionary) -> Array:
 			continue
 		unit.moved = true  # Reorganising: an army that splits doesn't also rest and heal this turn.
 		ctx.group[unit] = unit
-		ctx.homes[unit.province] = unit
 		if leader >= 0:
 			ctx.plan[unit] = _plan_entry(list[leader], wanted[leader])
 		looks[unit] = look(unit)
@@ -222,6 +225,7 @@ static func _battle(state: GameState, target: String, group: Array, ctx: Diction
 	var faction: String = ctx.faction
 	var attackers: Array[Unit] = []  # The soldiers actually fighting.
 	var homes := {}  # fighting part -> the army it came from
+	var supporting := {}  # parts that fight from home and never move in
 	for unit: Unit in group:
 		if not state.units.has(unit):
 			continue
@@ -235,13 +239,17 @@ static func _battle(state: GameState, target: String, group: Array, ctx: Diction
 			part.attacked = true
 		homes[part] = unit
 		attackers.append(part)
+		if unit != group[0] and ctx.plan[unit].support:
+			supporting[part] = true
 	if attackers.is_empty():
 		return events
 	var occupant := state.unit_in(target)
 	if occupant == null or occupant.owner == faction:
 		# The defenders are gone: the melee soldiers walk in.
 		for part in attackers:
-			if occupant == null and part.has_melee():
+			if supporting.has(part):
+				_rejoin(state, homes[part], part, events)
+			elif occupant == null and part.has_melee():
 				_enter(state, part, target, ctx, events, "advance")
 				occupant = part
 			elif occupant != null and occupant.owner == faction and part != occupant and part.has_melee() and _may_merge(state, occupant, part, ctx):
@@ -292,7 +300,9 @@ static func _battle(state: GameState, target: String, group: Array, ctx: Diction
 		if not state.units.has(part):
 			continue
 		var home: Unit = homes[part]
-		if battle.attacker_won() and part.has_melee() and state.unit_in(target) == null:
+		if supporting.has(part):
+			_rejoin(state, home, part, events)
+		elif battle.attacker_won() and part.has_melee() and state.unit_in(target) == null:
 			_enter(state, part, target, ctx, events, "advance")
 			events.back()["main"] = home
 			holder = part
@@ -301,7 +311,7 @@ static func _battle(state: GameState, target: String, group: Array, ctx: Diction
 			if state.units.has(part):
 				_rejoin(state, home, part, events)
 		else:
-			if not ranged_only:
+			if not ranged_only and not battle.attacker_won():
 				events.append({"type": "repulsed", "unit": home, "province": home.province, "target": target})
 			_rejoin(state, home, part, events)
 	return events
@@ -344,23 +354,22 @@ static func _rejoin(state: GameState, unit: Unit, part: Unit, events: Array) -> 
 		events.append({"type": "rejoined", "unit": unit, "part": part, "province": unit.province, "hp": look(unit)})
 
 
-## Merges a detachment back into its army. They always fit: both came out
-## of one army.
+## Merges a detachment back into its army, up to Unit.CAP. If the army took
+## others in meanwhile, those who don't fit are left to _one_per_region.
 static func _join(state: GameState, unit: Unit, part: Unit) -> void:
 	unit.attacked = unit.attacked or part.attacked
 	unit.moved = unit.moved or part.moved
-	unit.absorb(part)
-	state.remove_unit(part)
+	if unit.soldiers() + part.soldiers() <= Unit.CAP:
+		unit.absorb(part)
+		state.remove_unit(part)
+	else:
+		state.merge(unit, part)
 
 
-## Whether `unit` may merge into `target`. An army that split this turn takes
-## in only its own detachments, so they always fit when they come home.
-static func _may_merge(state: GameState, target: Unit, unit: Unit, ctx: Dictionary) -> bool:
-	if state.merge_problem(target, unit) != "":
-		return false
-	if ctx.group.has(target) and ctx.homes.get(target.province) == ctx.group[target]:
-		return ctx.group.get(unit) == ctx.group[target]
-	return true
+## Whether `unit` may merge into `target`: the same faction, with room left.
+## Orders.room planned for it, counting the soldiers who left.
+static func _may_merge(state: GameState, target: Unit, unit: Unit, _ctx: Dictionary) -> bool:
+	return state.merge_problem(target, unit) == ""
 
 
 ## Detachments of the same army that end the turn in the same region join up.

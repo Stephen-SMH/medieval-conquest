@@ -164,7 +164,7 @@ const SOLDIER_PRICE := 0.1  # Gold per soldier, as a share of the type's cost (a
 const SMALL_BUNDLE_GOLD := 40.0  # About what a small bundle costs.
 const LARGE_BUNDLE_SCALE := 3  # A large bundle has this many times the soldiers...
 const LARGE_BUNDLE_DISCOUNT := 0.9  # ...at this share of the price.
-const MAX_BUNDLE := 10  # So a large bundle fits a full 20-soldier army (Unit.CAP 30).
+const MAX_BUNDLE := 10  # So a large bundle fits an army of half Unit.CAP (20).
 
 
 ## Gold for one soldier of a type, for a faction (civilization bonuses included).

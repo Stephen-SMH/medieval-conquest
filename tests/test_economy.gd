@@ -57,7 +57,7 @@ func run(t) -> void:
 ## Reinforcements come in fixed bundles, go to the capital, towns and camps,
 ## and arrive next turn (PRD E).
 func _test_bundles(t) -> void:
-	var state := Helpers.game({"greywater": "blue", "northmarch": "blue", "ashford": "blue"}, [["blue", "ashford", "spearmen", 25]], 5,
+	var state := Helpers.game({"greywater": "blue", "northmarch": "blue", "ashford": "blue"}, [["blue", "ashford", "spearmen", 15]], 5,
 		{"capitals": {"blue": "greywater"}, "resources": {"blue": {"gold": 1000}}})
 	var bundles := Economy.bundles(state, "blue")
 	var types := bundles.map(func(b): return b.type)
@@ -72,14 +72,14 @@ func _test_bundles(t) -> void:
 	t.check(bundles.all(func(b): return b.soldiers <= Economy.MAX_BUNDLE and int(b.price) % 5 == 0), "a bundle holds at most 10 soldiers; prices are in fives")
 	t.check(Economy.recruit_point(state, "greywater", "blue") and Economy.recruit_point(state, "ashford", "blue")
 		and not Economy.recruit_point(state, "northmarch", "blue"), "reinforcements go to the capital, towns and camps")
-	t.check(Economy.bundle_targets(state, large, "blue") == ["greywater"], "and only where they fit: Ashford's 25 have no room for 10 more")
+	t.check(Economy.bundle_targets(state, large, "blue") == ["greywater"], "and only where they fit: Ashford's 15 have no room for 10 more")
 	t.check(Economy.buy(state, "ashford", small) and state.factions.blue.resources.gold == 955.0, "5 do fit; the price is paid at once")
 	t.check(Economy.bundle_problem(state, "ashford", small, "blue").begins_with("this province already") and Economy.recruit_closed(state, "ashford", "blue"),
 		"one order per province per turn; the map marks it with a no-sign")
 	t.check(Economy.buy(state, "greywater", large) and not Economy.recruit_closed(state, "northmarch", "blue"), "the capital takes another order")
-	t.check(state.unit_in("ashford").soldiers() == 25 and state.unit_in("greywater") == null, "they don't arrive this turn")
+	t.check(state.unit_in("ashford").soldiers() == 15 and state.unit_in("greywater") == null, "they don't arrive this turn")
 	var events := Helpers.resolve(state)
-	t.check(state.unit_in("ashford").composition() == {"spearmen": 25, "archers": 5} and state.unit_in("greywater").composition() == {"archers": 10},
+	t.check(state.unit_in("ashford").composition() == {"spearmen": 15, "archers": 5} and state.unit_in("greywater").composition() == {"archers": 10},
 		"next turn they join the army there, or form a new one")
 	var arrived := Helpers.events_of(events, "arrived").map(func(e): return e.text)
 	t.check(arrived.size() == 2 and arrived.has("Reinforcements arrived in Ashford: Archers – 5."),
@@ -89,9 +89,9 @@ func _test_bundles(t) -> void:
 	t.check(Economy.bundle_problem(state, "greywater", small, "blue") == "not enough gold", "bundles cost gold")
 
 	# Soldiers who no longer fit when they arrive are paid back.
-	state = Helpers.game({"ashford": "blue"}, [["blue", "ashford", "spearmen", 20]], 5, {"resources": {"blue": {"gold": 1000}}})
+	state = Helpers.game({"ashford": "blue"}, [["blue", "ashford", "spearmen", 12]], 5, {"resources": {"blue": {"gold": 1000}}})
 	Economy.buy(state, "ashford", small)
-	state.unit_in("ashford").add("spearmen", 8)
+	state.unit_in("ashford").add("spearmen", 6)
 	var gold: float = state.factions.blue.resources.gold
 	Economy.arrivals(state, "blue")
 	t.check(state.unit_in("ashford").soldiers() == Unit.CAP and is_equal_approx(state.factions.blue.resources.gold, gold + 27.0),

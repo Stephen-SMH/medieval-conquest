@@ -8,7 +8,7 @@ extends Control
 const GAME_SCENE := "res://scenes/main.tscn"
 const DIFFICULTIES := ["easy", "normal", "hard"]
 const CREDIT_LINE := "Unit figures rendered from CC0 3D models by Quaternius. Icons by Lorc, Delapouite and " \
-	+ "Guard13007 from game-icons.net (CC BY 3.0). Fonts: Cinzel, IM FELL English and Noto (SIL Open Font License). " \
+	+ "Guard13007 from game-icons.net (CC BY 3.0). Fonts: Cinzel, IM FELL English, Grenze Gotisch and Noto (SIL Open Font License). " \
 	+ "Music by RandomMind, cynicmusic and Emma_MA (CC0). Sounds by Kenney and by freesound.org users HebronTheatre, " \
 	+ "mcaseydesign, craigsmith, el_boss and freefire66 (CC0). See CREDITS.md."
 
@@ -211,11 +211,6 @@ func show_settings() -> void:
 	Settings.ensure_loaded()
 	_clear()
 	_add_label(_content, "Settings", 30)
-	var forecast := CheckBox.new()
-	forecast.text = "Show the battle forecast before attacking"
-	forecast.button_pressed = Settings.show_forecast
-	forecast.toggled.connect(func(on): Settings.show_forecast = on; Settings.save())
-	_content.add_child(forecast)
 	if not OS.has_feature("web") and not OS.has_feature("mobile"):
 		var fullscreen := CheckBox.new()
 		fullscreen.text = "Full screen"

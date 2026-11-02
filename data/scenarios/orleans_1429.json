@@ -200,7 +200,7 @@
    "owner": "france",
    "region": "bourges",
    "type": "knight",
-   "soldiers": 24
+   "soldiers": 20
   },
   {
    "owner": "england",
@@ -290,7 +290,7 @@
    "owner": "france",
    "region": "orleans",
    "type": "pikemen",
-   "soldiers": 22
+   "soldiers": 20
   },
   {
    "owner": "england",

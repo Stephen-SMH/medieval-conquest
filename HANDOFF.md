@@ -1,4 +1,4 @@
-# Handoff: where the work stopped (2026-11-02, second session)
+# Handoff: where the work stopped (2026-11-03)
 
 The game is being made to play like HeroCraft's **S&T: Medieval Wars** (Android), using only our own art and text. Never use HeroCraft assets.
 Run the tests with `godot --headless -s tests/run_tests.gd` (Godot 4.7.2). They must report `0 failed`.
@@ -36,6 +36,57 @@ After adding a script with a new `class_name`, run `godot --headless --import` o
   lines by the tallest fallback. Fallbacks set in a font's `.import` file are lost on export.
 - **Android signing:** no release keystore secrets are set yet, so CI makes a debug APK. README "Releases" has
   the commands. Android export in CI is untested locally (no Android SDK on this machine).
+
+## Region cap and the PC playthrough video (2026-11-03)
+
+The user wants the game to match S&T **exactly**, including art and animation as seen in
+`~/Downloads/Strategy And Tactics - Medieval Wars Playthrough P1 - (720p).mp4` (28 min, the **PC** version).
+Copy rules, screen flow, layouts and how animations behave; draw all art ourselves in the same style,
+because the repo and releases are public. There's no ffmpeg on this Mac; frames were grabbed with a small
+Swift AVFoundation script (`AVAssetImageGenerator`), and contact sheets were made with PIL.
+
+**Done: the 20-soldier region cap** (user's bug report; tests in `tests/test_room.gd`).
+- `Unit.CAP` is 20. `Orders.room()`: an order into a region gets 20, less the soldiers there who stay, less
+  those already ordered in. Soldiers ordered to march or attack out free their places.
+- `Orders.arrivals()` says where each order's soldiers end up. Supporters and archer-only volleys stay
+  home, so they need no room. Plain attacks that need room are refused (support instead).
+- The slider window stops at the room ("Room for N more in X").
+- Resolver: **attacks now run before moves**, so beaten attackers are home before others march into their
+  places. **Supporters never move in** (S&T tutorial 6/9). The old "a split army takes in nobody" rule is gone.
+  Rejoins are capped; any extra soldiers go to `_one_per_region`.
+- Scenario armies over 20 were cut to 20 in `tools/make_scenarios.py`.
+- The video's region numbers go above 10 (Oxford shows 12), so S&T's real cap is unknown. 20 is the user's number.
+
+**Still different from the video, in rough priority order:**
+1. **HUD layout.** Ours follows the earlier Android stills; the video is the PC layout:
+   - pause top-left, reinforcements bottom-left;
+   - minimap top-right with a zoom button under it;
+   - top bar: gold, hourglass (turns to the next crown), crown, crossed axes (enemy units left to destroy);
+   - **bottom-centre panel of unit cards** for the selected army: one card per unit, each with an
+     hourglass button, a type icon and a vertical health bar. Cards are green when the unit can act and red
+     when spent. Units ordered in from elsewhere show as a separate group;
+   - "Your Turn: Kingdom of England" plus flag at the bottom; no info panel text.
+   - Ask the user: PC or Android layout?
+2. **Selection colours.** The selected region turns dark brown, regions it can march to salmon pink, enemy
+   regions it can attack white.
+3. **Order window.** Only the title (Move/Attack/Support), the rows (icon, count, slider; two columns) and
+   the total slider between ✓ and ✗. There is no route line, forecast or notes.
+4. **Tutorial.** Nine numbered parchment tips ("1/9. …"), in our own words: top panel turns and reward,
+   the unit icon shows the main troop type, move all forces, cavalry moves twice, resting restores the health
+   bar, support without moving in, the attack/support ring, enemy turn replay, and surrounded troops are destroyed.
+5. **Notices** on parchment, top-left: "Enemy reinforcements arrived to the province of X: vikings – 1."
+6. **Battle result:** "Battle won" or "Battle lost" in big centred text over a dimmed map.
+7. **Victory scroll:**
+   - red crown banner, objectives with ✓/✗ and points;
+   - your losses and enemy losses by type icon;
+   - development points, and bronze/silver/gold awards with points;
+   - wood footer with back (castle) and replay buttons.
+8. **Briefing scroll:** title with year, history paragraph, MAIN OBJECTIVE / ADDITIONAL OBJECTIVE / DEFEAT
+   CONDITIONS, crowns for N turns. A right rail has Forge (anvil), start (arrow) and back (castle).
+9. **Forge:** rows of 7 upgrade icons joined by arrows (infantry, archers, cavalry; a second tab for economy),
+   development points on the left, the effect line at the bottom ("Field Training (infantry lvl 2): defence bonus").
+10. **Loading screen:** wood, logo, red progress bar, and a rotating tip.
+11. **"End Turn"** is a small parchment button; fortified provinces (castle sign) give a defence bonus.
 
 ## Known issues and notes
 
