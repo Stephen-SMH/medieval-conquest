@@ -24,6 +24,19 @@ After adding a script with a new `class_name`, run `godot --headless --import` o
 - **L** battle visuals (`effects.gd`): gold crossed swords, cracked shields, "Battle won/lost" card (`Hud.battle_result`).
 - **M** main menu with a bottom row of square buttons (`square_button.gd`), Scenarios table with map preview (`scenarios.gd`, `map_preview.gd`), Continue, Records, Credits. Six historical scenarios from the real maps' starts, made by `python3 tools/make_scenarios.py`.
 
+## Web build, CI and releases (2026-11-02)
+
+- The repo is **public**. `.github/workflows/build.yml` tests and exports Web, Windows, Linux, macOS and Android on
+  every push to `main` and every PR. A `v*` tag also makes a GitHub release and deploys the web build to GitHub
+  Pages (https://stephen-smh.github.io/medieval-conquest/). See README "Export" and "Releases".
+- `tools/fetch_godot_templates.py` reads only the named templates out of the 1.3 GB archive (range requests);
+  `tools/export.sh` exports and zips into `dist/`; `tools/set_version.py` stamps a tag's version.
+- Web has no system fonts: `scripts/fonts.gd` (autoload "Fonts") gives the game fonts two cut-down Noto symbol
+  fallbacks made by `tools/make_symbol_fonts.sh`. Their line height is lowered to IM Fell's on purpose; Godot sizes
+  lines by the tallest fallback. Fallbacks set in a font's `.import` file are lost on export.
+- **Android signing:** no release keystore secrets are set yet, so CI makes a debug APK. README "Releases" has
+  the commands. Android export in CI is untested locally (no Android SDK on this machine).
+
 ## Known issues and notes
 
 - **Balance:** bundles made soldiers dearer (a soldier costs a tenth of the old 20-soldier price). With `tools/sim_campaigns.gd`, some old conquest finales got harder (Norse 5, Anglish 5, Crusader 3, Byzantine 3). These campaigns are due to be replaced (below), so they weren't retuned.

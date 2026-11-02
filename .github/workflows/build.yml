@@ -1,0 +1,165 @@
+# Tests and builds the game on every push and pull request. A version tag (v2.1.0)
+# also publishes a GitHub release with the builds and puts the web build on
+# GitHub Pages. See "Releases" in the README.
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+
+env:
+  GODOT_VERSION: "4.7.2"
+  # Bump the cache key below when this list changes.
+  TEMPLATES: web_nothreads_release.zip linux_release.x86_64 windows_release_x86_64.exe macos.zip android_release.apk android_debug.apk
+
+jobs:
+  build:
+    name: Test and export
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Cache Godot and its export templates
+        id: cache
+        uses: actions/cache@v6
+        with:
+          path: |
+            ~/godot
+            ~/.local/share/godot/export_templates
+          key: godot-${{ env.GODOT_VERSION }}-templates-1
+
+      - name: Install Godot
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/godot
+          curl -sSL -o "$RUNNER_TEMP/godot.zip" \
+            "https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q "$RUNNER_TEMP/godot.zip" -d ~/godot
+          mv ~/godot/Godot_v${GODOT_VERSION}-stable_linux.x86_64 ~/godot/godot
+          python3 tools/fetch_godot_templates.py "$GODOT_VERSION" $TEMPLATES
+
+      - name: Point Godot at the Android SDK
+        run: |
+          echo "$HOME/godot" >> "$GITHUB_PATH"
+          mkdir -p ~/.config/godot
+          minor=$(echo "$GODOT_VERSION" | cut -d. -f1,2)
+          cat > ~/.config/godot/editor_settings-$minor.tres <<EOF
+          [gd_resource type="EditorSettings" format=3]
+
+          [resource]
+          export/android/android_sdk_path = "$ANDROID_HOME"
+          export/android/java_sdk_path = "$JAVA_HOME"
+          EOF
+
+      - name: Set the version
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            version="${GITHUB_REF_NAME#v}"
+          else
+            version="$(sed -n 's/^config\/version="\(.*\)"$/\1/p' project.godot)+${GITHUB_SHA::7}"
+          fi
+          python3 tools/set_version.py "$version"
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+
+      - name: Import
+        run: godot --headless --import
+
+      - name: Run the tests
+        run: godot --headless -s tests/run_tests.gd
+
+      - name: Export
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_ALIAS: ${{ secrets.ANDROID_KEYSTORE_ALIAS }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          if [ -n "$ANDROID_KEYSTORE_BASE64" ]; then
+            echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.keystore"
+            export GODOT_ANDROID_KEYSTORE_RELEASE_PATH="$RUNNER_TEMP/release.keystore"
+            export GODOT_ANDROID_KEYSTORE_RELEASE_USER="$ANDROID_KEYSTORE_ALIAS"
+            export GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD="$ANDROID_KEYSTORE_PASSWORD"
+          else
+            echo "::warning::No ANDROID_KEYSTORE_BASE64 secret: the APK is a debug build."
+          fi
+          keytool -genkeypair -keyalg RSA -alias androiddebugkey -keypass android -storepass android \
+            -keystore "$RUNNER_TEMP/debug.keystore" -dname "CN=Android Debug,O=Android,C=US" -validity 9999 -noprompt
+          export GODOT_ANDROID_KEYSTORE_DEBUG_PATH="$RUNNER_TEMP/debug.keystore"
+          export GODOT_ANDROID_KEYSTORE_DEBUG_USER=androiddebugkey
+          export GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD=android
+          tools/export.sh web windows linux macos android
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: medieval-conquest-${{ env.VERSION }}
+          path: dist/*
+          if-no-files-found: error
+
+      - name: Keep the web build for GitHub Pages
+        if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: build/web
+
+  release:
+    name: GitHub release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: medieval-conquest-*
+          path: dist
+          merge-multiple: true
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PAGES_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          cat > notes.md <<EOF
+          **Play in your browser:** $PAGES_URL
+
+          | Download | For |
+          |---|---|
+          | \`medieval-conquest-$version-windows.zip\` | Windows (64-bit). Unzip and run \`medieval-conquest.exe\`. |
+          | \`medieval-conquest-$version-macos.zip\` | macOS (Intel and Apple silicon). Unzip and open the app. It isn't notarised, so the first time macOS blocks it: then choose *Open Anyway* in System Settings > Privacy & Security. |
+          | \`medieval-conquest-$version-linux.zip\` | Linux (64-bit). Unzip and run \`medieval-conquest.x86_64\`. |
+          | \`medieval-conquest-$version-android.apk\` | Android 7 or later (64-bit). Open the APK on the phone and allow installing from that app. |
+          | \`medieval-conquest-$version-web.zip\` | The browser build, to host yourself. |
+
+          EOF
+          prerelease=""
+          if [[ "$version" == *-* ]]; then prerelease="--prerelease"; fi
+          gh release create "$GITHUB_REF_NAME" dist/* --repo "$GITHUB_REPOSITORY" \
+            --title "Medieval Conquest $version" --notes-file notes.md --generate-notes $prerelease
+
+  pages:
+    name: GitHub Pages
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v5

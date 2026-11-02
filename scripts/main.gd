@@ -80,6 +80,10 @@ func _ready() -> void:
 		state = GameState.from_scenario(setup.scenario, setup.get("seed", 1))
 	map = state.map
 	_camera.map_rect = Rect2(Vector2.ZERO, map.size)
+	# Open on the player's capital rather than the map's corner (the big real maps are wider than the screen).
+	var home: String = state.capitals.get(state.mission.get("player", state.current_faction()), "")
+	if home != "":
+		_camera.position = map.provinces[home].centroid
 
 	for region in map.province_order:
 		var province: Dictionary = map.provinces[region]

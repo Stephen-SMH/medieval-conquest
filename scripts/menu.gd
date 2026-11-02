@@ -434,22 +434,29 @@ func show_scenarios(selected := "") -> void:
 	columns.add_child(side)
 	var chosen := Scenarios.get_scenario(selected)
 	var preview := MapPreview.new()
-	preview.custom_minimum_size = Vector2(380, 280)
+	preview.custom_minimum_size = Vector2(380, 250)
 	side.add_child(preview)
 	preview.show_scenario(chosen)
+	# The Briefing button sits beside the text, so a long history can't push it below the menu bar.
+	var below := HBoxContainer.new()
+	below.add_theme_constant_override("separation", 10)
+	side.add_child(below)
 	var about := RichTextLabel.new()
 	about.bbcode_enabled = true
 	about.fit_content = true
-	about.custom_minimum_size = Vector2(380, 0)
+	about.custom_minimum_size = Vector2(290, 0)
+	about.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	about.add_theme_font_size_override("normal_font_size", 15)
 	var history: String = chosen.mission.get("history", chosen.mission.get("briefing", ""))
 	about.text = "[b]%s[/b]\n[i]%s[/i]" % [chosen.name, history]
-	side.add_child(about)
+	below.add_child(about)
 	if Scenarios.unlocked(chosen):
-		side.add_child(RoundButton.with_caption("start", "Briefing", show_scenario_briefing.bind(selected)))
+		var start := RoundButton.with_caption("start", "Briefing", show_scenario_briefing.bind(selected))
+		start.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+		below.add_child(start)
 	else:
-		_add_label(side, "Locked: win %d scenario%s to open it." % [int(chosen.listing.unlock_after),
-			"" if int(chosen.listing.unlock_after) == 1 else "s"], 15, Color("#c8b48a"))
+		about.text += "\n[color=#c8b48a]Locked: win %d scenario%s to open it.[/color]" % [int(chosen.listing.unlock_after),
+			"" if int(chosen.listing.unlock_after) == 1 else "s"]
 
 
 ## One row of the table, or its heading row for an empty scenario.
@@ -548,6 +555,8 @@ func show_credits() -> void:
 	_add_text("Medieval Conquest is a turn-based strategy game in the spirit of [i]Strategy & Tactics: Medieval Wars[/i]. " \
 		+ "Its maps, region names, campaigns, art and text are its own.")
 	_add_text(CREDIT_LINE)
+	_add_text("Version %s. Downloads and source: github.com/Stephen-SMH/medieval-conquest" \
+		% ProjectSettings.get_setting("application/config/version", "dev"))
 
 
 # --- Helpers ----------------------------------------------------------------------

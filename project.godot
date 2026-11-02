@@ -11,6 +11,7 @@ config_version=5
 [application]
 
 config/name="Medieval Conquest"
+config/version="2.0.0"
 config/description="A turn-based medieval strategy game: gather food and gold, recruit counter-based armies, and march them across a province map to conquer."
 run/main_scene="res://scenes/menu.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
@@ -18,6 +19,7 @@ config/icon="res://icon.svg"
 
 [autoload]
 
+Fonts="*res://scripts/fonts.gd"
 Session="*res://scripts/session.gd"
 Audio="*res://scripts/audio_manager.gd"
 

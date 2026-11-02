@@ -7,6 +7,10 @@ Godot 4.7, GDScript, Compatibility renderer (desktop and web).
 
 The requirements are in [PRD.md](PRD.md); version 2 is section 8.
 
+**Play in your browser:** https://stephen-smh.github.io/medieval-conquest/ (the latest release). Builds for
+Windows, macOS, Linux and Android are on the [Releases](https://github.com/Stephen-SMH/medieval-conquest/releases)
+page.
+
 ## Run
 
 Open `project.godot` in Godot 4.7 and press F5, or run `godot --path .` from this folder. The game opens on the
@@ -123,10 +127,62 @@ civilization can be bought from the start.
 
 ## Export
 
-`export_presets.cfg` has two presets:
+`export_presets.cfg` has five presets: **Web** (Thread Support off, so it runs on any static host without special
+headers), **Windows Desktop**, **Linux** (both x86_64, game data inside the executable), **macOS** (universal,
+ad-hoc signed, not notarised) and **Android** (arm64, landscape).
 
-- **Web** (Thread Support off, so it runs on any static host): `godot --headless --export-release "Web" build/web/index.html`.
-- **Android** (arm64, landscape): see below.
+Install the export templates once. `tools/fetch_godot_templates.py` reads only the templates you name out of
+Godot's 1.3 GB template archive:
+
+```
+python3 tools/fetch_godot_templates.py 4.7.2 web_nothreads_release.zip linux_release.x86_64 windows_release_x86_64.exe macos.zip
+```
+
+(With the python.org Python on a Mac, put `SSL_CERT_FILE=/etc/ssl/cert.pem` in front if it reports a certificate
+error.) Then `tools/export.sh` exports and zips each platform into `dist/`:
+
+```
+tools/export.sh web windows linux macos     # and android, once set up as below
+```
+
+To play the web build locally, serve it and open http://localhost:8060:
+
+```
+python3 -m http.server 8060 -d build/web
+```
+
+A browser has no system fonts to borrow missing symbols from, so the game fonts fall back to two small Noto symbol
+fonts (`scripts/fonts.gd`, made by `tools/make_symbol_fonts.sh`).
+
+## Releases
+
+[.github/workflows/build.yml](.github/workflows/build.yml) runs on every push to `main` and every pull request: it
+installs Godot 4.7.2 and the templates (cached), runs the tests, exports all five platforms and keeps the builds as
+a workflow artifact for 90 days.
+
+To release a version, push a tag:
+
+```
+git tag v2.1.0
+git push origin v2.1.0
+```
+
+The workflow then stamps the version into the game (`tools/set_version.py`: the Credits screen, the Android
+version name and code, the macOS version), builds everything, publishes a GitHub release with the five downloads
+and GitHub's generated notes, and puts the web build on GitHub Pages. A tag with a hyphen
+(`v2.1.0-beta.1`) makes a pre-release. Builds from `main` show versions such as `2.0.0+1a2b3c4`.
+
+The Android APK is signed with the release key from three repository secrets, `ANDROID_KEYSTORE_BASE64`,
+`ANDROID_KEYSTORE_ALIAS` and `ANDROID_KEYSTORE_PASSWORD`. Without them the workflow makes a debug APK and warns.
+Create the key once and keep a copy: an APK signed with a different key can't update an installed one.
+
+```
+keytool -genkeypair -keyalg RSA -keysize 4096 -validity 10000 -alias medievalconquest \
+  -keystore medieval-conquest-release.keystore -dname "CN=Stephen-SMH, O=Medieval Conquest"
+base64 -i medieval-conquest-release.keystore | gh secret set ANDROID_KEYSTORE_BASE64
+printf medievalconquest | gh secret set ANDROID_KEYSTORE_ALIAS
+gh secret set ANDROID_KEYSTORE_PASSWORD      # paste the keystore password
+```
 
 ### Build for Android
 
@@ -200,8 +256,9 @@ scenes/   Godot scenes (.tscn)
 scripts/  views and UI at the top level; game rules in scripts/game/; Resource classes in scripts/data/
 data/     maps/*.json (geography), scenarios/*.json and campaigns/*.json (setups and missions),
           and .tres rules (terrains, units, counters, buildings, civilizations)
-tools/    Python generators for the maps and campaigns
+tools/    generators for the maps, campaigns and assets; export, version and template scripts
 tests/    headless test suites
+.github/  the build and release workflow
 ```
 
 ## Progress
