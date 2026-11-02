@@ -4,12 +4,13 @@ extends Control
 
 const GAME_SCENE := "res://scenes/main.tscn"
 const DIFFICULTIES := ["easy", "normal", "hard"]
-const CREDIT_LINE := "Unit figures rendered from CC0 3D models by Quaternius. Icons by Lorc, Delapouite, HeavenlyDog and " \
+const CREDIT_LINE := "Unit figures rendered from CC0 3D models by Quaternius. Icons by Lorc, Delapouite and " \
 	+ "Guard13007 from game-icons.net (CC BY 3.0). Fonts: Cinzel and IM FELL English (SIL Open Font License). " \
 	+ "Music by RandomMind, cynicmusic and Emma_MA (CC0). Sounds by Kenney and by freesound.org users HebronTheatre, " \
 	+ "mcaseydesign, craigsmith, el_boss and freefire66 (CC0). See CREDITS.md."
 
 var _content: VBoxContainer
+var _forge: ForgeWindow
 var _skirmish := {"map": "heartlands", "civ": "norse", "opponents": 2, "difficulty": "normal"}
 var _hotseat := {"map": "heartlands", "civs": ["norse", "anglish"], "ai": 0}
 
@@ -54,6 +55,8 @@ func _ready() -> void:
 	_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_content.add_theme_constant_override("separation", 10)
 	scroll.add_child(_margin(_content, 32))
+	_forge = ForgeWindow.new()
+	add_child(_forge)
 	AudioManager.music("menu")
 	show_title()
 	if should_offer_tutorial():
@@ -277,7 +280,13 @@ func show_briefing(campaign_id: String, index: int) -> void:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 10)
 	_content.add_child(row)
-	_add_button(row, "Start mission", func(): _start({"scenario": scenario, "seed": randi()}))
+	_add_button(row, "Start mission", func():
+		_start({"scenario": Forge.equip(scenario, Progress.upgrades(campaign_id)), "seed": randi()}))
+	var forge := _add_button(row, "Forge (%d points)" % Progress.development_points(campaign_id), func(): _forge.show_campaign(campaign_id))
+	forge.icon = load("res://assets/icons/ui_anvil.svg")
+	forge.expand_icon = true
+	forge.custom_minimum_size = Vector2(220, 40)
+	_forge.changed.connect(func(): forge.text = "Forge (%d points)" % Progress.development_points(campaign_id))
 	_add_button(row, "Back", show_campaigns)
 
 

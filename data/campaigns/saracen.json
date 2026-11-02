@@ -125,8 +125,7 @@
      "civ": "saracen",
      "color": "#3d8a4a",
      "human": true,
-     "ai": "balanced",
-     "techs": ["chain_mail"]
+     "ai": "balanced"
     },
     {
      "id": "tamr",
@@ -257,8 +256,7 @@
      "civ": "saracen",
      "color": "#3d8a4a",
      "human": true,
-     "ai": "balanced",
-     "techs": ["chain_mail"]
+     "ai": "balanced"
     },
     {
      "id": "tamr",

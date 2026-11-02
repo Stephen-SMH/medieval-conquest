@@ -1,8 +1,9 @@
 class_name Progress
 extends RefCounted
 ## Campaign progress kept between games in user://progress.json: stars per
-## mission, which missions are open (CP-4), and which civilizations are
-## unlocked by finishing campaigns (8.5).
+## mission, which missions are open (CP-4), which civilizations are unlocked
+## by finishing campaigns (8.5), and each campaign's development points and
+## Forge upgrades (G).
 
 const PATH := "user://progress.json"
 
@@ -32,12 +33,50 @@ static func any_progress() -> bool:
 	return not _load().get("stars", {}).is_empty()
 
 
-## Keeps the best result for a mission.
-static func record(campaign_id: String, index: int, earned: int) -> void:
+## Keeps the best result for a mission: its stars and the development
+## points it earned (replaying a mission only adds what it beats).
+static func record(campaign_id: String, index: int, earned: int, points := 0) -> void:
 	var data := _load()
 	var key := "%s/%d" % [campaign_id, index]
 	data.stars[key] = maxi(int(data.stars.get(key, 0)), earned)
+	if not data.has("development"):
+		data.development = {}
+	data.development[key] = maxi(int(data.development.get(key, 0)), points)
 	_store(data)
+
+
+## The development points a mission has earned at best.
+static func mission_points(campaign_id: String, index: int) -> int:
+	return int(_load().get("development", {}).get("%s/%d" % [campaign_id, index], 0))
+
+
+## Development points a campaign's missions have earned, less what the Forge spent.
+static func development_points(campaign_id: String) -> int:
+	var total := 0
+	var development: Dictionary = _load().get("development", {})
+	for key in development:
+		if key.begins_with(campaign_id + "/"):
+			total += int(development[key])
+	return total - Forge.spent(upgrades(campaign_id))
+
+
+## A campaign's Forge upgrades: {family: {stat: level}}.
+static func upgrades(campaign_id: String) -> Dictionary:
+	return Forge.normalized(_load().get("forge", {}).get(campaign_id, {}))
+
+
+## Buys the next level of a line's stat with the campaign's development points.
+static func buy_upgrade(campaign_id: String, family: String, stat: String) -> bool:
+	var owned := upgrades(campaign_id)
+	if Forge.problem(owned, family, stat, development_points(campaign_id)) != "":
+		return false
+	Forge.raise(owned, family, stat)
+	var data := _load()
+	if not data.has("forge"):
+		data.forge = {}
+	data.forge[campaign_id] = owned
+	_store(data)
+	return true
 
 
 ## Missions open in order: the first, then each one after a finished mission.

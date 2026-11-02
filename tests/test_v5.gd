@@ -22,8 +22,7 @@ func _test_roster(t) -> void:
 	Rules.ensure_loaded()
 	t.check(Rules.units.size() == 21, "21 unit types in all (%d)" % Rules.units.size())
 	var pikemen := Rules.unit("pikemen")
-	t.check(pikemen.civilization == "" and pikemen.required_tech == "chain_mail" and pikemen.unit_class == "infantry",
-		"pikemen are base-roster infantry that need Chain Mail")
+	t.check(pikemen.civilization == "" and pikemen.unit_class == "infantry", "pikemen are base-roster infantry")
 	t.check(Rules.civilization("crusader").special_units == ["brother_knight", "mounted_sergeant"]
 		and Rules.unit("brother_knight").civilization == "crusader" and Rules.unit("mounted_sergeant").civilization == "crusader",
 		"the Crusader Orders have the Brother Knight and the Mounted Sergeant")
@@ -113,8 +112,8 @@ func _test_pikemen_counters(t) -> void:
 
 func _test_crusader_units(t) -> void:
 	var knight := Rules.unit("brother_knight")
-	t.check(knight.is_cavalry() and knight.counter_id() == "heavy_cavalry" and knight.charge_bonus > 1.0 and knight.required_tech == "stirrups",
-		"Brother Knights are heavy cavalry with a charge bonus, needing Stirrups")
+	t.check(knight.is_cavalry() and knight.counter_id() == "heavy_cavalry" and knight.charge_bonus > 1.0,
+		"Brother Knights are heavy cavalry with a charge bonus")
 	var vs_heavy := _win_rate("brother_knight", "heavy_cavalry")
 	t.check(vs_heavy >= 0.6, "Brother Knights beat ordinary heavy cavalry (%d%%)" % roundi(vs_heavy * 100))
 	t.check(_win_rate("brother_knight", "pikemen") <= 0.3 and _win_rate("brother_knight", "spearmen") <= 0.6,
@@ -122,9 +121,9 @@ func _test_crusader_units(t) -> void:
 			roundi(_win_rate("brother_knight", "pikemen") * 100), roundi(_win_rate("brother_knight", "spearmen") * 100)])
 
 	var sergeant := Rules.unit("mounted_sergeant")
-	t.check(sergeant.is_cavalry() and sergeant.required_tech == "" and sergeant.counter_id() == "light_cavalry"
+	t.check(sergeant.is_cavalry() and sergeant.counter_id() == "light_cavalry"
 		and sergeant.hp > Rules.unit("light_cavalry").hp and sergeant.cost_gold > Rules.unit("light_cavalry").cost_gold,
-		"Mounted Sergeants are tougher, dearer light cavalry with no tech needed")
+		"Mounted Sergeants are tougher, dearer light cavalry")
 	t.check(_win_rate("mounted_sergeant", "archers") >= 0.9 and _win_rate("mounted_sergeant", "light_cavalry") >= 0.6,
 		"Mounted Sergeants ride down archers (%d%%) and beat light cavalry (%d%%)" % [
 			roundi(_win_rate("mounted_sergeant", "archers") * 100), roundi(_win_rate("mounted_sergeant", "light_cavalry") * 100)])
@@ -142,7 +141,7 @@ func _test_crusader_bonus(t) -> void:
 		"Crusader hospitals heal armies at home even after they marched or fought")
 	t.check(Economy.roster(state, "blue").has("brother_knight") and not Economy.roster(state, "red").has("brother_knight")
 		and Economy.roster(state, "red").has("pikemen"), "only the Crusader Orders recruit Brother Knights; everyone can field pikemen")
-	t.check(Economy.bundle_of(state, "blue", "pikemen").is_empty(), "pikemen need Chain Mail first")
+	t.check(not Economy.bundle_of(state, "blue", "pikemen").is_empty(), "pikemen can be bought from the start")
 
 
 func _test_new_objectives(t) -> void:
@@ -216,9 +215,6 @@ func _test_missions(t) -> void:
 					problems.append("%s doesn't hold its capital" % faction)
 				if state.units_of(faction).is_empty():
 					problems.append("%s has no army" % faction)
-				for tech in state.factions[faction].techs:
-					if not Rules.techs.has(tech):
-						problems.append("unknown tech " + tech)
 			for objective in scenario.mission.objectives:
 				kinds[objective.type] = true
 				match objective.type:

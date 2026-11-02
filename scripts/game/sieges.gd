@@ -18,12 +18,9 @@ static func walls(state: GameState, region: String) -> int:
 	return state.provinces[region].level("walls")
 
 
-## Turns of siege the walls hold out: 2 per level, 1 less with Siege Engineering.
-static func duration(state: GameState, region: String, besieger: String) -> int:
-	var turns := walls(state, region) * TURNS_PER_LEVEL
-	if state.factions.has(besieger) and state.factions[besieger].has_tech("siege_engineering"):
-		turns -= 1
-	return maxi(turns, 1)
+## Turns of siege the walls hold out: 2 per level.
+static func duration(state: GameState, region: String, _besieger := "") -> int:
+	return maxi(walls(state, region) * TURNS_PER_LEVEL, 1)
 
 
 static func breached(state: GameState, region: String) -> bool:

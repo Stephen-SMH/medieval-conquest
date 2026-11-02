@@ -136,7 +136,7 @@ func _test_ai(t) -> void:
 		{"buildings": {"kingsvale": {"barracks": 1}}, "resources": {"red": {"gold": 500, "wood": 200, "manpower": 200}}})
 	Helpers.plan_as(state, "red")
 	AI.play_turn(state)
-	t.check(state.provinces.kingsvale.recruits.any(func(b): return b.type == "spearmen"), "facing cavalry, the AI buys spearmen %s" % [state.provinces.kingsvale.recruits])
+	t.check(state.provinces.kingsvale.recruits.any(func(b): return b.type in ["spearmen", "pikemen"]), "facing cavalry, the AI buys spears %s" % [state.provinces.kingsvale.recruits])
 
 	# A whole game with no humans: it must finish with a winner, quickly, without errors.
 	var scenario: Dictionary = (load("res://scripts/session.gd") as GDScript).call("load_scenario", "heartlands")

@@ -19,4 +19,3 @@ counter_as = ""
 civilization = ""
 cost_gold = 190
 upkeep_gold = 4
-required_tech = "siege_engineering"

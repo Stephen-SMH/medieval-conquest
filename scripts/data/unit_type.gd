@@ -30,8 +30,6 @@ extends Resource
 @export var skirmisher := false
 ## "" for the base roster, else the only civilization that can recruit it.
 @export var civilization := ""
-## Research needed before it can be recruited (RE-5); "" for none.
-@export var required_tech := ""
 ## Price in gold (8.9: gold is the only resource).
 @export var cost_gold := 50
 ## Gold a full unit costs each turn.

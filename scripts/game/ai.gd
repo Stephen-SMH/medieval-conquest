@@ -54,7 +54,6 @@ static func play_turn(state: GameState) -> Array:
 static func _manage_economy(state: GameState, faction: String) -> void:
 	var me: FactionState = state.factions[faction]
 	var change := Economy.deltas(state, faction)
-	Research.choose_for_ai(state, faction)
 
 	var capital: String = state.capitals.get(faction, "")
 	var wishes := []

@@ -7,7 +7,6 @@
 [ext_resource type="Script" path="res://scripts/battle_report.gd" id="6_report"]
 [ext_resource type="Script" path="res://scripts/end_screen.gd" id="8_end"]
 [ext_resource type="Script" path="res://scripts/save_popup.gd" id="9_saves"]
-[ext_resource type="Script" path="res://scripts/research_panel.gd" id="10_research"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_main")
@@ -203,25 +202,3 @@ layout_mode = 2
 [node name="Rows" type="VBoxContainer" parent="UI/SavePopup/Margin"]
 layout_mode = 2
 theme_override_constants/separation = 8
-
-[node name="ResearchPanel" type="PanelContainer" parent="UI"]
-visible = false
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -560.0
-offset_top = -200.0
-offset_right = 560.0
-offset_bottom = 200.0
-grow_horizontal = 2
-grow_vertical = 2
-script = ExtResource("10_research")
-
-[node name="Margin" type="MarginContainer" parent="UI/ResearchPanel"]
-layout_mode = 2
-
-[node name="Rows" type="VBoxContainer" parent="UI/ResearchPanel/Margin"]
-layout_mode = 2
-theme_override_constants/separation = 10

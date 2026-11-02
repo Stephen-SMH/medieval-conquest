@@ -61,8 +61,8 @@ func _test_bundles(t) -> void:
 		{"capitals": {"blue": "greywater"}, "resources": {"blue": {"gold": 1000}}})
 	var bundles := Economy.bundles(state, "blue")
 	var types := bundles.map(func(b): return b.type)
-	t.check(types.has("spearmen") and not types.has("berserker") and not types.has("heavy_cavalry"),
-		"bundles of the base roster: not another civilization's soldiers, nor ones that need research")
+	t.check(types.has("spearmen") and types.has("heavy_cavalry") and not types.has("berserker"),
+		"bundles of the base roster, not another civilization's soldiers")
 	var small := Economy.bundle_of(state, "blue", "archers")
 	var large := Economy.bundle_of(state, "blue", "archers", true)
 	t.check(small == {"type": "archers", "soldiers": 5, "price": 45} and large == {"type": "archers", "soldiers": 10, "price": 75},

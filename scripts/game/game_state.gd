@@ -72,10 +72,10 @@ static func from_scenario(scenario: Dictionary, game_seed := 1) -> GameState:
 		faction.resources = Economy.START_RESOURCES.duplicate()
 		for resource in scenario.get("resources", {}).get(faction.id, {}):
 			faction.resources[resource] = float(scenario.resources[faction.id][resource])
-		faction.techs.assign(entry.get("techs", []))
 		state.factions[faction.id] = faction
 		state.turn_order.append(faction.id)
 	state.capitals = scenario.get("capitals", {}).duplicate()
+	state.upgrades = scenario.get("upgrades", {}).duplicate(true)
 	for region in state.map.province_order:
 		state.owners[region] = scenario.get("owners", {}).get(region, "neutral")
 		var province := ProvinceState.new()

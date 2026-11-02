@@ -413,8 +413,7 @@
      "civ": "anglish",
      "color": "#b33b3b",
      "human": true,
-     "ai": "balanced",
-     "techs": ["chain_mail"]
+     "ai": "balanced"
     },
     {
      "id": "ashcombe",

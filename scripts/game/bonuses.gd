@@ -1,6 +1,6 @@
 class_name Bonuses
 extends RefCounted
-## Bonuses from civilizations (PRD 8.5) and research (8.7). Everything that
+## Bonuses from civilizations (PRD 8.5) and the Forge (G). Everything that
 ## asks "does this faction get something extra?" comes through here.
 
 const ANGLISH_HOME_DEFENSE := 1.15
@@ -17,7 +17,7 @@ static func civ(state: GameState, faction: String) -> String:
 
 ## Multiplier for a kind of income: "gold" (all of it) or "market".
 static func income(state: GameState, faction: String, kind: String) -> float:
-	var multiplier := Research.income(state, faction, kind)
+	var multiplier := 1.0
 	if kind == "market" and civ(state, faction) == "byzantine":
 		multiplier *= BYZANTINE_MARKETS
 	return multiplier
@@ -38,10 +38,10 @@ static func heals_on_the_move(state: GameState, faction: String) -> bool:
 	return civ(state, faction) == "crusader"
 
 
-## Adds civilization and research bonuses to a troop's battle multipliers.
+## Adds civilization bonuses and Forge upgrades to a troop's battle multipliers.
 static func battle(state: GameState, troop: Troop, owner: String, defending: bool, region: String, _from := "") -> void:
 	if defending and civ(state, owner) == "anglish" and state.owners.get(region) == owner:
 		troop.defense_mod *= ANGLISH_HOME_DEFENSE
 	if not defending and civ(state, owner) == "norse" and state.map.is_coastal(region):
 		troop.attack_mod *= NORSE_SHORE_ATTACK
-	Research.battle(state, troop, owner)
+	Forge.apply(state.upgrades.get(owner, {}), troop)

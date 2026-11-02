@@ -58,26 +58,18 @@ so the white shape can be tinted; the shapes are unchanged.
 
 | File | Icon | Author | Used for | Licence |
 |---|---|---|---|---|
-| `assets/icons/spearmen.svg` | [spears](https://game-icons.net/1x1/lorc/spears.html) | Lorc | Drill research | CC BY 3.0 |
-| `assets/icons/archers.svg` | [pocket-bow](https://game-icons.net/1x1/lorc/pocket-bow.html) | Lorc | Bow slider in the attack window; Composite Bows research | CC BY 3.0 |
-| `assets/icons/light_cavalry.svg` | [horse-head](https://game-icons.net/1x1/delapouite/horse-head.html) | Delapouite | Stirrups research | CC BY 3.0 |
-| `assets/icons/catapult.svg` | [catapult](https://game-icons.net/1x1/heavenly-dog/catapult.html) | HeavenlyDog | Siege Engineering research | CC BY 3.0 |
-| `assets/icons/knight.svg` | [visored-helm](https://game-icons.net/1x1/lorc/visored-helm.html) | Lorc | Recruit button; Chain Mail research | CC BY 3.0 |
-| `assets/icons/res_gold.svg` | [two-coins](https://game-icons.net/1x1/delapouite/two-coins.html) | Delapouite | Coinage research | CC BY 3.0 |
-| `assets/icons/res_food.svg` | [wheat](https://game-icons.net/1x1/lorc/wheat.html) | Lorc | Crop Rotation research | CC BY 3.0 |
-| `assets/icons/res_wood.svg` | [log](https://game-icons.net/1x1/delapouite/log.html) | Delapouite | Heavy Plough research | CC BY 3.0 |
-| `assets/icons/res_iron.svg` | [metal-bar](https://game-icons.net/1x1/lorc/metal-bar.html) | Lorc | Mining research | CC BY 3.0 |
-| `assets/icons/research.svg` | [scroll-quill](https://game-icons.net/1x1/delapouite/scroll-quill.html) | Delapouite | Research fallback icon | CC BY 3.0 |
+| `assets/icons/knight.svg` | [visored-helm](https://game-icons.net/1x1/lorc/visored-helm.html) | Lorc | Reinforcements button | CC BY 3.0 |
 | `assets/icons/map_crown.svg` | [crown](https://game-icons.net/1x1/lorc/crown.html) | Lorc | Capital marker | CC BY 3.0 |
 | `assets/icons/map_tower.svg` | [tower-flag](https://game-icons.net/1x1/delapouite/tower-flag.html) | Delapouite | Castle (walls) marker | CC BY 3.0 |
-| `assets/icons/map_camp.svg` | [camping-tent](https://game-icons.net/1x1/delapouite/camping-tent.html) | Delapouite | Camp marker (mercenaries) | CC BY 3.0 |
-| `assets/icons/map_town.svg` | [village](https://game-icons.net/1x1/delapouite/village.html) | Delapouite | Town marker (mercenaries) | CC BY 3.0 |
+| `assets/icons/map_camp.svg` | [camping-tent](https://game-icons.net/1x1/delapouite/camping-tent.html) | Delapouite | Camp marker (reinforcements) | CC BY 3.0 |
+| `assets/icons/map_town.svg` | [village](https://game-icons.net/1x1/delapouite/village.html) | Delapouite | Town marker (reinforcements) | CC BY 3.0 |
 | `assets/icons/map_ship.svg` | [drakkar](https://game-icons.net/1x1/delapouite/drakkar.html) | Delapouite | Ships on the coast | CC BY 3.0 |
 | `assets/icons/ui_coins.svg` | [coins-pile](https://game-icons.net/1x1/delapouite/coins-pile.html) | Delapouite | Gold, region income, prices | CC BY 3.0 |
 | `assets/icons/ui_hourglass.svg` | [hourglass](https://game-icons.net/1x1/lorc/hourglass.html) | Lorc | End turn and turn counter | CC BY 3.0 |
 | `assets/icons/ui_pause.svg` | [pause-button](https://game-icons.net/1x1/guard13007/pause-button.html) | Guard13007 | Menu button | CC BY 3.0 |
 | `assets/icons/ui_swords.svg` | [crossed-swords](https://game-icons.net/1x1/lorc/crossed-swords.html) | Lorc | Melee slider and battles | CC BY 3.0 |
-| `assets/icons/ui_check.svg` | [check-mark](https://game-icons.net/1x1/delapouite/check-mark.html) | Delapouite | Confirm buttons; known research | CC BY 3.0 |
+| `assets/icons/ui_check.svg` | [check-mark](https://game-icons.net/1x1/delapouite/check-mark.html) | Delapouite | Confirm buttons | CC BY 3.0 |
+| `assets/icons/ui_anvil.svg` | [anvil](https://game-icons.net/1x1/lorc/anvil.html) | Lorc | The Forge | CC BY 3.0 |
 
 ## Fonts
 

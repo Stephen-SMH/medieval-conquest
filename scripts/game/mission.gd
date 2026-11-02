@@ -15,6 +15,9 @@ extends RefCounted
 ##   "briefing", "victory_text", "defeat_text".
 ## Without a mission, the last faction standing wins.
 
+## Development points for winning a mission (G): this many, plus one per star.
+const DEVELOPMENT_FOR_WIN := 2
+
 
 static func is_mission(state: GameState) -> bool:
 	return not state.mission.is_empty()
@@ -122,7 +125,8 @@ static func evaluate(state: GameState) -> Dictionary:
 		return {"result": "lost", "winner": "", "stars": 0, "reason": "Your capital has fallen."}
 	var list := objectives(state)
 	if not list.is_empty() and list.all(func(o): return o.done):
-		return {"result": "won", "winner": faction, "stars": stars_for(state.turn, par(state)),
+		var stars := stars_for(state.turn, par(state))
+		return {"result": "won", "winner": faction, "stars": stars, "development": DEVELOPMENT_FOR_WIN + stars,
 			"reason": "Every objective complete on turn %d (par %d)." % [state.turn, par(state)]}
 	if par(state) > 0 and state.turn > hard_limit(state):
 		return {"result": "lost", "winner": "", "stars": 0,

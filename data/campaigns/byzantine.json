@@ -288,8 +288,7 @@
      "civ": "byzantine",
      "color": "#7a40a0",
      "human": true,
-     "ai": "balanced",
-     "techs": ["chain_mail", "stirrups"]
+     "ai": "balanced"
     },
     {
      "id": "phylakion",

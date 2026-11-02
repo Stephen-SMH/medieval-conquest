@@ -17,9 +17,7 @@ static func to_dict(state: GameState) -> Dictionary:
 	for id in state.turn_order:
 		var faction: FactionState = state.factions[id]
 		factions.append({"id": id, "name": faction.display_name, "color": faction.color.to_html(), "civ": faction.civ,
-			"human": faction.human, "ai": faction.ai, "alive": faction.alive, "resources": faction.resources.duplicate(),
-			"techs": Array(faction.techs), "researching": faction.researching,
-			"research_turns_left": faction.research_turns_left})
+			"human": faction.human, "ai": faction.ai, "alive": faction.alive, "resources": faction.resources.duplicate()})
 	var provinces := {}
 	for region in state.provinces:
 		var province: ProvinceState = state.provinces[region]
@@ -62,9 +60,6 @@ static func from_dict(data: Dictionary) -> GameState:
 		faction.alive = entry.alive
 		for resource in entry.resources:
 			faction.resources[resource] = float(entry.resources[resource])
-		faction.techs.assign(entry.techs)
-		faction.researching = entry.researching
-		faction.research_turns_left = int(entry.research_turns_left)
 		state.factions[faction.id] = faction
 		state.turn_order.append(faction.id)
 	state.owners = data.owners.duplicate()
@@ -114,7 +109,9 @@ static func from_dict(data: Dictionary) -> GameState:
 			state.result[key] = int(state.result[key])
 	for faction in data.get("kills", {}):
 		state.kills[faction] = int(data.kills[faction])
-	state.upgrades = data.get("upgrades", {}).duplicate(true)
+	state.upgrades = {}
+	for faction in data.get("upgrades", {}):
+		state.upgrades[faction] = Forge.normalized(data.upgrades[faction])
 	for faction in data.get("losses", {}):
 		state.losses[faction] = {}
 		for type_id in data.losses[faction]:

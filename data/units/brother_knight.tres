@@ -20,4 +20,3 @@ civilization = "crusader"
 cost_gold = 280
 upkeep_gold = 7
 charge_bonus = 1.15
-required_tech = "stirrups"

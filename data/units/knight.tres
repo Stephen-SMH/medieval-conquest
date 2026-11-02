@@ -20,4 +20,3 @@ civilization = "frankish"
 cost_gold = 260
 upkeep_gold = 7
 charge_bonus = 1.25
-required_tech = "stirrups"

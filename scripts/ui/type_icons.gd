@@ -122,3 +122,12 @@ static func control(type_id: String, size: float, upgraded := false) -> Control:
 	icon.tooltip_text = Rules.unit(type_id).display_name
 	icon.draw.connect(func(): TypeIcons.draw(icon, type_id, Rect2(Vector2.ZERO, icon.size), upgraded))
 	return icon
+
+
+## A Control that shows a line's icon (a family, as in the Forge).
+static func family_control(kind: String, size: float, upgraded := false) -> Control:
+	var icon := Control.new()
+	icon.custom_minimum_size = Vector2(size, size)
+	icon.tooltip_text = FAMILY_NAMES[kind]
+	icon.draw.connect(func(): TypeIcons.draw_family(icon, kind, Rect2(Vector2.ZERO, icon.size), upgraded))
+	return icon

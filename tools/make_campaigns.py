@@ -61,7 +61,7 @@ def grow(graph, starts_and_sizes):
 def mission(map_id, mission_id, title, player, factions, objectives, par, briefing, victory, defeat,
             walls=None, neutral_garrison=True, extra_buildings=None):
     """factions: list of dicts {id, name, civ, start (slot index or region), size, ai, units}
-    and optionally "gold" (starting gold) and "techs" (already researched)."""
+    and optionally "gold" (starting gold)."""
     data, graph, names = load_map(map_id)
     starts = []
     for faction in factions:
@@ -123,8 +123,6 @@ def mission(map_id, mission_id, title, player, factions, objectives, par, briefi
     for f in factions:
         entry = {"id": f["id"], "name": f["name"], "civ": f["civ"], "color": CIV_COLORS[f["civ"]] if f["id"] == player
                  else f.get("color", CIV_COLORS[f["civ"]]), "human": f["id"] == player, "ai": f.get("ai", "balanced")}
-        if f.get("techs"):
-            entry["techs"] = f["techs"]
         entries.append(entry)
     result = {
         "id": mission_id, "name": title, "map": map_id,
@@ -243,7 +241,7 @@ write("anglish", "anglish", "The Longbow Wars",
         "The raiders still hold the coast."),
     mission("wealdshire", "anglish_4", "Hunt the Black Count", "weald", [
         {"id": "weald", "name": "Kingdom of the Weald", "civ": "anglish", "start": 0, "size": 4, "general": "Elswyth",
-         "techs": ["chain_mail"], "units": ["longbowman", "pikemen", "longbowman", "yeoman", "swordsmen", "light_cavalry"]},
+         "units": ["longbowman", "pikemen", "longbowman", "yeoman", "swordsmen", "light_cavalry"]},
         {"id": "ashcombe", "name": "Count of Ashcombe", "civ": "frankish", "start": 1, "size": 4, "general": "Baudouin",
          "units": ["knight", "sergeant", "crossbowmen", "light_cavalry"], "ai": "balanced"},
     ], [{"type": "destroy_general", "faction": "ashcombe"}], 11,
@@ -337,7 +335,7 @@ write("crusader", "crusader", "The Sunward Vow",
         "The road is lost, and the keep stands alone."),
     mission("sunward", "crusader_2", "The Keep on the Rock", "order", [
         {"id": "order", "name": "Order of the Sunward Keep", "civ": "crusader", "start": 0, "size": 4, "general": "Aubert",
-         "techs": ["chain_mail"], "units": ["brother_knight", "pikemen", "crossbowmen", "spearmen"]},
+         "units": ["brother_knight", "pikemen", "crossbowmen", "spearmen"]},
         {"id": "pelerin", "name": "Riders of Mont Pélerin", "civ": "saracen", "start": 3, "size": 4, "general": "Tariq", "gold": 450,
          "units": ["mamluk", "ghazi", "ghazi", "archers", "light_cavalry"], "ai": "aggressive"},
     ], [{"type": "hold", "region": "capital:order", "turns": 6}], 7,
@@ -347,7 +345,6 @@ write("crusader", "crusader", "The Sunward Vow",
         "Castel Aubade falls, and the order's banner comes down.", walls={"order": 1}),
     mission("sunward", "crusader_3", "The Emir's Champion", "order", [
         {"id": "order", "name": "Order of the Sunward Keep", "civ": "crusader", "start": 0, "size": 4, "general": "Aubert",
-         "techs": ["chain_mail", "stirrups"],
          "units": ["brother_knight", "mounted_sergeant", "pikemen", "crossbowmen", "archers"]},
         {"id": "jebel", "name": "Emir of Jebel Nur", "civ": "saracen", "start": 1, "size": 5, "general": "Rashid", "gold": 450,
          "units": ["mamluk", "ghazi", "archers", "spearmen", "light_cavalry"], "ai": "balanced"},
@@ -357,7 +354,6 @@ write("crusader", "crusader", "The Sunward Vow",
         "Rashid's horsemen ride rings around the brothers."),
     mission("sunward", "crusader_4", "The Kingdom by the Sea", "order", [
         {"id": "order", "name": "Order of the Sunward Keep", "civ": "crusader", "start": 0, "size": 5, "general": "Aubert",
-         "techs": ["chain_mail", "stirrups"],
          "units": ["brother_knight", "brother_knight", "mounted_sergeant", "pikemen", "crossbowmen", "spearmen"]},
         {"id": "jebel", "name": "Emir of Jebel Nur", "civ": "saracen", "start": 1, "size": 5, "general": "Rashid", "gold": 500,
          "units": ["mamluk", "ghazi", "ghazi", "archers", "mamluk"], "ai": "balanced"},
@@ -398,7 +394,6 @@ write("byzantine", "byzantine", "The Purple and the Gold",
         "With no gold for the guard, the capital opens its gates.", walls={"empire": 2}, extra_buildings={"empire": {"market": 2}}),
     mission("porphyry", "byzantine_3", "The Empire Restored", "empire", [
         {"id": "empire", "name": "Empire of the Golden Horn", "civ": "byzantine", "start": 0, "size": 5, "general": "Kassia",
-         "techs": ["chain_mail", "stirrups"],
          "units": ["cataphract", "varangian_guard", "varangian_guard", "archers", "crossbowmen", "pikemen"]},
         {"id": "phylakion", "name": "Emir of Phylakion", "civ": "saracen", "start": 2, "size": 5, "general": "Faris", "gold": 350,
          "units": ["mamluk", "ghazi", "ghazi", "archers"], "ai": "balanced"},
@@ -426,7 +421,7 @@ write("saracen", "saracen", "Banners of the Sands",
         "The oases close their gates to Zaydan."),
     mission("amber_sands", "saracen_2", "The Iron Brothers", "emirate", [
         {"id": "emirate", "name": "Emirate of the Sands", "civ": "saracen", "start": 0, "size": 4, "general": "Zaydan",
-         "techs": ["chain_mail"], "units": ["mamluk", "mamluk", "ghazi", "pikemen", "archers", "spearmen"]},
+         "units": ["mamluk", "mamluk", "ghazi", "pikemen", "archers", "spearmen"]},
         {"id": "tamr", "name": "Knights of Hisn Tamr", "civ": "crusader", "start": 2, "size": 4, "general": "Aimon",
          "units": ["brother_knight", "mounted_sergeant", "spearmen", "crossbowmen"], "ai": "defensive"},
     ], [{"type": "destroy_general", "faction": "tamr"}], 10,
@@ -436,7 +431,7 @@ write("saracen", "saracen", "Banners of the Sands",
         "The iron brothers ride on through the burning groves.", walls={"emirate": 1}),
     mission("amber_sands", "saracen_3", "Sultan of the Sands", "emirate", [
         {"id": "emirate", "name": "Emirate of the Sands", "civ": "saracen", "start": 0, "size": 5, "general": "Zaydan",
-         "techs": ["chain_mail"], "gold": 600,
+         "gold": 600,
          "units": ["mamluk", "mamluk", "ghazi", "pikemen", "archers", "crossbowmen"]},
         {"id": "tamr", "name": "Knights of Hisn Tamr", "civ": "crusader", "start": 2, "size": 3, "general": "Aimon",
          "units": ["brother_knight", "crossbowmen", "spearmen"], "ai": "balanced"},

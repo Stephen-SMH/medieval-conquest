@@ -1,91 +1,71 @@
 extends RefCounted
-## V4: research trees and their effects, hotseat, touch gestures, settings and
-## export presets.
+## V4: the Forge (which replaced research), hotseat, touch gestures, settings
+## and export presets.
 
 const Helpers := preload("res://tests/helpers.gd")
 
 
 func run(t) -> void:
-	_test_trees(t)
-	_test_research_flow(t)
-	_test_research_effects(t)
+	_test_forge(t)
 	_test_hotseat(t)
 	_test_touch(t)
 	_test_settings_and_exports(t)
 
 
-func _test_trees(t) -> void:
-	Rules.ensure_loaded()
-	for tree in ["economy", "military"]:
-		var techs := Rules.techs.values().filter(func(x: TechType): return x.tree == tree)
-		var tiers := {}
-		for tech: TechType in techs:
-			tiers[tech.tier] = true
-		t.check(techs.size() == 6 and tiers.keys().size() == 3, "the %s tree has 6 techs in 3 tiers" % tree)
-	var turns_ok := Rules.techs.values().all(func(x: TechType): return x.turns >= 2 and x.turns <= 4 and x.cost_gold > 0)
-	t.check(turns_ok, "every tech costs gold and takes 2-4 turns")
-	var requires_ok := Rules.techs.values().all(func(x: TechType): return x.requires.all(func(r): return Rules.techs.has(r) and Rules.tech(r).tier < x.tier))
-	t.check(requires_ok, "every tech needs only techs from lower tiers")
+## The Forge between missions (G) replaces research: development points buy
+## attack, defense and health levels for a line of soldiers.
+func _test_forge(t) -> void:
+	t.check(not ResourceLoader.exists("res://scripts/game/research.gd") and not ("techs" in FactionState.new())
+		and Rules.units.values().all(func(u): return not ("required_tech" in u)), "research is gone: every soldier type can be bought")
+	var owned := {}
+	t.check(Forge.problem(owned, "bow", "attack", 0) == "needs 1 point" and Forge.problem(owned, "bow", "attack", 1) == "", "a first level costs 1 point")
+	Forge.raise(owned, "bow", "attack")
+	Forge.raise(owned, "bow", "attack")
+	t.check(Forge.spent(owned) == 3 and Forge.problem(owned, "bow", "attack", 2) == "needs 3 points", "the next 2, then 3")
+	Forge.raise(owned, "bow", "attack")
+	Forge.raise(owned, "horse", "health")
+	t.check(Forge.spent(owned) == 7 and Forge.problem(owned, "bow", "attack", 99) == "fully upgraded", "up to level 3")
+	t.check(Forge.families("norse") == TypeIcons.FAMILIES and Forge.families("") == TypeIcons.FAMILIES, "every civilization fields all seven lines")
 
-
-func _test_research_flow(t) -> void:
-	var state := Helpers.game({"greywater": "blue"}, [], 7, {"resources": {"blue": {"gold": 1000}}})
-	var blue: FactionState = state.factions.blue
-	t.check(Research.problem(state, "blue", "mining") == "needs Coinage", "techs need their prerequisites")
-	t.check(Research.start(state, "blue", "coinage") and blue.resources.gold == 900.0, "research is paid in gold when it starts")
-	t.check(Research.problem(state, "blue", "crop_rotation").begins_with("already researching"), "one tech at a time")
-	Helpers.resolve(state)  # Red holds nothing here, so each end of turn is a full turn.
-	t.check(not blue.has_tech("coinage") and blue.research_turns_left == 1, "after 1 of 2 turns it isn't done")
-	var events := Helpers.resolve(state)
-	t.check(blue.has_tech("coinage") and blue.researching == "" and events.any(func(e): return "Research complete" in e.get("text", "")),
-		"after 2 turns Coinage is known and reported")
+	# In battle: +10% a level, for that line only.
+	var state := Helpers.game({"greywater": "blue", "kingsvale": "blue", "ashford": "red"}, [
+		["blue", "greywater", "longbowman"], ["blue", "kingsvale", "knight"], ["red", "ashford", "archers"]], 7,
+		{"blue_civ": "frankish"})
+	state.upgrades = {"blue": owned}
+	var bows: Troop = state.unit_in("greywater").troops[0]
+	var horse: Troop = state.unit_in("kingsvale").troops[0]
+	var theirs: Troop = state.unit_in("ashford").troops[0]
+	state.prepare_for_battle(bows, "blue", false, "ashford")
+	state.prepare_for_battle(horse, "blue", true, "kingsvale")
+	state.prepare_for_battle(theirs, "red", true, "ashford")
+	t.check(is_equal_approx(bows.attack_mod, 1.3) and bows.defense_mod == 1.0, "3 attack levels: archers' line attacks 30% harder (longbows too)")
+	t.check(is_equal_approx(horse.toughness, 1.1) and horse.attack_mod == 1.0, "1 health level: cavalry take 10% less damage")
+	t.check(theirs.attack_mod == 1.0 and not state.is_upgraded("red", "archers") and state.is_upgraded("blue", "archers")
+		and state.is_upgraded("blue", "knight") and not state.is_upgraded("blue", "spearmen"), "only the owner's upgraded lines get the star")
 	var saved := SaveGame.from_dict(JSON.parse_string(JSON.stringify(SaveGame.to_dict(state))))
-	t.check(saved.factions.blue.has_tech("coinage"), "research survives save and load")
+	t.check(saved.upgrades == state.upgrades, "upgrades survive save and load")
 
-	state = Helpers.game({"greywater": "blue", "eastwold": "red"}, [], 7, {"resources": {"red": {"gold": 600}}})
-	Helpers.plan_as(state, "red")
-	AI.play_turn(state)
-	t.check(state.factions.red.researching != "", "the AI picks research (%s)" % state.factions.red.researching)
+	# Points come from missions and stay with the campaign.
+	Progress.path = "user://test_forge_progress.json"
+	Progress.reset()
+	Progress.record("norse", 0, 3, 5)
+	Progress.record("norse", 0, 1, 3)
+	Progress.record("norse", 1, 2, 4)
+	t.check(Progress.mission_points("norse", 0) == 5 and Progress.development_points("norse") == 9 and Progress.development_points("anglish") == 0,
+		"each mission keeps its best points; a campaign's points are its own")
+	t.check(Progress.buy_upgrade("norse", "spears", "defense") and Progress.buy_upgrade("norse", "spears", "defense")
+		and Progress.development_points("norse") == 6 and Progress.upgrades("norse") == {"spears": {"defense": 2}}, "the Forge spends them")
+	t.check(not Progress.buy_upgrade("anglish", "spears", "defense"), "with no points nothing can be bought")
+	var scenario := Forge.equip(Campaigns.mission("norse", 1), Progress.upgrades("norse"))
+	var game := GameState.from_scenario(scenario, 1)
+	t.check(game.upgrades == {scenario.mission.player: {"spears": {"defense": 2}}}, "a campaign mission starts with the campaign's upgrades")
+	DirAccess.remove_absolute(Progress.path)
+	Progress.path = Progress.PATH
 
-
-func _test_research_effects(t) -> void:
-	var state := Helpers.game({"greywater": "blue", "kingsvale": "blue", "highcrag": "blue"}, [
-		["blue", "greywater", "spearmen"], ["blue", "kingsvale", "archers"], ["blue", "northmarch", "heavy_cavalry"]], 7,
-		{"buildings": {"greywater": {"market": 2, "barracks": 1}, "kingsvale": {"walls": 1}},
-			"resources": {"blue": {"gold": 5000}}})
-	var blue: FactionState = state.factions.blue
-	var plains := Economy.region_income(state, "kingsvale")
-	var mountains := Economy.region_income(state, "highcrag")
-	var upkeep := Economy.unit_upkeep(state, state.unit_in("greywater"))
-	t.check(Economy.bundle_of(state, "blue", "catapult").is_empty() and Economy.bundle_of(state, "blue", "heavy_cavalry").is_empty(),
-		"catapults need Siege Engineering and heavy cavalry needs Stirrups")
-	t.check(Sieges.duration(state, "kingsvale", "blue") == 2, "a palisade holds out 2 turns")
-
-	blue.techs.assign(["crop_rotation"])
-	t.check(Economy.region_income(state, "highcrag") == mountains + 1.0, "Crop Rotation: +1 gold from every region")
-	blue.techs.assign(["mining"])
-	t.check(Economy.region_income(state, "highcrag") == mountains + 5.0, "Mining: +5 gold from mountains")
-	blue.techs.assign(["heavy_plough"])
-	t.check(Economy.region_income(state, "kingsvale") == plains + 2.0, "Heavy Plough: +2 gold from plains")
-	blue.techs.assign(["coinage"])
-	t.check(Economy.region_income(state, "highcrag") == roundf(mountains * 1.15), "Coinage: +15% gold")
-	blue.techs.assign(["guilds"])
-	t.check(Economy.region_income(state, "greywater") == 10.0 + 16.0 * 1.25, "Guilds: +25% from markets")
-	blue.techs.assign(["logistics"])
-	t.check(is_equal_approx(Economy.unit_upkeep(state, state.unit_in("greywater")), upkeep * 0.8), "Logistics: upkeep costs 20% less")
-
-	blue.techs.assign(Rules.techs.keys())
-	t.check(not Economy.bundle_of(state, "blue", "catapult").is_empty() and not Economy.bundle_of(state, "blue", "heavy_cavalry").is_empty(),
-		"the researched units can be bought")
-	t.check(Sieges.duration(state, "kingsvale", "blue") == 1, "Siege Engineering: sieges take 1 turn less")
-	blue.techs.erase("drill")
-	state.prepare_for_battle(state.unit_in("greywater").troops[0], "blue", true, "greywater")
-	state.prepare_for_battle(state.unit_in("kingsvale").troops[0], "blue", false, "greywater")
-	state.prepare_for_battle(state.unit_in("northmarch").troops[0], "blue", false, "greywater")
-	t.check(is_equal_approx(state.unit_in("greywater").troops[0].defense_mod, 1.1) and is_equal_approx(state.unit_in("greywater").troops[0].attack_mod, 1.1),
-		"Chain Mail +10% infantry defense, Tempered Steel +10% melee attack")
-	t.check(is_equal_approx(state.unit_in("kingsvale").troops[0].attack_mod, 1.15), "Composite Bows: +15% ranged attack")
-	t.check(is_equal_approx(state.unit_in("northmarch").troops[0].charge_mod, 1.15), "Stirrups: +15% cavalry charge")
+	var won := Helpers.game({"greywater": "blue", "kingsvale": "red"}, [["blue", "greywater", "spearmen"]], 7)
+	won.mission = {"player": "blue", "objectives": [{"type": "capture", "regions": ["greywater"]}], "par": 5}
+	won.update_result()
+	t.check(won.result.result == "won" and won.result.development == Mission.DEVELOPMENT_FOR_WIN + 3, "a won mission earns development points (%s)" % [won.result])
 
 
 func _test_hotseat(t) -> void:

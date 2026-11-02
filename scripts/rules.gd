@@ -1,21 +1,19 @@
 class_name Rules
 extends RefCounted
 ## Game rules loaded from the .tres files under data/: terrains, unit types,
-## the counter table, buildings, civilizations and techs. Loaded once and shared.
+## the counter table, buildings and civilizations. Loaded once and shared.
 
 const TERRAIN_DIR := "res://data/terrains"
 const UNIT_DIR := "res://data/units"
 const COUNTERS_PATH := "res://data/counters.tres"
 const BUILDING_DIR := "res://data/buildings"
 const CIVILIZATION_DIR := "res://data/civilizations"
-const TECH_DIR := "res://data/techs"
 
 static var terrains := {}  # terrain id -> TerrainType
 static var units := {}     # unit type id -> UnitType, in display order
 static var counters: CounterTable
 static var buildings := {}  # building id -> BuildingType, in display order
 static var civilizations := {}  # civilization id -> Civilization, in display order
-static var techs := {}  # tech id -> TechType, by tree and tier
 
 static var _loaded := false
 
@@ -27,11 +25,6 @@ static func ensure_loaded() -> void:
 	units = _sorted(_load_dir(UNIT_DIR))
 	buildings = _sorted(_load_dir(BUILDING_DIR))
 	civilizations = _sorted(_load_dir(CIVILIZATION_DIR))
-	var tech_list := _load_dir(TECH_DIR)
-	var tech_ids := tech_list.keys()
-	tech_ids.sort_custom(func(a, b): return [tech_list[a].tree, tech_list[a].tier, a] < [tech_list[b].tree, tech_list[b].tier, b])
-	for id in tech_ids:
-		techs[id] = tech_list[id]
 	counters = load(COUNTERS_PATH)
 	_loaded = true
 
@@ -46,14 +39,6 @@ static func building(id: String) -> BuildingType:
 
 static func civilization(id: String) -> Civilization:
 	return civilizations.get(id)
-
-
-static func tech(id: String) -> TechType:
-	return techs[id]
-
-
-static func tech_name(id: String) -> String:
-	return techs[id].display_name if techs.has(id) else id.capitalize()
 
 
 ## The same dictionary, re-inserted in the resources' `order`.

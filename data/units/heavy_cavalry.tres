@@ -19,4 +19,3 @@ counter_as = ""
 civilization = ""
 cost_gold = 230
 upkeep_gold = 6
-required_tech = "stirrups"

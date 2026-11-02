@@ -321,7 +321,7 @@ What we keep, because it's what made the game memorable:
 - **A failed attack sends the attacker back** to the region it attacked from. A beaten defender retreats to another friendly region, or is destroyed if it has nowhere to go.
 - **Civilizations with their own troops**, such as Viking Berserkers.
 - **Campaigns of missions** with objectives and a turn limit.
-- **Economic and military research.**
+- **Troops that grow stronger across a campaign** (the reference game's research; here the Forge between missions, 8.7).
 - **Hotseat multiplayer** on one device.
 
 What we do differently:
@@ -341,7 +341,7 @@ What we do differently:
 | UT-3 | **A region holds one unit.** Moving a unit into a friendly region held by the **same type** merges them (up to 20 soldiers; the rest stay behind). Two friendly units can **swap** regions. Any other move into an occupied friendly region is blocked. Recruiting needs an empty region of your own, or reinforces a weakened unit of the same type there. |
 | UT-4 | A unit can **split its soldiers across several orders** a turn (OR-3); each order is a detachment. **Cavalry detachments get two steps**: a move, then a move or an attack. Infantry, archers and siege detachments get one. |
 | UT-5 | **No generals.** (Removed in version 6, as in the reference game.) |
-| UT-6 | **No experience or ranks.** Troops get stronger only through research (version 6: the Forge between missions). |
+| UT-6 | **No experience or ranks.** Troops get stronger only through the Forge between missions (8.7). |
 | UT-7 | **Healing:** a unit that neither moves nor fights regains 2 soldiers per turn in its own region, 4 with Barracks. Each soldier costs gold. |
 | UT-8 | **Merging** adds the soldiers together. |
 
@@ -395,7 +395,7 @@ Across base and special units this gives **21 unit types**, the same as the refe
 | ID | Requirement |
 |---|---|
 | CP-1 | Every civilization has a **campaign of 3 to 5 missions** on its own scenario map (12–20 regions): **25 missions** in all, as in the reference game (see the table below). |
-| CP-2 | A mission has: a starting setup (owners, units, gold, walls, researched techs), **objectives** — capture these regions, hold a region for N turns, destroy a faction, **kill or capture a named general**, **survive N turns** (often with little gold), or conquest — a **par turn count** and a **hard limit** (par × 2). Losing your capital loses the mission. |
+| CP-2 | A mission has: a starting setup (owners, units, gold, walls), **objectives** — capture these regions, hold a region for N turns, destroy a faction, **kill or capture a named general**, **survive N turns** (often with little gold), or conquest — a **par turn count** and a **hard limit** (par × 2). Losing your capital loses the mission. |
 | CP-3 | Finishing at or under par gives 3 stars; under 1.5 × par 2 stars; otherwise 1 star. Passing the hard limit loses the mission. |
 | CP-4 | Missions unlock in order. Finishing campaigns unlocks civilizations (8.5); the Byzantine and Saracen campaigns open when their civilization does. Each campaign starts with an easy capture mission and ends with its hardest, and `tools/sim_campaigns.gd` plays every mission with AI stand-ins to check the ramp. |
 | CP-5 | **Skirmish:** pick a map, your civilization, 1–3 AI opponents and difficulty. Win by conquest. |
@@ -411,15 +411,16 @@ Across base and special units this gives **21 unit types**, the same as the refe
 | **Byzantine — The Purple and the Gold** | The Porphyry Straits | 1 The Rebel Strategos (take Theronike) · 2 The Empty Treasury (survive 6 turns from 100 gold) · 3 The Empire Restored (conquest) |
 | **Saracen — Banners of the Sands** | The Amber Sands | 1 Riders of the Wadi (capture 3 oases) · 2 The Iron Brothers (kill or capture Aimon) · 3 Sultan of the Sands (take two capitals) |
 
-### 8.7 Research (new)
+### 8.7 The Forge (version 6, G; replaces research)
+
+In-mission research is gone, as in the reference game: troops get stronger between missions instead.
 
 | ID | Requirement |
 |---|---|
-| RE-1 | Two research trees, **Economy** and **Military**, each with about 6 techs in 3 tiers. |
-| RE-2 | One tech is researched at a time. Research costs gold and takes 2–4 turns. |
-| RE-3 | Economy (gold only, 8.9): Crop Rotation (+1 gold per region), Coinage (+15% gold), Mining (+3 gold from hills, +5 from mountains), Logistics (−20% upkeep), Heavy Plough (+2 gold from plains), Guilds (+25% from markets). |
-| RE-4 | Military examples: Chain Mail (+10% infantry defense), Composite Bows (+15% ranged attack), Stirrups (+15% cavalry charge), Siege Engineering (unlocks Catapult, −1 siege turn), Drill (start units as Veteran). |
-| RE-5 | Some units need a tech before they can be recruited: Pikemen need Chain Mail; heavy cavalry, Knights, Cataphracts and Brother Knights need Stirrups; Catapults need Siege Engineering. |
+| FG-1 | Winning a campaign mission earns **development points** (for now 2 plus one per star; H adds points per objective and crown). A mission keeps its best result, so replaying it only adds what it beats. Points belong to their campaign. |
+| FG-2 | **The Forge**, opened with the **anvil** on a mission briefing, lists the soldier lines the campaign's civilization fields (militia, spearmen, men-at-arms, archers, crossbowmen, cavalry, engines: the round type icons) with **attack**, **defense** and **health** levels shown as gold pips. Each level adds 10% (health: 10% less damage taken) for every soldier of that line, up to level 3; a level costs 1, then 2, then 3 points. Upgrades are permanent for the campaign. |
+| FG-3 | A campaign mission starts with the campaign's upgrades for the player (saved with the game). An upgraded line shows a small **★** on its type icon everywhere: the army banner, the slider popups and the reinforcement cards. |
+| FG-4 | With research gone, every soldier type of a civilization's roster can be bought from the start, and Siege Engineering's shorter sieges, the economy techs and research-based income are gone. Skirmish and hotseat have no Forge. |
 
 ### 8.8 Version 2 milestones
 
@@ -438,7 +439,7 @@ This decision replaces sections 3.3 (resources), 3.4 (food and supply) and 3.12 
 | ID | Requirement |
 |---|---|
 | GE-1 | Every region pays its owner **10 gold** a turn; a town pays 15, the capital 10 more, and each market level 8 more. A map may set a region's own `income` instead (the real-history maps use 5, 10 or 15). The number is shown on the map under the region's name with a coin-stack icon. |
-| GE-2 | Gold pays for reinforcements, buildings, research and unit upkeep. Costs that used wood or iron were converted to gold (1 wood = 1 gold, 1 iron = 2 gold) so the balance stays about the same. |
+| GE-2 | Gold pays for reinforcements, buildings and unit upkeep. Costs that used wood or iron were converted to gold (1 wood = 1 gold, 1 iron = 2 gold) so the balance stays about the same. |
 | GE-3 | If gold would go negative, 5% of every unit deserts and the treasury stays at 0. |
 | GE-4 | Food, wood, iron, manpower, starvation, foraging, supply range, winter attrition, spoilage and storage caps are gone. Taxes and happiness are dropped too: with gold as the only resource they no longer trade off against anything, so revolts are gone as well. |
 | GE-5 | **Reinforcements come in bundles** (version 6, E), as in the reference game. The reinforcements window (knight shield, top left, or R) shows parchment cards, each a fixed bundle of one soldier type: its figure, its round type icon (★ if upgraded), how many soldiers and the price. Each type has a small bundle (about 40 gold: 6 militia or spearmen, 5 archers, 3 swordsmen, 2 knights) and a large one (three times the soldiers, at most 10, 10% cheaper per soldier). A soldier costs a tenth of the type's old 20-soldier price. Clicking a card asks **"Buy the selected reinforcements? Price N"**; then the top bar says **"Select a province"** and only your provinces with a **town**, a **camp** or your **capital**, that can take the bundle, are lit (right-click or Esc cancels). Opened from such a province ("Reinforce here"), the bundle goes straight there. The price is paid at once and the bundle **arrives at the start of your next turn**, joining the army there (up to 30 soldiers; gold for any that no longer fit is paid back) or forming a new one. Each province takes **one order a turn**; one that can't take any now (an order placed, enemies there, or a full army) shows a **red no-sign** over its icon. The window's footer says "Reinforcements ordered here arrive next turn", and the gold shows as digit wheels (000600) there and on the top bar. Archery ranges, stables, siege workshops and mercenaries are gone. |

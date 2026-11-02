@@ -43,7 +43,7 @@ static func site(state: GameState, region: String) -> String:
 	return state.map.provinces[region].get("site", "")
 
 
-## A region's own worth before markets and research: the map's "income"
+## A region's own worth before markets: the map's "income"
 ## (5, 10 or 15 on the real maps), else 10, +5 for a town, +10 for a capital.
 static func base_income(state: GameState, region: String) -> float:
 	var data: Dictionary = state.map.provinces[region]
@@ -60,7 +60,7 @@ static func base_income(state: GameState, region: String) -> float:
 ## The gold a region pays its owner each turn: the number on the map.
 static func region_income(state: GameState, region: String) -> float:
 	var owner: String = state.owners[region]
-	var income := base_income(state, region) + Research.region_bonus(state, owner, region)
+	var income := base_income(state, region)
 	income += building_bonus(state, region, "gold") * Bonuses.income(state, owner, "market")
 	return roundf(income * Bonuses.income(state, owner, "gold"))
 
@@ -95,7 +95,7 @@ static func unit_upkeep(state: GameState, unit: Unit) -> float:
 	var total := 0.0
 	for troop in unit.troops:
 		total += troop.type().upkeep_gold * troop.soldiers / float(UnitType.SOLDIERS)
-	return total * Research.upkeep_mod(state, unit.owner)
+	return total
 
 
 # --- Buildings (3.11) -------------------------------------------------------------
@@ -192,10 +192,7 @@ static func roster(state: GameState, faction_id: String) -> Array[String]:
 static func bundles(state: GameState, faction_id: String) -> Array:
 	var list := []
 	for unit_id in roster(state, faction_id):
-		var unit_type := Rules.unit(unit_id)
-		if unit_type.required_tech != "" and not state.factions[faction_id].has_tech(unit_type.required_tech):
-			continue
-		var per := soldier_price(state, faction_id, unit_type)
+		var per := soldier_price(state, faction_id, Rules.unit(unit_id))
 		var small := clampi(roundi(SMALL_BUNDLE_GOLD / per), 1, 6)
 		var large := mini(small * LARGE_BUNDLE_SCALE, MAX_BUNDLE)
 		list.append({"type": unit_id, "soldiers": small, "price": _round_price(per * small)})
@@ -342,7 +339,7 @@ static func process_faction(state: GameState, faction_id: String) -> Array:
 			for troop in unit.troops:
 				troop.heal(share)
 
-	# Construction and research.
+	# Construction.
 	for region in state.map.province_order:
 		if state.owners[region] != faction_id:
 			continue
@@ -354,6 +351,4 @@ static func process_faction(state: GameState, faction_id: String) -> Array:
 				province.buildings[province.construction] = province.level(province.construction) + 1
 				note.call("good", "%s finished in %s." % [Rules.building(province.construction).display_name, where])
 				province.construction = ""
-
-	events.append_array(Research.advance(state, faction_id))
 	return events

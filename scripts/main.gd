@@ -62,7 +62,6 @@ var _skip_enemy := false
 @onready var _battle_report: BattleReport = $UI/BattleReport
 @onready var _end_screen: EndScreen = $UI/EndScreen
 @onready var _save_popup: SavePopup = $UI/SavePopup
-@onready var _research_panel: ResearchPanel = $UI/ResearchPanel
 
 
 func _ready() -> void:
@@ -125,8 +124,6 @@ func _ready() -> void:
 	_end_screen.play_again.connect(_play_again)
 	_end_screen.closed.connect(_close_popups)
 	_end_screen.menu.connect(_go_to_menu)
-	_research_panel.research_requested.connect(_on_research_requested)
-	_research_panel.closed.connect(_close_popups)
 	_build_pass_screen()
 	Hud.react_all($UI)
 	Settings.apply(get_tree())
@@ -567,7 +564,7 @@ func _check_end() -> bool:
 		return false
 	_refresh_world()
 	if state.result.result == "won" and state.mission.has("campaign") and state.result.winner == state.viewer():
-		Progress.record(state.mission.campaign, int(state.mission.mission_index), int(state.result.stars))
+		Progress.record(state.mission.campaign, int(state.mission.mission_index), int(state.result.stars), int(state.result.get("development", 0)))
 	AudioManager.music("victory" if state.result.get("winner", "") == state.viewer() else "defeat")
 	_end_screen.show_result(state, state.viewer())
 	_dim.visible = true
@@ -635,16 +632,8 @@ func open_treasury() -> void:
 		lines.append("%s: %+d" % [line[0], roundi(line[1])])
 		total += line[1]
 	_popup.add_text("[b]Gold: %d[/b]  (%+d a turn)\n%s" % [roundi(state.factions[faction].resources.gold), roundi(total), "\n".join(lines)])
-	_popup.add_text("[i]Every region pays 5, 10 or 15 gold a turn (towns and capitals most, mountains and marshes least); markets add more. Gold pays for reinforcements, buildings and upkeep; if it runs out, soldiers desert.[/i]", 16)
-	_popup.add_button("Research", func(): _close_popups(); open_research(), _popup.body)
+	_popup.add_text("[i]Every region pays gold each turn, towns and capitals more, markets more again. Gold pays for reinforcements, buildings and upkeep; if it runs out, soldiers desert.[/i]", 16)
 	_popup.add_close()
-	_dim.visible = true
-
-
-func open_research() -> void:
-	if not state.factions.has(state.viewer()):
-		return
-	_research_panel.open(state, state.viewer())
 	_dim.visible = true
 
 
@@ -652,7 +641,6 @@ func open_menu() -> void:
 	_popup.open("Menu")
 	_popup.add_button("Resume", _close_popups, _popup.body)
 	_popup.add_button("Save or load", func(): _close_popups(); _open_saves(), _popup.body)
-	_popup.add_button("Research", func(): _close_popups(); open_research(), _popup.body)
 	_popup.add_button("Last battle report", func(): _close_popups(); _show_last_report(), _popup.body).disabled = _last_battles.is_empty()
 	_popup.add_button("Map: %s" % ("terrain" if mode == MapMode.POLITICAL else "political"), func():
 		set_mode(MapMode.TERRAIN if mode == MapMode.POLITICAL else MapMode.POLITICAL)
@@ -684,7 +672,7 @@ func _show_last_report() -> void:
 
 
 func _close_popups() -> void:
-	for popup: Control in [_attack_popup, _recruit_window, _popup, _region_popup, _battle_report, _end_screen, _save_popup, _research_panel]:
+	for popup: Control in [_attack_popup, _recruit_window, _popup, _region_popup, _battle_report, _end_screen, _save_popup]:
 		popup.visible = false
 	_dim.visible = false
 	_refresh_world()
@@ -725,13 +713,6 @@ func _on_build_requested(region: String, building: String) -> void:
 	if Economy.start_building(state, region, building):
 		_hud.toast("Construction started in %s: %s." % [map.region_name(region), Rules.building(building).display_name])
 	_region_popup.show_province(state, region)
-	_refresh_world()
-
-
-func _on_research_requested(tech: String) -> void:
-	if _is_my_turn() and Research.start(state, state.viewer(), tech):
-		_hud.toast("Research started: %s." % Rules.tech_name(tech))
-	_research_panel.open(state, state.viewer())
 	_refresh_world()
 
 
