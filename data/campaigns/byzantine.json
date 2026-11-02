@@ -112,13 +112,25 @@
    ],
    "mission": {
     "player": "empire",
-    "par": 8,
-    "objectives": [
+    "primary": [
      {
       "type": "capture",
       "regions": ["theronike"]
      }
     ],
+    "additional": [],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 16
+     },
+     {
+      "type": "lose_region",
+      "region": "basilopolis"
+     }
+    ],
+    "crowns": [8, 11, 16],
+    "events": [],
     "briefing": "The strategos Bardas has crowned himself in Theronike, a day's march from the capital. Take his city before other governors follow his lead.",
     "victory_text": "Bardas is led through the capital in chains.",
     "defeat_text": "Bardas holds Theronike, and other cities wonder who will win."
@@ -255,13 +267,25 @@
    ],
    "mission": {
     "player": "empire",
-    "par": 7,
-    "objectives": [
+    "primary": [
      {
       "type": "survive",
       "turns": 6
      }
     ],
+    "additional": [],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 14
+     },
+     {
+      "type": "lose_region",
+      "region": "basilopolis"
+     }
+    ],
+    "crowns": [7, 10, 14],
+    "events": [],
     "briefing": "The civil war has emptied the treasury, and sea-raiders and an emir circle the straits. Keep the empire standing for six turns while the markets refill the coffers.",
     "victory_text": "The coffers fill, the walls hold, and the raiders look for easier prey.",
     "defeat_text": "With no gold for the guard, the capital opens its gates."
@@ -419,12 +443,24 @@
    ],
    "mission": {
     "player": "empire",
-    "par": 13,
-    "objectives": [
+    "primary": [
      {
       "type": "conquest"
      }
     ],
+    "additional": [],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 26
+     },
+     {
+      "type": "lose_region",
+      "region": "basilopolis"
+     }
+    ],
+    "crowns": [13, 19, 26],
+    "events": [],
     "briefing": "Crusading knights hold Kastro Neon and an emir holds Phylakion. Drive them both from the straits and the empire is whole again.",
     "victory_text": "From shore to shore the straits fly the purple. The empire is restored.",
     "defeat_text": "The straits stay divided, and the empire's glory fades."

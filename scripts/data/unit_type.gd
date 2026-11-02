@@ -39,6 +39,15 @@ extends Resource
 const SOLDIERS := 20
 
 
+## The name for several soldiers: "Longbowmen", "Knights"; plural names stay.
+func plural_name() -> String:
+	if display_name.ends_with("man"):
+		return display_name.left(-3) + "men"
+	if display_name.ends_with("s") or display_name.ends_with("men") or display_name.ends_with("cavalry") or display_name == "Militia":
+		return display_name
+	return display_name + "s"
+
+
 func soldier_hp() -> float:
 	return float(hp) / SOLDIERS
 

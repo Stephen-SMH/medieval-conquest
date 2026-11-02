@@ -28,7 +28,7 @@ static func game(owners: Dictionary, units: Array, game_seed := 7, extra := {}) 
 	var state := GameState.from_scenario(scenario, game_seed)
 	if not extra.get("conquest", false):
 		# An open-ended sandbox, so a game where red holds nothing doesn't end at once.
-		state.mission = {"player": "blue", "objectives": [], "par": 0}
+		state.mission = {"player": "blue", "primary": []}
 	return state
 
 

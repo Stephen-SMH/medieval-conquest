@@ -5,9 +5,11 @@ extends RefCounted
 ## Version 4 saves armies as compositions of troops (PRD A) and each order's
 ## troops per type; older saves held one type per unit and are converted.
 ## Version 5 saves reinforcements on their way as bundles (PRD E); older
-## saves' whole units on their way load as bundles of 20.
+## saves' whole units on their way load as bundles of 20. Version 6 saves
+## missions as primary and additional objectives, defeat conditions and
+## crowns (PRD H), and the mission's notes; older missions are converted.
 
-const VERSION := 5
+const VERSION := 6
 const SAVE_DIR := "user://saves"
 const SLOTS := ["auto", "1", "2", "3"]
 
@@ -37,9 +39,10 @@ static func to_dict(state: GameState) -> Dictionary:
 		"provinces": provinces, "units": units, "next_unit_id": state._next_unit_id,
 		"rng_seed": str(state.rng.seed), "rng_state": str(state.rng.state),
 		"orders": _orders_to_list(state),
-		"mission": state.mission.duplicate(true), "kills": state.kills.duplicate(), "upgrades": state.upgrades.duplicate(true), "mission_progress": state.mission_progress.duplicate(),
+		"mission": state.mission.duplicate(true), "kills": state.kills.duplicate(), "upgrades": state.upgrades.duplicate(true),
+		"mission_progress": state.mission_progress.duplicate(), "mission_log": state.mission_log.duplicate(true),
 		"losses": state.losses.duplicate(true),
-		"result": state.result.duplicate(),
+		"result": state.result.duplicate(true),
 	}
 
 
@@ -100,13 +103,18 @@ static func from_dict(data: Dictionary) -> GameState:
 	state._next_unit_id = int(data.next_unit_id)
 	state.rng.seed = int(data.rng_seed)
 	state.rng.state = int(data.rng_state)
-	state.mission = data.mission.duplicate(true)
+	state.mission = Mission.normalized(data.mission, state.capitals)
+	var version := int(data.get("version", 1))
 	for key in data.mission_progress:
-		state.mission_progress[key] = int(data.mission_progress[key])
-	state.result = data.get("result", {}).duplicate()
-	for key in ["stars", "crown", "points"]:
+		# Before version 6 a hold objective's turns were kept under its index alone.
+		state.mission_progress[key if version >= 6 else "primary/" + key] = int(data.mission_progress[key])
+	state.mission_log = data.get("mission_log", []).duplicate(true)
+	state.result = data.get("result", {}).duplicate(true)
+	for key in ["stars", "points", "development", "turns"]:
 		if state.result.has(key):
 			state.result[key] = int(state.result[key])
+	for objective in state.result.get("objectives", []):
+		objective.points = int(objective.points)
 	for faction in data.get("kills", {}):
 		state.kills[faction] = int(data.kills[faction])
 	state.upgrades = {}
@@ -116,7 +124,6 @@ static func from_dict(data: Dictionary) -> GameState:
 		state.losses[faction] = {}
 		for type_id in data.losses[faction]:
 			state.losses[faction][type_id] = int(data.losses[faction][type_id])
-	var version := int(data.get("version", 1))
 	for entry in data.get("orders", []):
 		var unit := state.unit_by_id(int(entry.unit))
 		if unit == null:

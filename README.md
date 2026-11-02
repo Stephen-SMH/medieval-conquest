@@ -91,8 +91,8 @@ Fjordmark, 5), *The Longbow Wars* (Anglish, the Wealdshire, 5), *Banners of the 
 *The Sunward Vow* (Crusader Orders, the Sunward Coast, 4), *The Purple and the Gold* (Byzantine, the Porphyry Straits,
 3) and *Banners of the Sands* (Saracen, the Amber Sands, 3). Objectives include capturing regions, holding a region,
 destroying a faction, killing or capturing a named general, surviving with little gold, and conquest. Missions open
-in order; the Byzantine and Saracen campaigns open with their civilizations. Your best stars are kept in
-`user://progress.json`. `godot --headless -s tools/sim_campaigns.gd` lets the AI play every mission to check the
+in order; the Byzantine and Saracen campaigns open with their civilizations. Your best crowns, scores and
+development points are kept in `user://progress.json`. `godot --headless -s tools/sim_campaigns.gd` lets the AI play every mission to check the
 difficulty. Skirmish lets you pick any map, your
 civilization, 1–3 computer opponents and a difficulty; win by conquest.
 
@@ -165,10 +165,14 @@ the starving defenders lose a quarter of their soldiers every turn.
 
 ## Missions and the computer players
 
-A mission has objectives (capture regions, hold a region for some turns, destroy a faction), a **par** turn count
-and a **hard limit** of twice par. Finishing at or under par gives 3 stars, under 1.5 × par 2 stars, otherwise 1;
-passing the limit, losing your capital or losing everything loses the mission. Without a mission, the last faction
-standing wins.
+A mission (shown on a parchment scroll before it starts) has a **primary objective**, which wins it, **additional
+objectives** for extra points, and **defeat** conditions: not finishing the primary objective in so many turns,
+losing all your troops, or losing a region (sometimes only before a given turn). Finishing within the gold, silver or
+bronze limit wins that **crown**. The top bar shows the crown still to be won with its turns left, and crossed swords
+with the parts of the primary objective still to do (click them for the full list). Scripted events, such as enemy
+reinforcements, appear as parchment notes. The victory screen lists the objectives and their points, the development
+points earned, the crowns, both sides' losses and your rank (Serf to King, by your best scores). Without a mission,
+the last faction standing wins.
 
 Every faction without a human player is run by the AI ([scripts/game/ai.gd](scripts/game/ai.gd)). It recruits units
 that counter the enemies it can see, builds when food or gold run short, pulls badly hurt units back, attacks where
@@ -197,7 +201,7 @@ tests/    headless test suites
 
 - [x] M1–M4 (version 1): province map, armies, battles, economy
 - [x] V1 — Unit tokens: icons, health bars, soldier counts, ranks; 4-unit stacks; move, attack, ranged attack, retreat, undo; battle results; healing and merging; recruiting units
-- [x] V2 — AI and missions: AI turns with personalities, sieges, objectives with par and stars, victory and defeat screens, save and load
+- [x] V2 — AI and missions: AI turns with personalities, sieges, objectives with par and stars (since replaced by crowns), victory and defeat screens, save and load
 - [x] V3 — Civilizations and campaigns: 5 civilizations with special units and bonuses, 3 campaigns × 3 missions on original maps, campaign select and briefings, unlocks, skirmish
 - [x] V4 — Research (since replaced by the Forge), hotseat and mobile: two research trees, hotseat for 2–4 players, title screen and settings, touch controls, Web and Android export presets
 - [x] Simultaneous turns and one unit per region, split attacks, two-step cavalry, gold-only economy, mercenaries at towns and camps

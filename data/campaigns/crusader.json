@@ -100,13 +100,25 @@
    ],
    "mission": {
     "player": "order",
-    "par": 6,
-    "objectives": [
+    "primary": [
      {
       "type": "capture",
       "regions": ["mont_pelerin", "qasr_malik", "roche_vigile"]
      }
     ],
+    "additional": [],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 12
+     },
+     {
+      "type": "lose_region",
+      "region": "castel_aubade"
+     }
+    ],
+    "crowns": [6, 8, 12],
+    "events": [],
     "briefing": "The brothers have a keep at Castel Aubade and little else. Secure the wells and villages along the pilgrims' road so the order can feed itself.",
     "victory_text": "The road is safe, and the wells answer to the order.",
     "defeat_text": "The road is lost, and the keep stands alone."
@@ -223,14 +235,26 @@
    ],
    "mission": {
     "player": "order",
-    "par": 7,
-    "objectives": [
+    "primary": [
      {
       "type": "hold",
       "region": "castel_aubade",
       "turns": 6
      }
     ],
+    "additional": [],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 14
+     },
+     {
+      "type": "lose_region",
+      "region": "castel_aubade"
+     }
+    ],
+    "crowns": [7, 10, 14],
+    "events": [],
     "briefing": "Tariq's riders have come down from Mont Pélerin to drive the order into the sea. Hold Castel Aubade for six turns; the hospital keeps your wounded fighting.",
     "victory_text": "Tariq's riders break on the rock and ride home.",
     "defeat_text": "Castel Aubade falls, and the order's banner comes down."
@@ -357,8 +381,7 @@
    ],
    "mission": {
     "player": "order",
-    "par": 10,
-    "objectives": [
+    "primary": [
      {
       "type": "destroy_units",
       "faction": "jebel",
@@ -366,6 +389,19 @@
       "count": 15
      }
     ],
+    "additional": [],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 20
+     },
+     {
+      "type": "lose_region",
+      "region": "castel_aubade"
+     }
+    ],
+    "crowns": [10, 14, 20],
+    "events": [],
     "briefing": "Rashid, the emir's champion, leads every raid on our villages and slips away on his fast horses. Run him down.",
     "victory_text": "Rashid is taken, and the raids stop.",
     "defeat_text": "Rashid's horsemen ride rings around the brothers."
@@ -531,13 +567,25 @@
    ],
    "mission": {
     "player": "order",
-    "par": 12,
-    "objectives": [
+    "primary": [
      {
       "type": "capture",
       "regions": ["jebel_nur", "khirbat"]
      }
     ],
+    "additional": [],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 24
+     },
+     {
+      "type": "lose_region",
+      "region": "castel_aubade"
+     }
+    ],
+    "crowns": [12, 17, 24],
+    "events": [],
     "briefing": "An emir in the hills and an imperial exarch on the coast both claim the Sunward shore. Take both their seats, and the order will rule from the mountains to the sea.",
     "victory_text": "The order's banner flies over Jebel Nur and Khirbat. The vow is kept.",
     "defeat_text": "The order is driven back to its single keep."

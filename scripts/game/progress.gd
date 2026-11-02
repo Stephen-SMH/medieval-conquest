@@ -1,11 +1,15 @@
 class_name Progress
 extends RefCounted
-## Campaign progress kept between games in user://progress.json: stars per
-## mission, which missions are open (CP-4), which civilizations are unlocked
-## by finishing campaigns (8.5), and each campaign's development points and
-## Forge upgrades (G).
+## Campaign progress kept between games in user://progress.json: each
+## mission's best crown (kept as "stars": 3 gold, 2 silver, 1 bronze), score
+## and development points, which missions are won and open (CP-4), which
+## civilizations are unlocked by finishing campaigns (8.5), each campaign's
+## Forge upgrades (G), and the player's rank from their total score (H).
 
 const PATH := "user://progress.json"
+## Ranks by total score, lowest first: [name, score needed].
+const RANKS := [["Serf", 0], ["Peasant", 500], ["Militiaman", 1200], ["Man-at-arms", 2000], ["Sergeant", 3000],
+	["Squire", 4500], ["Knight", 6500], ["Baron", 9000], ["Count", 12000], ["Duke", 16000], ["King", 21000]]
 
 ## Where progress is stored; tests point this somewhere else.
 static var path := PATH
@@ -30,19 +34,53 @@ static func stars(campaign_id: String, index: int) -> int:
 
 ## True once any mission has been finished.
 static func any_progress() -> bool:
-	return not _load().get("stars", {}).is_empty()
+	var data := _load()
+	return not data.get("stars", {}).is_empty() or not data.get("won", {}).is_empty()
 
 
-## Keeps the best result for a mission: its stars and the development
-## points it earned (replaying a mission only adds what it beats).
-static func record(campaign_id: String, index: int, earned: int, points := 0) -> void:
+## Whether a mission has been won (with or without a crown).
+static func won(campaign_id: String, index: int) -> bool:
+	var key := "%s/%d" % [campaign_id, index]
+	var data := _load()
+	return data.get("won", {}).has(key) or int(data.stars.get(key, 0)) > 0
+
+
+## Keeps the best result of a won mission: its crown, the development points
+## and the score it earned (replaying a mission only adds what it beats).
+static func record(campaign_id: String, index: int, crown: int, points := 0, score := 0) -> void:
 	var data := _load()
 	var key := "%s/%d" % [campaign_id, index]
-	data.stars[key] = maxi(int(data.stars.get(key, 0)), earned)
-	if not data.has("development"):
-		data.development = {}
+	data.stars[key] = maxi(int(data.stars.get(key, 0)), crown)
+	for field in ["won", "development", "score"]:
+		if not data.has(field):
+			data[field] = {}
+	data.won[key] = true
 	data.development[key] = maxi(int(data.development.get(key, 0)), points)
+	data.score[key] = maxi(int(data.score.get(key, 0)), score)
 	_store(data)
+
+
+## The best scores of every mission added up.
+static func total_score() -> int:
+	var total := 0
+	var scores: Dictionary = _load().get("score", {})
+	for key in scores:
+		total += int(scores[key])
+	return total
+
+
+## The rank a total score earns: {"name", "index", "next" (the next rank's
+## name, "" at the top), "progress" (0-1 of the way to it)}.
+static func rank(score: int) -> Dictionary:
+	var index := 0
+	for i in RANKS.size():
+		if score >= int(RANKS[i][1]):
+			index = i
+	if index == RANKS.size() - 1:
+		return {"name": RANKS[index][0], "index": index, "next": "", "progress": 1.0}
+	var low: int = RANKS[index][1]
+	var high: int = RANKS[index + 1][1]
+	return {"name": RANKS[index][0], "index": index, "next": RANKS[index + 1][0], "progress": float(score - low) / (high - low)}
 
 
 ## The development points a mission has earned at best.
@@ -84,7 +122,7 @@ static func buy_upgrade(campaign_id: String, family: String, stat: String) -> bo
 static func mission_unlocked(campaign_id: String, index: int) -> bool:
 	if not campaign_unlocked(campaign_id):
 		return false
-	return index == 0 or stars(campaign_id, index - 1) > 0
+	return index == 0 or won(campaign_id, index - 1)
 
 
 ## A campaign opens with its civilization.
@@ -98,7 +136,7 @@ static func campaign_finished(campaign_id: String) -> bool:
 	if campaign.is_empty():
 		return false
 	for i in campaign.missions.size():
-		if stars(campaign_id, i) == 0:
+		if not won(campaign_id, i):
 			return false
 	return true
 

@@ -9,6 +9,7 @@ regions are worked out from the map, so they always exist.
 """
 
 import json
+import math
 import re
 from collections import deque
 
@@ -58,10 +59,34 @@ def grow(graph, starts_and_sizes):
     return owners
 
 
+def resolve(objective, factions, owners, graph, player, player_start):
+    """An objective with roles ("nearest_neutral", "capital:<faction>") turned into real regions."""
+    objective = dict(objective)
+    if objective.get("regions") == "nearest_neutral":
+        dist = distances(graph, player_start)
+        neutral = sorted((r for r in graph if r not in owners), key=lambda r: (dist[r], r))
+        objective["regions"] = neutral[: objective.pop("count")]
+    elif isinstance(objective.get("regions"), list):
+        objective["regions"] = [
+            next(f["start_region"] for f in factions if f["id"] == r[len("capital:"):]) if r.startswith("capital:") else r
+            for r in objective["regions"]
+        ]
+    if objective.get("region") == "capital:" + player:
+        objective["region"] = player_start
+    if objective["type"] == "destroy_general":
+        # No generals any more: break the enemy leader's war-band, the first army it lists.
+        target = next(f for f in factions if f["id"] == objective["faction"])
+        objective = {"type": "destroy_units", "faction": target["id"], "unit_type": target["units"][0], "count": 15}
+    return objective
+
+
 def mission(map_id, mission_id, title, player, factions, objectives, par, briefing, victory, defeat,
-            walls=None, neutral_garrison=True, extra_buildings=None):
+            walls=None, neutral_garrison=True, extra_buildings=None, additional=None, events=None):
     """factions: list of dicts {id, name, civ, start (slot index or region), size, ai, units}
-    and optionally "gold" (starting gold)."""
+    and optionally "gold" (starting gold). `objectives` is the primary objective,
+    `additional` the optional ones; `events` are scripted events whose region may
+    be "capital:<faction>". `par` sets the crowns (par, under 1.5 × par, 2 × par)
+    and the time limit (2 × par); losing the capital loses too (PRD H)."""
     data, graph, names = load_map(map_id)
     starts = []
     for faction in factions:
@@ -75,25 +100,14 @@ def mission(map_id, mission_id, title, player, factions, objectives, par, briefi
 
     # Objectives can name things by role; turn them into real regions.
     player_start = next(f["start_region"] for f in factions if f["id"] == player)
-    resolved = []
-    for objective in objectives:
-        objective = dict(objective)
-        if objective.get("regions") == "nearest_neutral":
-            dist = distances(graph, player_start)
-            neutral = sorted((r for r in graph if r not in owners), key=lambda r: (dist[r], r))
-            objective["regions"] = neutral[: objective.pop("count")]
-        elif isinstance(objective.get("regions"), list):
-            objective["regions"] = [
-                next(f["start_region"] for f in factions if f["id"] == r[len("capital:"):]) if r.startswith("capital:") else r
-                for r in objective["regions"]
-            ]
-        if objective.get("region") == "capital:" + player:
-            objective["region"] = player_start
-        if objective["type"] == "destroy_general":
-            # No generals any more: break the enemy leader's war-band, the first army it lists.
-            target = next(f for f in factions if f["id"] == objective["faction"])
-            objective = {"type": "destroy_units", "faction": target["id"], "unit_type": target["units"][0], "count": 15}
-        resolved.append(objective)
+    resolved = [resolve(objective, factions, owners, graph, player, player_start) for objective in objectives]
+    resolved_additional = [resolve(objective, factions, owners, graph, player, player_start) for objective in additional or []]
+    resolved_events = []
+    for event in events or []:
+        event = dict(event)
+        if event.get("region", "").startswith("capital:"):
+            event["region"] = next(f["start_region"] for f in factions if f["id"] == event["region"][len("capital:"):])
+        resolved_events.append(event)
 
     units = []
     for faction in factions:
@@ -131,7 +145,9 @@ def mission(map_id, mission_id, title, player, factions, objectives, par, briefi
         "capitals": {f["id"]: f["start_region"] for f in factions},
         "buildings": buildings,
         "units": units,
-        "mission": {"player": player, "par": par, "objectives": resolved,
+        "mission": {"player": player, "primary": resolved, "additional": resolved_additional,
+                    "defeat": [{"type": "time", "turns": par * 2}, {"type": "lose_region", "region": player_start}],
+                    "crowns": [par, math.ceil(par * 1.5) - 1, par * 2], "events": resolved_events,
                     "briefing": briefing, "victory_text": victory, "defeat_text": defeat},
     }
     gold = {f["id"]: {"gold": f["gold"]} for f in factions if "gold" in f}
@@ -164,7 +180,8 @@ write("norse", "norse", "The Saga of the Sea-Wolves",
     ], [{"type": "capture", "regions": "nearest_neutral", "count": 3}], 5,
         "The longships are beached. Seize the three settlements nearest the shore before the thanes muster.",
         "The coast is ours. The skalds will sing of this landfall.",
-        "The raid ends in ash and cold water."),
+        "The raid ends in ash and cold water.",
+        events=[{"turn": 3, "type": "reinforcements", "faction": "elmsworth", "region": "capital:elmsworth", "unit": "yeoman", "soldiers": 6}]),
     mission("fjordmark", "norse_2", "The Abbey Road", "norse", [
         {"id": "norse", "name": "Hakon's Raiders", "civ": "norse", "start": 0, "size": 3, "general": "Hakon",
          "units": ["berserker", "berserker", "huscarl", "archers", "spearmen", "light_cavalry"]},
@@ -173,7 +190,9 @@ write("norse", "norse", "The Saga of the Sea-Wolves",
     ], [{"type": "capture", "regions": ["capital:greyhaven"]}], 9,
         "Greyhaven's lords hide behind a palisade with the silver of three abbeys. Take their hall.",
         "Greyhaven falls, and its silver pays for a hundred new ships.",
-        "Greyhaven's bowmen hold the road.", walls={"greyhaven": 1}),
+        "Greyhaven's bowmen hold the road.", walls={"greyhaven": 1},
+        additional=[{"type": "destroy_units", "faction": "greyhaven", "unit_type": "longbowman", "count": 10}],
+        events=[{"turn": 4, "type": "reinforcements", "faction": "greyhaven", "region": "capital:greyhaven", "unit": "spearmen", "soldiers": 8}]),
     mission("fjordmark", "norse_3", "The Lean Winter", "norse", [
         {"id": "norse", "name": "Hakon's Raiders", "civ": "norse", "start": 0, "size": 4, "general": "Hakon", "gold": 100,
          "units": ["huscarl", "spearmen", "archers", "berserker"]},

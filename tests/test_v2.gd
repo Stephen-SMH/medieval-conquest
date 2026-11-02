@@ -1,5 +1,5 @@
 extends RefCounted
-## V2: sieges, missions and stars, save/load, and the AI (including a full
+## V2: sieges, missions (now in the S&T style, H), save/load, and the AI (including a full
 ## AI-only game).
 
 const Helpers := preload("res://tests/helpers.gd")
@@ -41,29 +41,52 @@ func _test_sieges(t) -> void:
 	t.check(state.owners.kingsvale == "blue", "empty walls are taken by walking in")
 
 
+## Missions as in S&T (PRD H): primary and additional objectives, defeat
+## conditions, crowns, points and scripted events.
 func _test_missions(t) -> void:
-	t.check(Mission.stars_for(8, 8) == 3 and Mission.stars_for(11, 8) == 2 and Mission.stars_for(12, 8) == 1 and Mission.stars_for(15, 8) == 1,
-		"stars: at par 3, under 1.5 × par 2, otherwise 1")
-	var mission := {"player": "blue", "par": 4, "objectives": [{"type": "capture", "regions": ["kingsvale"]}]}
+	t.check(Mission.crown_for(8, [8, 10, 12]) == 3 and Mission.crown_for(10, [8, 10, 12]) == 2 and Mission.crown_for(12, [8, 10, 12]) == 1
+		and Mission.crown_for(13, [8, 10, 12]) == 0, "crowns: gold by turn 8, silver by 10, bronze by 12, then none")
+	var mission := {"player": "blue", "primary": [{"type": "capture", "regions": ["kingsvale"]}],
+		"additional": [{"type": "capture", "regions": ["eastwold"], "points": 200}, {"type": "hold", "region": "greywater", "turns": 5}],
+		"defeat": [{"type": "time", "turns": 8}, {"type": "lose_region", "region": "greywater"}], "crowns": [4, 6, 8]}
 	var state := Helpers.game({"greywater": "blue", "kingsvale": "red", "eastwold": "red"},
 		[["blue", "greywater", "swordsmen"], ["red", "eastwold", "militia"]], 7, {"capitals": {"blue": "greywater"}})
 	state.mission = mission.duplicate(true)
-	t.check(not state.is_over() and not Mission.objectives(state)[0].done, "the objective starts open")
+	t.check(not state.is_over() and Mission.primary_left(state) == 1 and Mission.objectives(state).size() == 3
+		and Mission.objectives(state)[0].primary and not Mission.objectives(state)[1].primary, "the primary objective comes first, then the additional ones")
+	t.check(Mission.crown_now(state) == {"crown": 3, "turns_left": 4}, "turn 1: the gold crown, 4 turns left")
+	t.check(Mission.defeats(state) == ["The primary objective isn't done in 8 turns", "You lose Greywater"], "the defeat conditions in words")
 	Helpers.order(state, state.unit_in("greywater"), "move", "kingsvale")
 	Helpers.resolve(state)
-	t.check(state.is_over() and state.result.result == "won" and state.result.stars == 3, "capturing the target in turn 1 (par 4) wins with 3 stars")
+	var result := state.result
+	t.check(state.is_over() and result.result == "won" and result.stars == 3 and result.turns == 1, "capturing the target in turn 1 wins a gold crown")
+	t.check(result.points == Mission.PRIMARY_POINTS + Mission.CROWN_POINTS[3] and result.development == Mission.DEVELOPMENT_FOR_WIN + 3
+		and result.objectives.map(func(o): return o.done) == [true, false, false], "points for what was done and the crown (%s)" % [result])
 
 	state = Helpers.game({"greywater": "blue", "kingsvale": "red", "eastwold": "red"},
 		[["blue", "greywater", "militia"], ["red", "kingsvale", "militia"]], 7, {"capitals": {"blue": "greywater"}})
 	state.mission = mission.duplicate(true)
-	for i in 7:
+	for i in 4:
 		Helpers.resolve(state)
-	t.check(not state.is_over() and state.turn == 8 and Mission.hard_limit(state) == 8, "the hard limit is par × 2: turn 8 of 8 is still playable")
+	t.check(Mission.crown_now(state) == {"crown": 2, "turns_left": 2}, "turn 5: the gold crown has gone; silver, 2 turns left")
+	for i in 3:
+		Helpers.resolve(state)
+	t.check(not state.is_over() and state.turn == 8 and Mission.time_limit(state) == 8, "turn 8 of 8 is still playable")
 	Helpers.resolve(state)
-	t.check(state.is_over() and state.result.result == "lost" and "Out of time" in state.result.reason, "passing the hard limit loses the mission")
+	t.check(state.is_over() and state.result.result == "lost" and "Out of time" in state.result.reason, "after turn 8 the mission is lost")
+
+	# Additional objectives add points and development points.
+	state = Helpers.game({"greywater": "blue", "kingsvale": "red", "eastwold": "red"},
+		[["blue", "greywater", "swordsmen"], ["blue", "highcrag", "swordsmen"]], 7, {"capitals": {"blue": "greywater"}})
+	state.mission = mission.duplicate(true)
+	Helpers.order(state, state.unit_in("greywater"), "move", "kingsvale")
+	Helpers.order(state, state.unit_in("highcrag"), "move", "eastwold")
+	Helpers.resolve(state)
+	t.check(state.result.points == Mission.PRIMARY_POINTS + 200 + Mission.CROWN_POINTS[3] and state.result.development == Mission.DEVELOPMENT_FOR_WIN + 1 + 3,
+		"an additional objective done on the way counts (%d points)" % state.result.points)
 
 	state = Helpers.game({"greywater": "blue", "kingsvale": "blue", "eastwold": "red"}, [["red", "eastwold", "militia"]], 7)
-	state.mission = {"player": "blue", "par": 10, "objectives": [{"type": "hold", "region": "kingsvale", "turns": 2}]}
+	state.mission = {"player": "blue", "primary": [{"type": "hold", "region": "kingsvale", "turns": 2}], "crowns": [10, 12, 14]}
 	Helpers.resolve(state)
 	t.check(Mission.objectives(state)[0].text.ends_with("(1 so far)"), "holding a region counts the turns")
 	Helpers.resolve(state)
@@ -71,10 +94,32 @@ func _test_missions(t) -> void:
 
 	state = Helpers.game({"greywater": "blue", "ashford": "blue", "kingsvale": "red"},
 		[["blue", "ashford", "militia"], ["red", "kingsvale", "swordsmen"]], 7, {"capitals": {"blue": "greywater"}})
-	state.mission = {"player": "blue", "par": 10, "objectives": [{"type": "destroy", "faction": "red"}]}
+	state.mission = {"player": "blue", "primary": [{"type": "destroy", "faction": "red"}], "defeat": [{"type": "lose_region", "region": "greywater", "before": 5}]}
 	Helpers.order(state, state.unit_in("kingsvale"), "move", "greywater")
 	Helpers.resolve(state)
-	t.check(state.is_over() and state.result.result == "lost" and "capital" in state.result.reason, "losing your capital loses the mission")
+	t.check(state.is_over() and state.result.result == "lost" and state.result.reason == "Greywater has fallen.", "losing Greywater before turn 5 loses")
+
+	state = Helpers.game({"greywater": "blue", "kingsvale": "red"}, [["blue", "greywater", "militia", 2], ["red", "kingsvale", "heavy_cavalry"]], 7)
+	state.mission = {"player": "blue", "primary": [{"type": "destroy", "faction": "red"}], "defeat": [{"type": "lose_army"}]}
+	Helpers.order(state, state.unit_in("greywater"), "attack", "kingsvale")
+	Helpers.resolve(state)
+	t.check(state.is_over() and state.result.result == "lost" and state.result.reason == "All your troops are lost.", "losing every soldier loses")
+
+	# Scripted events: reinforcements for a faction, with a note.
+	state = Helpers.game({"greywater": "blue", "kingsvale": "red"}, [["red", "kingsvale", "militia", 5]], 7)
+	state.mission = {"player": "blue", "primary": [{"type": "destroy", "faction": "red"}],
+		"events": [{"turn": 2, "type": "reinforcements", "faction": "red", "region": "kingsvale", "unit": "spearmen", "soldiers": 8},
+			{"turn": 2, "type": "message", "text": "Scouts report movement in the east."}]}
+	var events := Helpers.resolve(state)
+	t.check(state.unit_in("kingsvale").composition() == {"militia": 5, "spearmen": 8}, "on turn 2 the enemy army in Kingsvale grows by 8 spearmen")
+	t.check(Helpers.events_of(events, "mission_note").map(func(e): return e.text) == [
+		"Enemy reinforcements arrived in the province of Kingsvale: Spearmen – 8", "Scouts report movement in the east."]
+		and state.mission_log.size() == 2, "each event leaves a note (%s)" % [state.mission_log])
+
+	# Older missions still load.
+	var old := Mission.normalized({"player": "blue", "par": 8, "objectives": [{"type": "conquest"}]}, {"blue": "greywater"})
+	t.check(old.primary == [{"type": "conquest"}] and old.crowns == [8.0, 11.0, 16.0]
+		and old.defeat == [{"type": "time", "turns": 16.0}, {"type": "lose_region", "region": "greywater"}], "an older mission converts (%s)" % [old])
 
 	state = Helpers.game({"greywater": "blue", "kingsvale": "red"}, [["blue", "greywater", "heavy_cavalry"], ["red", "kingsvale", "militia", 1]], 7,
 		{"conquest": true})

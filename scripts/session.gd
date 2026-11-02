@@ -9,6 +9,8 @@ const DEFAULT_SCENARIO := "heartlands"
 var setup := {}
 ## The last new-game setup, for "Play again".
 var last_setup := {}
+## Where the menu opens instead of the title: {"briefing": [campaign id, mission index]}, or {}.
+var menu_target := {}
 
 
 ## The setup to start, falling back to the default scenario (for running the

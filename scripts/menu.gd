@@ -58,7 +58,14 @@ func _ready() -> void:
 	_forge = ForgeWindow.new()
 	add_child(_forge)
 	AudioManager.music("menu")
-	show_title()
+	var session := get_node_or_null("/root/Session")
+	var target: Dictionary = session.menu_target if session != null else {}
+	if session != null:
+		session.menu_target = {}
+	if target.has("briefing") and Progress.mission_unlocked(target.briefing[0], int(target.briefing[1])):
+		show_briefing(target.briefing[0], int(target.briefing[1]))
+	else:
+		show_title()
 	if should_offer_tutorial():
 		_offer_tutorial()
 
@@ -221,7 +228,7 @@ func show_settings() -> void:
 func show_campaigns() -> void:
 	_clear()
 	_add_label(_content, "Campaigns", 30)
-	_add_text("Each civilization has a campaign of three to five missions. Finish a mission to open the next; finish under par for 3 stars. "
+	_add_text("Each civilization has a campaign of three to five missions. Finish a mission to open the next; finish fast for a gold, silver or bronze crown. "
 		+ "The Byzantine and Saracen campaigns open when those civilizations are unlocked.")
 	for campaign in Campaigns.all():
 		var civ := Rules.civilization(campaign.civ)
@@ -233,9 +240,8 @@ func show_campaigns() -> void:
 		for i in campaign.missions.size():
 			var mission: Dictionary = campaign.missions[i]
 			var unlocked := Progress.mission_unlocked(campaign.id, i)
-			var stars := Progress.stars(campaign.id, i)
 			var button := Button.new()
-			button.text = "%d. %s   %s" % [i + 1, mission.name, _stars_text(stars) if unlocked else "(locked)"]
+			button.text = "%d. %s   %s" % [i + 1, mission.name, _crown_text(campaign.id, i) if unlocked else "(locked)"]
 			button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 			button.disabled = not unlocked
 			button.pressed.connect(show_briefing.bind(campaign.id, i))
@@ -250,44 +256,56 @@ func show_campaigns() -> void:
 	_add_text("[b]More civilizations[/b]\n" + "\n".join(unlock_lines))
 
 
+## The briefing (PRD H): a parchment scroll with the history, the primary
+## and additional objectives, the defeat conditions and the crowns, and
+## round buttons for back, the Forge (the anvil) and start.
 func show_briefing(campaign_id: String, index: int) -> void:
 	var scenario := Campaigns.mission(campaign_id, index)
-	var mission: Dictionary = scenario.mission
-	var map := MapData.load_map(scenario.map)
+	var preview := GameState.from_scenario(scenario, 1)
+	var mission: Dictionary = preview.mission
 	_clear()
-	_add_label(_content, "%s — Mission %d" % [Campaigns.get_campaign(campaign_id).name, index + 1], 18, Color("#a8b4bf"))
-	_add_label(_content, scenario.name, 32)
-	_add_text(mission.briefing)
+	var scroll := BriefingScroll.new()
+	scroll.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	_content.add_child(scroll)
 	var lines := PackedStringArray()
-	for objective in mission.objectives:
-		match objective.type:
-			"capture":
-				lines.append("Capture %s" % ", ".join(objective.regions.map(func(r): return map.region_name(r))))
-			"hold":
-				lines.append("Hold %s for %d turns" % [map.region_name(objective.region), int(objective.turns)])
-			"destroy":
-				lines.append("Destroy %s" % scenario.factions.filter(func(f): return f.id == objective.faction)[0].name)
-			"conquest":
-				lines.append("Defeat every rival")
-	_add_text("[b]Objectives[/b]\n•  " + "\n•  ".join(lines))
-	_add_text("[b]Par:[/b] %d turns for 3 stars. [b]Limit:[/b] %d turns. Map: %s (%d regions)." % [
-		int(mission.par), int(mission.par) * 2, map.display_name, map.province_order.size()])
+	lines.append("[center][font_size=16][color=#6b5a40]%s — Mission %d[/color][/font_size]" % [Campaigns.get_campaign(campaign_id).name, index + 1])
+	lines.append("[font_size=34][color=#6a2a14]%s[/color][/font_size][/center]" % scenario.name)
+	for text in [mission.get("history", ""), mission.get("briefing", "")]:
+		if text != "":
+			lines.append("[i]%s[/i]\n" % text)
+	lines.append(_section("Primary objective", Mission.primary(preview).map(func(o): return Mission.plain(o.text))))
+	var extra := Mission.additional(preview)
+	if not extra.is_empty():
+		lines.append(_section("Additional objectives", extra.map(func(o): return "%s  [i](%d points)[/i]" % [Mission.plain(o.text), o.points])))
+	var defeats := Mission.defeats(preview)
+	if not defeats.is_empty():
+		lines.append(_section("Defeat", defeats))
+	var limits := Mission.crowns(preview)
+	if limits.size() == 3:
+		lines.append("[b]Crowns:[/b] [color=#9a7a10]gold[/color] by turn %d, [color=#6f7377]silver[/color] by %d, [color=#8a5226]bronze[/color] by %d." % limits)
 	var factions := PackedStringArray()
 	for faction in scenario.factions:
-		factions.append("[color=%s]%s[/color] (%s%s)" % [faction.color, faction.name, Rules.civilization(faction.civ).display_name,
-			", you" if faction.human else ""])
-	_add_text("[b]Factions:[/b] " + ", ".join(factions))
+		factions.append("[color=%s]%s[/color] (%s%s)" % [Color(faction.color).darkened(0.25).to_html(false), faction.name,
+			Rules.civilization(faction.civ).display_name, ", you" if faction.human else ""])
+	lines.append("[b]Map:[/b] %s, %d regions.  [b]Factions:[/b] %s" % [preview.map.display_name, preview.map.province_order.size(), ", ".join(factions)])
+	scroll.set_text("\n".join(lines))
+
 	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 10)
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 40)
 	_content.add_child(row)
-	_add_button(row, "Start mission", func():
-		_start({"scenario": Forge.equip(scenario, Progress.upgrades(campaign_id)), "seed": randi()}))
-	var forge := _add_button(row, "Forge (%d points)" % Progress.development_points(campaign_id), func(): _forge.show_campaign(campaign_id))
-	forge.icon = load("res://assets/icons/ui_anvil.svg")
-	forge.expand_icon = true
-	forge.custom_minimum_size = Vector2(220, 40)
-	_forge.changed.connect(func(): forge.text = "Forge (%d points)" % Progress.development_points(campaign_id))
-	_add_button(row, "Back", show_campaigns)
+	row.add_child(RoundButton.with_caption("back", "Back", show_campaigns))
+	var forge := RoundButton.with_caption("forge", "Forge (%d)" % Progress.development_points(campaign_id), func(): _forge.show_campaign(campaign_id))
+	row.add_child(forge)
+	_forge.changed.connect(func():
+		if is_instance_valid(forge):
+			forge.get_child(1).text = "Forge (%d)" % Progress.development_points(campaign_id))
+	row.add_child(RoundButton.with_caption("start", "Start", func():
+		_start({"scenario": Forge.equip(scenario, Progress.upgrades(campaign_id)), "seed": randi()})))
+
+
+func _section(title: String, items: Array) -> String:
+	return "[b][color=#6a2a14]%s[/color][/b]\n%s\n" % [title.to_upper(), "\n".join(items.map(func(item): return "  •  " + item))]
 
 
 # --- Skirmish ---------------------------------------------------------------------
@@ -457,8 +475,11 @@ func _panel_style(color: Color) -> StyleBoxFlat:
 	return style
 
 
-func _stars_text(count: int) -> String:
-	return "%d/3 stars" % count if count > 0 else "not played"
+func _crown_text(campaign_id: String, index: int) -> String:
+	if not Progress.won(campaign_id, index):
+		return "not won yet"
+	var crown := Progress.stars(campaign_id, index)
+	return "%s crown" % Mission.CROWN_NAMES[crown] if crown > 0 else "won"
 
 
 func _specials_text(civ: Civilization) -> String:

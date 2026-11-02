@@ -385,7 +385,7 @@ static func reachable(state: GameState, unit: Unit) -> Dictionary:
 static func troops_text(troops: Dictionary) -> String:
 	var parts := PackedStringArray()
 	for type_id in troops:
-		parts.append("%d %s" % [int(troops[type_id]), Rules.unit(type_id).display_name.to_lower()])
+		parts.append("%d %s" % [int(troops[type_id]), Rules.unit(type_id).plural_name().to_lower()])
 	return ", ".join(parts)
 
 

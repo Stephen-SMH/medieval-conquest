@@ -71,7 +71,7 @@ func _ask(bundle: Dictionary) -> void:
 		get_parent().add_child(_confirm)
 	_confirm.open("Reinforcements")
 	_confirm.add_text("[center]Buy the selected reinforcements?\n%d %s\n[b]Price %d[/b][/center]" % [
-		int(bundle.soldiers), Rules.unit(bundle.type).display_name.to_lower(), int(bundle.price)], 22)
+		int(bundle.soldiers), Rules.unit(bundle.type).plural_name().to_lower(), int(bundle.price)], 22)
 	_confirm.add_check_and_close(func():
 		_confirm.visible = false
 		visible = false

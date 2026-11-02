@@ -36,6 +36,8 @@ var orders := {}
 var mission := {}
 ## Mission bookkeeping: turns held, events fired...
 var mission_progress := {}
+## The mission's scripted notes so far: [{"turn": n, "text": "..."}] (PRD H).
+var mission_log := []
 ## Soldiers each faction has lost, by unit type: faction -> {type: soldiers}.
 var losses := {}
 ## Armies each faction has destroyed: faction -> count.
@@ -75,6 +77,7 @@ static func from_scenario(scenario: Dictionary, game_seed := 1) -> GameState:
 		state.factions[faction.id] = faction
 		state.turn_order.append(faction.id)
 	state.capitals = scenario.get("capitals", {}).duplicate()
+	state.mission = Mission.normalized(state.mission, state.capitals)
 	state.upgrades = scenario.get("upgrades", {}).duplicate(true)
 	for region in state.map.province_order:
 		state.owners[region] = scenario.get("owners", {}).get(region, "neutral")

@@ -206,5 +206,5 @@ func copy() -> Unit:
 func describe() -> String:
 	var parts := PackedStringArray()
 	for entry in troops:
-		parts.append("%d %s" % [entry.soldiers, entry.type().display_name.to_lower()])
+		parts.append("%d %s" % [entry.soldiers, entry.type().plural_name().to_lower()])
 	return ", ".join(parts)

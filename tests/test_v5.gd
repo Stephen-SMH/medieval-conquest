@@ -148,7 +148,7 @@ func _test_new_objectives(t) -> void:
 	# Destroy N soldiers of a type (replaces "kill or capture a general").
 	var state := Helpers.game({"greywater": "blue", "kingsvale": "red", "redfield": "red"}, [
 		["blue", "greywater", "swordsmen"], ["red", "kingsvale", "militia"], ["red", "redfield", "militia"]], 7)
-	state.mission = {"player": "blue", "par": 5, "objectives": [{"type": "destroy_units", "faction": "red", "unit_type": "militia", "count": 15}]}
+	state.mission = {"player": "blue", "primary": [{"type": "destroy_units", "faction": "red", "unit_type": "militia", "count": 15}], "crowns": [5, 7, 10]}
 	t.check(not Mission.objectives(state)[0].done and Mission.objectives(state)[0].text.contains("15 militia"), "the destroy objective names the type and starts open")
 	state.losses["red"] = {"militia": 15}
 	t.check(Mission.objectives(state)[0].done, "it's done once 15 of them have fallen")
@@ -157,7 +157,7 @@ func _test_new_objectives(t) -> void:
 
 	# Survive N turns.
 	state = Helpers.game({"greywater": "blue", "kingsvale": "red"}, [["blue", "greywater", "spearmen"]], 7)
-	state.mission = {"player": "blue", "par": 4, "objectives": [{"type": "survive", "turns": 3}]}
+	state.mission = {"player": "blue", "primary": [{"type": "survive", "turns": 3}], "crowns": [4, 5, 8]}
 	var turns_to_win := 0
 	for i in 6:
 		Helpers.resolve(state)
@@ -165,7 +165,7 @@ func _test_new_objectives(t) -> void:
 			turns_to_win = i + 1
 			break
 	t.check(turns_to_win == 3 and state.result.result == "won" and state.result.stars == 3,
-		"surviving 3 turns wins on time with 3 stars (won after %d)" % turns_to_win)
+		"surviving 3 turns wins on time with a gold crown (won after %d)" % turns_to_win)
 
 
 ## Regions reachable from `from` over the map's neighbour graph.
@@ -215,7 +215,7 @@ func _test_missions(t) -> void:
 					problems.append("%s doesn't hold its capital" % faction)
 				if state.units_of(faction).is_empty():
 					problems.append("%s has no army" % faction)
-			for objective in scenario.mission.objectives:
+			for objective in state.mission.primary:
 				kinds[objective.type] = true
 				match objective.type:
 					"capture":
@@ -227,11 +227,11 @@ func _test_missions(t) -> void:
 					"hold":
 						if state.owners.get(objective.region) != player:
 							problems.append("doesn't start with " + objective.region)
-						if int(objective.turns) + 1 > Mission.hard_limit(state):
+						if int(objective.turns) + 1 > Mission.time_limit(state):
 							problems.append("hold longer than the limit")
 					"survive":
-						if int(objective.turns) + 1 > Mission.par(state):
-							problems.append("survive past par")
+						if int(objective.turns) + 1 > Mission.crowns(state)[0]:
+							problems.append("survive past the gold crown")
 					"destroy", "destroy_units":
 						if not state.factions.has(objective.faction) or objective.faction == player:
 							problems.append("bad target faction " + objective.faction)

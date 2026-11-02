@@ -117,14 +117,14 @@ func _test_campaigns(t) -> void:
 				var civ_ok: bool = unit.type().civilization == "" or (state.factions.has(unit.owner) and state.factions[unit.owner].civ == unit.type().civilization)
 				if not civ_ok:
 					problems.append("%s can't have %s" % [unit.owner, unit.type_id])
-			for objective in scenario.mission.objectives:
+			for objective in state.mission.primary + state.mission.get("additional", []):
 				for region in objective.get("regions", []) + ([objective.region] if objective.has("region") else []):
 					if not map.provinces.has(region):
 						problems.append("objective names unknown region " + region)
 			if Mission.player(state) != state.viewer() or not state.factions[Mission.player(state)].human:
 				problems.append("the player faction isn't the human one")
-			if Mission.par(state) <= 0 or scenario.mission.briefing == "":
-				problems.append("missing par or briefing")
+			if Mission.crowns(state).size() != 3 or Mission.time_limit(state) <= 0 or scenario.mission.briefing == "":
+				problems.append("missing crowns, time limit or briefing")
 			t.check(problems.is_empty(), "%s mission %d \"%s\" is valid %s" % [campaign.civ, i + 1, scenario.name, problems])
 	t.check(maps.size() == campaigns.size(), "each campaign has its own map %s" % [maps.keys()])
 
@@ -158,6 +158,18 @@ func _test_progress(t) -> void:
 	for i in Campaigns.get_campaign("anglish").missions.size():
 		Progress.record("anglish", i, 1)
 	t.check(Progress.civilization_unlocked("saracen"), "finishing two campaigns unlocks Saracen")
+
+	# PRD H: a win without a crown still counts; best scores add up to a rank.
+	Progress.reset()
+	Progress.record("norse", 0, 0, 2, 300)
+	t.check(Progress.won("norse", 0) and Progress.stars("norse", 0) == 0 and Progress.mission_unlocked("norse", 1),
+		"a win without a crown still opens the next mission")
+	Progress.record("norse", 1, 3, 5, 1000)
+	Progress.record("norse", 1, 1, 3, 400)
+	t.check(Progress.total_score() == 1300 and Progress.rank(1300).name == "Militiaman" and Progress.rank(0).name == "Serf"
+		and Progress.rank(99999).next == "" and is_equal_approx(Progress.rank(1600).progress, 0.5), "each mission's best score adds up to a rank")
+	t.check(Mission.plain("Hold Kingsvale for 3 turns (1 so far)") == "Hold Kingsvale for 3 turns" and Mission.plain("Capture Ashford") == "Capture Ashford",
+		"an objective's words without its count")
 	DirAccess.remove_absolute(Progress.path)
 	Progress.path = Progress.PATH
 

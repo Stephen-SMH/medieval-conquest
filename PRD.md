@@ -329,7 +329,7 @@ What we do differently:
 - **No paywall.** The reference game had 3 free campaigns and sold the rest. Here, 3 civilizations are open from the start and more **unlock by finishing campaigns**.
 - **One unit per region, as in the original.** An earlier draft allowed 4 units per region to stop "one big stack" play; the stack limit is now **1** because the original works that way: each region holds one figure group of up to 20 soldiers, so position and unit choice matter.
 - **Gold only.** Like the original, the economy is gold alone (8.9); food, wood, iron and manpower are gone.
-- **Generous turn limits.** Reviewers disliked strict turn limits. Missions use turn limits for a **star rating** (3 stars if fast), and only lose the mission when the limit is far exceeded.
+- **Generous turn limits.** Reviewers disliked strict turn limits. Missions use turn limits for **gold, silver and bronze crowns**, and only lose the mission when the limit is far exceeded.
 - **Original content.** Our own map, region names, unit names, art and text. Only the mechanics are inspired by the reference game.
 
 ### 8.2 Units (replaces armies of regiments, 3.7)
@@ -395,12 +395,12 @@ Across base and special units this gives **21 unit types**, the same as the refe
 | ID | Requirement |
 |---|---|
 | CP-1 | Every civilization has a **campaign of 3 to 5 missions** on its own scenario map (12–20 regions): **25 missions** in all, as in the reference game (see the table below). |
-| CP-2 | A mission has: a starting setup (owners, units, gold, walls), **objectives** — capture these regions, hold a region for N turns, destroy a faction, **kill or capture a named general**, **survive N turns** (often with little gold), or conquest — a **par turn count** and a **hard limit** (par × 2). Losing your capital loses the mission. |
-| CP-3 | Finishing at or under par gives 3 stars; under 1.5 × par 2 stars; otherwise 1 star. Passing the hard limit loses the mission. |
+| CP-2 | A mission has a starting setup (owners, units, gold, walls) and objectives in the S&T form (8.11). Objective kinds: capture these regions, hold a region for N turns, destroy a faction, destroy N soldiers of a type, **survive N turns** (often with little gold), or conquest. |
+| CP-3 | Crowns replace stars (8.11). The generated campaigns set the crowns at par, under 1.5 × par and 2 × par, and lose after 2 × par turns or when the capital falls. |
 | CP-4 | Missions unlock in order. Finishing campaigns unlocks civilizations (8.5); the Byzantine and Saracen campaigns open when their civilization does. Each campaign starts with an easy capture mission and ends with its hardest, and `tools/sim_campaigns.gd` plays every mission with AI stand-ins to check the ramp. |
 | CP-5 | **Skirmish:** pick a map, your civilization, 1–3 AI opponents and difficulty. Win by conquest. |
 | CP-6 | **Hotseat:** 2–4 human players take turns on one device. A "pass the device" screen hides the map between turns. |
-| CP-7 | Mission briefings and victory/defeat screens with short text. |
+| CP-7 | Mission briefings (a parchment scroll) and victory/defeat screens (8.11). |
 
 | Campaign | Map | Missions (objective) |
 |---|---|---|
@@ -417,7 +417,7 @@ In-mission research is gone, as in the reference game: troops get stronger betwe
 
 | ID | Requirement |
 |---|---|
-| FG-1 | Winning a campaign mission earns **development points** (for now 2 plus one per star; H adds points per objective and crown). A mission keeps its best result, so replaying it only adds what it beats. Points belong to their campaign. |
+| FG-1 | Winning a campaign mission earns **development points** (MS-6). A mission keeps its best result, so replaying it only adds what it beats. Points belong to their campaign. |
 | FG-2 | **The Forge**, opened with the **anvil** on a mission briefing, lists the soldier lines the campaign's civilization fields (militia, spearmen, men-at-arms, archers, crossbowmen, cavalry, engines: the round type icons) with **attack**, **defense** and **health** levels shown as gold pips. Each level adds 10% (health: 10% less damage taken) for every soldier of that line, up to level 3; a level costs 1, then 2, then 3 points. Upgrades are permanent for the campaign. |
 | FG-3 | A campaign mission starts with the campaign's upgrades for the player (saved with the game). An upgraded line shows a small **★** on its type icon everywhere: the army banner, the slider popups and the reinforcement cards. |
 | FG-4 | With research gone, every soldier type of a civilization's roster can be bought from the start, and Siege Engineering's shorter sieges, the economy techs and research-based income are gone. Skirmish and hotseat have no Forge. |
@@ -456,3 +456,13 @@ This decision replaces sections 3.3 (resources), 3.4 (food and supply) and 3.12 
 | TU-1 | A **tutorial** mission on a 7-region map, reachable from the title menu, teaches one thing per step in a parchment hint box and waits for the player to do it: select, march, cancel, attack with the split slider, cavalry's two steps and the red X, the hourglass, gold income and reinforcements. Any step can be skipped, and the tutorial left. |
 | TU-2 | A new player (no campaign progress) is asked once whether to play the tutorial. |
 
+### 8.11 Missions as in S&T (version 6, H)
+
+| ID | Requirement |
+|---|---|
+| MS-1 | A mission has a **PRIMARY** objective (every part of it must be done to win), **ADDITIONAL** objectives (optional, each worth points: 300 for each primary part, 150 for an additional one unless set), and **DEFEAT** conditions: the primary objective not done in N turns; losing all troops (with none on the way); losing a region, at any time or before turn N. Older missions (objectives and par) are converted when loaded. |
+| MS-2 | **Crowns:** finishing by the end of the gold, silver or bronze turn limit (e.g. 8/10/12) wins that crown, worth 300/200/100 points. A mission can be won without a crown; the next one still opens. |
+| MS-3 | **HUD:** the top plaque shows the gold (digit wheels), the turn, the crown still to be had in its colour with the turns left for it (counting down; a grey crown and "–" once none is left), and crossed swords with how many parts of the primary objective are left. Clicking the crown or swords lists the objectives, defeat conditions, crowns and the mission's notes so far. |
+| MS-4 | **Scripted events** (`events`, by turn): reinforcements that join a faction's army in a region (or form one), and plain messages. Each shows a parchment note at the top left, e.g. "Enemy reinforcements arrived in the province of X: Spearmen – 8", which fades after a few seconds or on a click, and is kept in the mission's chronicle (saved with the game). |
+| MS-5 | **Briefing:** a parchment scroll between two wooden rods with the campaign and mission name, the history intro and briefing, the PRIMARY and ADDITIONAL objectives (with points), the DEFEAT conditions, the crowns, the map and the factions; round buttons below for **back**, the **Forge** (anvil, with the points to spend) and **start**. |
+| MS-6 | **Victory screen:** the objectives with ✓/✗ and their points; the development points earned (2, +1 per additional objective done, +1/2/3 for a bronze/silver/gold crown) and the score; the decorations (the three crowns with their turn limits, the one won lit) and the turns taken; your losses and the enemy's by soldier-type icon; **"Your rank: …"** (Serf, Peasant, Militiaman, Man-at-arms, Sergeant, Squire, Knight, Baron, Count, Duke, King, by the sum of each mission's best score) with a bar to the next rank; round buttons for back (menu), the map, restart and next (the next mission's briefing). A defeat shows the objectives, the reason and the losses. |

@@ -26,7 +26,8 @@ func _init() -> void:
 			continue
 		print("== %s (%s)" % [campaign.name, campaign.civ])
 		for i in campaign.missions.size():
-			var line := "  %d. %-26s par %2d" % [i + 1, campaign.missions[i].name, int(campaign.missions[i].mission.par)]
+			var mission := Mission.normalized(campaign.missions[i].mission)
+			var line := "  %d. %-26s gold %2d" % [i + 1, campaign.missions[i].name, int(mission.get("crowns", [0])[0])]
 			for style in ["free", "garrison", "bold"]:
 				var wins := 0
 				var turns := 0

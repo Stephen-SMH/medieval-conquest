@@ -1,18 +1,25 @@
 class_name Hud
 extends Control
-## The minimal map HUD: a riveted plaque at the top with the gold and the turn,
-## wooden shield buttons in the corners (recruit, treasury, menu, alerts, and
-## the end-turn hourglass), a cloth banner on the right listing the turn's
-## orders and battles, a parchment strip for the selection, and the faint
-## "Turn: ..." banner across the map.
+## The minimal map HUD: a riveted plaque at the top with the gold, the turn
+## and, in a mission, the crown still to be won with its turns left and the
+## primary objectives left under crossed swords (PRD H); wooden shield
+## buttons in the corners (recruit, treasury, menu, alerts, and the end-turn
+## hourglass), a cloth banner on the right listing the turn's orders and
+## battles, a parchment strip for the selection, parchment notes at the top
+## left for the mission's scripted events, and the faint "Turn: ..." banner
+## across the map.
 
 signal recruit_pressed
 signal treasury_pressed
 signal menu_pressed
 signal alerts_pressed
 signal end_turn_pressed
+signal objectives_pressed
 
 const GOLD := Color("#e2bd5a")
+## Crown colours: none, bronze, silver, gold.
+const CROWN_COLORS := [Color(0.45, 0.42, 0.38, 0.8), Color("#c0793a"), Color("#d4d8dc"), Color("#f0c64a")]
+const NOTE_SECONDS := 8.0
 const TURN_BANNER_TOP := 96.0  # Below the plaque and the toast line.
 const TURN_FADE_IN := 0.3
 const TURN_HOLD := 1.0
@@ -21,6 +28,11 @@ const TURN_FADE_OUT := 0.5
 var _gold: Odometer
 var _prompt: Label
 var _turn_label: Label
+var _mission_box: Button
+var _crown_icon: TextureRect
+var _crown_label: Label
+var _swords_label: Label
+var _notes: VBoxContainer
 var _info: PanelContainer
 var _info_text: RichTextLabel
 var _info_buttons: HBoxContainer
@@ -61,10 +73,11 @@ func _ready() -> void:
 	# The plaque: gold and turn.
 	var plaque := PanelContainer.new()
 	plaque.theme_type_variation = "Plaque"
-	plaque.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	plaque.position = Vector2(-170, 6)
 	plaque.custom_minimum_size = Vector2(340, 52)
+	plaque.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	add_child(plaque)
+	plaque.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP, Control.PRESET_MODE_MINSIZE)
+	plaque.offset_top = 6
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", 10)
@@ -79,6 +92,36 @@ func _ready() -> void:
 	row.add_child(_icon("res://assets/icons/ui_hourglass.svg", 28))
 	_turn_label = _label("1", 24)
 	row.add_child(_turn_label)
+	# The mission's crown and crossed swords; a click lists the objectives.
+	_mission_box = Button.new()
+	_mission_box.flat = true
+	_mission_box.focus_mode = Control.FOCUS_NONE
+	_mission_box.tooltip_text = "Objectives"
+	_mission_box.pressed.connect(func(): objectives_pressed.emit())
+	row.add_child(_mission_box)
+	var mission_row := HBoxContainer.new()
+	mission_row.add_theme_constant_override("separation", 8)
+	mission_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_mission_box.add_child(mission_row)
+	var spacer := Control.new()
+	spacer.custom_minimum_size = Vector2(30, 0)
+	spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	mission_row.add_child(spacer)
+	_crown_icon = _icon("res://assets/icons/map_crown.svg", 30)
+	_crown_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	mission_row.add_child(_crown_icon)
+	_crown_label = _label("", 24)
+	mission_row.add_child(_crown_label)
+	var gap2 := Control.new()
+	gap2.custom_minimum_size = Vector2(14, 0)
+	mission_row.add_child(gap2)
+	var swords := _icon("res://assets/icons/ui_swords.svg", 26)
+	swords.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	mission_row.add_child(swords)
+	_swords_label = _label("", 24)
+	mission_row.add_child(_swords_label)
+	mission_row.resized.connect(func(): _mission_box.custom_minimum_size = mission_row.get_combined_minimum_size())
+	_mission_box.visible = false
 
 	# Shield buttons in the corners.
 	_add_shield("res://assets/icons/knight.svg", true, Vector2(8, 6), Control.PRESET_TOP_LEFT, "Recruit (R)", func(): recruit_pressed.emit())
@@ -230,6 +273,14 @@ func _ready() -> void:
 	_prompt.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_prompt)
 
+	# Parchment notes for the mission's scripted events, at the top left under the shields.
+	_notes = VBoxContainer.new()
+	_notes.position = Vector2(10, 236)
+	_notes.custom_minimum_size = Vector2(380, 0)
+	_notes.add_theme_constant_override("separation", 6)
+	_notes.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_notes)
+
 	_toast = _label("", 18)
 	_toast.set_anchors_preset(Control.PRESET_CENTER_TOP)
 	_toast.position = Vector2(-330, 66)
@@ -248,6 +299,15 @@ func update(state: GameState, has_alerts: bool) -> void:
 	var faction: FactionState = state.factions.get(state.viewer())
 	_gold.set_value(roundi(faction.resources.gold) if faction != null else 0)
 	_turn_label.text = str(state.turn)
+	_mission_box.visible = Mission.is_mission(state) and not Mission.primary(state).is_empty()
+	if _mission_box.visible:
+		var crown := Mission.crown_now(state)
+		_crown_icon.modulate = CROWN_COLORS[crown.crown]
+		_crown_label.text = str(crown.turns_left) if crown.crown > 0 else "–"
+		_crown_label.add_theme_color_override("font_color", CROWN_COLORS[crown.crown].lightened(0.1))
+		_crown_icon.tooltip_text = ("%s crown: finish within %d more turn%s" % [Mission.CROWN_NAMES[crown.crown].capitalize(), crown.turns_left,
+			"" if crown.turns_left == 1 else "s"]) if crown.crown > 0 else "No crown left to win"
+		_swords_label.text = str(Mission.primary_left(state))
 	_alerts_dot.visible = has_alerts
 	var entries := []
 	for unit: Unit in state.orders:
@@ -355,6 +415,34 @@ static func turn_banner_position(screen: Vector2, banner: Vector2) -> Vector2:
 ## How long the turn banner shows, in seconds, from fading in to gone.
 static func turn_banner_seconds() -> float:
 	return TURN_FADE_IN + TURN_HOLD + TURN_FADE_OUT
+
+
+## A parchment note at the top left (a scripted event, PRD H). It fades
+## after a few seconds; a click puts it away at once.
+func note(text: String) -> void:
+	var card := PanelContainer.new()
+	card.theme_type_variation = "Parchment"
+	card.mouse_filter = Control.MOUSE_FILTER_STOP
+	var label := RichTextLabel.new()
+	label.bbcode_enabled = true
+	label.fit_content = true
+	label.custom_minimum_size = Vector2(360, 0)
+	label.add_theme_color_override("default_color", Color("#2f2012"))
+	label.add_theme_font_size_override("normal_font_size", 17)
+	label.text = text
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	card.add_child(label)
+	_notes.add_child(card)
+	pop_in(card)
+	var fade := func():
+		if is_instance_valid(card):
+			var tween := card.create_tween()
+			tween.tween_property(card, "modulate:a", 0.0, 0.6)
+			tween.tween_callback(card.queue_free)
+	card.gui_input.connect(func(event):
+		if event is InputEventMouseButton and event.pressed:
+			fade.call())
+	get_tree().create_timer(NOTE_SECONDS).timeout.connect(fade)
 
 
 ## A standing prompt under the top bar ("" hides it).

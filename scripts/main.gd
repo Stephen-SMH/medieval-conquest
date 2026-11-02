@@ -39,6 +39,8 @@ var _last_human := ""
 var _pass_screen: Control
 var _pass_label: Label
 var _messages := PackedStringArray()
+## How many of the mission's notes (state.mission_log) the HUD has shown.
+var _notes_shown := 0
 var _last_battles := []  # [Battle, region] pairs from the last resolution.
 var _busy := false  # True while a turn resolves on screen.
 var _attack_popup: AttackPopup
@@ -124,6 +126,8 @@ func _ready() -> void:
 	_end_screen.play_again.connect(_play_again)
 	_end_screen.closed.connect(_close_popups)
 	_end_screen.menu.connect(_go_to_menu)
+	_end_screen.next_mission.connect(_next_mission)
+	_hud.objectives_pressed.connect(open_objectives)
 	_build_pass_screen()
 	Hud.react_all($UI)
 	Settings.apply(get_tree())
@@ -132,6 +136,9 @@ func _ready() -> void:
 		_start_tutorial()
 
 	clear_selection()
+	# Notes from earlier turns of a loaded game aren't shown again.
+	_notes_shown = state.mission_log.filter(func(n): return int(n.turn) < state.turn).size()
+	_show_new_notes()
 	_advance()
 
 
@@ -555,6 +562,7 @@ func _report_events(events: Array) -> void:
 			"siege_breached":
 				notes.append("The walls of %s are breached." % map.region_name(event.province))
 	_messages = notes
+	_show_new_notes()
 	if not notes.is_empty():
 		_hud.toast(notes[0] + ("  (+%d more: see the ! shield)" % (notes.size() - 1) if notes.size() > 1 else ""))
 
@@ -564,7 +572,8 @@ func _check_end() -> bool:
 		return false
 	_refresh_world()
 	if state.result.result == "won" and state.mission.has("campaign") and state.result.winner == state.viewer():
-		Progress.record(state.mission.campaign, int(state.mission.mission_index), int(state.result.stars), int(state.result.get("development", 0)))
+		Progress.record(state.mission.campaign, int(state.mission.mission_index), int(state.result.stars),
+			int(state.result.get("development", 0)), int(state.result.get("points", 0)))
 	AudioManager.music("victory" if state.result.get("winner", "") == state.viewer() else "defeat")
 	_end_screen.show_result(state, state.viewer())
 	_dim.visible = true
@@ -609,7 +618,7 @@ func _place_bundle(region: String) -> void:
 	if Economy.buy(state, region, bundle):
 		AudioManager.sfx("coins")
 		_tutorial_record("recruit")
-		_hud.toast("%d %s will arrive in %s next turn." % [int(bundle.soldiers), Rules.unit(bundle.type).display_name.to_lower(), map.region_name(region)])
+		_hud.toast("%d %s will arrive in %s next turn." % [int(bundle.soldiers), Rules.unit(bundle.type).plural_name().to_lower(), map.region_name(region)])
 	else:
 		_hud.toast("Can't send them to %s: %s." % [map.region_name(region), Economy.bundle_problem(state, region, bundle, state.current_faction())])
 	_refresh_world()
@@ -646,6 +655,45 @@ func open_menu() -> void:
 		set_mode(MapMode.TERRAIN if mode == MapMode.POLITICAL else MapMode.POLITICAL)
 		_close_popups(), _popup.body)
 	_popup.add_button("Main menu", _go_to_menu, _popup.body)
+	_dim.visible = true
+
+
+## The mission's scripted notes not yet shown, as parchment notes at the top left (PRD H).
+func _show_new_notes() -> void:
+	for i in range(_notes_shown, state.mission_log.size()):
+		_hud.note(state.mission_log[i].text)
+	_notes_shown = state.mission_log.size()
+
+
+## The mission's objectives, defeat conditions, crowns and notes so far (PRD H).
+func open_objectives() -> void:
+	if not Mission.is_mission(state):
+		return
+	_popup.open("Objectives")
+	var mark := func(o): return "[color=#8fe08f]✓[/color]" if o.done else "[color=#c8b48a]•[/color]"
+	var lines := PackedStringArray()
+	lines.append("[b]Primary objective[/b]")
+	for objective in Mission.primary(state):
+		lines.append("%s %s" % [mark.call(objective), objective.text])
+	var extra := Mission.additional(state)
+	if not extra.is_empty():
+		lines.append("\n[b]Additional objectives[/b]")
+		for objective in extra:
+			lines.append("%s %s  [i](%d points)[/i]" % [mark.call(objective), objective.text, objective.points])
+	var defeats := Mission.defeats(state)
+	if not defeats.is_empty():
+		lines.append("\n[b]Defeat[/b]")
+		for line in defeats:
+			lines.append("[color=#f08070]✗[/color] %s" % line)
+	var limits := Mission.crowns(state)
+	if limits.size() == 3:
+		lines.append("\n[b]Crowns[/b]  gold by turn %d, silver by %d, bronze by %d" % limits)
+	if not state.mission_log.is_empty():
+		lines.append("\n[b]Chronicle[/b]")
+		for entry in state.mission_log:
+			lines.append("[i]Turn %d:[/i] %s" % [int(entry.turn), entry.text])
+	_popup.add_text("\n".join(lines), 17)
+	_popup.add_close()
 	_dim.visible = true
 
 
@@ -707,6 +755,14 @@ func _play_again() -> void:
 
 func _go_to_menu() -> void:
 	get_tree().change_scene_to_file("res://scenes/menu.tscn")
+
+
+## The victory screen's "next": the next mission's briefing, where the Forge is.
+func _next_mission() -> void:
+	var session := get_node_or_null("/root/Session")
+	if session != null and state.mission.has("campaign"):
+		session.menu_target = {"briefing": [state.mission.campaign, int(state.mission.mission_index) + 1]}
+	_go_to_menu()
 
 
 func _on_build_requested(region: String, building: String) -> void:

@@ -118,11 +118,32 @@
    ],
    "mission": {
     "player": "norse",
-    "par": 5,
-    "objectives": [
+    "primary": [
      {
       "type": "capture",
       "regions": ["morrow_fen", "solvbekk", "tornfjell"]
+     }
+    ],
+    "additional": [],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 10
+     },
+     {
+      "type": "lose_region",
+      "region": "skarholm"
+     }
+    ],
+    "crowns": [5, 7, 10],
+    "events": [
+     {
+      "turn": 3,
+      "type": "reinforcements",
+      "faction": "elmsworth",
+      "region": "elmsworth",
+      "unit": "yeoman",
+      "soldiers": 6
      }
     ],
     "briefing": "The longships are beached. Seize the three settlements nearest the shore before the thanes muster.",
@@ -247,11 +268,39 @@
    ],
    "mission": {
     "player": "norse",
-    "par": 9,
-    "objectives": [
+    "primary": [
      {
       "type": "capture",
       "regions": ["wyrmsby"]
+     }
+    ],
+    "additional": [
+     {
+      "type": "destroy_units",
+      "faction": "greyhaven",
+      "unit_type": "longbowman",
+      "count": 10
+     }
+    ],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 18
+     },
+     {
+      "type": "lose_region",
+      "region": "skarholm"
+     }
+    ],
+    "crowns": [9, 13, 18],
+    "events": [
+     {
+      "turn": 4,
+      "type": "reinforcements",
+      "faction": "greyhaven",
+      "region": "wyrmsby",
+      "unit": "spearmen",
+      "soldiers": 8
      }
     ],
     "briefing": "Greyhaven's lords hide behind a palisade with the silver of three abbeys. Take their hall.",
@@ -376,13 +425,25 @@
    ],
    "mission": {
     "player": "norse",
-    "par": 7,
-    "objectives": [
+    "primary": [
      {
       "type": "survive",
       "turns": 6
      }
     ],
+    "additional": [],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 14
+     },
+     {
+      "type": "lose_region",
+      "region": "skarholm"
+     }
+    ],
+    "crowns": [7, 10, 14],
+    "events": [],
     "briefing": "The fleet is iced into the fjord and the silver is spent. The thanes smell weakness. Keep Skarholm and the army alive for six turns, until the thaw, without the gold to buy fresh spears.",
     "victory_text": "The ice breaks, and Hakon's raiders are still standing. The thanes go home hungry.",
     "defeat_text": "Hunger and Anglish arrows finish what the winter began."
@@ -512,8 +573,7 @@
    ],
    "mission": {
     "player": "norse",
-    "par": 9,
-    "objectives": [
+    "primary": [
      {
       "type": "destroy_units",
       "faction": "kaldvik",
@@ -521,6 +581,19 @@
       "count": 15
      }
     ],
+    "additional": [],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 18
+     },
+     {
+      "type": "lose_region",
+      "region": "skarholm"
+     }
+    ],
+    "crowns": [9, 13, 18],
+    "events": [],
     "briefing": "Sigrid of Kaldvik has sworn Hakon's death and taken half the jarls with her. A feud ends one way: find her war-band and break it.",
     "victory_text": "Sigrid is in chains, and the jarls of Kaldvik kneel again.",
     "defeat_text": "Sigrid's oath is kept. Hakon's line is ended."
@@ -673,12 +746,24 @@
    ],
    "mission": {
     "player": "norse",
-    "par": 14,
-    "objectives": [
+    "primary": [
      {
       "type": "conquest"
      }
     ],
+    "additional": [],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 28
+     },
+     {
+      "type": "lose_region",
+      "region": "skarholm"
+     }
+    ],
+    "crowns": [14, 20, 28],
+    "events": [],
     "briefing": "A rival jarl and a Frankish count both claim the Fjordmark. There can be only one throne.",
     "victory_text": "Hakon is crowned king of the Fjordmark. The saga is complete.",
     "defeat_text": "Another sits on the throne Hakon bled for."

@@ -125,14 +125,26 @@
    ],
    "mission": {
     "player": "weald",
-    "par": 6,
-    "objectives": [
+    "primary": [
      {
       "type": "hold",
       "region": "kingsbarrow",
       "turns": 5
      }
     ],
+    "additional": [],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 12
+     },
+     {
+      "type": "lose_region",
+      "region": "kingsbarrow"
+     }
+    ],
+    "crowns": [6, 8, 12],
+    "events": [],
     "briefing": "Longships have been sighted. Hold Kingsbarrow for five turns until the fyrd arrives.",
     "victory_text": "The raiders' fury broke on our walls of bowmen.",
     "defeat_text": "Kingsbarrow burns."
@@ -254,13 +266,25 @@
    ],
    "mission": {
     "player": "weald",
-    "par": 6,
-    "objectives": [
+    "primary": [
      {
       "type": "capture",
       "regions": ["fennick", "highwold", "saltcombe"]
      }
     ],
+    "additional": [],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 12
+     },
+     {
+      "type": "lose_region",
+      "region": "kingsbarrow"
+     }
+    ],
+    "crowns": [6, 8, 12],
+    "events": [],
     "briefing": "The raiders are gone for now, but the next fleet will come. Bring the nearest shires under the crown, so their bowmen answer the queen's call.",
     "victory_text": "The shires send their bowmen to Kingsbarrow.",
     "defeat_text": "The shires keep their bowmen at home."
@@ -388,13 +412,25 @@
    ],
    "mission": {
     "player": "weald",
-    "par": 10,
-    "objectives": [
+    "primary": [
      {
       "type": "destroy",
       "faction": "raiders"
      }
     ],
+    "additional": [],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 20
+     },
+     {
+      "type": "lose_region",
+      "region": "kingsbarrow"
+     }
+    ],
+    "crowns": [10, 14, 20],
+    "events": [],
     "briefing": "Carry the war to Gullmouth and burn the raiders out of the Weald for good.",
     "victory_text": "No longship will beach on our shore again.",
     "defeat_text": "The raiders still hold the coast."
@@ -523,8 +559,7 @@
    ],
    "mission": {
     "player": "weald",
-    "par": 11,
-    "objectives": [
+    "primary": [
      {
       "type": "destroy_units",
       "faction": "ashcombe",
@@ -532,6 +567,19 @@
       "count": 15
      }
     ],
+    "additional": [],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 22
+     },
+     {
+      "type": "lose_region",
+      "region": "kingsbarrow"
+     }
+    ],
+    "crowns": [11, 16, 22],
+    "events": [],
     "briefing": "Baudouin, the Black Count of Ashcombe, rides through the Weald burning barns. His knights are deadly in the open: meet them with pikes and bows, then take the count.",
     "victory_text": "The Black Count is the queen's prisoner, and his ransom fills the treasury.",
     "defeat_text": "Baudouin's knights ride on, and the Weald burns."
@@ -685,13 +733,25 @@
    ],
    "mission": {
     "player": "weald",
-    "par": 12,
-    "objectives": [
+    "primary": [
      {
       "type": "capture",
       "regions": ["ashcombe", "wyndle"]
      }
     ],
+    "additional": [],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 24
+     },
+     {
+      "type": "lose_region",
+      "region": "kingsbarrow"
+     }
+    ],
+    "crowns": [12, 17, 24],
+    "events": [],
     "briefing": "Unite the Weald: take Ashcombe from its Frankish count and bring the free towns of Wyndle under the crown.",
     "victory_text": "Elswyth is crowned Queen of all the Weald.",
     "defeat_text": "The Weald stays divided."

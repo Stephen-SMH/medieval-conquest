@@ -112,13 +112,25 @@
    ],
    "mission": {
     "player": "belcourt",
-    "par": 6,
-    "objectives": [
+    "primary": [
      {
       "type": "capture",
       "regions": ["grandval", "marlenne", "vaudrey"]
      }
     ],
+    "additional": [],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 12
+     },
+     {
+      "type": "lose_region",
+      "region": "belcourt"
+     }
+    ],
+    "crowns": [6, 8, 12],
+    "events": [],
     "briefing": "The marches beyond Belcourt answer to no one. Bring three of them under your banner.",
     "victory_text": "The marches bow to Belcourt.",
     "defeat_text": "The marches stay wild."
@@ -253,14 +265,26 @@
    ],
    "mission": {
     "player": "belcourt",
-    "par": 7,
-    "objectives": [
+    "primary": [
      {
       "type": "hold",
       "region": "belcourt",
       "turns": 6
      }
     ],
+    "additional": [],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 14
+     },
+     {
+      "type": "lose_region",
+      "region": "belcourt"
+     }
+    ],
+    "crowns": [7, 10, 14],
+    "events": [],
     "briefing": "Ragnvald's Northmen have come up the river in force while the duke's vassals bicker. Hold Belcourt for six turns until the vassals arrive.",
     "victory_text": "The vassals ride in, and the Northmen fall back to their ships.",
     "defeat_text": "Belcourt burns, and the Northmen winter in the duke's hall."
@@ -400,13 +424,25 @@
    ],
    "mission": {
     "player": "belcourt",
-    "par": 10,
-    "objectives": [
+    "primary": [
      {
       "type": "capture",
       "regions": ["brevine"]
      }
     ],
+    "additional": [],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 20
+     },
+     {
+      "type": "lose_region",
+      "region": "belcourt"
+     }
+    ],
+    "crowns": [10, 14, 20],
+    "events": [],
     "briefing": "Lord Aimery has shut himself in his stone keep. Besiege it or storm it, but take Brévine.",
     "victory_text": "The keep of Brévine opens its gates.",
     "defeat_text": "Brévine's walls hold."
@@ -560,13 +596,25 @@
    ],
    "mission": {
     "player": "belcourt",
-    "par": 11,
-    "objectives": [
+    "primary": [
      {
       "type": "capture",
       "regions": ["castelroux", "pierrefonde", "marlenne"]
      }
     ],
+    "additional": [],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 22
+     },
+     {
+      "type": "lose_region",
+      "region": "belcourt"
+     }
+    ],
+    "crowns": [11, 16, 22],
+    "events": [],
     "briefing": "The river towns of the lowlands, Castelroux, Pierrefonde and Marlenne, pay their tolls to Anglish and Norse interlopers. Make them pay the duke.",
     "victory_text": "The lowland tolls now fill Belcourt's coffers.",
     "defeat_text": "The lowland towns pay their tolls to others."
@@ -725,12 +773,24 @@
    ],
    "mission": {
     "player": "belcourt",
-    "par": 14,
-    "objectives": [
+    "primary": [
      {
       "type": "conquest"
      }
     ],
+    "additional": [],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 28
+     },
+     {
+      "type": "lose_region",
+      "region": "belcourt"
+     }
+    ],
+    "crowns": [14, 20, 28],
+    "events": [],
     "briefing": "Norse settlers and Anglish adventurers have carved out holdings in the Valmont. Drive them out and take the crown.",
     "victory_text": "Robert is crowned King of the Valmont.",
     "defeat_text": "The Valmont slips from Robert's grasp."
