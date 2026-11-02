@@ -12,6 +12,27 @@ func run(t) -> void:
 		t.check(MapData.list_maps().has(map_id), "%s is offered as a map" % map_id)
 		var data = JSON.parse_string(FileAccess.get_file_as_string(MapData.MAP_DIR.path_join(map_id + ".json")))
 		_check_map(t, MapData.load_map(map_id), data)
+	_test_sea_links(t)
+
+
+## Armies sail along sea links between ports (PRD J): the two ports are
+## neighbours across a "sea" border, and a landing fights like a river crossing.
+func _test_sea_links(t) -> void:
+	var map := MapData.load_map("british_isles")
+	t.check(map.are_neighbours("dublin", "bangor") and map.are_neighbours("bangor", "dublin") and map.border_type("dublin", "bangor") == "sea"
+		and map.sea_links("dublin") == ["bangor"], "Dublin and Bangor are joined by sea")
+	var scenario := {"id": "sea_test", "map": "british_isles",
+		"factions": [{"id": "blue", "name": "Blue", "color": "#3d6fb6", "human": true}, {"id": "red", "name": "Red", "color": "#b5423a"}],
+		"owners": {"dublin": "blue", "bangor": "red", "waterford": "blue"},
+		"units": [{"owner": "blue", "region": "dublin", "type": "swordsmen"}, {"owner": "red", "region": "bangor", "type": "spearmen"},
+			{"owner": "blue", "region": "waterford", "type": "archers"}]}
+	var state := GameState.from_scenario(scenario, 1)
+	state.mission = {"player": "blue", "primary": []}
+	var army: Unit = state.unit_in("dublin")
+	t.check(Orders.problem(state, army, "attack", "bangor") == "", "an army in Dublin can attack Bangor across the sea")
+	t.check(state.crosses_river([army] as Array[Unit], "bangor"), "the landing fights at the river-crossing penalty")
+	t.check(state.map.distance("dublin", "bangor") == 1 and Orders.problem(state, state.unit_in("waterford"), "move", "st_davids") == "",
+		"a sea link counts as one step, like a border")
 
 
 func _check_map(t, map: MapData, data: Dictionary) -> void:

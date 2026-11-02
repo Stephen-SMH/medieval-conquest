@@ -25,7 +25,7 @@ const MORALE_PER_LOSS := 150.0   # Morale lost for losing 100% of the side's sta
 const MORALE_PER_UNIT_LOST := 8.0
 const MORALE_OUTNUMBERED := 5.0  # Lost each exchange while below OUTNUMBERED_RATIO of the enemy.
 const OUTNUMBERED_RATIO := 0.67
-const RIVER_PENALTY := 0.75      # Attacker's attack across a river (PRD 3.1).
+const RIVER_PENALTY := 0.75      # Attacker's attack across a river or from the sea (PRD 3.1, J).
 const ROUT_LOSS := 0.2           # Extra HP a routed side loses while fleeing (BT-4).
 const RANGED_IN_MELEE := 0.5     # Ranged units fight at half strength once the melee starts.
 const SIEGE_IN_FIELD := 0.5      # Catapults are weak against troops in the field.
@@ -202,7 +202,7 @@ func explain(viewer: String, faction_names: Dictionary) -> PackedStringArray:
 	if terrain.battle_text != "":
 		reasons.append("Fought on %s: %s." % [terrain.display_name.to_lower(), terrain.battle_text])
 	if river_crossing:
-		reasons.append("The attackers crossed a river: −25% attack.")
+		reasons.append("The attackers crossed a river or landed from the sea: −25% attack.")
 	if defender.wall_bonus > 0.0:
 		reasons.append("Walls: the defenders took %d%% less damage." % roundi(100.0 - 100.0 / (1.0 + defender.wall_bonus)))
 	return reasons

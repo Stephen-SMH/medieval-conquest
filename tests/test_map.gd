@@ -34,7 +34,8 @@ func _check_map(t, map: MapData) -> void:
 	var mismatched := []
 	for a in map.province_order:
 		for b in map.province_order:
-			if a < b and map.are_neighbours(a, b) != not map.shared_edges(a, b).is_empty():
+			var by_land := map.are_neighbours(a, b) and map.border_type(a, b) != "sea"
+			if a < b and by_land != not map.shared_edges(a, b).is_empty():
 				mismatched.append("%s|%s" % [a, b])
 	t.check(mismatched.is_empty(), "%s: neighbours are exactly the regions sharing a border %s" % [name, mismatched])
 

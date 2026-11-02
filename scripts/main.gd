@@ -427,6 +427,9 @@ func _show_region_info(region: String) -> void:
 		extras.append(Sieges.WALL_NAMES[Sieges.walls(state, region)].to_lower())
 	if Economy.site(state, region) != "":
 		extras.append(Economy.site(state, region) + ": reinforcements")
+	var ports := map.sea_links(region)
+	if not ports.is_empty():
+		extras.append("sails to " + ", ".join(ports.map(func(r): return map.region_name(r))))
 	lines.append("[b]%s[/b] — %s%s. %s, %d gold a turn." % [map.region_name(region), state.faction_name(owner),
 		" (%s)" % ", ".join(extras) if not extras.is_empty() else "", map.terrain(region).display_name, roundi(Economy.region_income(state, region))])
 	var occupant := state.unit_in(region)

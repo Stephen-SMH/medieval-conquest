@@ -466,3 +466,12 @@ This decision replaces sections 3.3 (resources), 3.4 (food and supply) and 3.12 
 | MS-4 | **Scripted events** (`events`, by turn): reinforcements that join a faction's army in a region (or form one), and plain messages. Each shows a parchment note at the top left, e.g. "Enemy reinforcements arrived in the province of X: Spearmen – 8", which fades after a few seconds or on a click, and is kept in the mission's chronicle (saved with the game). |
 | MS-5 | **Briefing:** a parchment scroll between two wooden rods with the campaign and mission name, the history intro and briefing, the PRIMARY and ADDITIONAL objectives (with points), the DEFEAT conditions, the crowns, the map and the factions; round buttons below for **back**, the **Forge** (anvil, with the points to spend) and **start**. |
 | MS-6 | **Victory screen:** the objectives with ✓/✗ and their points; the development points earned (2, +1 per additional objective done, +1/2/3 for a bronze/silver/gold crown) and the score; the decorations (the three crowns with their turn limits, the one won lit) and the turns taken; your losses and the enemy's by soldier-type icon; **"Your rank: …"** (Serf, Peasant, Militiaman, Man-at-arms, Sergeant, Squire, Knight, Baron, Count, Duke, King, by the sum of each mission's best score) with a bar to the next rank; round buttons for back (menu), the map, restart and next (the next mission's briefing). A defeat shows the objectives, the reason and the losses. |
+
+### 8.12 Sea crossings (version 6, J)
+
+| ID | Requirement |
+|---|---|
+| SC-1 | A map's `sea_links: [[a, b], ...]` join two port regions. The ports become neighbours across a **sea** border: armies sail along it to march, attack or retreat, one step like any border, and the AI, sight and distances use it too. |
+| SC-2 | A landing from the sea fights like a river crossing (the attackers' attack −25%), and the battle report says so. |
+| SC-3 | The map draws each link as a dashed line across the water between the two ports' boat icons; a port's region info lists where it sails to. |
+

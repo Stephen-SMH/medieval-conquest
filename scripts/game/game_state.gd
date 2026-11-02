@@ -377,7 +377,7 @@ func prepare_for_battle(troop: Troop, owner: String, defending: bool, region: St
 
 func crosses_river(attacking: Array[Unit], region: String) -> bool:
 	for unit in attacking:
-		if unit.has_melee() and map.border_type(unit.province, region) == "river":
+		if unit.has_melee() and map.border_type(unit.province, region) in ["river", "sea"]:
 			return true
 	return false
 

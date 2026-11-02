@@ -1,8 +1,11 @@
 class_name MapData
 extends RefCounted
 ## A map from data/maps/<id>.json: region shapes, neighbours, coasts, rivers,
-## roads and start slots for skirmish. This is fixed geography; who owns what
-## is game state. Regions are called provinces in the code.
+## roads, sea links and start slots for skirmish. This is fixed geography; who
+## owns what is game state. Regions are called provinces in the code.
+## A sea link (PRD J, "sea_links": [[a, b], ...] between two port regions)
+## makes the two ports neighbours across a "sea" border: armies sail along
+## it to march or attack, and a landing fights like a river crossing.
 
 const MAP_DIR := "res://data/maps"
 const TUTORIAL_DIR := "res://data/tutorial"
@@ -14,7 +17,7 @@ var display_name := ""
 var size := Vector2.ZERO
 var provinces := {}      # region id -> data from the map file plus "polygon" and "centroid"
 var province_order: Array[String] = []
-var borders := {}        # border_key(a, b) -> "river" or "road"
+var borders := {}        # border_key(a, b) -> "river", "road" or "sea"
 ## Regions where skirmish factions start, in slot order.
 var starts: Array[String] = []
 
@@ -69,6 +72,11 @@ func load_file(path: String) -> Error:
 		province_order.append(region.id)
 	for border in data.get("borders", []):
 		borders[border_key(border.between[0], border.between[1])] = border.type
+	for link in data.get("sea_links", []):
+		for pair in [[link[0], link[1]], [link[1], link[0]]]:
+			if not (pair[1] in provinces[pair[0]].neighbours):
+				provinces[pair[0]].neighbours.append(pair[1])
+		borders[border_key(link[0], link[1])] = "sea"
 	starts.assign(data.get("starts", []))
 	return OK
 
@@ -97,9 +105,14 @@ func region_name(region: String) -> String:
 	return provinces[region].name
 
 
-## "river", "road" or "" for the border between two neighbouring regions.
+## "river", "road", "sea" or "" for the border between two neighbouring regions.
 func border_type(a: String, b: String) -> String:
 	return borders.get(border_key(a, b), "")
+
+
+## The ports a region's sea links reach (PRD J).
+func sea_links(region: String) -> Array:
+	return neighbours(region).filter(func(other): return border_type(region, other) == "sea")
 
 
 ## Steps between two regions over the neighbour graph (breadth-first).
