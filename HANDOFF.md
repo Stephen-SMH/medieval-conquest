@@ -57,36 +57,74 @@ Swift AVFoundation script (`AVAssetImageGenerator`), and contact sheets were mad
 - Scenario armies over 20 were cut to 20 in `tools/make_scenarios.py`.
 - The video's region numbers go above 10 (Oxford shows 12), so S&T's real cap is unknown. 20 is the user's number.
 
-**Still different from the video, in rough priority order:**
-1. **HUD layout.** Ours follows the earlier Android stills; the video is the PC layout:
-   - pause top-left, reinforcements bottom-left;
-   - minimap top-right with a zoom button under it;
-   - top bar: gold, hourglass (turns to the next crown), crown, crossed axes (enemy units left to destroy);
-   - **bottom-centre panel of unit cards** for the selected army: one card per unit, each with an
-     hourglass button, a type icon and a vertical health bar. Cards are green when the unit can act and red
-     when spent. Units ordered in from elsewhere show as a separate group;
-   - "Your Turn: Kingdom of England" plus flag at the bottom; no info panel text.
-   - Ask the user: PC or Android layout?
-2. **Selection colours.** The selected region turns dark brown, regions it can march to salmon pink, enemy
-   regions it can attack white.
-3. **Order window.** Only the title (Move/Attack/Support), the rows (icon, count, slider; two columns) and
-   the total slider between ✓ and ✗. There is no route line, forecast or notes.
-4. **Tutorial.** Nine numbered parchment tips ("1/9. …"), in our own words: top panel turns and reward,
-   the unit icon shows the main troop type, move all forces, cavalry moves twice, resting restores the health
-   bar, support without moving in, the attack/support ring, enemy turn replay, and surrounded troops are destroyed.
-5. **Notices** on parchment, top-left: "Enemy reinforcements arrived to the province of X: vikings – 1."
-6. **Battle result:** "Battle won" or "Battle lost" in big centred text over a dimmed map.
+**Done the same day (commit 0f30c39, local, not pushed):**
+- **Order window as in S&T.** `wood_popup.gd`, `st_frame.gd`, `dot_slider.gd`, `corner_button.gd`, and
+  `planks.png`/`iron.png` from `tools/make_theme.gd -- frame`. Its title uses Grenze Gotisch.
+- **Type badges.** Dark round badges in the window. Axemen show an axe: huscarls and the Varangian Guard get
+  one axe, berserkers crossed axes (the user's mobile still shows this).
+- **Forecast removed** from the window and the settings.
+- **Playback as in S&T.** Arrows stay on the map and burn during their battle (`OrdersLayer.playing`,
+  `burn`, `drop`). "Battle won" shows in big gothic letters over a dim. "Turn: …" with its flag sits low on the
+  screen. There's no curtain and no battle toast.
+
+**The user wants the game EXACTLY like S&T: rules, screens, animation, maps, history, campaigns.**
+- Be proactive: study the videos and don't wait to be told each item.
+- A second video, `~/Downloads/Medieval Wars_Strategy&Tactics 1.mp4` (10.7 min, the **mobile** version), is
+  the main reference. It matches our HUD layout. Grab frames with an AVFoundation Swift script; there's no ffmpeg.
+- Keep to the line: copy rules, layouts, flows and animation timing, but **make all art and words our own**.
+  The repo and releases are public, and copying HeroCraft's art, text or campaign titles would be infringement.
+
+**Still to do, in priority order:**
+1. **Army figures.** S&T's are 2–3 hand-painted realistic figures, larger than ours, with a banner pole and the
+   number under them. Ours are low-poly Quaternius renders.
+   - Options: re-render with more realistic CC0 models (chainmail, kite shields, helmets), a painterly
+     post-pass (outline, oil-paint smoothing, warm light), bigger figures, and darker realistic colours.
+   - Copying S&T's sprites is not an option.
+2. **England & Wales map** like S&T's, about 45 regions. These exist in S&T but not in our `british_isles`:
+   Cumbria, Stamford, Dunwich, Leominster, Glamorgan, Pembrokeshire, Caernarfonshire, Anglesey, Salisbury,
+   Glastonbury, Plymouth, Guildford, Rochester, plus Scotland and the Isle of Man as edges.
+   - Each region shows a coin with income 10 (some 5 or 15), a castle sign where fortified, and a tent for camps.
+3. **Campaigns as in S&T** (menu list: Tutorial, England, France, Crusades, Vikings; with XI, XI, XI, XII, IX
+   missions). Use our own names: S&T calls them "Excalibur", "Great France" and "In Praise of Odin!".
+   - Tutorial: north England, England vs Denmark, 9 parchment tips.
+   - England mission 1: south England and Wales vs Denmark. Objectives: "destroy 7 units", "lose no more
+     than 3 cavalry", "destroy all enemy forces".
+   - Crusades: Third Crusade, second half of 1191–1192. Main objective Acre and Jerusalem; additional
+     objective Paphos and Lefkosa, held for 2 turns; defeat after 9 turns.
+   - Factions are real kingdoms ("Kingdom of England", "Kingdom of Denmark").
+4. **Scenarios as in S&T's list:**
+   - Robin Hood
+   - Viking wars 789–1066
+   - Battle of Bråvalla 770–775
+   - Cnut the Great's war on Norway and Sweden
+   - Unification of Norway 870
+   - Italian Wars 1494–1559
+   - Russian feudal war 1146–1154
+   - Reconquista 790–1300
+   - Each has a flag, ★ difficulty, map size (L/M) and 1/2 players. Modes are vs computer or a 2-player duel.
+5. **Main menu:**
+   - full-screen painted key art (our own) with the logo top right;
+   - a bottom row of 7 square wood buttons: campaign, army, battle, continue, records, settings, globe;
+   - corner shields. Skip the "$" shop.
+6. **Loading screen:** wood, the logo, a red progress bar with %, and a tip line.
 7. **Victory scroll:**
-   - red crown banner, objectives with ✓/✗ and points;
-   - your losses and enemy losses by type icon;
-   - development points, and bronze/silver/gold awards with points;
-   - wood footer with back (castle) and replay buttons.
-8. **Briefing scroll:** title with year, history paragraph, MAIN OBJECTIVE / ADDITIONAL OBJECTIVE / DEFEAT
-   CONDITIONS, crowns for N turns. A right rail has Forge (anvil), start (arrow) and back (castle).
-9. **Forge:** rows of 7 upgrade icons joined by arrows (infantry, archers, cavalry; a second tab for economy),
-   development points on the left, the effect line at the bottom ("Field Training (infantry lvl 2): defence bonus").
-10. **Loading screen:** wood, logo, red progress bar, and a rotating tip.
-11. **"End Turn"** is a small parchment button; fortified provinces (castle sign) give a defence bonus.
+   - objectives ✓/✗ with points; your and enemy losses by type icon;
+   - development points; awards (bronze, silver and gold crowns) and turns;
+   - total, rank ("Knecht", "Sergeant") with a bar;
+   - buttons: castle (back), replay, arrow (next).
+8. **Briefing scroll:** year in the title, history text, MAIN / ADDITIONAL OBJECTIVE / DEFEAT CONDITIONS and
+   crown turn limits. A right rail holds anvil (Forge), arrow (start) and castle (back).
+9. **Forge:**
+   - parchment grid of sketched upgrade cards joined by arrows, a red bracket on the selected one;
+   - infantry row (tent, men, crossed swords, gauntlet, tents, handshake); archers row (bow, archers, eye,
+     gauntlet, arrow, handshake);
+   - economy tab (houses, coins);
+   - odometer for points, cost in a dark circle, "Do you want to buy this upgrade? Price N".
+10. **Playback details still missing:**
+    - the camera pans to each enemy action;
+    - a moving army has a dark shadow disc and slides;
+    - a gold shield pops over the loser before it fades.
+11. **The "!" shield** cycles to the next army with no orders.
 
 ## Known issues and notes
 
