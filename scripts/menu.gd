@@ -8,7 +8,7 @@ extends Control
 const GAME_SCENE := "res://scenes/main.tscn"
 const DIFFICULTIES := ["easy", "normal", "hard"]
 const CREDIT_LINE := "Unit figures rendered from CC0 3D models by Quaternius. Icons by Lorc, Delapouite and " \
-	+ "Guard13007 from game-icons.net (CC BY 3.0). Fonts: Cinzel and IM FELL English (SIL Open Font License). " \
+	+ "Guard13007 from game-icons.net (CC BY 3.0). Fonts: Cinzel, IM FELL English and Noto (SIL Open Font License). " \
 	+ "Music by RandomMind, cynicmusic and Emma_MA (CC0). Sounds by Kenney and by freesound.org users HebronTheatre, " \
 	+ "mcaseydesign, craigsmith, el_boss and freefire66 (CC0). See CREDITS.md."
 
