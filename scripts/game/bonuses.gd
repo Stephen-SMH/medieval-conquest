@@ -7,7 +7,7 @@ const ANGLISH_HOME_DEFENSE := 1.15
 const NORSE_SHORE_ATTACK := 1.15  # Sea-wolves: attacks on coastal regions.
 const FRANKISH_CAVALRY_COST := 0.8
 const BYZANTINE_MARKETS := 1.25
-const SARACEN_MERCENARIES := 0.75
+const SARACEN_REINFORCEMENTS := 0.85
 
 
 
@@ -23,16 +23,14 @@ static func income(state: GameState, faction: String, kind: String) -> float:
 	return multiplier
 
 
-## Multiplier on a unit type's gold cost.
+## Multiplier on a soldier type's price: Frankish cavalry 20% cheaper,
+## Saracen reinforcements 15% cheaper.
 static func recruit_cost(state: GameState, faction: String, unit_type: UnitType) -> float:
 	if unit_type.is_cavalry() and civ(state, faction) == "frankish":
 		return FRANKISH_CAVALRY_COST
+	if civ(state, faction) == "saracen":
+		return SARACEN_REINFORCEMENTS
 	return 1.0
-
-
-## Multiplier on what mercenaries cost.
-static func mercenary_cost(state: GameState, faction: String) -> float:
-	return SARACEN_MERCENARIES if civ(state, faction) == "saracen" else 1.0
 
 
 ## Crusader hospitals: armies in their own regions heal even after marching or fighting.

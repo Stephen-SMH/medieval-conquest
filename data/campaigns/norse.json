@@ -42,13 +42,11 @@
    "buildings": {
     "skarholm": {
      "market": 1,
-     "barracks": 1,
-     "archery_range": 1
+     "barracks": 1
     },
     "elmsworth": {
      "market": 1,
-     "barracks": 1,
-     "archery_range": 1
+     "barracks": 1
     }
    },
    "units": [
@@ -176,13 +174,11 @@
    "buildings": {
     "skarholm": {
      "market": 1,
-     "barracks": 1,
-     "archery_range": 1
+     "barracks": 1
     },
     "wyrmsby": {
      "market": 1,
      "barracks": 1,
-     "archery_range": 1,
      "walls": 1
     }
    },
@@ -305,13 +301,11 @@
     "skarholm": {
      "market": 1,
      "barracks": 1,
-     "archery_range": 1,
      "walls": 1
     },
     "elmsworth": {
      "market": 1,
-     "barracks": 1,
-     "archery_range": 1
+     "barracks": 1
     }
    },
    "units": [
@@ -444,13 +438,11 @@
    "buildings": {
     "skarholm": {
      "market": 1,
-     "barracks": 1,
-     "archery_range": 1
+     "barracks": 1
     },
     "kaldvik": {
      "market": 1,
-     "barracks": 1,
-     "archery_range": 1
+     "barracks": 1
     }
    },
    "units": [
@@ -591,18 +583,15 @@
    "buildings": {
     "skarholm": {
      "market": 1,
-     "barracks": 1,
-     "archery_range": 1
+     "barracks": 1
     },
     "kaldvik": {
      "market": 1,
-     "barracks": 1,
-     "archery_range": 1
+     "barracks": 1
     },
     "elmsworth": {
      "market": 1,
-     "barracks": 1,
-     "archery_range": 1
+     "barracks": 1
     }
    },
    "units": [

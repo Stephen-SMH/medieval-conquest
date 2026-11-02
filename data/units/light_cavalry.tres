@@ -19,4 +19,3 @@ counter_as = ""
 civilization = ""
 cost_gold = 110
 upkeep_gold = 4
-required_building = "stable"

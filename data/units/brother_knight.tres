@@ -19,6 +19,5 @@ counter_as = "heavy_cavalry"
 civilization = "crusader"
 cost_gold = 280
 upkeep_gold = 7
-required_building = "stable"
 charge_bonus = 1.15
 required_tech = "stirrups"

@@ -19,5 +19,4 @@ counter_as = "swordsmen"
 civilization = "norse"
 cost_gold = 110
 upkeep_gold = 3
-required_building = "barracks"
 berserker = true

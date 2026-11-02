@@ -32,17 +32,41 @@
   "raiders": "ravensford"
  },
  "buildings": {
-  "oakhollow": {"market": 1, "barracks": 1}
+  "oakhollow": {
+   "market": 1,
+   "barracks": 1
+  }
  },
  "resources": {
-  "realm": {"gold": 500},
-  "raiders": {"gold": 0}
+  "realm": {
+   "gold": 500
+  },
+  "raiders": {
+   "gold": 0
+  }
  },
  "units": [
-  {"owner": "realm", "region": "millbrook", "type": "spearmen"},
-  {"owner": "realm", "region": "highmoor", "type": "swordsmen"},
-  {"owner": "realm", "region": "eastwatch", "type": "light_cavalry"},
-  {"owner": "raiders", "region": "ravensford", "type": "militia", "soldiers": 8}
+  {
+   "owner": "realm",
+   "region": "millbrook",
+   "type": "spearmen"
+  },
+  {
+   "owner": "realm",
+   "region": "highmoor",
+   "type": "swordsmen"
+  },
+  {
+   "owner": "realm",
+   "region": "eastwatch",
+   "type": "light_cavalry"
+  },
+  {
+   "owner": "raiders",
+   "region": "ravensford",
+   "type": "militia",
+   "soldiers": 8
+  }
  ],
  "mission": {
   "player": "realm",

@@ -28,6 +28,7 @@ var reach := {}
 var _views := {}  # region id -> ProvinceView
 var _decor: MapDecor
 var _orders: OrdersLayer
+var _marks: SiteMarks
 var _tokens: TokenLayer
 var _effects: Effects
 var _press_button := MOUSE_BUTTON_NONE
@@ -46,6 +47,8 @@ var _popup: WoodPopup
 var _tutorial: Tutorial  # The guided tutorial's steps, in the tutorial mission only.
 var _tutorial_box: TutorialBox
 var _ring: ActionRing
+## A reinforcement bundle bought and waiting for its province (PRD E), or {}.
+var _placing := {}
 ## Set by a tap while an enemy's turn plays out: skip the rest of it.
 var _skip_enemy := false
 
@@ -80,6 +83,9 @@ func _ready() -> void:
 	_decor = MapDecor.new()
 	_decor.state = state
 	_map_root.add_child(_decor)
+	_marks = SiteMarks.new()
+	_marks.state = state
+	_map_root.add_child(_marks)
 	_orders = OrdersLayer.new()
 	_orders.state = state
 	_map_root.add_child(_orders)
@@ -102,14 +108,13 @@ func _ready() -> void:
 		popup.closed.connect(_close_popups)
 	_attack_popup.confirmed.connect(_on_attack_amounts)
 	_attack_popup.remove_requested.connect(_on_remove_order)
-	_recruit_window.recruit_requested.connect(_on_recruit)
+	_recruit_window.bundle_chosen.connect(_on_bundle_chosen)
 	_hud.recruit_pressed.connect(open_recruit)
 	_hud.treasury_pressed.connect(open_treasury)
 	_hud.menu_pressed.connect(open_menu)
 	_hud.alerts_pressed.connect(open_alerts)
 	_hud.end_turn_pressed.connect(end_turn)
 	_region_popup.build_requested.connect(_on_build_requested)
-	_region_popup.recruit_requested.connect(func(region, unit): _on_recruit(region, unit, false))
 	$UI/ProvincePanel/Margin/Content/CloseButton.pressed.connect(_close_popups)
 	_battle_report.closed.connect(_close_popups)
 	_save_popup.save_requested.connect(_on_save_requested)
@@ -185,6 +190,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		set_mode(MapMode.POLITICAL)
 	elif event.is_action_pressed("map_mode_terrain"):
 		set_mode(MapMode.TERRAIN)
+	elif event.is_action_pressed("deselect") and not _placing.is_empty():
+		_cancel_placing()
 	elif event.is_action_pressed("deselect"):
 		if selected_unit != null or selected_region != "":
 			clear_selection()
@@ -228,6 +235,13 @@ func clear_selection() -> void:
 ## A click on the map: an arrow cancels that order; with a unit selected a lit
 ## region is an order; a unit of yours selects it and shows its orders.
 func _click(point: Vector2) -> void:
+	if not _placing.is_empty():
+		var target := map.province_at(point)
+		if target != "" and Economy.bundle_problem(state, target, _placing, state.current_faction()) == "":
+			_place_bundle(target)
+		else:
+			_hud.toast("Select one of the lit provinces, or right-click to cancel.")
+		return
 	var arrow := _orders.order_at(point)
 	if not arrow.is_empty() and _is_my_turn() and arrow[0].owner == state.current_faction():
 		AudioManager.sfx("click")
@@ -401,7 +415,7 @@ func _show_region_info(region: String) -> void:
 	if Sieges.walls(state, region) > 0:
 		extras.append(Sieges.WALL_NAMES[Sieges.walls(state, region)].to_lower())
 	if Economy.site(state, region) != "":
-		extras.append(Economy.site(state, region) + ": mercenaries")
+		extras.append(Economy.site(state, region) + ": reinforcements")
 	lines.append("[b]%s[/b] — %s%s. %s, %d gold a turn." % [map.region_name(region), state.faction_name(owner),
 		" (%s)" % ", ".join(extras) if not extras.is_empty() else "", map.terrain(region).display_name, roundi(Economy.region_income(state, region))])
 	var occupant := state.unit_in(region)
@@ -558,26 +572,45 @@ func _check_end() -> bool:
 
 # --- Popups --------------------------------------------------------------------------------
 
-func open_recruit(region := "") -> void:
+## The reinforcements window (PRD E): pick a bundle, confirm, then a province.
+func open_recruit(_region := "") -> void:
 	if not _is_my_turn():
 		return
-	var faction := state.current_faction()
-	if region == "":
-		region = selected_region if selected_region != "" else (selected_unit.province if selected_unit != null else state.capitals.get(faction, ""))
-	if region == "" or state.owners.get(region) != faction:
-		_hud.toast("Select one of your regions to recruit there.")
-		return
-	_recruit_window.show_region(state, region)
+	_recruit_window.show_faction(state, state.current_faction())
 	_dim.visible = true
 
 
-func _on_recruit(region: String, unit: String, mercenary: bool) -> void:
-	var done := Economy.hire(state, region, unit) if mercenary else Economy.recruit(state, region, unit)
-	if done:
-		AudioManager.sfx("coins")
-		_tutorial_record("hire" if mercenary else "recruit")
-		_hud.toast("%s will be ready in %s at the end of the turn." % [Rules.unit(unit).display_name, map.region_name(region)])
+## A bundle was bought in the window: now pick its province on the map; only
+## valid ones are lit, everything else is dimmed.
+func _on_bundle_chosen(bundle: Dictionary) -> void:
 	_close_popups()
+	var targets := Economy.bundle_targets(state, bundle, state.current_faction())
+	if targets.is_empty():
+		_hud.toast("No province can take these reinforcements now.")
+		return
+	clear_selection()
+	_placing = bundle
+	_hud.prompt("Select a province")
+	_refresh_world()
+
+
+func _place_bundle(region: String) -> void:
+	var bundle := _placing
+	_placing = {}
+	_hud.prompt("")
+	if Economy.buy(state, region, bundle):
+		AudioManager.sfx("coins")
+		_tutorial_record("recruit")
+		_hud.toast("%d %s will arrive in %s next turn." % [int(bundle.soldiers), Rules.unit(bundle.type).display_name.to_lower(), map.region_name(region)])
+	else:
+		_hud.toast("Can't send them to %s: %s." % [map.region_name(region), Economy.bundle_problem(state, region, bundle, state.current_faction())])
+	_refresh_world()
+
+
+func _cancel_placing() -> void:
+	_placing = {}
+	_hud.prompt("")
+	_hud.toast("Reinforcements not ordered.")
 	_refresh_world()
 
 
@@ -591,7 +624,7 @@ func open_treasury() -> void:
 		lines.append("%s: %+d" % [line[0], roundi(line[1])])
 		total += line[1]
 	_popup.add_text("[b]Gold: %d[/b]  (%+d a turn)\n%s" % [roundi(state.factions[faction].resources.gold), roundi(total), "\n".join(lines)])
-	_popup.add_text("[i]Every region pays 10 gold a turn, towns and capitals more, markets more again. Gold pays for units, mercenaries, healing, buildings and research; if it runs out, soldiers desert.[/i]", 16)
+	_popup.add_text("[i]Every region pays 5, 10 or 15 gold a turn (towns and capitals most, mountains and marshes least); markets add more. Gold pays for reinforcements, buildings and upkeep; if it runs out, soldiers desert.[/i]", 16)
 	_popup.add_button("Research", func(): _close_popups(); open_research(), _popup.body)
 	_popup.add_close()
 	_dim.visible = true
@@ -764,7 +797,10 @@ func _refresh_world() -> void:
 		view.set_base_color(ProvinceView.paint(state.faction_color(state.owners[region])) if mode == MapMode.POLITICAL else map.terrain(region).color)
 		view.selected = region == selected_region or (selected_unit != null and selected_unit.province == region)
 		view.reach = reach.get(region, "")
+		if not _placing.is_empty():
+			view.reach = "move" if Economy.bundle_problem(state, region, _placing, state.current_faction()) == "" else "blocked"
 	_decor.queue_redraw()
+	_marks.queue_redraw()
 	_tokens.selected.clear()
 	if selected_unit != null:
 		_tokens.selected.append(selected_unit)
@@ -790,6 +826,8 @@ func _handle_mouse_button(event: InputEventMouseButton) -> void:
 			var point := get_global_mouse_position()
 			if event.button_index == MOUSE_BUTTON_LEFT:
 				_click(point)
+			elif event.button_index == MOUSE_BUTTON_RIGHT and not _placing.is_empty():
+				_cancel_placing()
 			elif event.button_index == MOUSE_BUTTON_RIGHT:
 				var region := map.province_at(point)
 				var unit := _tokens.unit_at(point)

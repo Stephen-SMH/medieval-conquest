@@ -42,13 +42,11 @@
    "buildings": {
     "belcourt": {
      "market": 1,
-     "barracks": 1,
-     "archery_range": 1
+     "barracks": 1
     },
     "brevine": {
      "market": 1,
-     "barracks": 1,
-     "archery_range": 1
+     "barracks": 1
     }
    },
    "units": [
@@ -169,13 +167,11 @@
     "belcourt": {
      "market": 1,
      "barracks": 1,
-     "archery_range": 1,
      "walls": 1
     },
     "chaumiere": {
      "market": 1,
-     "barracks": 1,
-     "archery_range": 1
+     "barracks": 1
     }
    },
    "units": [
@@ -321,13 +317,11 @@
     "belcourt": {
      "market": 1,
      "barracks": 1,
-     "archery_range": 1,
      "siege_workshop": 1
     },
     "brevine": {
      "market": 1,
      "barracks": 1,
-     "archery_range": 1,
      "walls": 2
     }
    },
@@ -474,18 +468,15 @@
     "belcourt": {
      "market": 1,
      "barracks": 1,
-     "archery_range": 1,
      "walls": 1
     },
     "vaudrey": {
      "market": 1,
-     "barracks": 1,
-     "archery_range": 1
+     "barracks": 1
     },
     "chaumiere": {
      "market": 1,
-     "barracks": 1,
-     "archery_range": 1
+     "barracks": 1
     }
    },
    "units": [
@@ -637,18 +628,15 @@
    "buildings": {
     "belcourt": {
      "market": 1,
-     "barracks": 1,
-     "archery_range": 1
+     "barracks": 1
     },
     "chaumiere": {
      "market": 1,
-     "barracks": 1,
-     "archery_range": 1
+     "barracks": 1
     },
     "vaudrey": {
      "market": 1,
-     "barracks": 1,
-     "archery_range": 1
+     "barracks": 1
     }
    },
    "units": [

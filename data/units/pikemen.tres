@@ -19,5 +19,4 @@ counter_as = ""
 civilization = ""
 cost_gold = 95
 upkeep_gold = 2
-required_building = "barracks"
 required_tech = "chain_mail"

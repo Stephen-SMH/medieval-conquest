@@ -4,7 +4,6 @@ extends PanelContainer
 ## your own regions, and the legend for the map mode.
 
 signal build_requested(province: String, building: String)
-signal recruit_requested(province: String, unit: String)
 
 @onready var _body: RichTextLabel = $Margin/Content/Scroll/Inner/Body
 @onready var _actions: VBoxContainer = $Margin/Content/Scroll/Inner/Actions
@@ -39,7 +38,7 @@ func show_province(state: GameState, id: String) -> void:
 	lines.append("[b]Population:[/b] %s" % thousands(province.population))
 	lines.append("[b]Gold:[/b] +%d a turn" % roundi(Economy.region_income(state, id)))
 	if Economy.site(state, id) != "":
-		lines.append("[b]%s:[/b] mercenaries for hire" % Economy.site(state, id).capitalize())
+		lines.append("[b]%s:[/b] reinforcements can be sent here" % Economy.site(state, id).capitalize())
 	lines.append("[b]In battle:[/b] %s" % terrain.battle_text)
 	var siege: ProvinceState = state.provinces[id]
 	if siege.siege_faction != "":
@@ -103,16 +102,6 @@ func _add_actions(state: GameState, id: String) -> void:
 		_add_button("%s  (%s, %d turn%s)" % [title, cost_text(Economy.building_cost(building, level + 1)), building.build_turns,
 			"" if building.build_turns == 1 else "s"], building.description, problem,
 			func(): build_requested.emit(id, building_id))
-
-	_add_heading("Recruit (ready at the end of the turn)")
-	var faction_id: String = state.owners[id]
-	for unit_id in Economy.roster(state, faction_id):
-		var unit := Rules.unit(unit_id)
-		var problem := Economy.recruit_problem(state, id, unit_id, faction_id)
-		var details := "%s\n20 soldiers, attack %d, defense %d, %s. Upkeep %d gold." % [
-			unit.description, unit.attack, unit.defense, "range %d" % unit.attack_range if unit.is_ranged() else "melee", unit.upkeep_gold]
-		_add_button("%s  (%s)" % [unit.display_name, cost_text(Economy.unit_cost(state, faction_id, unit))], details, problem,
-			func(): recruit_requested.emit(id, unit_id))
 
 
 func _add_heading(text: String) -> void:

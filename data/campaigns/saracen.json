@@ -41,13 +41,11 @@
    "buildings": {
     "qasr_zahir": {
      "market": 1,
-     "barracks": 1,
-     "archery_range": 1
+     "barracks": 1
     },
     "hisn_tamr": {
      "market": 1,
-     "barracks": 1,
-     "archery_range": 1
+     "barracks": 1
     }
    },
    "units": [
@@ -159,13 +157,11 @@
     "qasr_zahir": {
      "market": 1,
      "barracks": 1,
-     "archery_range": 1,
      "walls": 1
     },
     "hisn_tamr": {
      "market": 1,
-     "barracks": 1,
-     "archery_range": 1
+     "barracks": 1
     }
    },
    "units": [
@@ -304,18 +300,15 @@
     "qasr_zahir": {
      "market": 1,
      "barracks": 1,
-     "archery_range": 1,
      "walls": 1
     },
     "hisn_tamr": {
      "market": 1,
-     "barracks": 1,
-     "archery_range": 1
+     "barracks": 1
     },
     "ruba_sahra": {
      "market": 1,
-     "barracks": 1,
-     "archery_range": 1
+     "barracks": 1
     }
    },
    "units": [

@@ -60,7 +60,7 @@ static func _manage_economy(state: GameState, faction: String) -> void:
 	var wishes := []
 	if change.gold < 10.0:
 		wishes.append("market")
-	wishes.append_array(["barracks", "archery_range", "stable"])
+	wishes.append("barracks")
 	if me.ai == "defensive" or _threat(state, faction, capital) > 0.0:
 		wishes.append("walls")
 	for building in wishes:
@@ -70,29 +70,38 @@ static func _manage_economy(state: GameState, faction: String) -> void:
 				Economy.start_building(state, region, building)
 				break
 
-	# Recruit (or hire mercenaries) where there is room and enemies near.
+	# Buy reinforcement bundles for the towns, camps and capital near the front.
 	for region in _own_regions(state, faction):
-		if me.resources.gold <= GOLD_RESERVE[me.ai]:
-			break
+		if me.resources.gold <= GOLD_RESERVE[me.ai] or not Economy.recruit_point(state, region, faction):
+			continue
 		var nearby := _enemies_near(state, faction, region, 2)
 		if nearby.is_empty() and _frontier_distance(state, faction, region) > 2:
 			continue
-		var choice := _best_recruit(state, faction, region, nearby)
-		if choice != "":
-			Economy.recruit(state, region, choice)
-		elif Economy.site(state, region) != "":
-			for unit_id in state.provinces[region].mercenaries:
-				if Economy.hire_problem(state, region, unit_id, faction) == "":
-					Economy.hire(state, region, unit_id)
-					break
+		var bundle := _best_bundle(state, faction, region, nearby, me.resources.gold - GOLD_RESERVE[me.ai])
+		if not bundle.is_empty():
+			Economy.buy(state, region, bundle)
 
 
-## The unit type that does best against `enemies`, for its gold.
-static func _best_recruit(state: GameState, faction: String, region: String, enemies: Array) -> String:
+## The bundle whose soldier type does best against `enemies`, for its gold,
+## within `budget`: the large bundle when it can, else the small one.
+static func _best_bundle(state: GameState, faction: String, region: String, enemies: Array, budget: float) -> Dictionary:
+	var choice := _best_recruit(state, faction, region, enemies, budget)
+	if choice == "":
+		return {}
+	for large in [true, false]:
+		var bundle := Economy.bundle_of(state, faction, choice, large)
+		if not bundle.is_empty() and float(bundle.price) <= budget and Economy.bundle_problem(state, region, bundle, faction) == "":
+			return bundle
+	return {}
+
+
+## The soldier type that does best against `enemies`, for its gold.
+static func _best_recruit(state: GameState, faction: String, region: String, enemies: Array, budget := INF) -> String:
 	var best := ""
 	var best_score := -1.0
 	for unit_id in Economy.roster(state, faction):
-		if Economy.recruit_problem(state, region, unit_id, faction) != "":
+		var small := Economy.bundle_of(state, faction, unit_id)
+		if small.is_empty() or float(small.price) > budget or Economy.bundle_problem(state, region, small, faction) != "":
 			continue
 		var unit_type := Rules.unit(unit_id)
 		var score := 1.0

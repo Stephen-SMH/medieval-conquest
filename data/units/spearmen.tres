@@ -19,4 +19,3 @@ counter_as = ""
 civilization = ""
 cost_gold = 70
 upkeep_gold = 2
-required_building = "barracks"

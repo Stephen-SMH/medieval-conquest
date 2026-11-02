@@ -22,9 +22,8 @@ static func to_dict(state: GameState) -> Dictionary:
 	for region in state.provinces:
 		var province: ProvinceState = state.provinces[region]
 		provinces[region] = {"buildings": province.buildings.duplicate(), "construction": province.construction,
-			"construction_turns": province.construction_turns, "recruits": Array(province.recruits),
-			"siege_faction": province.siege_faction, "siege_turns": province.siege_turns,
-			"mercenaries": province.mercenaries.duplicate()}
+			"construction_turns": province.construction_turns, "recruits": province.recruits.duplicate(true),
+			"siege_faction": province.siege_faction, "siege_turns": province.siege_turns}
 	var units := []
 	for unit in state.units:
 		var troops := []
@@ -72,14 +71,17 @@ static func from_dict(data: Dictionary) -> GameState:
 		var entry: Dictionary = data.provinces[region]
 		var province := ProvinceState.new()
 		for building_id in entry.buildings:
-			province.buildings[building_id] = int(entry.buildings[building_id])
+			if Rules.buildings.has(building_id):
+				province.buildings[building_id] = int(entry.buildings[building_id])
 		province.construction = entry.construction
 		province.construction_turns = int(entry.construction_turns)
-		province.recruits.assign(entry.recruits)
+		for bundle in entry.recruits:
+			if bundle is Dictionary:
+				province.recruits.append({"type": bundle.type, "soldiers": int(bundle.soldiers)})
+			else:  # Version 1-3: a whole unit of a type.
+				province.recruits.append({"type": bundle, "soldiers": UnitType.SOLDIERS})
 		province.siege_faction = entry.siege_faction
 		province.siege_turns = int(entry.siege_turns)
-		for unit_id in entry.get("mercenaries", {}):
-			province.mercenaries[unit_id] = int(entry.mercenaries[unit_id])
 		state.provinces[region] = province
 	for entry in data.units:
 		var unit := Unit.new("", entry.owner, entry.region)

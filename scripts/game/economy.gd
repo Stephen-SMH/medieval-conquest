@@ -1,14 +1,15 @@
 class_name Economy
 extends RefCounted
-## The gold economy (PRD 8.9, which replaces 3.3, 3.4 and 3.12): every region
-## earns gold each turn (10, more for towns, capitals and markets), and gold
-## pays for recruiting, mercenaries, healing, buildings, research and upkeep.
+## The gold economy (PRD 8.9, E): every region earns gold each turn (5 in
+## mountains and marshes, 10 elsewhere, 15 for towns and capitals, more with
+## markets), and gold pays for reinforcement bundles, buildings and upkeep.
 ## If gold would run out, units desert. Income is worked out by breakdown(),
 ## which the treasury shows and the end of the turn applies.
 
 const REGION_INCOME := 10.0
-const TOWN_INCOME := 5.0
-const CAPITAL_INCOME := 10.0
+const POOR_INCOME := 5.0  # Mountains and marshes.
+const RICH_INCOME := 15.0  # Towns and capitals.
+const POOR_TERRAINS := ["mountains", "marsh"]
 const DESERTION_LOSS := 0.05         # Units lose soldiers when there's no gold to pay them.
 
 ## UT-7: an army resting in its own region regains this share of its lost
@@ -19,16 +20,6 @@ const HEAL_SHARE_BARRACKS := 1.0
 
 const SLOTS := 4                     # PV-1
 const CAPITAL_SLOTS := 6
-const MAX_RECRUITS_PER_TURN := 1     # One unit per region, so one recruit at a time.
-## Mercenaries at towns and camps: what each offers, how many to start with, and the price in gold.
-const MERCENARY_OFFERS := {
-	"town": ["spearmen", "crossbowmen", "swordsmen"],
-	"camp": ["militia", "archers", "light_cavalry"],
-}
-const MERCENARY_START := 2
-const MERCENARY_RESTOCK_TURNS := 3  # One more of each offered type every this many turns, up to MERCENARY_MAX.
-const MERCENARY_MAX := 4
-const MERCENARY_PRICE := 1.5  # Times the unit's gold cost.
 
 const START_RESOURCES := {"gold": 300.0}
 
@@ -53,14 +44,22 @@ static func site(state: GameState, region: String) -> String:
 	return state.map.provinces[region].get("site", "")
 
 
+## A region's own worth: 5, 10 or 15 gold (a map may set "income" itself).
+static func base_income(state: GameState, region: String) -> float:
+	var data: Dictionary = state.map.provinces[region]
+	if data.has("income"):
+		return float(data.income)
+	if site(state, region) == "town" or state.is_capital(region):
+		return RICH_INCOME
+	if data.terrain in POOR_TERRAINS:
+		return POOR_INCOME
+	return REGION_INCOME
+
+
 ## The gold a region pays its owner each turn: the number on the map.
 static func region_income(state: GameState, region: String) -> float:
 	var owner: String = state.owners[region]
-	var income := REGION_INCOME + Research.region_bonus(state, owner, region)
-	if site(state, region) == "town":
-		income += TOWN_INCOME
-	if state.is_capital(region):
-		income += CAPITAL_INCOME
+	var income := base_income(state, region) + Research.region_bonus(state, owner, region)
 	income += building_bonus(state, region, "gold") * Bonuses.income(state, owner, "market")
 	return roundf(income * Bonuses.income(state, owner, "gold"))
 
@@ -152,13 +151,32 @@ static func start_building(state: GameState, region: String, building_id: String
 	return true
 
 
-# --- Recruiting ---------------------------------------------------------------------
+# --- Reinforcements (PRD E) ---------------------------------------------------------
 
+## Reinforcements come in fixed bundles bought for gold: so many soldiers of a
+## type for a price, worked out from the type's cost. Each type has a small
+## and a large bundle; the large one is cheaper per soldier. A bundle is sent
+## to one of your provinces with a town or camp (or your capital), one bundle
+## per province per turn, and arrives at the start of your next turn, joining
+## the army there (up to Unit.CAP soldiers).
+const SOLDIER_PRICE := 0.1  # Gold per soldier, as a share of the type's cost (a 20-soldier unit's price).
+const SMALL_BUNDLE_GOLD := 40.0  # About what a small bundle costs.
+const LARGE_BUNDLE_SCALE := 3  # A large bundle has this many times the soldiers...
+const LARGE_BUNDLE_DISCOUNT := 0.9  # ...at this share of the price.
+const MAX_BUNDLE := 12
+
+
+## Gold for one soldier of a type, for a faction (civilization bonuses included).
+static func soldier_price(state: GameState, faction_id: String, unit_type: UnitType) -> float:
+	return unit_type.cost_gold * SOLDIER_PRICE * Bonuses.recruit_cost(state, faction_id, unit_type)
+
+
+## The old whole-unit price, still used for scoring: {"gold": price of 20 soldiers}.
 static func unit_cost(state: GameState, faction_id: String, unit_type: UnitType) -> Dictionary:
 	return {"gold": roundf(unit_type.cost_gold * Bonuses.recruit_cost(state, faction_id, unit_type))}
 
 
-## Unit types a faction may ever recruit: the base roster plus its civilization's own.
+## Soldier types a faction may ever recruit: the base roster plus its civilization's own.
 static func roster(state: GameState, faction_id: String) -> Array[String]:
 	var civ: String = state.factions[faction_id].civ
 	var ids: Array[String] = []
@@ -169,101 +187,78 @@ static func roster(state: GameState, faction_id: String) -> Array[String]:
 	return ids
 
 
-## "" if the faction can recruit the unit here now, else the reason why not.
-static func recruit_problem(state: GameState, region: String, unit_id: String, faction_id: String) -> String:
-	var unit_type := Rules.unit(unit_id)
-	if state.owners[region] != faction_id:
-		return "not your region"
-	if not (unit_id in roster(state, faction_id)):
-		return "only the %s can recruit it" % unit_type.civilization.capitalize()
-	if unit_type.required_tech != "" and not state.factions[faction_id].has_tech(unit_type.required_tech):
-		return "needs research: %s" % Rules.tech_name(unit_type.required_tech)
+## The bundles a faction can buy, in display order: [{"type", "soldiers", "price"}, ...].
+static func bundles(state: GameState, faction_id: String) -> Array:
+	var list := []
+	for unit_id in roster(state, faction_id):
+		var unit_type := Rules.unit(unit_id)
+		if unit_type.required_tech != "" and not state.factions[faction_id].has_tech(unit_type.required_tech):
+			continue
+		var per := soldier_price(state, faction_id, unit_type)
+		var small := clampi(roundi(SMALL_BUNDLE_GOLD / per), 1, 6)
+		var large := mini(small * LARGE_BUNDLE_SCALE, MAX_BUNDLE)
+		list.append({"type": unit_id, "soldiers": small, "price": _round_price(per * small)})
+		if large > small:
+			list.append({"type": unit_id, "soldiers": large, "price": _round_price(per * large * LARGE_BUNDLE_DISCOUNT)})
+	return list
+
+
+static func _round_price(gold: float) -> int:
+	return maxi(5, roundi(gold / 5.0) * 5)
+
+
+## Whether a province can take reinforcements: yours, with a town or camp, or your capital.
+static func recruit_point(state: GameState, region: String, faction_id: String) -> bool:
+	return state.owners.get(region) == faction_id and (site(state, region) != "" or state.capitals.get(faction_id) == region)
+
+
+## "" if the faction can send this bundle to the province now, else why not.
+static func bundle_problem(state: GameState, region: String, bundle: Dictionary, faction_id: String) -> String:
+	if not recruit_point(state, region, faction_id):
+		return "reinforcements go to your provinces with a town or camp"
+	if not state.provinces[region].recruits.is_empty():
+		return "this province already has reinforcements coming this turn"
 	if blockaded(state, region):
 		return "enemy units are here"
-	if unit_type.required_building != "" and state.provinces[region].level(unit_type.required_building) == 0:
-		return "needs: %s" % Rules.building(unit_type.required_building).display_name.to_lower()
-	var room := _room_problem(state, region, unit_id)
-	if room != "":
-		return room
-	if not state.factions[faction_id].can_afford(unit_cost(state, faction_id, unit_type)):
+	var army := state.unit_in(region)
+	if army != null and army.soldiers() + int(bundle.soldiers) > Unit.CAP:
+		return "no room: the army here would pass %d soldiers" % Unit.CAP
+	if state.factions[faction_id].resources.gold < float(bundle.price):
 		return "not enough gold"
 	return ""
 
 
-## Reinforcements join the army in the region (up to Unit.CAP soldiers), one
-## order per region per turn.
-static func _room_problem(state: GameState, region: String, _unit_id: String) -> String:
-	if state.provinces[region].recruits.size() >= MAX_RECRUITS_PER_TURN:
-		return "one recruit per region per turn"
-	var occupant := state.unit_in(region)
-	if occupant != null and occupant.owner != state.owners[region]:
-		return "enemy units are here"
-	if occupant != null and occupant.soldiers() >= Unit.CAP:
-		return "the army here already has %d soldiers" % Unit.CAP
-	return ""
+## The provinces this bundle could go to now.
+static func bundle_targets(state: GameState, bundle: Dictionary, faction_id: String) -> Array[String]:
+	var found: Array[String] = []
+	for region in state.map.province_order:
+		if bundle_problem(state, region, bundle, faction_id) == "":
+			found.append(region)
+	return found
 
 
-## Pays for the unit now; it appears in the region at the end of the turn.
-static func recruit(state: GameState, region: String, unit_id: String) -> bool:
-	var faction_id: String = state.owners[region]
-	if not state.factions.has(faction_id) or recruit_problem(state, region, unit_id, faction_id) != "":
+## Pays for the bundle; it arrives in the province at the start of the next turn.
+static func buy(state: GameState, region: String, bundle: Dictionary) -> bool:
+	var faction_id: String = state.owners.get(region, "")
+	if not state.factions.has(faction_id) or bundle_problem(state, region, bundle, faction_id) != "":
 		return false
-	state.factions[faction_id].pay(unit_cost(state, faction_id, Rules.unit(unit_id)))
-	state.provinces[region].recruits.append(unit_id)
+	state.factions[faction_id].resources.gold -= float(bundle.price)
+	state.provinces[region].recruits.append({"type": bundle.type, "soldiers": int(bundle.soldiers)})
 	return true
 
 
-# --- Mercenaries ----------------------------------------------------------------------
-
-static func mercenary_price(unit_type: UnitType, state: GameState = null, faction_id := "") -> float:
-	var price := unit_type.cost_gold * MERCENARY_PRICE
-	if state != null:
-		price *= Bonuses.mercenary_cost(state, faction_id)
-	return roundf(price)
+## A province that can't take reinforcements this turn though it could
+## otherwise (it already has some coming): the map shows a red no-sign.
+static func recruit_closed(state: GameState, region: String, faction_id: String) -> bool:
+	return recruit_point(state, region, faction_id) and not state.provinces[region].recruits.is_empty()
 
 
-## "" if the faction can hire this mercenary here now, else why not.
-static func hire_problem(state: GameState, region: String, unit_id: String, faction_id: String) -> String:
-	if state.owners[region] != faction_id:
-		return "not your region"
-	if site(state, region) == "":
-		return "mercenaries are only hired in towns and camps"
-	if int(state.provinces[region].mercenaries.get(unit_id, 0)) <= 0:
-		return "none available here"
-	if blockaded(state, region):
-		return "enemy units are here"
-	var room := _room_problem(state, region, unit_id)
-	if room != "":
-		return room
-	if state.factions[faction_id].resources.gold < mercenary_price(Rules.unit(unit_id), state, faction_id):
-		return "not enough gold"
-	return ""
-
-
-## Pays in gold; the mercenaries arrive at the end of the turn.
-static func hire(state: GameState, region: String, unit_id: String) -> bool:
-	var faction_id: String = state.owners[region]
-	if not state.factions.has(faction_id) or hire_problem(state, region, unit_id, faction_id) != "":
-		return false
-	state.factions[faction_id].resources.gold -= mercenary_price(Rules.unit(unit_id), state, faction_id)
-	state.provinces[region].mercenaries[unit_id] = int(state.provinces[region].mercenaries[unit_id]) - 1
-	state.provinces[region].recruits.append(unit_id)
-	return true
-
-
-## Fills a town's or camp's stock at the start of the game.
-static func stock_mercenaries(state: GameState) -> void:
-	for region in state.map.province_order:
-		for unit_id in MERCENARY_OFFERS.get(site(state, region), []):
-			state.provinces[region].mercenaries[unit_id] = MERCENARY_START
-
-
-static func _restock(state: GameState) -> void:
-	if state.turn % MERCENARY_RESTOCK_TURNS != 0:
-		return
-	for region in state.map.province_order:
-		for unit_id in state.provinces[region].mercenaries:
-			state.provinces[region].mercenaries[unit_id] = mini(int(state.provinces[region].mercenaries[unit_id]) + 1, MERCENARY_MAX)
+## The cheapest bundle of a type (for tests and simple callers).
+static func bundle_of(state: GameState, faction_id: String, unit_id: String, large := false) -> Dictionary:
+	var found := bundles(state, faction_id).filter(func(b): return b.type == unit_id)
+	if found.is_empty():
+		return {}
+	return found.back() if large else found[0]
 
 
 # --- Healing (UT-7) ---------------------------------------------------------------
@@ -287,17 +282,19 @@ static func arrivals(state: GameState, faction_id: String) -> Array:
 		var province: ProvinceState = state.provinces[region]
 		if state.owners[region] != faction_id or province.recruits.is_empty():
 			continue
-		for unit_id in province.recruits:
+		for bundle in province.recruits:
 			var army := state.unit_in(region)
 			if army != null and army.owner != faction_id:
 				break
 			if army == null:
 				army = state.add_unit("", faction_id, region)
-			var count := mini(UnitType.SOLDIERS, Unit.CAP - army.soldiers())
-			army.add(unit_id, count)
+			var count := mini(int(bundle.soldiers), Unit.CAP - army.soldiers())
+			if count <= 0:
+				continue
+			army.add(bundle.type, count)
 			army.reset_turn()
-			events.append({"type": "economy", "faction": faction_id, "kind": "good",
-				"text": "%d %s arrived in %s." % [count, Rules.unit(unit_id).display_name.to_lower(), state.map.region_name(region)]})
+			events.append({"type": "arrived", "faction": faction_id, "province": region, "unit": army, "bundle": bundle,
+				"text": "Reinforcements arrived in %s: %s – %d." % [state.map.region_name(region), Rules.unit(bundle.type).display_name, count]})
 		province.recruits.clear()
 	return events
 
@@ -344,6 +341,4 @@ static func process_faction(state: GameState, faction_id: String) -> Array:
 				province.construction = ""
 
 	events.append_array(Research.advance(state, faction_id))
-	if faction_id == state.living_factions()[0]:
-		_restock(state)
 	return events

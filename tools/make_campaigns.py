@@ -14,7 +14,7 @@ from collections import deque
 
 CIV_COLORS = {"norse": "#2e708f", "anglish": "#b33b3b", "frankish": "#2f4fa8", "crusader": "#c4962c",
               "byzantine": "#7a40a0", "saracen": "#3d8a4a"}
-CAPITAL_BUILDINGS = {"market": 1, "barracks": 1, "archery_range": 1}
+CAPITAL_BUILDINGS = {"market": 1, "barracks": 1}
 
 
 def load_map(map_id):
