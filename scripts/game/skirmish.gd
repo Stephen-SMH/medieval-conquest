@@ -57,10 +57,7 @@ static func build(map_id: String, players: Array, difficulty := "normal", game_s
 		var specials := Rules.civilization(faction.civ).special_units
 		var army: Array = [specials[0] if not specials.is_empty() else "spearmen", "archers", "light_cavalry"]
 		for k in mini(army.size(), held[faction.id].size()):
-			var unit := {"owner": faction.id, "region": held[faction.id][k], "type": army[k]}
-			if k == 0:
-				unit["general"] = {"name": GameState.GENERAL_NAMES[rng.randi() % GameState.GENERAL_NAMES.size()], "command": 2, "logistics": 2}
-			scenario.units.append(unit)
+			scenario.units.append({"owner": faction.id, "region": held[faction.id][k], "type": army[k]})
 	for region in map.province_order:
 		if not scenario.owners.has(region) and rng.randf() < 0.5:
 			scenario.units.append({"owner": "neutral", "region": region, "type": "militia", "soldiers": 10})

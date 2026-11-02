@@ -145,16 +145,15 @@ func _test_crusader_bonus(t) -> void:
 
 
 func _test_new_objectives(t) -> void:
-	# Kill or capture a named general.
+	# Destroy N soldiers of a type (replaces "kill or capture a general").
 	var state := Helpers.game({"greywater": "blue", "kingsvale": "red", "redfield": "red"}, [
 		["blue", "greywater", "swordsmen"], ["red", "kingsvale", "militia"], ["red", "redfield", "militia"]], 7)
-	state.unit_in("kingsvale").general = General.new("Rashid", 2, 2)
-	state.mission = {"player": "blue", "par": 5, "objectives": [{"type": "destroy_general", "faction": "red", "general": "Rashid"}]}
-	t.check(not Mission.objectives(state)[0].done and Mission.objectives(state)[0].text.contains("Rashid"), "the general objective names him and starts open")
-	state.destroy(state.unit_in("kingsvale"), "destroyed")
-	t.check(Mission.objectives(state)[0].done, "it's done once his unit is destroyed")
+	state.mission = {"player": "blue", "par": 5, "objectives": [{"type": "destroy_units", "faction": "red", "unit_type": "militia", "count": 15}]}
+	t.check(not Mission.objectives(state)[0].done and Mission.objectives(state)[0].text.contains("15 militia"), "the destroy objective names the type and starts open")
+	state.losses["red"] = {"militia": 15}
+	t.check(Mission.objectives(state)[0].done, "it's done once 15 of them have fallen")
 	state.update_result()
-	t.check(state.is_over() and state.result.result == "won", "and that wins the mission while his faction lives on")
+	t.check(state.is_over() and state.result.result == "won", "and that wins the mission while their faction lives on")
 
 	# Survive N turns.
 	state = Helpers.game({"greywater": "blue", "kingsvale": "red"}, [["blue", "greywater", "spearmen"]], 7)
@@ -236,11 +235,11 @@ func _test_missions(t) -> void:
 					"survive":
 						if int(objective.turns) + 1 > Mission.par(state):
 							problems.append("survive past par")
-					"destroy", "destroy_general":
+					"destroy", "destroy_units":
 						if not state.factions.has(objective.faction) or objective.faction == player:
 							problems.append("bad target faction " + objective.faction)
-						elif objective.type == "destroy_general" and Mission.general_unit(state, objective.faction, objective.general) == null:
-							problems.append("no general " + objective.general)
+						elif objective.type == "destroy_units" and not state.units_of(objective.faction).any(func(u): return u.type_id == objective.unit_type):
+							problems.append("no %s to destroy" % objective.unit_type)
 						elif not state.units_of(objective.faction).any(func(u): return reach.has(u.province)):
 							problems.append("can't reach " + objective.faction)
 			if Mission.objectives(state).any(func(o): return o.done):
@@ -248,7 +247,7 @@ func _test_missions(t) -> void:
 			if scenario.mission.victory_text == "" or scenario.mission.defeat_text == "" or scenario.mission.briefing.length() < 40:
 				problems.append("missing texts")
 			t.check(problems.is_empty(), "%s %d \"%s\": valid start and reachable objectives %s" % [campaign.id, i + 1, scenario.name, problems])
-	t.check(kinds.has("capture") and kinds.has("hold") and kinds.has("destroy") and kinds.has("destroy_general")
+	t.check(kinds.has("capture") and kinds.has("hold") and kinds.has("destroy") and kinds.has("destroy_units")
 		and kinds.has("survive") and kinds.has("conquest"), "the missions use every kind of objective %s" % [kinds.keys()])
 
 	# Each mission of the new content plays 12 AI-driven turns on both sides.

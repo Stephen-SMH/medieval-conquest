@@ -54,12 +54,7 @@
     {
      "owner": "emirate",
      "region": "qasr_zahir",
-     "type": "mamluk",
-     "general": {
-      "name": "Zaydan",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "mamluk"
     },
     {
      "owner": "emirate",
@@ -79,12 +74,7 @@
     {
      "owner": "tamr",
      "region": "hisn_tamr",
-     "type": "mounted_sergeant",
-     "general": {
-      "name": "Aimon",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "mounted_sergeant"
     },
     {
      "owner": "tamr",
@@ -182,12 +172,7 @@
     {
      "owner": "emirate",
      "region": "qasr_zahir",
-     "type": "mamluk",
-     "general": {
-      "name": "Zaydan",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "mamluk"
     },
     {
      "owner": "emirate",
@@ -217,12 +202,7 @@
     {
      "owner": "tamr",
      "region": "hisn_tamr",
-     "type": "brother_knight",
-     "general": {
-      "name": "Aimon",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "brother_knight"
     },
     {
      "owner": "tamr",
@@ -257,9 +237,10 @@
     "par": 10,
     "objectives": [
      {
-      "type": "destroy_general",
+      "type": "destroy_units",
       "faction": "tamr",
-      "general": "Aimon"
+      "unit_type": "brother_knight",
+      "count": 15
      }
     ],
     "briefing": "Aimon, master of the iron brothers of Hisn Tamr, has burned the date groves. His knights are slow to wheel and heavy in the sand: wear them down with arrows, then take the master.",
@@ -341,12 +322,7 @@
     {
      "owner": "emirate",
      "region": "qasr_zahir",
-     "type": "mamluk",
-     "general": {
-      "name": "Zaydan",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "mamluk"
     },
     {
      "owner": "emirate",
@@ -376,12 +352,7 @@
     {
      "owner": "tamr",
      "region": "hisn_tamr",
-     "type": "brother_knight",
-     "general": {
-      "name": "Aimon",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "brother_knight"
     },
     {
      "owner": "tamr",
@@ -396,12 +367,7 @@
     {
      "owner": "ruba",
      "region": "ruba_sahra",
-     "type": "varangian_guard",
-     "general": {
-      "name": "Manuel",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "varangian_guard"
     },
     {
      "owner": "ruba",

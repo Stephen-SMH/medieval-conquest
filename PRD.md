@@ -340,10 +340,10 @@ What we do differently:
 | UT-2 | On the map, each unit is a **group of 3–5 painted figures** (2–3 riders, 1–2 engines) on its region, rendered from CC0 3D models with the faction's colour on tunics and shields, with the faction's **banner on a pole** behind them, gold **chevrons** for rank, a thin **health bar** (green → yellow → red, white tip) and the **soldier number** in italic below. A light-blue pennant marks a general. A **red X** beside the bar shows a unit that has no moves left this turn. |
 | UT-3 | **A region holds one unit.** Moving a unit into a friendly region held by the **same type** merges them (up to 20 soldiers; the rest stay behind). Two friendly units can **swap** regions. Any other move into an occupied friendly region is blocked. Recruiting needs an empty region of your own, or reinforces a weakened unit of the same type there. |
 | UT-4 | A unit can **split its soldiers across several orders** a turn (OR-3); each order is a detachment. **Cavalry detachments get two steps**: a move, then a move or an attack. Infantry, archers and siege detachments get one. |
-| UT-5 | **Generals** are attached to one unit and give it +10% attack per Command level; each Logistics point cuts its upkeep 5%. If that unit is destroyed, the general is captured or killed. |
-| UT-6 | Units gain **experience** in battles. Ranks: Recruit, Veteran (+10% attack and defense), Elite (+20%), Hero (+30%). |
+| UT-5 | **No generals.** (Removed in version 6, as in the reference game.) |
+| UT-6 | **No experience or ranks.** Troops get stronger only through research (version 6: the Forge between missions). |
 | UT-7 | **Healing:** a unit that neither moves nor fights regains 2 soldiers per turn in its own region, 4 with Barracks. Each soldier costs gold. |
-| UT-8 | **Merging:** the merged rank is the soldier-weighted average, rounded down. |
+| UT-8 | **Merging** adds the soldiers together. |
 
 ### 8.3 Orders: plan with arrows, resolve with the hourglass
 

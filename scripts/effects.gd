@@ -38,7 +38,7 @@ func skip() -> void:
 	_skip = true
 
 
-## Plays the events. `before` holds each unit's region, HP and rank before the turn.
+## Plays the events. `before` holds each unit's region and HP before the turn.
 func play(events: Array, before: Dictionary, speed: float) -> void:
 	if speed <= 0.0 or not is_inside_tree():
 		return
@@ -65,7 +65,7 @@ func play(events: Array, before: Dictionary, speed: float) -> void:
 				continue
 			"volley":
 				var volleys := []
-				while i < events.size() and events[i].type in ["volley", "volley_missed", "destroyed", "general_lost", "rejoined"]:
+				while i < events.size() and events[i].type in ["volley", "volley_missed", "destroyed", "rejoined"]:
 					volleys.append(events[i])
 					i += 1
 				await _volleys(volleys)
@@ -105,7 +105,6 @@ func _rewind(before: Dictionary) -> void:
 		if before.has(unit):
 			visual.region = before[unit].province
 			visual.hp = before[unit].hp
-			visual.rank = before[unit].get("rank", unit.rank())
 		visual.held = true
 		visual.offset = Vector2.ZERO
 		visual.position_override = null
@@ -133,7 +132,6 @@ func _splits(splits: Array) -> void:
 		var home := _visual(event.unit)
 		if home != null:
 			home.hp = event.hp[event.unit]
-		var rank: int = home.rank if home != null else event.unit.rank()
 		var parts: Array = event.parts
 		for k in parts.size():
 			var part: Unit = parts[k]
@@ -143,7 +141,6 @@ func _splits(splits: Array) -> void:
 			visual.owner = part.owner
 			visual.hp = event.hp[part]
 			visual.held = true
-			visual.rank = rank
 			tokens.visuals[part] = visual
 			# Fan out: alternately right and left, a little further each time.
 			var side := 1.0 if k % 2 == 0 else -1.0

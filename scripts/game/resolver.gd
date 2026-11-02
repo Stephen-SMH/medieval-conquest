@@ -3,8 +3,8 @@ extends RefCounted
 ## Carries out every faction's orders together when the hourglass is pressed
 ## (PRD 8.3, 8.4), always in the same order, with the game's seeded dice:
 ##   0. units with several orders, or an order for only some soldiers, split
-##      into detachments: the soldiers with no order stay home as the unit
-##      (with its general); if everyone goes, the unit itself leads the
+##      into detachments: the soldiers with no order stay home as the unit;
+##      if everyone goes, the unit itself leads the
 ##      largest detachment. HP is shared out per soldier;
 ##   1. ranged volleys;
 ##   2. head-on attacks (A attacks B while B attacks A) become one field battle;
@@ -69,7 +69,7 @@ static func _split(state: GameState, ctx: Dictionary) -> Array:
 		if list.size() == 1 and sizes[0] >= total:
 			ctx.plan[unit] = _plan_entry(list[0], total)
 			continue
-		# If nobody stays home, the unit itself (and its general) leads the largest detachment.
+		# If nobody stays home, the unit itself leads the largest detachment.
 		var leader := -1
 		if left <= 0:
 			for i in sizes.size():
@@ -85,7 +85,6 @@ static func _split(state: GameState, ctx: Dictionary) -> Array:
 				continue
 			var part := state.add_unit(unit.type_id, unit.owner, unit.province)
 			part.hp = maxf(per_soldier * sizes[i], floor_hp)
-			part.xp = unit.xp
 			part.coastal_moves = unit.coastal_moves
 			given += part.hp
 			ctx.group[part] = unit
@@ -130,10 +129,10 @@ static func _volleys(state: GameState, steps: Dictionary, ctx: Dictionary) -> Ar
 		forces[0].hit_and_run = unit.type().skirmisher
 		var battle := Battle.new(forces[0], forces[1], state.map.terrain(target), false, state.rng.randi())
 		battle.resolve()
+		state.record_losses(battle)
 		unit.attacked = true
 		events.append({"type": "volley", "battle": battle, "unit": unit, "origin": unit.province, "province": target, "shooters": shoot,
 			"hp": _hp_after([[unit, shooters], [defender, defender]])})
-		_award_xp([shooters, defender], battle)
 		events.append_array(_remove_destroyed(state, [shooters, defender]))
 		_rejoin(state, unit, shooters, events)
 		if int(ctx.plan[unit].get("soldiers", 0)) <= 0 or not state.map.are_neighbours(unit.province, target):
@@ -163,13 +162,13 @@ static func _head_on(state: GameState, steps: Dictionary, ctx: Dictionary) -> Ar
 		var forces := state.forces([part_a] as Array[Unit], [part_b] as Array[Unit], target, false, true)
 		var battle := Battle.new(forces[0], forces[1], Rules.terrains.plains, false, state.rng.randi())
 		battle.resolve()
+		state.record_losses(battle)
 		a.attacked = true
 		b.attacked = true
 		ctx.stopped[a] = true
 		ctx.stopped[b] = true
 		events.append({"type": "battle", "kind": "head_on", "battle": battle, "unit": a, "other": b,
 			"origin": origin_a, "province": origin_b, "hp": _hp_after([[a, part_a], [b, part_b]])})
-		_award_xp([part_a, part_b], battle)
 		events.append_array(_remove_destroyed(state, [part_a, part_b]))
 		# The winner moves into the loser's region only if the loser is gone from it.
 		var winner := part_a if battle.attacker_won() else (part_b if battle.winner == "defender" and battle.ending != "held" else null)
@@ -270,11 +269,11 @@ static func _contest(state: GameState, champion: Unit, rival: Unit, region: Stri
 	var forces := state.forces([rival] as Array[Unit], [champion] as Array[Unit], region, false, true)
 	var battle := Battle.new(forces[0], forces[1], state.map.terrain(region), false, state.rng.randi())
 	battle.resolve()
+	state.record_losses(battle)
 	champion.attacked = true
 	rival.attacked = true
 	events.append({"type": "battle", "kind": "contest", "battle": battle, "unit": rival, "other": champion,
 		"origin": rival.province, "province": region, "hp": _hp_after([[rival, rival], [champion, champion]])})
-	_award_xp([rival, champion], battle)
 	events.append_array(_remove_destroyed(state, [rival, champion]))
 	var loser := champion if battle.attacker_won() else rival
 	if state.units.has(loser):
@@ -313,9 +312,9 @@ static func _attacks(state: GameState, steps: Dictionary, ctx: Dictionary) -> Ar
 			var forces := state.forces([part] as Array[Unit], [occupant] as Array[Unit], target, false)
 			var battle := Battle.new(forces[0], forces[1], state.map.terrain(target), state.crosses_river([part] as Array[Unit], target), state.rng.randi())
 			battle.resolve()
+			state.record_losses(battle)
 			events.append({"type": "battle", "kind": "assault", "battle": battle, "unit": attacker, "other": occupant,
 				"origin": origin, "province": target, "soldiers": part.soldiers(), "hp": _hp_after([[attacker, part], [occupant, occupant]])})
-			_award_xp([part, occupant], battle)
 			events.append_array(_remove_destroyed(state, [part, occupant]))
 			if battle.attacker_won() and state.units.has(occupant):
 				var refuge := state.retreat_region(occupant, target)
@@ -371,7 +370,6 @@ static func _detach(state: GameState, unit: Unit, soldiers: int) -> Unit:
 	var part := state.add_unit(unit.type_id, unit.owner, unit.province)
 	var floor_hp := _floor_hp(unit)
 	part.hp = maxf(unit.hp * soldiers / unit.soldiers(), floor_hp)
-	part.xp = unit.xp
 	part.attacked = true
 	unit.hp = maxf(unit.hp - part.hp, floor_hp)
 	return part
@@ -400,18 +398,10 @@ static func _rejoin(state: GameState, unit: Unit, part: Unit, events: Array) -> 
 static func _join(state: GameState, unit: Unit, part: Unit) -> void:
 	unit.attacked = unit.attacked or part.attacked
 	unit.moved = unit.moved or part.moved
-	if unit.general == null and part.general != null:
-		unit.general = part.general
-		part.general = null
 	var hp := unit.hp + part.hp
 	if hp > unit.max_hp() * 1.0001 or unit.owner != part.owner or unit.type_id != part.type_id:
 		state.merge(unit, part)  # Not one unit's soldiers after all: a normal merge, up to 20.
 		return
-	# The rank is the soldier-weighted average, rounded down (UT-8).
-	var mine := unit.soldiers()
-	var theirs := part.soldiers()
-	var rank := floori(float(unit.rank() * mine + part.rank() * theirs) / maxi(mine + theirs, 1))
-	unit.xp = mini(unit.xp, part.xp) if unit.rank() == rank and part.rank() == rank else Unit.RANK_XP[rank]
 	unit.hp = minf(hp, unit.max_hp())
 	state.remove_unit(part)
 
@@ -506,17 +496,6 @@ static func _hp_after(pairs: Array) -> Dictionary:
 		var part: Unit = pair[1]
 		hp[unit] = maxf(unit.hp, 0.0) + (maxf(part.hp, 0.0) if part != unit else 0.0)
 	return hp
-
-
-static func _award_xp(units: Array, battle: Battle) -> void:
-	for unit: Unit in units:
-		if not unit.is_destroyed():
-			unit.xp += 1
-	var winners := battle.attacker if battle.attacker_won() else battle.defender
-	if battle.ending != "ranged" and battle.ending != "held":
-		for unit in winners.units:
-			if not unit.is_destroyed():
-				unit.xp += 1
 
 
 static func _remove_destroyed(state: GameState, units: Array) -> Array:

@@ -90,7 +90,9 @@ def mission(map_id, mission_id, title, player, factions, objectives, par, briefi
         if objective.get("region") == "capital:" + player:
             objective["region"] = player_start
         if objective["type"] == "destroy_general":
-            objective["general"] = next(f["general"] for f in factions if f["id"] == objective["faction"])
+            # No generals any more: break the enemy leader's war-band, the first army it lists.
+            target = next(f for f in factions if f["id"] == objective["faction"])
+            objective = {"type": "destroy_units", "faction": target["id"], "unit_type": target["units"][0], "count": 15}
         resolved.append(objective)
 
     units = []
@@ -101,10 +103,7 @@ def mission(map_id, mission_id, title, player, factions, objectives, par, briefi
             print(f"  warning: {mission_id}: {faction['id']} has room for {len(territory)} of {len(faction['units'])} units")
         for i, unit_type in enumerate(faction["units"][: len(territory)]):
             region = territory[i]  # One unit per region.
-            entry = {"owner": faction["id"], "region": region, "type": unit_type}
-            if i == 0:
-                entry["general"] = {"name": faction["general"], "command": 2, "logistics": 2}
-            units.append(entry)
+            units.append({"owner": faction["id"], "region": region, "type": unit_type})
     if neutral_garrison:
         for region in sorted(graph):
             if region not in owners and sum(map(ord, region)) % 3 == 0:

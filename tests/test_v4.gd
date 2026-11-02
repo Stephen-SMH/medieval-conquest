@@ -80,6 +80,7 @@ func _test_research_effects(t) -> void:
 		and not Economy.recruit_problem(state, "greywater", "heavy_cavalry", "blue").begins_with("needs research"),
 		"the researched units no longer need research")
 	t.check(Sieges.duration(state, "kingsvale", "blue") == 1, "Siege Engineering: sieges take 1 turn less")
+	blue.techs.erase("drill")
 	state.prepare_for_battle(state.unit_in("greywater"), true, "greywater")
 	state.prepare_for_battle(state.unit_in("kingsvale"), false, "greywater")
 	state.prepare_for_battle(state.unit_in("northmarch"), false, "greywater")
@@ -87,10 +88,6 @@ func _test_research_effects(t) -> void:
 		"Chain Mail +10% infantry defense, Tempered Steel +10% melee attack")
 	t.check(is_equal_approx(state.unit_in("kingsvale").attack_mod, 1.15), "Composite Bows: +15% ranged attack")
 	t.check(is_equal_approx(state.unit_in("northmarch").charge_mod, 1.15), "Stirrups: +15% cavalry charge")
-	state.remove_unit(state.unit_in("greywater"))
-	Economy.recruit(state, "greywater", "spearmen")
-	Helpers.resolve(state)
-	t.check(state.unit_in("greywater").rank_name() == "Veteran", "Drill: new units start as Veterans")
 
 
 func _test_hotseat(t) -> void:

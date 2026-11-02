@@ -10,16 +10,11 @@ extends RefCounted
 
 const STACK_LIMIT := 1  # UT-3: one unit per region.
 const SEASONS := ["Spring", "Summer", "Autumn", "Winter"]
-const GENERAL_COMMAND_BONUS := 0.10  # UT-5: per Command level, for the general's unit.
 ## Factions that hold regions but never take turns.
 const NON_PLAYABLE := {
 	"neutral": {"name": "Independent", "color": Color("#8a8478")},
 	"rebels": {"name": "Rebels", "color": Color("#4a4a4a")},
 }
-const GENERAL_NAMES := [
-	"Aldric", "Berengar", "Cedric", "Dagny", "Eadwine", "Freya", "Godfrey", "Hilda",
-	"Isolde", "Jorund", "Leofric", "Matilda", "Osric", "Rowena", "Sigrun", "Wulfric",
-]
 
 var map: MapData
 var scenario_id := ""
@@ -39,6 +34,8 @@ var orders := {}
 var mission := {}
 ## Turns held for "hold" objectives, by objective index.
 var mission_progress := {}
+## Soldiers each faction has lost, by unit type: faction -> {type: soldiers}.
+var losses := {}
 ## {} while the game goes on; see Mission.evaluate().
 var result := {}
 
@@ -85,9 +82,6 @@ static func from_scenario(scenario: Dictionary, game_seed := 1) -> GameState:
 		var unit := state.add_unit(entry.type, entry.owner, entry.region)
 		if entry.has("soldiers"):
 			unit.set_soldiers(int(entry.soldiers))
-		unit.xp = int(entry.get("xp", 0))
-		if entry.get("general") != null:
-			unit.general = General.new(entry.general.name, int(entry.general.get("command", 1)), int(entry.general.get("logistics", 1)))
 	state.update_alive()
 	state.begin_turn()
 	return state
@@ -312,29 +306,19 @@ func forces(attacking: Array[Unit], defenders: Array[Unit], region: String, copy
 	for unit in defenders:
 		prepare_for_battle(unit, not field, region)
 		defend_units.append(unit.copy() if copy else unit)
-	var attacking_force := Battle.Force.new(attacking[0].owner, true, attack_units, command_mod(attacking))
-	var defending_force := Battle.Force.new(defenders[0].owner, false, defend_units, command_mod(defenders))
+	var attacking_force := Battle.Force.new(attacking[0].owner, true, attack_units)
+	var defending_force := Battle.Force.new(defenders[0].owner, false, defend_units)
 	if not field:
 		defending_force.wall_bonus = Sieges.wall_bonus(self, region, attacking)
 	return [attacking_force, defending_force]
 
 
-## Works out a unit's battle multipliers from its rank (UT-6), civilization and research.
+## Works out a unit's battle multipliers from its civilization and upgrades.
 func prepare_for_battle(unit: Unit, defending: bool, region: String) -> void:
-	var rank_bonus: float = Unit.RANK_BONUS[unit.rank()]
-	unit.attack_mod = 1.0 + rank_bonus
-	unit.defense_mod = 1.0 + rank_bonus
+	unit.attack_mod = 1.0
+	unit.defense_mod = 1.0
 	unit.charge_mod = 1.0
 	Bonuses.battle(self, unit, defending, region)
-
-
-## +10% attack per Command level of a general among these units (UT-5).
-func command_mod(side: Array[Unit]) -> float:
-	var best := 0
-	for unit in side:
-		if unit.general != null:
-			best = maxi(best, unit.general.command)
-	return 1.0 + GENERAL_COMMAND_BONUS * best
 
 
 func crosses_river(attacking: Array[Unit], region: String) -> bool:
@@ -352,14 +336,22 @@ func retreat_region(unit: Unit, from: String) -> String:
 	return ""
 
 
-## Removes a unit. Its general is killed or captured with it (UT-5).
+## Adds the soldiers each side lost in a battle to `losses`.
+func record_losses(battle: Battle) -> void:
+	for side: Battle.Force in [battle.attacker, battle.defender]:
+		for i in side.units.size():
+			var unit: Unit = side.units[i]
+			var after := 0 if unit.is_destroyed() else unit.soldiers()
+			var lost: int = side.before[i][1] - after
+			if lost > 0:
+				var by_type: Dictionary = losses.get_or_add(side.faction, {})
+				by_type[side.before[i][0]] = int(by_type.get(side.before[i][0], 0)) + lost
+
+
+## Removes a unit.
 func destroy(unit: Unit, how: String) -> Array:
 	remove_unit(unit)
-	var events := [{"type": "destroyed", "unit": unit, "province": unit.province, "how": how}]
-	if unit.general != null:
-		var fate := "captured" if rng.randf() < 0.5 else "killed"
-		events.append({"type": "general_lost", "unit": unit, "general": unit.general, "fate": fate})
-	return events
+	return [{"type": "destroyed", "unit": unit, "province": unit.province, "how": how}]
 
 
 ## Takes a region for a faction. Returns the event, or [] if nothing changed.
@@ -388,42 +380,19 @@ func merge_problem(target: Unit, source: Unit) -> String:
 		return "different unit types"
 	if target.soldiers() >= UnitType.SOLDIERS:
 		return "already %d soldiers" % UnitType.SOLDIERS
-	if target.general != null and source.general != null:
-		return "both have a general"
 	return ""
 
 
-## Moves soldiers from `source` into `target`, up to 20 (UT-8). The rank is the
-## soldier-weighted average, rounded down. Soldiers that don't fit stay in
-## `source`; if none are left, `source` is removed. Returns the soldiers moved.
+## Moves soldiers from `source` into `target`, up to 20 (UT-8). Soldiers that
+## don't fit stay in `source`; if none are left, `source` is removed.
+## Returns the soldiers moved.
 func merge(target: Unit, source: Unit) -> int:
 	if merge_problem(target, source) != "":
 		return 0
 	var moving := mini(source.soldiers(), UnitType.SOLDIERS - target.soldiers())
-	var soldiers_t := target.soldiers()
-	var rank := floori(float(target.rank() * soldiers_t + source.rank() * moving) / (soldiers_t + moving))
-	var xp: int = Unit.RANK_XP[rank]
-	if target.rank() == rank and source.rank() == rank:
-		xp = mini(target.xp, source.xp)
-	target.set_soldiers(soldiers_t + moving)
-	target.xp = xp
-	if target.general == null and moving == source.soldiers():
-		target.general = source.general
+	target.set_soldiers(target.soldiers() + moving)
 	if moving >= source.soldiers():
 		remove_unit(source)
 	else:
 		source.set_soldiers(source.soldiers() - moving)
 	return moving
-
-
-func new_general() -> General:
-	return General.new(GENERAL_NAMES[rng.randi() % GENERAL_NAMES.size()], rng.randi_range(1, 3), rng.randi_range(0, 3))
-
-
-## Attaches a new general to a unit for gold (UT-5).
-func hire_general(unit: Unit) -> bool:
-	if unit.general != null or not factions[unit.owner].can_afford(Economy.GENERAL_COST):
-		return false
-	factions[unit.owner].pay(Economy.GENERAL_COST)
-	unit.general = new_general()
-	return true

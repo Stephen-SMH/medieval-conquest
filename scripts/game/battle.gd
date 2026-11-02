@@ -38,7 +38,6 @@ class Force:
 	var units: Array[Unit] = []
 	## Attacking ranged units shooting from their own region.
 	var standoff := {}  # Unit -> true
-	var general_mod := 1.0
 	## Walls: damage taken by this side is divided by 1 + wall_bonus (3.10).
 	var wall_bonus := 0.0
 	## Horse archers shoot and ride off: nobody can shoot back at them.
@@ -48,11 +47,10 @@ class Force:
 	var start_strength := 0.0
 	var before := []  # [type_id, soldiers] for each unit at the start, for the report.
 
-	func _init(faction_id: String, is_attacker: bool, troops: Array[Unit], command_mod := 1.0) -> void:
+	func _init(faction_id: String, is_attacker: bool, troops: Array[Unit]) -> void:
 		faction = faction_id
 		attacking = is_attacker
 		units = troops
-		general_mod = command_mod
 		for unit in units:
 			if attacking and unit.type().is_ranged():
 				standoff[unit] = true
@@ -203,9 +201,6 @@ func explain(viewer: String, faction_names: Dictionary) -> PackedStringArray:
 		reasons.append("The attackers crossed a river: −25% attack.")
 	if defender.wall_bonus > 0.0:
 		reasons.append("Walls: the defenders took %d%% less damage." % roundi(100.0 - 100.0 / (1.0 + defender.wall_bonus)))
-	if attacker.general_mod != defender.general_mod:
-		reasons.append("Generals: attackers +%d%%, defenders +%d%% attack from Command." % [
-			roundi((attacker.general_mod - 1.0) * 100), roundi((defender.general_mod - 1.0) * 100)])
 	return reasons
 
 
@@ -305,7 +300,7 @@ func _strike(unit: Unit, side: Force, enemy: Force, phase: String):
 			phase_mod *= MEET_CHARGE
 	var fury := 2.0 - unit.strength() if unit_type.berserker else 1.0  # Berserkers hit harder as they bleed.
 	var raw := unit_type.attack * unit.strength() * multiplier * _terrain_mod(unit_type, side) * fury \
-		* side.general_mod * unit.attack_mod * (0.5 + side.morale / 200.0) * _rng.randf_range(0.85, 1.15) * phase_mod
+		* unit.attack_mod * (0.5 + side.morale / 200.0) * _rng.randf_range(0.85, 1.15) * phase_mod
 	var damage := maxf(raw - target.type().defense / 2.0, raw * MIN_DAMAGE_SHARE) * DAMAGE_SCALE
 	damage /= target.defense_mod * (1.0 + enemy.wall_bonus)
 

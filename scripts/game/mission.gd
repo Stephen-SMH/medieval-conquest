@@ -8,7 +8,7 @@ extends RefCounted
 ##   "objectives": [{"type": "capture", "regions": [...]},
 ##                  {"type": "hold", "region": "...", "turns": N},
 ##                  {"type": "destroy", "faction": "..."},
-##                  {"type": "destroy_general", "faction": "...", "general": "name"},
+##                  {"type": "destroy_units", "faction": "...", "unit_type": "...", "count": N},
 ##                  {"type": "survive", "turns": N},
 ##                  {"type": "conquest"}],
 ##   "par": turns for 3 stars (the hard limit is twice that),
@@ -64,9 +64,11 @@ static func objectives(state: GameState) -> Array:
 				var target: String = objective.faction
 				list.append({"text": "Destroy %s" % state.faction_name(target),
 					"done": state.factions.has(target) and not state.factions[target].alive})
-			"destroy_general":
-				list.append({"text": "Kill or capture %s of %s" % [objective.general, state.faction_name(objective.faction)],
-					"done": general_unit(state, objective.faction, objective.general) == null})
+			"destroy_units":
+				var killed := soldiers_killed(state, objective.faction, objective.unit_type)
+				list.append({"text": "Destroy %d %s of %s (%d so far)" % [int(objective.count),
+					Rules.unit(objective.unit_type).display_name.to_lower(), state.faction_name(objective.faction), mini(killed, int(objective.count))],
+					"done": killed >= int(objective.count)})
 			"survive":
 				var survived := mini(state.turn - 1, int(objective.turns))
 				list.append({"text": "Hold out for %d turns (%d so far)" % [int(objective.turns), survived],
@@ -77,12 +79,9 @@ static func objectives(state: GameState) -> Array:
 	return list
 
 
-## The unit leading a faction's named general, or null once he is killed or captured.
-static func general_unit(state: GameState, faction: String, general_name: String) -> Unit:
-	for unit in state.units:
-		if unit.owner == faction and unit.general != null and unit.general.name == general_name:
-			return unit
-	return null
+## Soldiers of a type a faction has lost since the mission began.
+static func soldiers_killed(state: GameState, faction: String, unit_type: String) -> int:
+	return int(state.losses.get(faction, {}).get(unit_type, 0))
 
 
 ## At the end of the mission player's turn: counts turns held for "hold" objectives.

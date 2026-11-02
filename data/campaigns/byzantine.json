@@ -55,12 +55,7 @@
     {
      "owner": "empire",
      "region": "basilopolis",
-     "type": "cataphract",
-     "general": {
-      "name": "Kassia",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "cataphract"
     },
     {
      "owner": "empire",
@@ -80,12 +75,7 @@
     {
      "owner": "theronike",
      "region": "theronike",
-     "type": "spearmen",
-     "general": {
-      "name": "Bardas",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "spearmen"
     },
     {
      "owner": "theronike",
@@ -208,12 +198,7 @@
     {
      "owner": "empire",
      "region": "basilopolis",
-     "type": "varangian_guard",
-     "general": {
-      "name": "Kassia",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "varangian_guard"
     },
     {
      "owner": "empire",
@@ -233,12 +218,7 @@
     {
      "owner": "kastro",
      "region": "kastro_neon",
-     "type": "berserker",
-     "general": {
-      "name": "Thorvald",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "berserker"
     },
     {
      "owner": "kastro",
@@ -253,12 +233,7 @@
     {
      "owner": "phylakion",
      "region": "phylakion",
-     "type": "mamluk",
-     "general": {
-      "name": "Faris",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "mamluk"
     },
     {
      "owner": "phylakion",
@@ -383,12 +358,7 @@
     {
      "owner": "empire",
      "region": "basilopolis",
-     "type": "cataphract",
-     "general": {
-      "name": "Kassia",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "cataphract"
     },
     {
      "owner": "empire",
@@ -418,12 +388,7 @@
     {
      "owner": "phylakion",
      "region": "phylakion",
-     "type": "mamluk",
-     "general": {
-      "name": "Faris",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "mamluk"
     },
     {
      "owner": "phylakion",
@@ -443,12 +408,7 @@
     {
      "owner": "kastro",
      "region": "kastro_neon",
-     "type": "brother_knight",
-     "general": {
-      "name": "Gilles",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "brother_knight"
     },
     {
      "owner": "kastro",

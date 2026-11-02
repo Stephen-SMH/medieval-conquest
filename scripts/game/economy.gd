@@ -10,7 +10,6 @@ const REGION_INCOME := 10.0
 const TOWN_INCOME := 5.0
 const CAPITAL_INCOME := 10.0
 const DESERTION_LOSS := 0.05         # Units lose soldiers when there's no gold to pay them.
-const LOGISTICS_UPKEEP_SAVING := 0.05  # Per point of a general's logistics, for his unit.
 
 const HEAL_SOLDIERS := 2             # UT-7: soldiers a resting unit regains in a friendly region...
 const HEAL_SOLDIERS_BARRACKS := 4    # ...or with Barracks.
@@ -29,7 +28,6 @@ const MERCENARY_START := 2
 const MERCENARY_RESTOCK_TURNS := 3  # One more of each offered type every this many turns, up to MERCENARY_MAX.
 const MERCENARY_MAX := 4
 const MERCENARY_PRICE := 1.5  # Times the unit's gold cost.
-const GENERAL_COST := {"gold": 100.0}
 
 const START_RESOURCES := {"gold": 300.0}
 
@@ -93,8 +91,7 @@ static func deltas(state: GameState, faction_id: String) -> Dictionary:
 
 
 static func unit_upkeep(state: GameState, unit: Unit) -> float:
-	var logistics := unit.general.logistics if unit.general != null else 0
-	return unit.type().upkeep_gold * unit.strength() * (1.0 - LOGISTICS_UPKEEP_SAVING * logistics) * Research.upkeep_mod(state, unit.owner)
+	return unit.type().upkeep_gold * unit.strength() * Research.upkeep_mod(state, unit.owner)
 
 
 # --- Buildings (3.11) -------------------------------------------------------------
@@ -327,8 +324,7 @@ static func process_faction(state: GameState, faction_id: String) -> Array:
 			for unit_id in province.recruits:
 				var occupant := state.unit_in(region)
 				if occupant == null:
-					var recruit := state.add_unit(unit_id, faction_id, region)
-					recruit.xp = Bonuses.starting_xp(state, faction_id)
+					state.add_unit(unit_id, faction_id, region)
 					note.call("good", "New %s ready in %s." % [Rules.unit(unit_id).display_name.to_lower(), where])
 				elif occupant.owner == faction_id and occupant.type_id == unit_id and occupant.soldiers() < UnitType.SOLDIERS:
 					occupant.set_soldiers(UnitType.SOLDIERS)

@@ -24,5 +24,3 @@ extends Resource
 @export var attack := {}
 @export var defense := {}
 @export var charge := 1.0
-## Experience new recruits start with.
-@export var starting_xp := 0

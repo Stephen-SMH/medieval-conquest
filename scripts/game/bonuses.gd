@@ -39,11 +39,6 @@ static func extra_healing(state: GameState, faction: String) -> int:
 	return CRUSADER_HEALING if civ(state, faction) == "crusader" else 0
 
 
-## Experience new recruits start with.
-static func starting_xp(state: GameState, faction: String) -> int:
-	return Research.starting_xp(state, faction)
-
-
 ## Norse raiding: moves 2 regions along the coast.
 static func coastal_moves(state: GameState, faction: String) -> int:
 	return 1 if civ(state, faction) == "norse" else 0

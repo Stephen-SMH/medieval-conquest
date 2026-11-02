@@ -55,12 +55,7 @@
     {
      "owner": "norse",
      "region": "skarholm",
-     "type": "berserker",
-     "general": {
-      "name": "Hakon",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "berserker"
     },
     {
      "owner": "norse",
@@ -80,12 +75,7 @@
     {
      "owner": "elmsworth",
      "region": "elmsworth",
-     "type": "yeoman",
-     "general": {
-      "name": "Eadric",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "yeoman"
     },
     {
      "owner": "elmsworth",
@@ -200,12 +190,7 @@
     {
      "owner": "norse",
      "region": "skarholm",
-     "type": "berserker",
-     "general": {
-      "name": "Hakon",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "berserker"
     },
     {
      "owner": "norse",
@@ -235,12 +220,7 @@
     {
      "owner": "greyhaven",
      "region": "wyrmsby",
-     "type": "yeoman",
-     "general": {
-      "name": "Wulfstan",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "yeoman"
     },
     {
      "owner": "greyhaven",
@@ -338,12 +318,7 @@
     {
      "owner": "norse",
      "region": "skarholm",
-     "type": "huscarl",
-     "general": {
-      "name": "Hakon",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "huscarl"
     },
     {
      "owner": "norse",
@@ -363,12 +338,7 @@
     {
      "owner": "elmsworth",
      "region": "elmsworth",
-     "type": "yeoman",
-     "general": {
-      "name": "Eadric",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "yeoman"
     },
     {
      "owner": "elmsworth",
@@ -487,12 +457,7 @@
     {
      "owner": "norse",
      "region": "skarholm",
-     "type": "berserker",
-     "general": {
-      "name": "Hakon",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "berserker"
     },
     {
      "owner": "norse",
@@ -517,12 +482,7 @@
     {
      "owner": "kaldvik",
      "region": "kaldvik",
-     "type": "berserker",
-     "general": {
-      "name": "Sigrid",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "berserker"
     },
     {
      "owner": "kaldvik",
@@ -563,9 +523,10 @@
     "par": 9,
     "objectives": [
      {
-      "type": "destroy_general",
+      "type": "destroy_units",
       "faction": "kaldvik",
-      "general": "Sigrid"
+      "unit_type": "berserker",
+      "count": 15
      }
     ],
     "briefing": "Sigrid of Kaldvik has sworn Hakon's death and taken half the jarls with her. A feud ends one way: find her war-band and break it.",
@@ -648,12 +609,7 @@
     {
      "owner": "norse",
      "region": "skarholm",
-     "type": "berserker",
-     "general": {
-      "name": "Hakon",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "berserker"
     },
     {
      "owner": "norse",
@@ -688,12 +644,7 @@
     {
      "owner": "kaldvik",
      "region": "kaldvik",
-     "type": "berserker",
-     "general": {
-      "name": "Sigrid",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "berserker"
     },
     {
      "owner": "kaldvik",
@@ -713,12 +664,7 @@
     {
      "owner": "stonereach",
      "region": "elmsworth",
-     "type": "knight",
-     "general": {
-      "name": "Odo",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "knight"
     },
     {
      "owner": "stonereach",

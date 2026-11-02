@@ -55,12 +55,7 @@
     {
      "owner": "belcourt",
      "region": "belcourt",
-     "type": "knight",
-     "general": {
-      "name": "Robert",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "knight"
     },
     {
      "owner": "belcourt",
@@ -80,12 +75,7 @@
     {
      "owner": "brevine",
      "region": "brevine",
-     "type": "spearmen",
-     "general": {
-      "name": "Aimery",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "spearmen"
     },
     {
      "owner": "brevine",
@@ -192,12 +182,7 @@
     {
      "owner": "belcourt",
      "region": "belcourt",
-     "type": "knight",
-     "general": {
-      "name": "Robert",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "knight"
     },
     {
      "owner": "belcourt",
@@ -217,12 +202,7 @@
     {
      "owner": "chaumiere",
      "region": "chaumiere",
-     "type": "berserker",
-     "general": {
-      "name": "Ragnvald",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "berserker"
     },
     {
      "owner": "chaumiere",
@@ -355,12 +335,7 @@
     {
      "owner": "belcourt",
      "region": "belcourt",
-     "type": "knight",
-     "general": {
-      "name": "Robert",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "knight"
     },
     {
      "owner": "belcourt",
@@ -395,12 +370,7 @@
     {
      "owner": "brevine",
      "region": "brevine",
-     "type": "sergeant",
-     "general": {
-      "name": "Aimery",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "sergeant"
     },
     {
      "owner": "brevine",
@@ -522,12 +492,7 @@
     {
      "owner": "belcourt",
      "region": "belcourt",
-     "type": "knight",
-     "general": {
-      "name": "Robert",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "knight"
     },
     {
      "owner": "belcourt",
@@ -552,12 +517,7 @@
     {
      "owner": "vaudrey",
      "region": "vaudrey",
-     "type": "longbowman",
-     "general": {
-      "name": "Edwin",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "longbowman"
     },
     {
      "owner": "vaudrey",
@@ -577,12 +537,7 @@
     {
      "owner": "chaumiere",
      "region": "chaumiere",
-     "type": "huscarl",
-     "general": {
-      "name": "Ragnvald",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "huscarl"
     },
     {
      "owner": "chaumiere",
@@ -700,12 +655,7 @@
     {
      "owner": "belcourt",
      "region": "belcourt",
-     "type": "knight",
-     "general": {
-      "name": "Robert",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "knight"
     },
     {
      "owner": "belcourt",
@@ -730,12 +680,7 @@
     {
      "owner": "chaumiere",
      "region": "chaumiere",
-     "type": "berserker",
-     "general": {
-      "name": "Ragnvald",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "berserker"
     },
     {
      "owner": "chaumiere",
@@ -755,12 +700,7 @@
     {
      "owner": "vaudrey",
      "region": "vaudrey",
-     "type": "longbowman",
-     "general": {
-      "name": "Edwin",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "longbowman"
     },
     {
      "owner": "vaudrey",

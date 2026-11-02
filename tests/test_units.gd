@@ -26,11 +26,7 @@ func _test_units(t) -> void:
 	t.check(unit.soldiers() == 20 and unit.max_hp() == 100.0, "a new unit has 20 soldiers and full HP")
 	unit.hp = 51.0
 	t.check(unit.soldiers() == 11, "soldiers = ceil(HP ÷ HP per soldier): 51 HP of spearmen is 11 soldiers")
-	var ranks := []
-	for xp in [0, 2, 5, 9]:
-		unit.xp = xp
-		ranks.append(unit.rank_name())
-	t.check(ranks == ["Recruit", "Veteran", "Elite", "Hero"], "ranks by experience %s" % [ranks])
+	t.check(not ("xp" in unit) and not ("general" in unit), "units have no experience, ranks or generals")
 
 
 func _test_one_per_region(t) -> void:

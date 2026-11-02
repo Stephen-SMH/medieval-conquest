@@ -96,13 +96,6 @@ static func upkeep_mod(state: GameState, faction: String) -> float:
 	return multiplier
 
 
-static func starting_xp(state: GameState, faction: String) -> int:
-	var xp := 0
-	for tech: TechType in _known(state, faction):
-		xp = maxi(xp, tech.starting_xp)
-	return xp
-
-
 static func battle(state: GameState, unit: Unit) -> void:
 	var unit_class := unit.type().unit_class
 	var melee := not unit.type().is_ranged()

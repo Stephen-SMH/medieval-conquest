@@ -315,8 +315,7 @@ func _cancel_one(unit: Unit, index: int) -> void:
 func _show_unit_info(unit: Unit) -> void:
 	var unit_type := unit.type()
 	var lines := PackedStringArray()
-	lines.append("[b]%s[/b] — %d of %d soldiers, %s%s" % [unit_type.display_name, unit.soldiers(), UnitType.SOLDIERS, unit.rank_name(),
-		", general %s (Command %d)" % [unit.general.name, unit.general.command] if unit.general != null else ""])
+	lines.append("[b]%s[/b] — %d of %d soldiers" % [unit_type.display_name, unit.soldiers(), UnitType.SOLDIERS])
 	lines.append("[i]%s Attack %d, defense %d, %s%s.[/i]" % [unit_type.description, unit_type.attack, unit_type.defense,
 		"range %d" % unit_type.attack_range if unit_type.is_ranged() else "melee", ", two steps a turn" if unit_type.is_cavalry() else ""])
 	var buttons := []
@@ -335,11 +334,6 @@ func _show_unit_info(unit: Unit) -> void:
 		for target in map.neighbours(unit.province):
 			if Orders.problem(state, unit, "besiege", target) == "":
 				buttons.append(["Besiege %s" % map.region_name(target), func(): Orders.give(state, unit, "besiege", target); clear_selection()])
-		if unit.general == null:
-			buttons.append(["Hire general (%dg)" % Economy.GENERAL_COST.gold, func():
-				if state.hire_general(unit):
-					_hud.toast("General %s takes command." % unit.general.name)
-				select_unit(unit), "" if state.factions[unit.owner].can_afford(Economy.GENERAL_COST) else "not enough gold"])
 		if state.owners[unit.province] == unit.owner:
 			buttons.append(["Recruit here", func(): open_recruit(unit.province)])
 			buttons.append(["Build here", func(): _open_region(unit.province)])
@@ -421,7 +415,7 @@ func _start_human_planning() -> void:
 func _snapshot() -> Dictionary:
 	var before := {}
 	for unit in state.units:
-		before[unit] = {"province": unit.province, "hp": unit.hp, "rank": unit.rank()}
+		before[unit] = {"province": unit.province, "hp": unit.hp}
 	return before
 
 
@@ -464,8 +458,6 @@ func _report_events(events: Array) -> void:
 			"battle":
 				var battle: Battle = event.battle
 				notes.append("Battle of %s: the %s won." % [map.region_name(event.province), "attackers" if battle.attacker_won() else "defenders"])
-			"general_lost":
-				notes.append("General %s was %s." % [event.general.name, event.fate])
 			"siege_breached":
 				notes.append("The walls of %s are breached." % map.region_name(event.province))
 	_messages = notes

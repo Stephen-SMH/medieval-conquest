@@ -3,8 +3,7 @@ extends Node2D
 ## Draws each unit as a small group of painted figures on its region
 ## (PRD UT-2): three to five soldiers (two or three riders, one or two
 ## engines) depending on its soldiers, in the faction's colours, the faction's
-## banner on a pole behind them (with a light-blue pennant for a general), gold
-## chevrons for rank, a thin health bar with a white tip, the soldier number in
+## banner on a pole behind them, a thin health bar with a white tip, the soldier number in
 ## italic, a red X once every soldier has an order (and no detachment can take
 ## another step), and while only some of them have orders, a small shield with
 ## how many are left at home.
@@ -52,10 +51,8 @@ class TokenVisual:
 	var offset := Vector2.ZERO  # Extra offset (advance, recoil, bob).
 	## A map position that replaces the unit's place while it marches; null when not marching.
 	var position_override = null
-	## Held by an animation: the shown HP doesn't drain on its own and the
-	## shown rank stays the one from before the turn.
+	## Held by an animation: the shown HP doesn't drain on its own.
 	var held := false
-	var rank := 0
 
 	func soldiers() -> int:
 		return clampi(ceili(hp / unit.type().soldier_hp() - 0.0001), 0, UnitType.SOLDIERS)
@@ -91,9 +88,6 @@ func _process(delta: float) -> void:
 	for visual: TokenVisual in visuals.values():
 		if visual.held or not state.units.has(visual.unit):
 			continue
-		if visual.rank != visual.unit.rank():
-			visual.rank = visual.unit.rank()
-			changed = true
 		if not is_equal_approx(visual.hp, visual.unit.hp):
 			visual.hp = move_toward(visual.hp, visual.unit.hp, visual.unit.max_hp() * HP_DRAIN_PER_SECOND * delta)
 			changed = true
@@ -117,7 +111,6 @@ func sync(snap_hp := false) -> void:
 		visual.alpha = 1.0
 		visual.sink = 0.0
 		visual.held = false
-		visual.rank = unit.rank()
 		if snap_hp:
 			visual.hp = unit.hp
 	for unit in visuals.keys():
@@ -216,11 +209,6 @@ func _draw_unit(visual: TokenVisual, centre: Vector2, size: float) -> void:
 	var civ: String = state.factions[visual.owner].civ if state.factions.has(visual.owner) else ""
 	var pole_foot := foot + Vector2(size * 0.4, -size * 0.1)
 	draw_banner(self, pole_foot, size * 1.3, faction_color, civ, alpha)
-	if unit.general != null:
-		var pennant_top := foot + Vector2(-size * 0.5, -size * 1.25)
-		draw_line(pennant_top + Vector2(0, size * 1.15), pennant_top, Color("#3a2410", alpha), maxf(size * 0.035, 1.0))
-		draw_colored_polygon(PackedVector2Array([pennant_top, pennant_top + Vector2(-size * 0.36, size * 0.07), pennant_top + Vector2(0, size * 0.16)]),
-			Color("#9cc8ec", alpha))
 
 	# The painted figures: three to five soldiers, two or three riders, one or two engines.
 	# Each figure gets its own pose variant, a slightly different size, place
@@ -242,13 +230,6 @@ func _draw_unit(visual: TokenVisual, centre: Vector2, size: float) -> void:
 		draw_texture_rect(textures[0], rect, false, Color(shade, shade, shade * 0.98, alpha))
 		if textures[1] != null:
 			draw_texture_rect(textures[1], rect, false, Color(team_color.r * shade, team_color.g * shade, team_color.b * shade, alpha))
-
-	# Rank chevrons beside the figures (the rank from before the turn while it plays out).
-	for i in visual.rank:
-		var c := foot + Vector2(-size * 0.62, -size * 0.62 + i * size * 0.14)
-		var w := size * 0.12
-		draw_polyline(PackedVector2Array([c + Vector2(-w, w * 0.7), c, c + Vector2(w, w * 0.7)]), Color(INK, alpha), maxf(size * 0.07, 2.2), true)
-		draw_polyline(PackedVector2Array([c + Vector2(-w, w * 0.7), c, c + Vector2(w, w * 0.7)]), Color(GOLD, alpha), maxf(size * 0.045, 1.4), true)
 
 	# A thin health bar with a white tip, the soldiers under it, and a red X when spent.
 	var bar := Rect2(foot + Vector2(-size * 0.4, size * 0.12), Vector2(size * 0.8, maxf(size * 0.055, 2.5)))

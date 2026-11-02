@@ -41,8 +41,8 @@ func run(t) -> void:
 		and ranged.survival(ranged.attacker) == 1.0 and ranged.survival(ranged.defender) < 1.0,
 		"a ranged-only attack: volleys only, melee defenders can't reply, nobody wins the region")
 
-	var walled_a := Battle.Force.new("a", true, _units("a", ["swordsmen", "swordsmen"]), 1.0)
-	var walled_d := Battle.Force.new("d", false, _units("d", ["spearmen", "spearmen"]), 1.0)
+	var walled_a := Battle.Force.new("a", true, _units("a", ["swordsmen", "swordsmen"]))
+	var walled_d := Battle.Force.new("d", false, _units("d", ["spearmen", "spearmen"]))
 	walled_d.wall_bonus = 1.0
 	var walled := Battle.new(walled_a, walled_d, Rules.terrains.plains, false, 5)
 	walled.resolve()

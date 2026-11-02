@@ -78,12 +78,7 @@
   {
    "owner": "aldmere",
    "region": "greywater",
-   "type": "spearmen",
-   "general": {
-    "name": "Edric Vane",
-    "command": 2,
-    "logistics": 1
-   }
+   "type": "spearmen"
   },
   {
    "owner": "aldmere",
@@ -98,12 +93,7 @@
   {
    "owner": "brennwald",
    "region": "eastwold",
-   "type": "heavy_cavalry",
-   "general": {
-    "name": "Hrolf Brenn",
-    "command": 2,
-    "logistics": 1
-   }
+   "type": "heavy_cavalry"
   },
   {
    "owner": "brennwald",
@@ -118,12 +108,7 @@
   {
    "owner": "corvane",
    "region": "redfield",
-   "type": "archers",
-   "general": {
-    "name": "Lysa Corvane",
-    "command": 2,
-    "logistics": 1
-   }
+   "type": "archers"
   },
   {
    "owner": "corvane",
@@ -133,12 +118,7 @@
   {
    "owner": "dunmarch",
    "region": "stonehelm",
-   "type": "swordsmen",
-   "general": {
-    "name": "Bram Dun",
-    "command": 2,
-    "logistics": 1
-   }
+   "type": "swordsmen"
   },
   {
    "owner": "dunmarch",
@@ -152,7 +132,9 @@
   "objectives": [
    {
     "type": "capture",
-    "regions": ["eastwold"]
+    "regions": [
+     "eastwold"
+    ]
    },
    {
     "type": "hold",

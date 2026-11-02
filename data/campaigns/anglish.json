@@ -59,12 +59,7 @@
     {
      "owner": "weald",
      "region": "kingsbarrow",
-     "type": "longbowman",
-     "general": {
-      "name": "Elswyth",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "longbowman"
     },
     {
      "owner": "weald",
@@ -89,12 +84,7 @@
     {
      "owner": "raiders",
      "region": "gullmouth",
-     "type": "berserker",
-     "general": {
-      "name": "Ulf",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "berserker"
     },
     {
      "owner": "raiders",
@@ -202,12 +192,7 @@
     {
      "owner": "weald",
      "region": "kingsbarrow",
-     "type": "longbowman",
-     "general": {
-      "name": "Elswyth",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "longbowman"
     },
     {
      "owner": "weald",
@@ -227,12 +212,7 @@
     {
      "owner": "wyndle",
      "region": "wyndle",
-     "type": "yeoman",
-     "general": {
-      "name": "Godric",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "yeoman"
     },
     {
      "owner": "wyndle",
@@ -347,12 +327,7 @@
     {
      "owner": "weald",
      "region": "kingsbarrow",
-     "type": "longbowman",
-     "general": {
-      "name": "Elswyth",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "longbowman"
     },
     {
      "owner": "weald",
@@ -382,12 +357,7 @@
     {
      "owner": "raiders",
      "region": "gullmouth",
-     "type": "berserker",
-     "general": {
-      "name": "Ulf",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "berserker"
     },
     {
      "owner": "raiders",
@@ -494,12 +464,7 @@
     {
      "owner": "weald",
      "region": "kingsbarrow",
-     "type": "longbowman",
-     "general": {
-      "name": "Elswyth",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "longbowman"
     },
     {
      "owner": "weald",
@@ -529,12 +494,7 @@
     {
      "owner": "ashcombe",
      "region": "ashcombe",
-     "type": "knight",
-     "general": {
-      "name": "Baudouin",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "knight"
     },
     {
      "owner": "ashcombe",
@@ -575,9 +535,10 @@
     "par": 11,
     "objectives": [
      {
-      "type": "destroy_general",
+      "type": "destroy_units",
       "faction": "ashcombe",
-      "general": "Baudouin"
+      "unit_type": "knight",
+      "count": 15
      }
     ],
     "briefing": "Baudouin, the Black Count of Ashcombe, rides through the Weald burning barns. His knights are deadly in the open: meet them with pikes and bows, then take the count.",
@@ -660,12 +621,7 @@
     {
      "owner": "weald",
      "region": "kingsbarrow",
-     "type": "longbowman",
-     "general": {
-      "name": "Elswyth",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "longbowman"
     },
     {
      "owner": "weald",
@@ -695,12 +651,7 @@
     {
      "owner": "ashcombe",
      "region": "ashcombe",
-     "type": "knight",
-     "general": {
-      "name": "Baudouin",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "knight"
     },
     {
      "owner": "ashcombe",
@@ -725,12 +676,7 @@
     {
      "owner": "wyndle",
      "region": "wyndle",
-     "type": "yeoman",
-     "general": {
-      "name": "Godric",
-      "command": 2,
-      "logistics": 2
-     }
+     "type": "yeoman"
     },
     {
      "owner": "wyndle",

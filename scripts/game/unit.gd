@@ -1,11 +1,9 @@
 class_name Unit
 extends RefCounted
-## One unit token on the map (PRD 8.2): a type, an owner, a region, HP for up
-## to 20 soldiers, experience and rank, and an optional general.
+## One unit token on the map (PRD 8.2): a type, an owner, a region and HP for
+## up to 20 soldiers. There are no generals or ranks: troops only get stronger
+## through the Forge's upgrades.
 
-const RANK_NAMES := ["Recruit", "Veteran", "Elite", "Hero"]
-const RANK_BONUS := [0.0, 0.10, 0.20, 0.30]  # Attack and defense (UT-6).
-const RANK_XP := [0, 2, 5, 9]  # Experience needed for each rank.
 ## A unit with less than this share of its HP left is destroyed.
 const DESTROYED_BELOW := 0.05
 
@@ -14,8 +12,6 @@ var type_id := ""
 var owner := ""
 var province := ""
 var hp := 0.0
-var xp := 0
-var general: General
 var move_points_left := 0
 ## Set when the unit attacked or fought this turn. It can then only retreat (OR-5).
 var attacked := false
@@ -24,8 +20,8 @@ var moved := false
 ## Free moves left this turn between two coastal regions (Norse raiding).
 var coastal_moves := 0
 
-## Battle multipliers worked out by GameState just before a battle: rank,
-## general, civilization, walls and research.
+## Battle multipliers worked out by GameState just before a battle:
+## civilization and upgrades.
 var attack_mod := 1.0
 var defense_mod := 1.0
 var charge_mod := 1.0
@@ -70,18 +66,6 @@ func power() -> float:
 	return strength() * (unit_type.attack + unit_type.defense) * unit_type.hp / 100.0
 
 
-func rank() -> int:
-	var result := 0
-	for i in RANK_XP.size():
-		if xp >= RANK_XP[i]:
-			result = i
-	return result
-
-
-func rank_name() -> String:
-	return RANK_NAMES[rank()]
-
-
 func reset_turn() -> void:
 	move_points_left = type().move_points
 	attacked = false
@@ -93,8 +77,6 @@ func copy() -> Unit:
 	var twin := Unit.new(type_id, owner, province)
 	twin.id = id
 	twin.hp = hp
-	twin.xp = xp
-	twin.general = general
 	twin.attack_mod = attack_mod
 	twin.defense_mod = defense_mod
 	twin.charge_mod = charge_mod

@@ -1,5 +1,5 @@
 extends RefCounted
-## The map's drawing rules: the rank shown during a turn's playback, token
+## The map's drawing rules: token
 ## layout around region names, icons inside shield buttons, painted figures
 ## and spear arrows.
 
@@ -7,35 +7,10 @@ const Helpers := preload("res://tests/helpers.gd")
 
 
 func run(t) -> void:
-	_test_rank_during_playback(t)
 	_test_token_layout(t)
 	_test_shield_icons(t)
 	_test_figures(t)
 	_test_spears(t)
-
-
-func _test_rank_during_playback(t) -> void:
-	var state := Helpers.game({"greywater": "blue", "kingsvale": "red"}, [["blue", "greywater", "swordsmen"]])
-	var unit: Unit = state.units[0]
-	var tokens := TokenLayer.new()
-	tokens.state = state
-	tokens.sync()
-	var before := {unit: {"province": unit.province, "hp": unit.hp, "rank": unit.rank()}}
-	unit.xp = 5  # The battle made it Elite; the result is decided before it's shown.
-	var effects := Effects.new()
-	effects.setup(state, tokens, {})
-	effects._rewind(before)
-	var visual := tokens.visual_for(unit)
-	t.check(visual.rank == 0, "during playback the token shows the rank from before the battle")
-	tokens._process(0.016)
-	t.check(visual.rank == 0, "a held token keeps the old rank while the turn plays out")
-	visual.held = false  # Playback is over: the result is applied.
-	tokens._process(0.016)
-	t.check(visual.rank == 2, "once the result is applied the token shows the new rank")
-	tokens.sync()
-	t.check(visual.rank == unit.rank(), "syncing shows the unit's real rank")
-	effects.free()
-	tokens.free()
 
 
 func _test_token_layout(t) -> void:

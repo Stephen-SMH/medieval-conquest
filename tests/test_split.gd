@@ -15,8 +15,7 @@ func run(t) -> void:
 	_test_red_x(t)
 	_test_friendly_regions(t)
 	_test_example_turn(t)
-	_test_new_unit_keeps_rank_and_hp(t)
-	_test_generals(t)
+	_test_new_unit_keeps_hp(t)
 	_test_merge(t)
 	_test_attack_wins(t)
 	_test_attack_fails(t)
@@ -132,40 +131,19 @@ func _test_example_turn(t) -> void:
 	t.check(_one_per_region(state), "one unit per region after the turn")
 
 
-func _test_new_unit_keeps_rank_and_hp(t) -> void:
+func _test_new_unit_keeps_hp(t) -> void:
 	var state := Helpers.game({"greywater": "blue"}, [["blue", "greywater", "spearmen"]])
 	var unit: Unit = state.unit_in("greywater")
-	unit.xp = 5  # Elite.
 	unit.hp = unit.type().soldier_hp() * 15.0  # 15 soldiers' worth: 75% of full HP.
 	var before := unit.hp
 	Helpers.order(state, unit, "move", "highcrag", {"soldiers": 6})
 	Helpers.resolve(state)
 	var part := state.unit_in("highcrag")
-	t.check(part != null and part.type_id == "spearmen" and part.rank_name() == "Elite" and part.xp == 5, "the new unit keeps type, rank and experience")
+	t.check(part != null and part.type_id == "spearmen", "the new unit keeps its type")
 	t.check(part.soldiers() == 6 and unit.soldiers() == 9, "6 march and 9 stay")
 	t.check(is_equal_approx(part.hp, before * 6.0 / 15.0) and is_equal_approx(unit.hp + part.hp, before),
 		"HP is shared per soldier and none is lost or made (%.1f + %.1f = %.1f)" % [unit.hp, part.hp, before])
 	t.check(state.owners.highcrag == "blue", "the empty neutral region is captured")
-
-
-func _test_generals(t) -> void:
-	var state := Helpers.game({"greywater": "blue"}, [["blue", "greywater", "swordsmen"]])
-	var unit: Unit = state.unit_in("greywater")
-	unit.general = General.new("Edric", 2, 1)
-	Helpers.order(state, unit, "move", "highcrag", {"soldiers": 15})
-	Helpers.resolve(state)
-	t.check(unit.general != null and unit.province == "greywater" and state.unit_in("highcrag").general == null,
-		"the general stays with the soldiers who stay home")
-
-	state = Helpers.game({"greywater": "blue"}, [["blue", "greywater", "swordsmen"]])
-	unit = state.unit_in("greywater")
-	unit.general = General.new("Edric", 2, 1)
-	Helpers.order(state, unit, "move", "highcrag", {"soldiers": 5})
-	Helpers.order(state, unit, "move", "ashford", {"soldiers": 15})
-	Helpers.resolve(state)
-	var big := state.unit_in("ashford")
-	t.check(big == unit and big.general != null and big.soldiers() == 15 and state.unit_in("highcrag").general == null
-		and state.unit_in("greywater") == null, "with nobody home, the general goes with the largest detachment")
 
 
 func _test_merge(t) -> void:
