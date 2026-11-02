@@ -1,8 +1,9 @@
 class_name RoundButton
 extends Button
 ## A round wooden button with a gold rim and a gold glyph, as on the reference
-## game's briefing and victory screens (PRD H): "back", "next", "restart",
-## "start" (crossed swords), "forge" (the anvil), "map" and "check".
+## game's briefing, victory and pause screens (PRD H, K): "back", "next",
+## "restart", "start" and "objectives" (crossed swords), "forge" (the anvil),
+## "map", "check", "resume", "surrender" (a white flag), "info" and "exit".
 ## with_caption() puts a small caption under it, for touch screens with no
 ## tooltips.
 
@@ -10,6 +11,7 @@ const GOLD := Color("#e2bd5a")
 const WOOD := Color("#3a2410")
 const TEXTURES := {
 	"start": "res://assets/icons/ui_swords.svg",
+	"objectives": "res://assets/icons/ui_swords.svg",
 	"forge": "res://assets/icons/ui_anvil.svg",
 	"check": "res://assets/icons/ui_check.svg",
 }
@@ -73,6 +75,21 @@ func _draw() -> void:
 			var tip := c + Vector2.from_angle(-PI * 0.35) * r * 0.38
 			draw_colored_polygon(PackedVector2Array([tip + Vector2(r * 0.2, 0), tip + Vector2(-r * 0.12, -r * 0.18),
 				tip + Vector2(-r * 0.08, r * 0.2)]), gold)
+		"resume":
+			draw_colored_polygon(PackedVector2Array([c + Vector2(-r * 0.22, -r * 0.38), c + Vector2(r * 0.42, 0), c + Vector2(-r * 0.22, r * 0.38)]), gold)
+		"info":
+			draw_circle(c + Vector2(0, -r * 0.36), r * 0.1, gold)
+			draw_line(c + Vector2(0, -r * 0.14), c + Vector2(0, r * 0.4), gold, w * 1.3, true)
+			draw_line(c + Vector2(-r * 0.14, r * 0.4), c + Vector2(r * 0.14, r * 0.4), gold, w * 0.8, true)
+		"surrender":
+			draw_line(c + Vector2(-r * 0.3, -r * 0.45), c + Vector2(-r * 0.3, r * 0.45), gold, w * 0.8, true)
+			draw_colored_polygon(PackedVector2Array([c + Vector2(-r * 0.26, -r * 0.42), c + Vector2(r * 0.42, -r * 0.34),
+				c + Vector2(r * 0.3, -r * 0.12), c + Vector2(r * 0.44, r * 0.08), c + Vector2(-r * 0.26, r * 0.04)]), Color("#f4ecd8") if not disabled else gold)
+		"exit":
+			draw_rect(Rect2(c + Vector2(-r * 0.4, -r * 0.42), Vector2(r * 0.5, r * 0.84)), gold, false, w * 0.8)
+			draw_circle(c + Vector2(r * 0.0, r * 0.02), r * 0.05, gold)
+			draw_line(c + Vector2(-r * 0.05, 0), c + Vector2(r * 0.32, 0), gold, w, true)
+			draw_colored_polygon(PackedVector2Array([c + Vector2(r * 0.48, 0), c + Vector2(r * 0.26, -r * 0.18), c + Vector2(r * 0.26, r * 0.18)]), gold)
 		"map":
 			var points := PackedVector2Array([c + Vector2(-r * 0.45, -r * 0.3), c + Vector2(-r * 0.15, -r * 0.4), c + Vector2(r * 0.15, -r * 0.3),
 				c + Vector2(r * 0.45, -r * 0.4), c + Vector2(r * 0.45, r * 0.3), c + Vector2(r * 0.15, r * 0.4), c + Vector2(-r * 0.15, r * 0.3),

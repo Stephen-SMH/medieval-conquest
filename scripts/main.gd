@@ -49,6 +49,7 @@ var _busy := false  # True while a turn resolves on screen.
 var _attack_popup: AttackPopup
 var _recruit_window: RecruitWindow
 var _popup: WoodPopup
+var _pause_menu: PauseMenu
 var _tutorial: Tutorial  # The guided tutorial's steps, in the tutorial mission only.
 var _tutorial_box: TutorialBox
 var _ring: ActionRing
@@ -131,6 +132,7 @@ func _ready() -> void:
 	_end_screen.menu.connect(_go_to_menu)
 	_end_screen.next_mission.connect(_next_mission)
 	_hud.objectives_pressed.connect(open_objectives)
+	_build_pause_menu()
 	_build_pass_screen()
 	Hud.react_all($UI)
 	Settings.apply(get_tree())
@@ -653,15 +655,102 @@ func open_treasury() -> void:
 	_dim.visible = true
 
 
+## The pause screen (PRD K).
 func open_menu() -> void:
-	_popup.open("Menu")
-	_popup.add_button("Resume", _close_popups, _popup.body)
-	_popup.add_button("Save or load", func(): _close_popups(); _open_saves(), _popup.body)
-	_popup.add_button("Last battle report", func(): _close_popups(); _show_last_report(), _popup.body).disabled = _last_battles.is_empty()
-	_popup.add_button("Map: %s" % ("terrain" if mode == MapMode.POLITICAL else "political"), func():
+	_close_popups()
+	_pause_menu.open(not _restart_setup().is_empty(), not _last_battles.is_empty(), Mission.is_mission(state) and not Mission.primary(state).is_empty(),
+		"Map: %s" % ("terrain" if mode == MapMode.POLITICAL else "political"))
+	_dim.visible = true
+
+
+func _build_pause_menu() -> void:
+	_pause_menu = PauseMenu.new()
+	$UI.add_child(_pause_menu)
+	_pause_menu.resume.connect(_close_popups)
+	_pause_menu.saves.connect(func(): _close_popups(); _open_saves())
+	_pause_menu.report.connect(func(): _close_popups(); _show_last_report())
+	_pause_menu.map_mode.connect(func():
 		set_mode(MapMode.TERRAIN if mode == MapMode.POLITICAL else MapMode.POLITICAL)
-		_close_popups(), _popup.body)
-	_popup.add_button("Main menu", _go_to_menu, _popup.body)
+		_close_popups())
+	_pause_menu.objectives.connect(func(): _close_popups(); open_objectives())
+	_pause_menu.info.connect(func(): _close_popups(); open_info())
+	_pause_menu.restart.connect(func(): _confirm("Restart", "Start this game again from the beginning?", _restart))
+	_pause_menu.exit.connect(func(): _confirm("Exit", "Leave for the main menu? Anything since the start of this turn is lost.", _go_to_menu))
+	_pause_menu.surrender.connect(func():
+		if not _is_my_turn():
+			_hud.toast("You can surrender on your own turn.")
+			return
+		_confirm("Surrender", "Lay down your arms? %s" % ("The mission is lost." if Mission.is_mission(state) else "Your realm leaves the war."), _surrender))
+
+
+## A yes-or-no question in a wooden window; `on_yes` runs on the check mark.
+func _confirm(title: String, question: String, on_yes: Callable) -> void:
+	_close_popups()
+	_popup.open(title)
+	_popup.add_text("[center]%s[/center]" % question, 20)
+	_popup.add_check_and_close(func(): _close_popups(); on_yes.call())
+	_dim.visible = true
+
+
+## The setup to start this game again: the last new game if it's this one,
+## else a campaign mission rebuilt from its campaign; {} if neither.
+func _restart_setup() -> Dictionary:
+	var session := get_node_or_null("/root/Session")
+	if session != null and not session.last_setup.is_empty() and session.last_setup.scenario.get("id", "") == state.scenario_id:
+		return session.last_setup
+	if state.mission.has("campaign"):
+		var campaign: String = state.mission.campaign
+		return {"scenario": Forge.equip(Campaigns.mission(campaign, int(state.mission.mission_index)), Progress.upgrades(campaign)), "seed": randi()}
+	return {}
+
+
+func _restart() -> void:
+	var session := get_node_or_null("/root/Session")
+	if session != null:
+		session.setup = _restart_setup().duplicate(true)
+	get_tree().reload_current_scene()
+
+
+## The player gives up (PRD K): the game is lost, or in hotseat their realm
+## leaves it and the next player goes on.
+func _surrender() -> void:
+	Mission.surrender(state, state.current_faction())
+	clear_selection()
+	if state.is_over():
+		_check_end()
+		return
+	_last_human = state.current_faction()
+	var before := _snapshot()
+	var events := state.end_faction_turn()
+	await _show_resolution(events, before)
+	_advance()
+
+
+## Where the game stands (PRD K's info): the map and turn, then each realm's
+## regions and soldiers, and your treasury.
+func open_info() -> void:
+	_popup.open("Info")
+	var lines := PackedStringArray()
+	var title := state.scenario_id.capitalize()
+	if state.mission.has("campaign"):
+		var index := int(state.mission.mission_index)
+		title = "%s — %s" % [Campaigns.get_campaign(state.mission.campaign).name, Campaigns.mission(state.mission.campaign, index).name]
+	lines.append("[b]%s[/b]\n%s, %d regions. %s." % [title, map.display_name, map.province_order.size(), state.date_text()])
+	lines.append("")
+	for faction in state.turn_order:
+		var regions := map.province_order.filter(func(r): return state.owners[r] == faction).size()
+		var soldiers := 0
+		for unit in state.units_of(faction):
+			soldiers += unit.soldiers()
+		var civ := Rules.civilization(state.factions[faction].civ)
+		lines.append("[color=#%s]■[/color] [b]%s[/b]%s: %s" % [state.faction_color(faction).to_html(false), state.faction_name(faction),
+			" (%s)" % civ.display_name if civ != null else "",
+			"%d regions, %d soldiers" % [regions, soldiers] if state.factions[faction].alive else "[i]fallen[/i]"])
+	var viewer: FactionState = state.factions.get(state.viewer())
+	if viewer != null:
+		lines.append("\n[b]Your treasury:[/b] %d gold, %+d a turn." % [roundi(viewer.resources.gold), roundi(Economy.deltas(state, state.viewer()).gold)])
+	_popup.add_text("\n".join(lines), 17).custom_minimum_size = Vector2(560, 0)
+	_popup.add_close()
 	_dim.visible = true
 
 
@@ -699,7 +788,7 @@ func open_objectives() -> void:
 		lines.append("\n[b]Chronicle[/b]")
 		for entry in state.mission_log:
 			lines.append("[i]Turn %d:[/i] %s" % [int(entry.turn), entry.text])
-	_popup.add_text("\n".join(lines), 17)
+	_popup.add_text("\n".join(lines), 17).custom_minimum_size = Vector2(620, 0)
 	_popup.add_close()
 	_dim.visible = true
 
@@ -727,7 +816,7 @@ func _show_last_report() -> void:
 
 
 func _close_popups() -> void:
-	for popup: Control in [_attack_popup, _recruit_window, _popup, _region_popup, _battle_report, _end_screen, _save_popup]:
+	for popup: Control in [_attack_popup, _recruit_window, _popup, _region_popup, _battle_report, _end_screen, _save_popup, _pause_menu]:
 		popup.visible = false
 	_dim.visible = false
 	_refresh_world()
@@ -754,10 +843,7 @@ func _on_load_requested(slot: String) -> void:
 
 
 func _play_again() -> void:
-	var session := get_node_or_null("/root/Session")
-	if session != null:
-		session.setup = session.last_setup.duplicate(true)
-	get_tree().reload_current_scene()
+	_restart()
 
 
 func _go_to_menu() -> void:

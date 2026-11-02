@@ -116,6 +116,18 @@ func _test_missions(t) -> void:
 		"Enemy reinforcements arrived in the province of Kingsvale: Spearmen – 8", "Scouts report movement in the east."]
 		and state.mission_log.size() == 2, "each event leaves a note (%s)" % [state.mission_log])
 
+	# Surrender (PRD K): a mission is lost; in hotseat the realm leaves the war.
+	state = Helpers.game({"greywater": "blue", "kingsvale": "red"}, [["blue", "greywater", "spearmen"]], 7)
+	state.mission = {"player": "blue", "primary": [{"type": "destroy", "faction": "red"}]}
+	Mission.surrender(state, "blue")
+	t.check(state.is_over() and state.result.result == "lost" and state.result.reason == "You surrendered.", "surrendering loses the mission")
+	var hotseat := GameState.from_scenario(Skirmish.build("heartlands", [{"civ": "norse", "human": true}, {"civ": "anglish", "human": true},
+		{"civ": "frankish", "human": true}], "normal", 2), 2)
+	var quitter := hotseat.current_faction()
+	Mission.surrender(hotseat, quitter)
+	t.check(not hotseat.is_over() and not hotseat.factions[quitter].alive and hotseat.units_of(quitter).is_empty()
+		and not hotseat.owners.values().has(quitter), "in hotseat the realm that surrenders leaves; the others play on")
+
 	# Older missions still load.
 	var old := Mission.normalized({"player": "blue", "par": 8, "objectives": [{"type": "conquest"}]}, {"blue": "greywater"})
 	t.check(old.primary == [{"type": "conquest"}] and old.crowns == [8.0, 11.0, 16.0]

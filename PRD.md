@@ -475,3 +475,12 @@ This decision replaces sections 3.3 (resources), 3.4 (food and supply) and 3.12 
 | SC-2 | A landing from the sea fights like a river crossing (the attackers' attack −25%), and the battle report says so. |
 | SC-3 | The map draws each link as a dashed line across the water between the two ports' boat icons; a port's region info lists where it sails to. |
 
+### 8.13 Pause menu (version 6, K)
+
+| ID | Requirement |
+|---|---|
+| PM-1 | The pause shield (or Esc) dims the map under **"Paused"** with plain buttons for save or load, the last battle report and the map mode, and a wooden **bar along the bottom** with round buttons: **restart**, **resume**, **objectives**, **surrender**, **info** and **exit**. |
+| PM-2 | **Restart** (after a yes/no) starts the same game again: the last new game if it's this one, else the campaign mission rebuilt with the campaign's Forge upgrades; it is greyed out when neither is known. **Exit** (after a yes/no) goes to the main menu. |
+| PM-3 | **Surrender** (on your own turn, after a yes/no) loses a mission or a one-player game; in hotseat the realm leaves the war, its armies disbanded and its regions neutral, and the next player goes on. |
+| PM-4 | **Objectives** opens the objectives list (MS-3); **info** shows the map, the date, each realm's regions and soldiers, and your treasury. |
+

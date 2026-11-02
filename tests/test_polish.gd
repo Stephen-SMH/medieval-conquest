@@ -18,6 +18,23 @@ func run(t) -> void:
 	_test_tutorial_map(t)
 	_test_tutorial_steps(t)
 	_test_tutorial_offer(t)
+	_test_scripts_compile(t)
+
+
+## Every script compiles, the scene scripts the suites don't otherwise load included.
+func _test_scripts_compile(t) -> void:
+	var broken := []
+	var folders := ["res://scripts"]
+	while not folders.is_empty():
+		var folder: String = folders.pop_back()
+		for sub in DirAccess.get_directories_at(folder):
+			folders.append(folder.path_join(sub))
+		for file in DirAccess.get_files_at(folder):
+			if file.ends_with(".gd"):
+				var script = load(folder.path_join(file))
+				if not (script is GDScript) or not script.can_instantiate():
+					broken.append(file)
+	t.check(broken.is_empty(), "every script compiles %s" % [broken])
 
 
 func _scratch(file: String) -> String:

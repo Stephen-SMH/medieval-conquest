@@ -289,6 +289,25 @@ static func evaluate(state: GameState) -> Dictionary:
 	return {}
 
 
+## A faction gives up (the pause menu, PRD K). In a mission, or a game one
+## person plays, that loses the game; in hotseat the faction leaves it: its
+## armies disband and its regions fall neutral, and the others play on.
+static func surrender(state: GameState, faction: String) -> void:
+	var humans := state.turn_order.filter(func(f): return state.factions[f].human)
+	if is_mission(state) or humans.size() <= 1:
+		state.result = _lost(state, "%s surrendered." % ("You" if is_mission(state) else state.faction_name(faction)))
+		return
+	for unit in state.units_of(faction):
+		state.remove_unit(unit)
+	for region in state.map.province_order:
+		if state.owners[region] == faction:
+			state.owners[region] = "neutral"
+			state.provinces[region].recruits.clear()
+	state.capitals.erase(faction)
+	state.update_alive()
+	state.update_result()
+
+
 static func _defeat_reason(state: GameState, condition: Dictionary, faction: String) -> String:
 	match condition.type:
 		"time":
