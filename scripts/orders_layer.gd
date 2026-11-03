@@ -9,7 +9,7 @@ extends Node2D
 ## previews the order under the mouse, or follows the pointer while you drag
 ## from your army (PRD I). A unit split across several orders has one arrow per
 ## detachment, each with a small shield showing how many soldiers go.
-## Clicking an arrow cancels that one order. When the hourglass is pressed
+## Clicking an arrow cancels that one order. When the "!" or the hourglass is pressed
 ## the arrows stay on the map while the turn plays out, as in S&T (`playing`):
 ## the arrows aimed at a battle burn while it's fought, and each arrow goes
 ## once its order has been carried out.

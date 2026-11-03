@@ -18,6 +18,9 @@ const DEAD_BELOW := 0.25
 var type_id := ""
 var soldiers := 0
 var hp := 0.0
+## Soldiers who have already carried out an order this turn (S&T's "!"): they
+## can't be given another until the faction's next turn.
+var tired := 0
 ## Battle multipliers worked out just before a battle: civilization, upgrades.
 var attack_mod := 1.0
 var defense_mod := 1.0
@@ -96,20 +99,25 @@ func _settle() -> void:
 	if hp < DEAD_BELOW * soldier_hp():
 		soldiers = 0
 		hp = 0.0
+		tired = 0
 		return
 	soldiers = mini(soldiers, ceili(hp / soldier_hp() - 1e-4))
+	tired = mini(tired, soldiers)
 	hp = minf(hp, full_hp())
 
 
-## Takes `count` soldiers out, with their share of the health.
+## Takes `count` soldiers out, with their share of the health. The tired
+## go first: a detachment is made of the soldiers just given orders.
 func take(count: int) -> Troop:
 	count = clampi(count, 0, soldiers)
 	var part := Troop.new(type_id, count)
 	if count <= 0:
 		return part
 	part.hp = hp * count / soldiers
+	part.tired = mini(tired, count)
 	hp -= part.hp
 	soldiers -= count
+	tired -= part.tired
 	return part
 
 
@@ -117,11 +125,13 @@ func take(count: int) -> Troop:
 func absorb(other: Troop) -> void:
 	soldiers += other.soldiers
 	hp += other.hp
+	tired = mini(tired + other.tired, soldiers)
 
 
 func copy() -> Troop:
 	var twin := Troop.new(type_id, soldiers)
 	twin.hp = hp
+	twin.tired = tired
 	twin.attack_mod = attack_mod
 	twin.defense_mod = defense_mod
 	twin.charge_mod = charge_mod

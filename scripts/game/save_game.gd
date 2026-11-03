@@ -30,7 +30,7 @@ static func to_dict(state: GameState) -> Dictionary:
 	for unit in state.units:
 		var troops := []
 		for troop in unit.troops:
-			troops.append({"type": troop.type_id, "soldiers": troop.soldiers, "hp": troop.hp})
+			troops.append({"type": troop.type_id, "soldiers": troop.soldiers, "hp": troop.hp, "tired": troop.tired})
 		units.append({"id": unit.id, "owner": unit.owner, "region": unit.province, "troops": troops,
 			"move_points_left": unit.move_points_left, "attacked": unit.attacked, "moved": unit.moved})
 	return {
@@ -90,6 +90,7 @@ static func from_dict(data: Dictionary) -> GameState:
 			for saved in entry.troops:
 				var troop := Troop.new(saved.type, int(saved.soldiers))
 				troop.hp = float(saved.hp)
+				troop.tired = int(saved.get("tired", 0))
 				unit.add_troop(troop)
 		else:  # Version 1-3: one type per unit, soldiers from HP.
 			var troop := Troop.new(entry.type, 0)

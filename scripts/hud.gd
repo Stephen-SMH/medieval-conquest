@@ -3,8 +3,8 @@ extends Control
 ## The minimal map HUD: a riveted plaque at the top with the gold, the turn
 ## and, in a mission, the crown still to be won with its turns left and the
 ## primary objectives left under crossed swords (PRD H); wooden shield
-## buttons in the corners (recruit, treasury, menu, alerts, and the end-turn
-## hourglass), a cloth banner on the right listing the turn's orders and
+## buttons in the corners (recruit, treasury, menu, and S&T's turn button:
+## the hourglass, the "!" or the X), a cloth banner on the right listing the turn's orders and
 ## battles, a parchment strip for the selection, parchment notes at the top
 ## left for the mission's scripted events, and the faint "Turn: ..." banner
 ## across the map.
@@ -12,11 +12,14 @@ extends Control
 signal recruit_pressed
 signal treasury_pressed
 signal menu_pressed
-signal alerts_pressed
-signal end_turn_pressed
+## The turn button in the bottom right corner was pressed, showing `mode`
+## ("end", "carry" or "cancel": see set_turn_button).
+signal turn_button_pressed(mode: String)
 signal objectives_pressed
 
 const GOLD := Color("#e2bd5a")
+const HOURGLASS := preload("res://assets/icons/ui_hourglass.svg")
+const BANG_FONT := preload("res://assets/fonts/Cinzel.ttf")
 ## Crown colours: none, bronze, silver, gold.
 const CROWN_COLORS := [Color(0.45, 0.42, 0.38, 0.8), Color("#c0793a"), Color("#d4d8dc"), Color("#f0c64a")]
 const NOTE_SECONDS := 8.0
@@ -46,8 +49,8 @@ var _turn_civ := ""
 var _turn_tween: Tween
 var _toast: Label
 var _banner: OrdersBanner
-var _end_turn: Button
-var _alerts_dot: Control
+var _turn_button: Button
+var _turn_mode := "end"
 var _shield_buttons: Array[Button] = []
 var _army: ArmyBanner
 var _skip_label: Label
@@ -123,22 +126,10 @@ func _ready() -> void:
 	_add_shield("res://assets/icons/knight.svg", true, Vector2(8, 6), Control.PRESET_TOP_LEFT, "Recruit (R)", func(): recruit_pressed.emit())
 	_add_shield("res://assets/icons/ui_coins.svg", true, Vector2(8, 120), Control.PRESET_TOP_LEFT, "Treasury", func(): treasury_pressed.emit())
 	_add_shield("res://assets/icons/ui_pause.svg", false, Vector2(-100, 6), Control.PRESET_TOP_RIGHT, "Menu (Esc)", func(): menu_pressed.emit())
-	var alerts := _add_shield("", false, Vector2(-100, -228), Control.PRESET_BOTTOM_RIGHT, "Next army without orders (the news when there are none)", func(): alerts_pressed.emit())
-	var bang := _label("!", 48)
-	bang.add_theme_font_override("font", load("res://assets/fonts/Cinzel.ttf"))
-	bang.set_anchors_preset(Control.PRESET_FULL_RECT)
-	bang.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	bang.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	bang.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	alerts.add_child(bang)
-	_alerts_dot = ColorRect.new()
-	(_alerts_dot as ColorRect).color = Color("#d03a28")
-	_alerts_dot.size = Vector2(12, 12)
-	_alerts_dot.position = Vector2(70, 12)
-	_alerts_dot.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	alerts.add_child(_alerts_dot)
-	_end_turn = _add_shield("res://assets/icons/ui_hourglass.svg", false, Vector2(-100, -114), Control.PRESET_BOTTOM_RIGHT, "End turn (Enter)", func(): end_turn_pressed.emit())
-	_end_turn.set_meta("sfx", "")  # The hourglass makes its own sound.
+	_turn_button = _add_shield("", false, Vector2(-100, -114), Control.PRESET_BOTTOM_RIGHT, "", func(): turn_button_pressed.emit(_turn_mode))
+	_turn_button.set_meta("sfx", "")  # The hourglass and the orders make their own sounds.
+	_turn_button.draw.connect(_draw_turn_button)
+	set_turn_button("end")
 
 	# The orders banner on the right edge.
 	_banner = OrdersBanner.new()
@@ -268,7 +259,7 @@ func _ready() -> void:
 	add_child(_toast)
 
 
-func update(state: GameState, has_alerts: bool) -> void:
+func update(state: GameState) -> void:
 	var faction: FactionState = state.factions.get(state.viewer())
 	_gold.set_value(roundi(faction.resources.gold) if faction != null else 0)
 	_turn_label.text = str(state.turn)
@@ -281,7 +272,6 @@ func update(state: GameState, has_alerts: bool) -> void:
 		_crown_icon.tooltip_text = ("%s crown: finish within %d more turn%s" % [Mission.CROWN_NAMES[crown.crown].capitalize(), crown.turns_left,
 			"" if crown.turns_left == 1 else "s"]) if crown.crown > 0 else "No crown left to win"
 		_swords_label.text = str(Mission.primary_left(state))
-	_alerts_dot.visible = has_alerts
 	var entries := []
 	for unit: Unit in state.orders:
 		if unit.owner == state.viewer():
@@ -438,7 +428,54 @@ func toast(text: String) -> void:
 
 
 func set_end_turn_enabled(enabled: bool) -> void:
-	_end_turn.disabled = not enabled
+	_turn_button.disabled = not enabled
+	_turn_button.queue_redraw()
+
+
+## S&T's one button in the bottom right corner, which changes with the
+## turn: "end" the hourglass (end the turn), "carry" the "!" (carry out the
+## orders given), "cancel" a red X (cancel the selected army's orders).
+func set_turn_button(mode: String) -> void:
+	if mode == _turn_mode and _turn_button.tooltip_text != "":
+		return
+	_turn_mode = mode
+	_turn_button.tooltip_text = {"end": "End turn (Enter)", "carry": "Carry out your orders (Enter)",
+		"cancel": "Cancel this army's orders (U)"}[mode]
+	_turn_button.queue_redraw()
+
+
+func turn_button_mode() -> String:
+	return _turn_mode
+
+
+func _draw_turn_button() -> void:
+	var button := _turn_button
+	var size := button.size
+	var inner := Hud.shield_inner_rect(size)
+	var color := GOLD if not button.disabled else GOLD.darkened(0.45)
+	match _turn_mode:
+		"end":
+			button.draw_texture_rect(HOURGLASS, Hud.shield_icon_rect(size, HOURGLASS.get_size()), false, color)
+		"carry":
+			var font: Font = BANG_FONT
+			var font_size := int(size.y * 0.5)
+			var base := Vector2(0, inner.get_center().y + font.get_ascent(font_size) * 0.36)
+			button.draw_string(font, base + Vector2(2, 3), "!", HORIZONTAL_ALIGNMENT_CENTER, size.x, font_size, Color(0, 0, 0, 0.55))
+			button.draw_string(font, base, "!", HORIZONTAL_ALIGNMENT_CENTER, size.x, font_size, color)
+		"cancel":
+			# As in S&T: the face turns red and a pale X crosses it.
+			var face := PackedVector2Array()
+			face.append(size * Vector2(0.14, 0.13))
+			face.append(size * Vector2(0.86, 0.13))
+			for i in range(0, 13):
+				var t := i / 12.0 * PI
+				face.append(size * Vector2(0.5 + 0.36 * cos(t), 0.58 + 0.31 * sin(t)))
+			button.draw_colored_polygon(face, Color("#c2432a"))
+			var c := inner.get_center()
+			var r := minf(inner.size.x, inner.size.y) * 0.36
+			for d in [Vector2(r, r), Vector2(r, -r)]:
+				button.draw_line(c - d + Vector2(1, 2), c + d + Vector2(1, 2), Color(0, 0, 0, 0.4), 8.0)
+				button.draw_line(c - d, c + d, Color("#f3e3c0"), 6.5)
 
 
 ## Fades a panel open, growing slightly from its centre.

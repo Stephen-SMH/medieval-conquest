@@ -1,7 +1,9 @@
 class_name Resolver
 extends RefCounted
-## Carries out one faction's orders when it presses the hourglass (PRD C,
-## 8.4), always in the same order, with the game's seeded dice:
+## Carries out one faction's orders (PRD C, 8.4): when it presses the "!" in
+## the middle of its turn (carry_out), and whatever is left when it ends the
+## turn with the hourglass (resolve). Always in the same order, with the
+## game's seeded dice:
 ##   0. armies with several orders, or an order for only some soldiers, split
 ##      into detachments: the soldiers with no order stay home as the army;
 ##      if everyone goes, the army itself leads the largest detachment. Each
@@ -17,7 +19,9 @@ extends RefCounted
 ##      that no longer fits only partly merges, and the rest stay put;
 ##   3. detachments that end the turn in their home region (failed, blocked
 ##      or only shooting) rejoin their army; then captures;
-##   4. the faction's end of turn: income, upkeep, healing and sieges.
+##   4. the faction's end of turn (resolve only): income, upkeep, healing and sieges.
+## The soldiers given orders are tired from then on: they can't be given
+## another order until the faction's next turn (Troop.tired).
 ## Steps 1-2 run once for every detachment's first step and again for a
 ## cavalry detachment's second step. No region ends the turn with more than
 ## Unit.CAP soldiers. A detachment that moves into an empty
@@ -25,8 +29,17 @@ extends RefCounted
 ## army of its own. Returns the events in the order they happened.
 
 
+## The hourglass: the orders still waiting, then the end of the turn.
 static func resolve(state: GameState, faction: String) -> Array:
+	var events := carry_out(state, faction)
+	events.append_array(_end_of_turn(state, faction))
+	return events
+
+
+## The "!": carries out the faction's orders now, and clears them.
+static func carry_out(state: GameState, faction: String) -> Array:
 	var events := []
+	_tire(state, faction)
 	# group: each detachment -> the army it split from.
 	var ctx := {"plan": {}, "stopped": {}, "entered": [], "group": {}, "faction": faction}
 	events.append_array(_split(state, faction, ctx))
@@ -45,8 +58,14 @@ static func resolve(state: GameState, faction: String) -> Array:
 	for unit in state.orders.keys():
 		if unit.owner == faction or not state.units.has(unit):
 			state.orders.erase(unit)
-	events.append_array(_end_of_turn(state, faction))
 	return events
+
+
+## Every soldier given an order is tired; detachments take the tired with them.
+static func _tire(state: GameState, faction: String) -> void:
+	for unit: Unit in state.orders:
+		if unit.owner == faction and state.units.has(unit):
+			unit.tire(Orders.assigned_by_type(state, unit))
 
 
 ## What an army looks like right now, for the animations: {soldiers, hp, full}.

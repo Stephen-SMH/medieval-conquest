@@ -13,6 +13,7 @@ func run(t) -> void:
 	_test_planning(t)
 	_test_editing_and_cancelling(t)
 	_test_red_x(t)
+	_test_carry_out(t)
 	_test_friendly_regions(t)
 	_test_example_turn(t)
 	_test_new_unit_keeps_hp(t)
@@ -97,6 +98,59 @@ func _test_red_x(t) -> void:
 	t.check(not Orders.is_spent(state, horse), "a cavalry detachment with a step left has no red X yet")
 	Helpers.order(state, horse, "move", "redfield")
 	t.check(Orders.is_spent(state, horse), "after its second step it does")
+
+
+## S&T's "!": orders are carried out in the middle of the turn. The soldiers
+## who took part are tired until the faction's next turn; the rest may still go.
+func _test_carry_out(t) -> void:
+	var state := Helpers.game({"greywater": "blue", "ashford": "blue", "stonehelm": "red"},
+		[["blue", "greywater", "swordsmen"], ["red", "kingsvale", "militia", 3], ["blue", "ashford", "spearmen", 10], ["red", "stonehelm", "militia", 5]])
+	var unit: Unit = state.unit_in("greywater")
+	Helpers.order(state, unit, "move", "highcrag", {"soldiers": 6})
+	t.check(state.has_orders(), "an order waits for the \"!\"")
+	var turn := state.turn
+	var gold: float = state.factions.blue.resources.gold
+	state.carry_out_orders()
+	var marched: Unit = state.unit_in("highcrag")
+	t.check(marched != null and marched.soldiers() == 6 and unit.soldiers() == 14, "the 6 march to Highcrag at once; 14 stay in Greywater")
+	t.check(state.turn == turn and state.current_faction() == "blue" and state.factions.blue.resources.gold == gold and not state.has_orders(),
+		"the turn goes on: no income yet, and nothing waits")
+	t.check(Orders.is_spent(state, marched) and marched.fresh().is_empty() and not Orders.can_act(state, marched),
+		"the marchers are tired: a red X, and no more orders this turn")
+	t.check(Orders.problem(state, marched, "move", "greywater") != "", "Highcrag can't march back")
+	t.check(not Orders.is_spent(state, unit) and Orders.unassigned(state, unit) == 14 and Orders.can_act(state, unit),
+		"the 14 who stayed may still go")
+	t.check(Helpers.order(state, unit, "attack", "kingsvale") == "", "a second order in the same turn...")
+	state.carry_out_orders()
+	t.check(state.owners.kingsvale == "blue" and state.unit_in("kingsvale").soldiers() == 14 and Orders.is_spent(state, state.unit_in("kingsvale")),
+		"...is carried out by a second \"!\": Kingsvale falls, and its takers are tired too")
+
+	# Tired soldiers who join a fresh army stay tired; its own soldiers may still go.
+	var spears: Unit = state.unit_in("ashford")
+	Helpers.order(state, spears, "move", "greywater", {"soldiers": 4})
+	state.carry_out_orders()
+	var mixed: Unit = state.unit_in("greywater")
+	t.check(mixed.composition() == {"spearmen": 4} and mixed.fresh().is_empty(), "4 spearmen march into empty Greywater, tired")
+	t.check(Helpers.order(state, spears, "move", "greywater") == "" and Orders.orders_of(state, spears)[0].size == 6,
+		"the 6 left in Ashford may follow")
+	state.carry_out_orders()
+	t.check(mixed.composition() == {"spearmen": 10} and mixed.tired() == 10 and state.unit_in("ashford") == null,
+		"and join them: all 10 are tired")
+	t.check(Orders.problem(state, mixed, "besiege", "northmarch") != "", "a tired army can't lay a siege")
+
+	# Saves keep who is tired.
+	var loaded := SaveGame.from_dict(JSON.parse_string(JSON.stringify(SaveGame.to_dict(state))))
+	t.check(loaded.unit_in("greywater").tired() == 10 and loaded.unit_in("highcrag").fresh().is_empty(), "a save keeps the tired soldiers")
+
+	# The hourglass ends the turn; at blue's next turn everyone is fresh again.
+	var change: float = Economy.deltas(state, "blue").gold
+	state.end_faction_turn()
+	t.check(state.current_faction() == "red" and is_equal_approx(state.factions.blue.resources.gold, maxf(gold + change, 0.0)),
+		"the hourglass ends the turn: income and upkeep (%+d), then red's turn" % change)
+	while state.current_faction() != "blue" and not state.is_over():
+		state.end_faction_turn()
+	t.check(state.turn == turn + 1 and state.units_of("blue").all(func(u: Unit): return u.tired() == 0),
+		"at blue's next turn every soldier is fresh again")
 
 
 func _test_friendly_regions(t) -> void:

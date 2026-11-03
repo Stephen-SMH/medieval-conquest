@@ -1,11 +1,12 @@
 class_name Tutorial
 extends RefCounted
 ## The guided tutorial mission, as S&T's: the north of England, England
-## against the Danes in Doncaster (data/tutorial/), and nine steps, each
+## against the Danes in Doncaster (data/tutorial/), and ten steps, each
 ## teaching one thing and waiting until the player has done it (or, for a
 ## step that only explains, until they press Next): select an army, its
-## panel, march, the hourglass, resting, the order ring, an attack with
-## supports, carrying it out, and the surrounded enemy destroyed.
+## panel, march, the "!" that carries the order out, the hourglass that ends
+## the turn, resting, the order ring, an attack with supports, carrying it
+## out, and the surrounded enemy destroyed.
 ## The game scene shows the current step in a parchment box (TutorialBox) and
 ## reports what the player does with record().
 
@@ -21,8 +22,10 @@ const STEPS := [
 		"text": "The banner on the right lists the soldiers of the selected army, one icon for each type and how many there are. Click an icon to see its name."},
 	{"id": "move", "title": "March",
 		"text": "Now give an order. Select the troops in [b]Cumbria[/b] and click [b]Lancaster[/b]. Choose how many go and press the check mark: a blue arrow shows the order."},
-	{"id": "hourglass", "title": "Carry out the order",
-		"text": "Click the [b]hourglass[/b] to carry out your orders. Then the enemy takes its turn."},
+	{"id": "bang", "title": "Carry out the order",
+		"text": "While you have orders to give, the button in the bottom right corner shows a [b]![/b]. Click it to carry out your orders: the troops march at once."},
+	{"id": "end", "title": "End the turn",
+		"text": "Troops that have marched or fought can't move again this turn. When you are done, click the [b]hourglass[/b] to end your turn. Then the enemy takes its turn."},
 	{"id": "rest", "info": true, "title": "Rest",
 		"text": "An army that does nothing for a turn gets back part of its strength: watch the bar under it. Tired armies fight worse."},
 	{"id": "ring", "info": true, "title": "Kinds of order",
@@ -30,7 +33,7 @@ const STEPS := [
 	{"id": "support", "title": "Attack and support",
 		"text": "Order the troops in [b]Stamford Bridge[/b] to attack [b]Doncaster[/b], and the troops in [b]York[/b], [b]Lancaster[/b] and [b]Lincoln[/b] to support the attack."},
 	{"id": "carry", "title": "Attack!",
-		"text": "Now carry out the orders you have given: click the [b]hourglass[/b]."},
+		"text": "Now carry out the orders you have given: click the [b]![/b]."},
 	{"id": "finish", "title": "Victory",
 		"text": "Surrounded troops have nowhere to retreat if they lose, and are destroyed. You won!"},
 ]
@@ -39,6 +42,8 @@ var step := 0
 ## How many times the player has done each thing (main.gd reports them).
 var actions := {}
 var start_turn := 1
+## How many times the orders had been carried out when the last step began.
+var _carried_before := 0
 
 
 static func scenario() -> Dictionary:
@@ -64,12 +69,18 @@ func record(kind: String) -> void:
 
 func skip() -> void:
 	step = mini(step + 1, STEPS.size())
+	_carried_before = int(actions.get("carry_out", 0))
 
 
-## Whether the step is the one where the hourglass is taught or later: the
-## turn shouldn't end before the orders steps are done (or skipped).
+## Whether the "!" has been taught: orders aren't carried out before the
+## march step is done (or skipped).
+func may_carry_out() -> bool:
+	return finished() or step >= _index("bang")
+
+
+## Whether the hourglass has been taught: the turn shouldn't end before.
 func may_end_turn() -> bool:
-	return finished() or step >= _index("hourglass")
+	return finished() or step >= _index("end")
 
 
 ## Moves past every step the player has already done. True if the step changed.
@@ -77,6 +88,7 @@ func update(state: GameState, selected: Unit) -> bool:
 	var before := step
 	while not finished() and is_done(STEPS[step].id, state, selected):
 		step += 1
+		_carried_before = int(actions.get("carry_out", 0))
 	return step != before
 
 
@@ -87,13 +99,15 @@ func is_done(id: String, state: GameState, selected: Unit) -> bool:
 			return selected != null and selected.owner == PLAYER
 		"move":
 			return _has_order(state, func(order): return order.steps.any(func(s): return s.type == "move"))
-		"hourglass":
+		"bang":
+			return int(actions.get("carry_out", 0)) > 0 or state.turn > start_turn
+		"end":
 			return state.turn > start_turn
 		"support":
 			return _has_order(state, func(order): return order.get("support", false) and order.steps.back().target == "doncaster") \
 				and _has_order(state, func(order): return not order.get("support", false) and order.steps.back().type == "attack")
 		"carry":
-			return state.turn > start_turn + 1 or state.is_over()
+			return int(actions.get("carry_out", 0)) > _carried_before or state.turn > start_turn + 1 or state.is_over()
 	return false  # A step that only explains waits for Next; "finish" for the player to close it.
 
 

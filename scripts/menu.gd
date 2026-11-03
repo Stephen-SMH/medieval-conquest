@@ -182,8 +182,8 @@ func show_title() -> void:
 		return
 	_content.add_child(Muster.new())
 	_add_text("[center]Every region holds one army. Click it, then a neighbouring region (or drag onto it): a [color=#7fa8f0]blue arrow[/color] " \
-		+ "marches there, a [color=#f07060]red arrow[/color] attacks. Plan your orders, then turn the hourglass: your orders play out, " \
-		+ "then each rival takes its turn. Spears beat horse, horse beats bows, bows beat spears.[/center]")
+		+ "marches there, a [color=#f07060]red arrow[/color] attacks. Then the [b]![/b] carries your orders out at once; " \
+		+ "the hourglass ends your turn and each rival takes its own. Spears beat horse, horse beats bows, bows beat spears.[/center]")
 	var rank := Progress.rank(Progress.total_score())
 	var autosave := SaveGame.describe("auto")
 	_add_text("[center][color=#f3d77e]Your rank: %s[/color]%s[/center]" % [rank.name,

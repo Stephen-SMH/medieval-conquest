@@ -7,8 +7,12 @@ extends Node2D
 ## stays selected, so more arrows can send the rest elsewhere; whoever isn't
 ## sent stays home. Cavalry detachments can add a second step. Click an arrow
 ## to cancel that order; right-click the army (or press U) to cancel all.
-## The hourglass ends your turn: your orders resolve and play out, then each
-## other faction takes its turn on the map (tap to skip it).
+## As in S&T, one button in the bottom right corner runs the turn: the "!"
+## carries out the orders given so far, there and then, and the soldiers who
+## took part can't move again this turn (the red X); the hourglass ends the
+## turn, asking first if some army could still move; then each other faction
+## takes its turn on the map (tap to skip it). With an army that has orders
+## selected, the button is a red X that cancels them.
 
 enum MapMode { POLITICAL, TERRAIN }
 
@@ -123,8 +127,7 @@ func _ready() -> void:
 	_hud.recruit_pressed.connect(open_recruit)
 	_hud.treasury_pressed.connect(open_treasury)
 	_hud.menu_pressed.connect(open_menu)
-	_hud.alerts_pressed.connect(next_idle_army)
-	_hud.end_turn_pressed.connect(end_turn)
+	_hud.turn_button_pressed.connect(_on_turn_button)
 	_region_popup.build_requested.connect(_on_build_requested)
 	$UI/ProvincePanel/Margin/Content/CloseButton.pressed.connect(_close_popups)
 	_battle_report.closed.connect(_close_popups)
@@ -199,7 +202,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("zoom_out"):
 		_camera.zoom_at(_zoom_anchor(event), 1.0 / MapCamera.ZOOM_STEP)
 	elif event.is_action_pressed("end_turn"):
-		end_turn()
+		_on_turn_button("carry" if state.has_orders() else "end")
 	elif event.is_action_pressed("undo"):
 		if selected_unit != null and _is_my_turn():
 			_cancel_order(selected_unit)
@@ -344,12 +347,14 @@ func _give(unit: Unit, type: String, region: String, amounts: Dictionary) -> voi
 	_after_order(unit)
 
 
-## The unit stays selected for more arrows until every soldier has one.
+## As in S&T the army is let go once it has its order, so the corner button
+## shows the "!"; select it again to send the rest elsewhere. A cavalry march
+## stays selected for the riders' second step.
 func _after_order(unit: Unit) -> void:
-	if Orders.is_spent(state, unit):
-		clear_selection()
-	else:
+	if Orders.chain_index(state, unit) >= 0:
 		select_unit(unit)
+	else:
+		clear_selection()
 
 
 ## Cancels all the unit's orders.
@@ -378,15 +383,19 @@ func _show_unit_info(unit: Unit) -> void:
 		lines.append("[i]Health %d%%. Resting in your own region heals it.[/i]" % health)
 	var buttons := []
 	if unit.owner == state.current_faction() and _is_my_turn():
-		if not state.orders.has(unit):
-			lines.append("Click a [color=#2a4fa0]region to move[/color] or an [color=#9b2d20]enemy to attack[/color], or drag the army onto it; sliders set who goes.")
+		if not state.orders.has(unit) and Orders.unassigned(state, unit) == 0:
+			lines.append("These soldiers have marched or fought this turn. They can move again next turn.")
+		elif not state.orders.has(unit):
+			if unit.tired() > 0:
+				lines.append("%d of them have marched or fought this turn; the other %d can still go." % [unit.tired(), Orders.unassigned(state, unit)])
+			lines.append("Click a [color=#2a4fa0]region to move[/color] or an [color=#9b2d20]enemy to attack[/color], or drag the army onto it; sliders set who goes. Then the [b]![/b] carries out your orders.")
 		else:
 			var hints := PackedStringArray()
 			if Orders.chain_index(state, unit) >= 0:
 				hints.append("Click a region for the riders' second step.")
 			if Orders.unassigned(state, unit) > 0:
 				hints.append("More arrows send the rest elsewhere.")
-			hints.append("Click an arrow to cancel it.")
+			hints.append("Click an arrow, or the red X, to cancel.")
 			lines.append("Orders: %s. %s" % [Orders.describe(state, unit), " ".join(hints)])
 			buttons.append(["Cancel all orders (U)", func(): _cancel_order(unit)])
 		for target in map.neighbours(unit.province):
@@ -427,15 +436,71 @@ func _show_region_info(region: String) -> void:
 
 # --- Turns -------------------------------------------------------------------------------
 
-## The hourglass: your orders resolve and play out, then the other factions
-## take their turns (PRD C).
-func end_turn() -> void:
+## What the corner button is now: "cancel" with an army with orders
+## selected, "carry" (the "!") while orders wait, else "end" (the hourglass).
+func _turn_button_mode() -> String:
+	if not _is_my_turn():
+		return "end"
+	if selected_unit != null and state.orders.has(selected_unit) and selected_unit.owner == state.current_faction():
+		return "cancel"
+	return "carry" if state.has_orders() else "end"
+
+
+func _on_turn_button(mode: String) -> void:
+	match mode:
+		"cancel":
+			if selected_unit != null and _is_my_turn():
+				_cancel_order(selected_unit)
+		"carry":
+			carry_out()
+		_:
+			end_turn()
+
+
+## The "!": your orders are carried out now and play out on the map; your
+## turn goes on. The soldiers who took part can't move again this turn.
+func carry_out() -> void:
+	if not _is_my_turn() or not state.has_orders():
+		return
+	if _tutorial != null and not _tutorial.may_carry_out():
+		_hud.toast("Finish this step of the tutorial first, or skip it.")
+		return
+	AudioManager.sfx("order")
+	_skip_enemy = false
+	clear_selection()
+	var before := _snapshot()
+	_orders.snapshot()
+	var events := state.carry_out_orders()
+	_tutorial_record("carry_out")
+	await _show_resolution(events, before)
+	_messages.clear()  # The player saw it happen.
+	if state.is_over():
+		return
+	_busy = false
+	_hud.set_end_turn_enabled(true)
+	_refresh_world()
+
+
+## The hourglass: ends your turn, then the other factions take theirs (PRD
+## C). Orders still waiting are carried out first. If some army could still
+## move, it asks first.
+func end_turn(sure := false) -> void:
 	if not _is_my_turn():
 		return
 	if _tutorial != null and not _tutorial.may_end_turn():
 		_hud.toast("Finish this step of the tutorial first, or skip it.")
 		return
+	if state.has_orders():
+		carry_out()
+		return
+	if not sure:
+		var ready := state.units_of(state.current_faction()).filter(func(u): return Orders.can_act(state, u))
+		if not ready.is_empty():
+			_confirm("End turn", "%s of your armies can still move.\nEnd the turn and let the enemy move?" % (
+				"One" if ready.size() == 1 else str(ready.size())), func(): end_turn(true))
+			return
 	AudioManager.sfx("hourglass", 0.0)
+	_skip_enemy = false
 	_last_human = state.current_faction()
 	clear_selection()
 	var before := _snapshot()
@@ -497,6 +562,9 @@ func _start_human_planning() -> void:
 		_pass_screen.visible = true
 	if faction == humans[0] and _tutorial == null:  # The tutorial doesn't overwrite the autosave.
 		SaveGame.save(state, "auto")
+	if not _messages.is_empty():  # The news since the player's last turn.
+		_hud.toast("\n".join(_messages.slice(-3)))
+		_messages.clear()
 	_hud.show_turn("Turn: %s" % state.faction_name(faction), state.faction_color(faction), state.factions[faction].civ if state.factions.has(faction) else "")
 
 
@@ -547,7 +615,7 @@ func _report_events(events: Array) -> void:
 					notes.append("%s took %s." % [state.faction_name(event.faction), map.region_name(event.province)])
 			"siege_breached":
 				notes.append("The walls of %s are breached." % map.region_name(event.province))
-	_messages = notes
+	_messages.append_array(notes)
 	_show_new_notes()
 
 
@@ -664,7 +732,7 @@ func _build_pause_menu() -> void:
 func _confirm(title: String, question: String, on_yes: Callable) -> void:
 	_close_popups()
 	_popup.open(title)
-	_popup.add_text("[center]%s[/center]" % question, 20)
+	_popup.add_text("[center]%s[/center]" % question, 20).custom_minimum_size = Vector2(380, 0)
 	_popup.add_check_and_close(func(): _close_popups(); on_yes.call())
 	_dim.visible = true
 
@@ -767,31 +835,6 @@ func open_objectives() -> void:
 		for entry in state.mission_log:
 			lines.append("[i]Turn %d:[/i] %s" % [int(entry.turn), entry.text])
 	_popup.add_text("\n".join(lines), 17).custom_minimum_size = Vector2(620, 0)
-	_popup.add_close()
-	_dim.visible = true
-
-
-## The "!" shield, as in S&T: selects the next of your armies with no
-## orders yet and brings the camera to it; with none left, the turn's news.
-func next_idle_army() -> void:
-	if not _is_my_turn():
-		open_alerts()
-		return
-	var idle: Array = state.units_of(state.viewer()).filter(func(u): return state.orders.get(u, []).is_empty())
-	if idle.is_empty():
-		open_alerts()
-		return
-	idle.sort_custom(func(a, b): return map.province_order.find(a.province) < map.province_order.find(b.province))
-	var at := idle.find(selected_unit)
-	var unit: Unit = idle[(at + 1) % idle.size()]
-	select_unit(unit)
-	create_tween().tween_property(_camera, "position", map.provinces[unit.province].centroid, 0.35) \
-		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-
-
-func open_alerts() -> void:
-	_popup.open("Messages")
-	_popup.add_text("\n".join(_messages) if not _messages.is_empty() else "[i]Nothing new.[/i]")
 	_popup.add_close()
 	_dim.visible = true
 
@@ -931,7 +974,8 @@ func set_mode(new_mode: MapMode) -> void:
 
 
 func _refresh_world() -> void:
-	_hud.update(state, not _messages.is_empty())
+	_hud.update(state)
+	_hud.set_turn_button(_turn_button_mode())
 	reach = Orders.reachable(state, selected_unit) if _is_my_turn() and selected_unit != null and state.units.has(selected_unit) else {}
 	for region in _views:
 		var view: ProvinceView = _views[region]

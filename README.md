@@ -26,18 +26,19 @@ menu: campaigns, skirmish, or a saved game.
 | Buy reinforcements | The helmet shield (top left) or R: pick a bundle, confirm, then click a lit province |
 | Treasury | The coin shield (top left) |
 | Menu: save/load, battle report, map mode, main menu | The pause shield (top right) or Esc |
-| Messages from the last turn | The ! shield (bottom right) |
-| End your planning | The hourglass shield (bottom right) or Enter |
+| Carry out your orders now | The ! shield (bottom right, while orders wait) or Enter |
+| Cancel the selected army's orders | The red X shield (bottom right, with that army selected) or U |
+| End your turn | The hourglass shield (bottom right) or Enter; it asks first if an army could still move |
 | Skip a turn's animation | Click anywhere while it plays |
 | Pan / zoom | Drag or WASD / mouse wheel, `=` `-`, or pinch on touch screens |
 
 ## How a turn works
 
-Every faction plans at the same time. Each unit gets one order, drawn as a spear-shaped arrow: blue to move, red
-to attack (cavalry may take two steps). Nothing happens until everyone has turned the hourglass; then the turn
-resolves in a fixed order and plays out on the map: all volleys, then head-on clashes, then moves (units of two
-factions moving into the same empty region fight for it), then attacks (several attackers on one region fight
-strongest first), then captures and the gold.
+As in S&T, the factions take turns. On yours, give orders with spear-shaped arrows: blue to move, red to attack
+(cavalry may take two steps). The corner button turns into a **!**: press it and the orders are carried out at once,
+in a fixed order (volleys, then attacks strongest first, then marches, then captures). The soldiers who took part
+can't move again this turn (a red X); the others still can, so you may give more orders and press the ! again.
+The **hourglass** ends your turn: income and upkeep come in and each rival plays its turn on the map.
 
 - **One unit per region.** Moving into your own region held by the same unit type merges them (up to 20 soldiers);
   two of your units can swap; any other move into an occupied region of yours is blocked.

@@ -15,8 +15,9 @@ extends RefCounted
 ## and never move in. A siege takes the whole army. A region holds at most
 ## Unit.CAP soldiers: an order into it gets only the **room** left by the army
 ## there (less those ordered out) and the soldiers already ordered in. Nothing
-## happens until the hourglass: then the Resolver carries out the current
-## faction's orders.
+## happens until the "!" (or the hourglass): then the Resolver carries out the
+## current faction's orders, and the soldiers who took part are tired until
+## the faction's next turn (Unit.fresh).
 ##
 ## state.orders[unit] is an Array of orders, each
 ##   {"steps": [{"type": "move"/"attack"/"besiege", "target": region}, ...],
@@ -46,20 +47,30 @@ static func assigned(state: GameState, unit: Unit) -> int:
 	return total
 
 
-## Soldiers with no order: they stay home.
+## Soldiers with no order who may still be given one (not tired).
 static func unassigned(state: GameState, unit: Unit) -> int:
-	return maxi(unit.soldiers() - assigned(state, unit), 0)
+	return total(free_troops(state, unit))
 
 
-## Soldiers of each type with no order.
+## Soldiers of each type with no order, less the tired: those who carried
+## out an order earlier this turn.
 static func free_troops(state: GameState, unit: Unit) -> Dictionary:
 	var given := assigned_by_type(state, unit)
+	var fresh := unit.fresh()
 	var result := {}
-	for type_id in unit.composition():
-		var left: int = unit.composition()[type_id] - int(given.get(type_id, 0))
+	for type_id in fresh:
+		var left: int = fresh[type_id] - int(given.get(type_id, 0))
 		if left > 0:
 			result[type_id] = left
 	return result
+
+
+## Whether the army could still be given an order this turn: it has fresh
+## soldiers with no order and somewhere to send them.
+static func can_act(state: GameState, unit: Unit) -> bool:
+	if unit.owner != state.current_faction() or unassigned(state, unit) <= 0:
+		return false
+	return reachable(state, unit).values().any(func(how): return how != "blocked")
 
 
 ## Takes `count` soldiers from `pool` ({type: soldiers}), spread over the
@@ -215,12 +226,13 @@ static func chain_index(state: GameState, unit: Unit) -> int:
 ## True when the army's only order sends every soldier: a new arrow replaces it.
 static func _replaceable(state: GameState, unit: Unit) -> bool:
 	var list := orders_of(state, unit)
-	return list.size() == 1 and int(list[0].size) >= unit.soldiers() and list[0].steps[0].type != "besiege"
+	return list.size() == 1 and int(list[0].size) >= total(unit.fresh()) and list[0].steps[0].type != "besiege"
 
 
-## Every soldier has an order and no detachment can take another step: a red X.
+## Every soldier has an order or has carried one out, and no detachment can
+## take another step: a red X.
 static func is_spent(state: GameState, unit: Unit) -> bool:
-	return state.orders.has(unit) and unassigned(state, unit) == 0 and chain_index(state, unit) < 0
+	return (state.orders.has(unit) or unit.tired() > 0) and unassigned(state, unit) == 0 and chain_index(state, unit) < 0
 
 
 ## Soldier types that can take part in a step of this kind over `distance`
@@ -249,7 +261,7 @@ static func available(state: GameState, unit: Unit, target: String, type := "") 
 			for type_id in order.troops:
 				pool[type_id] = int(pool.get(type_id, 0)) + int(order.troops[type_id])
 	elif _replaceable(state, unit):
-		pool = unit.composition()
+		pool = unit.fresh()
 	var distance := state.map.distance(from, target)
 	var result := {}
 	for type_id in unit.composition():
@@ -302,11 +314,11 @@ static func problem(state: GameState, unit: Unit, type: String, target: String, 
 	if step_index == 0 and type != "besiege" and not editing:
 		var replacing := _replaceable(state, unit)
 		if not replacing and unassigned(state, unit) == 0:
-			return "every soldier already has orders"
+			return "every soldier already has orders" if state.orders.has(unit) else "these soldiers have already marched or fought this turn"
 		if not replacing and uses_region(state, unit, target):
 			return "another detachment already goes there"
 	var occupant := state.unit_in(target)
-	var going: Dictionary = orders_of(state, unit)[chained].troops if step_index > 0 else unit.composition()
+	var going: Dictionary = orders_of(state, unit)[chained].troops if step_index > 0 else unit.fresh()
 	var space := room(state, unit.owner, target, unit, chained if step_index > 0 else -1)
 	var full := "it is full (%d soldiers at most)" % Unit.CAP
 	match type:
@@ -334,6 +346,8 @@ static func problem(state: GameState, unit: Unit, type: String, target: String, 
 		"besiege":
 			if step_index > 0:
 				return "a siege must be the army's only order"
+			if unit.tired() > 0:
+				return "a siege takes the whole army, and some of it has already fought or marched this turn"
 			return Sieges.besiege_problem(state, [unit], target)
 	return "unknown order"
 

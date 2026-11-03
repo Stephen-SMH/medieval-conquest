@@ -95,6 +95,29 @@ func composition() -> Dictionary:
 	return result
 
 
+## The soldiers of each type who may still be given an order this turn.
+func fresh() -> Dictionary:
+	var result := {}
+	for entry in troops:
+		if entry.soldiers - entry.tired > 0:
+			result[entry.type_id] = entry.soldiers - entry.tired
+	return result
+
+
+## Soldiers who have carried out an order this turn.
+func tired() -> int:
+	var total := 0
+	for entry in troops:
+		total += mini(entry.tired, entry.soldiers)
+	return total
+
+
+## Marks `wanted` ({type: soldiers}) as having carried out an order.
+func tire(wanted: Dictionary) -> void:
+	for entry in troops:
+		entry.tired = mini(entry.tired + int(wanted.get(entry.type_id, 0)), entry.soldiers)
+
+
 func type_count() -> int:
 	return composition().size()
 
@@ -191,6 +214,13 @@ func reset_turn() -> void:
 	move_points_left = 2 if all_cavalry() else 1
 	attacked = false
 	moved = false
+
+
+## The faction's turn starts: every soldier may be given orders again.
+func new_turn() -> void:
+	reset_turn()
+	for entry in troops:
+		entry.tired = 0
 
 
 ## A copy for forecasts.

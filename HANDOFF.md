@@ -132,8 +132,12 @@ Swift AVFoundation script (`AVAssetImageGenerator`), and contact sheets were mad
 10. **Playback: camera done (2026-11-03).** The camera glides to an off-screen battle or enemy march
     (`Effects._look_at`). Armies already have a shadow disc. Not done: S&T's gold shield over the loser (ours shows a
     cracked shield).
-11. **The "!" shield: done.** It selects the next army without orders and centres it; with none left it shows the
-    turn's news (`main.gd next_idle_army`).
+11. **The turn button: done (2026-11-03), as in S&T's tutorial (mobile video 0:64–1:50).** One shield in the bottom
+    right: the **!** while orders wait carries them out at once and the turn goes on (`GameState.carry_out_orders`,
+    `Resolver.carry_out`); soldiers who took part are tired (`Troop.tired`) until the faction's next turn and can't be
+    ordered again (red X). The **hourglass** ends the turn and asks first if some army could still move
+    (`Orders.can_act`). With an army that has orders selected, a red **X** cancels them. An army is let go once
+    given an order, so the ! shows at once. The old news shield is gone; the news shows as a line at the turn's start.
 12. **Still to do:**
     - S&T's scenario list. Robin Hood (England map), the Viking wars, Bråvalla, Cnut's war and the Unification of
       Norway fit our maps. The Italian Wars, the Russian feudal war and the Reconquista need new real maps (Italy,

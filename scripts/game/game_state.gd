@@ -5,9 +5,9 @@ extends RefCounted
 ## turn, and the random number generator. The geography is fixed and lives in
 ## MapData; the economy rules are in Economy.
 ##
-## Turns go faction by faction (PRD C): the current faction plans all its
-## arrows, presses the hourglass, and only its orders resolve (Resolver) and
-## play out; then the next faction takes its turn. When every faction has
+## Turns go faction by faction (PRD C): the current faction plans arrows and
+## presses the "!" to carry them out (Resolver), as often as it likes, then
+## the hourglass ends its turn; then the next faction takes its turn. When every faction has
 ## played, the turn number goes up.
 
 const STACK_LIMIT := 1  # UT-3: one army per region.
@@ -167,16 +167,34 @@ func begin_turn() -> void:
 func begin_faction_turn() -> Array:
 	var faction := current_faction()
 	for unit in units_of(faction):
-		unit.reset_turn()
+		unit.new_turn()
 	var events := Economy.arrivals(self, faction)
 	if current == living_index(0):
 		events.append_array(Mission.start_of_turn(self))
 	return events
 
 
-## Ends the current faction's turn: its orders are resolved and played out
-## (PRD C), then the next living faction's turn starts; after the last one,
-## the turn number goes up. Returns the events, for the animations.
+## S&T's "!": the current faction's orders are carried out now, in the middle
+## of its turn. The soldiers who took part are tired and can't be given
+## another order this turn; the others still can. Returns the events.
+func carry_out_orders() -> Array:
+	if is_over():
+		return []
+	var events := Resolver.carry_out(self, current_faction())
+	update_result()
+	if is_over():
+		orders.clear()
+	return events
+
+
+## Whether the current faction has orders waiting to be carried out.
+func has_orders() -> bool:
+	return orders.keys().any(func(u: Unit): return u.owner == current_faction() and units.has(u) and not orders[u].is_empty())
+
+
+## Ends the current faction's turn (the hourglass): orders still waiting are
+## carried out (PRD C), then the next living faction's turn starts; after the
+## last one, the turn number goes up. Returns the events, for the animations.
 func end_faction_turn() -> Array:
 	if is_over():
 		return []
