@@ -6,6 +6,7 @@ extends Control
 ## the save slots), Records, Settings and Credits.
 
 const GAME_SCENE := "res://scenes/main.tscn"
+const KEY_ART := "res://assets/st/menu/key_art.jpg"
 const DIFFICULTIES := ["easy", "normal", "hard"]
 const CREDIT_LINE := "Unit figures rendered from CC0 3D models by Quaternius. Icons by Lorc, Delapouite, Guard13007, " \
 	+ "Cathelineau, Skoll and HeavenlyDog from game-icons.net (CC BY 3.0). Fonts: Cinzel, IM FELL English, Grenze Gotisch and Noto (SIL Open Font License). " \
@@ -13,6 +14,10 @@ const CREDIT_LINE := "Unit figures rendered from CC0 3D models by Quaternius. Ic
 	+ "mcaseydesign, craigsmith, el_boss and freefire66 (CC0). See CREDITS.md."
 
 var _content: VBoxContainer
+var _background: TextureRect
+var _header: Control
+## S&T's own key art (the player's copy, in the git-ignored assets/st/), or null.
+var _key_art: Texture2D
 var _forge: ForgeScreen
 var _skirmish := {"map": "heartlands", "civ": "norse", "opponents": 2, "difficulty": "normal"}
 var _hotseat := {"map": "heartlands", "civs": ["norse", "anglish"], "ai": 0}
@@ -22,9 +27,16 @@ func _ready() -> void:
 	Rules.ensure_loaded()
 	Settings.apply(get_tree())
 	var background := TextureRect.new()
-	background.texture = load("res://assets/ui/wood.png")
-	background.stretch_mode = TextureRect.STRETCH_TILE
-	background.modulate = Color(0.55, 0.5, 0.45)
+	_background = background
+	if ResourceLoader.exists(KEY_ART):
+		_key_art = load(KEY_ART)
+		background.texture = _key_art
+		background.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	else:
+		background.texture = load("res://assets/ui/wood.png")
+		background.stretch_mode = TextureRect.STRETCH_TILE
+		background.modulate = Color(0.55, 0.5, 0.45)
 	background.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(background)
 
@@ -36,7 +48,8 @@ func _ready() -> void:
 	# The title along the top; a quit button on the right where quitting makes sense.
 	var header := HBoxContainer.new()
 	header.alignment = BoxContainer.ALIGNMENT_CENTER
-	layout.add_child(_margin(header, 14))
+	_header = _margin(header, 14)
+	layout.add_child(_header)
 	var spacer := Control.new()
 	spacer.custom_minimum_size = Vector2(50, 0)
 	header.add_child(spacer)
@@ -162,6 +175,11 @@ func _menu_entries() -> Array:
 
 func show_title() -> void:
 	_clear()
+	if _key_art != null:
+		# As in S&T: the key art (its logo is in it) and the buttons, nothing else.
+		_background.modulate = Color.WHITE
+		_header.modulate.a = 0.0
+		return
 	_content.add_child(Muster.new())
 	_add_text("[center]Every region holds one army. Click it, then a neighbouring region (or drag onto it): a [color=#7fa8f0]blue arrow[/color] " \
 		+ "marches there, a [color=#f07060]red arrow[/color] attacks. Plan your orders, then turn the hourglass: your orders play out, " \
@@ -234,33 +252,51 @@ func show_settings() -> void:
 
 func show_campaigns() -> void:
 	_clear()
-	_add_label(_content, "Campaigns", 30)
-	_add_text("Each civilization has a campaign of three to five missions. Finish a mission to open the next; finish fast for a gold, silver or bronze crown. "
-		+ "The Byzantine and Saracen campaigns open when those civilizations are unlocked.")
+	var rows := VBoxContainer.new()
+	rows.add_theme_constant_override("separation", 0)
+	rows.add_child(_campaign_row("Tutorial", 1, "", "", start_tutorial))
 	for campaign in Campaigns.all():
-		var civ := Rules.civilization(campaign.civ)
-		_content.add_child(HSeparator.new())
-		_add_text("[font_size=22][b][color=#%s]%s[/color] — %s[/b][/font_size]%s\n%s\n[i]%s %s[/i]" % [
-			civ.color.lightened(0.3).to_html(false), civ.display_name, campaign.name,
-			"   [color=#8fe08f](finished)[/color]" if Progress.campaign_finished(campaign.id) else "",
-			campaign.description, civ.bonus_text, _specials_text(civ)])
-		for i in campaign.missions.size():
-			var mission: Dictionary = campaign.missions[i]
-			var unlocked := Progress.mission_unlocked(campaign.id, i)
-			var button := Button.new()
-			button.text = "%d. %s   %s" % [i + 1, mission.name, _crown_text(campaign.id, i) if unlocked else "(locked)"]
-			button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-			button.disabled = not unlocked
-			button.pressed.connect(show_briefing.bind(campaign.id, i))
-			_content.add_child(button)
-	_content.add_child(HSeparator.new())
-	var unlock_lines := PackedStringArray()
-	for civ_id in Rules.civilizations:
-		var civ := Rules.civilization(civ_id)
-		if civ.unlock_after_campaigns > 0:
-			unlock_lines.append("%s: %s" % [civ.display_name, "unlocked: campaign, skirmish and hotseat" if Progress.civilization_unlocked(civ_id)
-				else "finish %d campaign%s to unlock" % [civ.unlock_after_campaigns, "" if civ.unlock_after_campaigns == 1 else "s"]])
-	_add_text("[b]More civilizations[/b]\n" + "\n".join(unlock_lines))
+		var next := 0
+		while next < campaign.missions.size() - 1 and Progress.won(campaign.id, next):
+			next += 1
+		var status := "finished" if Progress.campaign_finished(campaign.id) else ("going" if Progress.won(campaign.id, 0) else "")
+		rows.add_child(_campaign_row(campaign.name, campaign.missions.size(), campaign.civ, status, show_briefing.bind(campaign.id, next)))
+	var panel := CampaignPanel.new()
+	panel.add_child(rows)
+	panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	_content.add_child(_spacer(40))
+	_content.add_child(panel)
+
+
+## A row of the campaign list, as in S&T: the campaign's pennant, its name,
+## how many missions in Roman numerals, and a mark once begun or finished.
+func _campaign_row(title: String, missions: int, civ: String, status: String, on_pressed: Callable) -> Button:
+	var row := Button.new()
+	row.flat = true
+	row.focus_mode = Control.FOCUS_NONE
+	row.custom_minimum_size = Vector2(620, 58)
+	for state in ["normal", "pressed", "focus", "disabled"]:
+		row.add_theme_stylebox_override(state, StyleBoxEmpty.new())
+	var hover := StyleBoxFlat.new()
+	hover.bg_color = Color(1, 0.85, 0.5, 0.08)
+	row.add_theme_stylebox_override("hover", hover)
+	row.pressed.connect(on_pressed)
+	row.draw.connect(func():
+		var h := row.size.y
+		row.draw_line(Vector2(0, h - 1), Vector2(row.size.x, h - 1), Color(1, 0.85, 0.6, 0.18), 1.0)
+		for x in [CampaignPanel.NAME_END, CampaignPanel.COUNT_END]:
+			row.draw_line(Vector2(x, 4), Vector2(x, h - 4), Color(1, 0.85, 0.6, 0.18), 1.0)
+		CampaignPanel.draw_pennant(row, Rect2(10, 9, 120, h - 18), civ)
+		var gothic: Font = load("res://assets/fonts/GrenzeGotisch.ttf")
+		row.draw_string(gothic, Vector2(140, h * 0.66), title, HORIZONTAL_ALIGNMENT_CENTER, CampaignPanel.NAME_END - 140, 26, Color("#efe3c4"))
+		row.draw_string(load("res://assets/fonts/Cinzel.ttf"), Vector2(CampaignPanel.NAME_END, h * 0.66), CampaignPanel.roman(missions),
+			HORIZONTAL_ALIGNMENT_CENTER, CampaignPanel.COUNT_END - CampaignPanel.NAME_END, 24, Color("#efe3c4"))
+		var mark: String = {"finished": "✓", "going": "↻"}.get(status, "")
+		if mark != "":
+			row.draw_string(load("res://assets/fonts/Cinzel.ttf"), Vector2(CampaignPanel.COUNT_END, h * 0.68), mark, HORIZONTAL_ALIGNMENT_CENTER,
+				row.size.x - CampaignPanel.COUNT_END, 26, Color("#e2bd5a")))
+	Hud.react(row)
+	return row
 
 
 ## The briefing (PRD H): a parchment scroll with the history, the primary
@@ -560,12 +596,15 @@ func _start(setup: Dictionary) -> void:
 	var session := get_node_or_null("/root/Session")
 	if session != null:
 		session.setup = setup
-	get_tree().change_scene_to_file(GAME_SCENE)
+	LoadingScreen.open(get_tree(), GAME_SCENE)
 
 
 func _clear() -> void:
 	for child in _content.get_children():
 		child.queue_free()
+	if _key_art != null:
+		_background.modulate = Color(0.4, 0.36, 0.33)
+		_header.modulate.a = 1.0
 
 
 func _add_label(parent: Control, text: String, size: int, color := Color("#e8e4dc")) -> Label:
@@ -712,3 +751,68 @@ class Muster:
 					draw_texture_rect(textures[1], rect, false, color.lightened(0.12))
 				draw_set_transform(Vector2.ZERO)
 				x += 105.0
+
+
+## The campaign list's panel: dark wood in an iron frame, as in S&T.
+class CampaignPanel:
+	extends MarginContainer
+
+	const NAME_END := 470.0
+	const COUNT_END := 550.0
+
+	func _init() -> void:
+		texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
+		for side in ["margin_left", "margin_right", "margin_top", "margin_bottom"]:
+			add_theme_constant_override(side, int(StFrame.BAR) + 4)
+
+	func _draw() -> void:
+		StFrame.draw_panel(self, Rect2(Vector2.ZERO, size))
+		draw_rect(Rect2(Vector2.ONE * StFrame.BAR, size - Vector2.ONE * StFrame.BAR * 2), Color(0.08, 0.04, 0.01, 0.55))
+
+	static func roman(n: int) -> String:
+		var out := ""
+		for pair in [[10, "X"], [9, "IX"], [5, "V"], [4, "IV"], [1, "I"]]:
+			while n >= pair[0]:
+				out += pair[1]
+				n -= pair[0]
+		return out
+
+	## A campaign's pennant: a cloth with a pointed end in its colours and charge.
+	static func draw_pennant(canvas: CanvasItem, rect: Rect2, civ: String) -> void:
+		var colors := {"anglish": Color("#a8322a"), "frankish": Color("#2f4f9a"), "crusader": Color("#e8e2d2"), "norse": Color("#e2dccb")}
+		var cloth: Color = colors.get(civ, Color("#a8322a"))
+		var a := rect.position
+		var b := rect.end
+		var points := PackedVector2Array([a, Vector2(b.x - rect.size.y * 0.45, a.y), Vector2(b.x, a.y + rect.size.y / 2.0),
+			Vector2(b.x - rect.size.y * 0.45, b.y), Vector2(a.x, b.y)])
+		canvas.draw_colored_polygon(points, cloth)
+		var outline := points.duplicate()
+		outline.append(points[0])
+		canvas.draw_polyline(outline, Color(0, 0, 0, 0.5), 1.5, true)
+		var mid := Vector2(a.x + rect.size.x * 0.42, a.y + rect.size.y / 2.0)
+		var gold := Color("#e2bd5a")
+		match civ:
+			"crusader":
+				canvas.draw_line(mid - Vector2(0, rect.size.y * 0.38), mid + Vector2(0, rect.size.y * 0.38), Color("#b0281e"), 5.0)
+				canvas.draw_line(mid - Vector2(rect.size.y * 0.38, 0), mid + Vector2(rect.size.y * 0.38, 0), Color("#b0281e"), 5.0)
+			"norse":
+				TokenLayer.draw_emblem(canvas, "norse", mid, rect.size.y * 0.3, Color("#2a2a2a"))
+			"frankish":
+				for i in 3:
+					draw_fleur(canvas, mid + Vector2((i - 1) * rect.size.y * 0.55, rect.size.y * 0.3), rect.size.y * 0.034, gold)
+			_:
+				# A crown, as on S&T's Tutorial and England pennants.
+				var w := rect.size.y * 0.9
+				var base := mid + Vector2(-w / 2.0, rect.size.y * 0.18)
+				canvas.draw_colored_polygon(PackedVector2Array([base, base + Vector2(0, -w * 0.45), base + Vector2(w * 0.25, -w * 0.2),
+					base + Vector2(w * 0.5, -w * 0.5), base + Vector2(w * 0.75, -w * 0.2), base + Vector2(w, -w * 0.45), base + Vector2(w, 0)]), gold)
+
+	## A fleur-de-lis, its foot at `at`, `unit` a fourteenth of its height.
+	static func draw_fleur(canvas: CanvasItem, at: Vector2, unit: float, color: Color) -> void:
+		var u := unit
+		canvas.draw_colored_polygon(PackedVector2Array([at + Vector2(0, -14) * u, at + Vector2(3, -9) * u, at + Vector2(2.5, -3) * u,
+			at, at + Vector2(-2.5, -3) * u, at + Vector2(-3, -9) * u]), color)
+		for side in [-1.0, 1.0]:
+			canvas.draw_colored_polygon(PackedVector2Array([at + Vector2(side * 1.5, -3) * u, at + Vector2(side * 6, -9) * u,
+				at + Vector2(side * 9, -8) * u, at + Vector2(side * 7.5, -5) * u, at + Vector2(side * 5, -6) * u, at + Vector2(side * 2, -1) * u]), color)
+		canvas.draw_rect(Rect2(at + Vector2(-5, -3) * u, Vector2(10, 2) * u), color)

@@ -445,8 +445,13 @@ static func draw_emblem(canvas: CanvasItem, civ: String, at: Vector2, r: float, 
 		"norse":
 			canvas.draw_colored_polygon(PackedVector2Array([at + Vector2(0, -r), at + Vector2(r * 0.9, r), at + Vector2(-r * 0.9, r)]), color)
 		"anglish":
-			canvas.draw_line(at + Vector2(-r, 0), at + Vector2(r, 0), color, r * 0.45)
-			canvas.draw_line(at + Vector2(0, -r), at + Vector2(0, r), color, r * 0.45)
+			# England's three gold lions, one above another, as on S&T's banner.
+			var gold := Color(GOLD, color.a)
+			for i in 3:
+				var c := at + Vector2(0, (i - 1) * r * 0.78)
+				canvas.draw_line(c + Vector2(-r * 0.7, 0), c + Vector2(r * 0.45, 0), gold, r * 0.36)
+				canvas.draw_circle(c + Vector2(r * 0.6, -r * 0.08), r * 0.24, gold)
+				canvas.draw_line(c + Vector2(-r * 0.7, 0), c + Vector2(-r * 0.95, -r * 0.3), gold, r * 0.12)
 		"frankish":
 			for i in 3:
 				canvas.draw_circle(at + Vector2.from_angle(-PI / 2 + i * TAU / 3) * r * 0.6, r * 0.35, color)

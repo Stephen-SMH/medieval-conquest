@@ -684,7 +684,7 @@ func _restart() -> void:
 	var session := get_node_or_null("/root/Session")
 	if session != null:
 		session.setup = _restart_setup().duplicate(true)
-	get_tree().reload_current_scene()
+	LoadingScreen.open(get_tree(), scene_file_path)
 
 
 ## The player gives up (PRD K): the game is lost, or in hotseat their realm
@@ -816,7 +816,7 @@ func _on_load_requested(slot: String) -> void:
 	if data.is_empty() or session == null:
 		return
 	session.setup = {"save": data}
-	get_tree().reload_current_scene()
+	LoadingScreen.open(get_tree(), scene_file_path)
 
 
 func _play_again() -> void:
