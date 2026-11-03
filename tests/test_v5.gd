@@ -1,7 +1,7 @@
 extends RefCounted
 ## V5: the campaign expansion. The Crusader Orders and their bonus, the three
 ## new unit types (21 in all) and their counters, the new mission objectives,
-## and the 25 missions in 6 campaigns: valid starts, reachable objectives and
+## and the 43 missions of S&T's four campaigns: valid starts, reachable objectives and
 ## AI play.
 
 const Helpers := preload("res://tests/helpers.gd")
@@ -185,21 +185,11 @@ func _reachable(map: MapData, from: Array) -> Dictionary:
 
 func _test_missions(t) -> void:
 	var campaigns := Campaigns.all()
-	t.check(campaigns.map(func(c): return c.civ) == ["norse", "anglish", "frankish", "crusader", "byzantine", "saracen"],
-		"six campaigns, one per civilization")
 	var total := 0
-	var maps := {}
 	var kinds := {}
 	for campaign in campaigns:
 		total += campaign.missions.size()
-		t.check(campaign.missions.size() >= 3 and campaign.missions.size() <= 5, "%s has %d missions" % [campaign.name, campaign.missions.size()])
-		var campaign_maps := {}
-		for mission in campaign.missions:
-			campaign_maps[mission.map] = true
-		t.check(campaign_maps.size() == 1, "%s is fought on one map" % campaign.name)
-		maps[campaign_maps.keys()[0]] = true
-	t.check(total == 25, "25 missions in all (%d)" % total)
-	t.check(maps.size() == 6, "every campaign has its own map %s" % [maps.keys()])
+	t.check(total == 43, "43 missions in all (%d)" % total)
 
 	for campaign in campaigns:
 		for i in campaign.missions.size():
@@ -233,19 +223,26 @@ func _test_missions(t) -> void:
 						if int(objective.turns) + 1 > Mission.crowns(state)[0]:
 							problems.append("survive past the gold crown")
 					"destroy", "destroy_units":
-						if not state.factions.has(objective.faction) or objective.faction == player:
-							problems.append("bad target faction " + objective.faction)
-						elif objective.type == "destroy_units" and not state.units_of(objective.faction).any(func(u): return u.type_id == objective.unit_type):
-							problems.append("no %s to destroy" % objective.unit_type)
-						elif not state.units_of(objective.faction).any(func(u): return reach.has(u.province)):
-							problems.append("can't reach " + objective.faction)
-			if Mission.objectives(state).any(func(o): return o.done):
+						var target: String = objective.get("faction", "")
+						var theirs := state.units.filter(func(u): return u.owner == target or (target == "" and u.owner != player))
+						var wanted: String = objective.get("unit_type", "")
+						var has_type := wanted == "" or theirs.any(func(u): return u.troops.any(func(tr): return tr.type_id == wanted))
+						if target != "" and (not state.factions.has(target) or target == player):
+							problems.append("bad target faction " + target)
+						elif objective.type == "destroy_units" and not has_type:
+							problems.append("no %s to destroy" % wanted)
+						elif not theirs.any(func(u): return reach.has(u.province)):
+							problems.append("can't reach " + target)
+			# "Lose no more than ..." is done until it's broken.
+			var listed: Array = state.mission.primary + state.mission.get("additional", [])
+			var objectives := Mission.objectives(state)
+			if range(objectives.size()).any(func(k): return objectives[k].done and listed[k].type != "lose_at_most"):
 				problems.append("an objective is done at the start")
 			if scenario.mission.victory_text == "" or scenario.mission.defeat_text == "" or scenario.mission.briefing.length() < 40:
 				problems.append("missing texts")
 			t.check(problems.is_empty(), "%s %d \"%s\": valid start and reachable objectives %s" % [campaign.id, i + 1, scenario.name, problems])
-	t.check(kinds.has("capture") and kinds.has("hold") and kinds.has("destroy") and kinds.has("destroy_units")
-		and kinds.has("survive") and kinds.has("conquest"), "the missions use every kind of objective %s" % [kinds.keys()])
+	t.check(kinds.has("capture") and kinds.has("hold") and kinds.has("destroy") and kinds.has("destroy_units"),
+		"the missions use S&T's kinds of objective %s" % [kinds.keys()])
 
 	# Each mission of the new content plays 12 AI-driven turns on both sides.
 	var failed := []
@@ -266,15 +263,14 @@ func _test_missions(t) -> void:
 func _test_unlocks(t) -> void:
 	Progress.path = "user://test_progress_v5.json"
 	Progress.reset()
-	t.check(Progress.campaign_unlocked("crusader") and Progress.mission_unlocked("crusader", 0), "the Crusader campaign is open from the start")
-	t.check(not Progress.campaign_unlocked("byzantine") and not Progress.mission_unlocked("byzantine", 0)
-		and not Progress.mission_unlocked("saracen", 0), "the Byzantine and Saracen campaigns start locked")
+	t.check(Campaigns.all().all(func(c): return Progress.campaign_unlocked(c.id) and Progress.mission_unlocked(c.id, 0)),
+		"every campaign is open from the start, as in S&T")
+	t.check(not Progress.civilization_unlocked("byzantine") and not Progress.civilization_unlocked("saracen"), "Byzantine and Saracen start locked")
 	for i in Campaigns.get_campaign("crusader").missions.size():
 		Progress.record("crusader", i, 2)
-	t.check(Progress.mission_unlocked("byzantine", 0) and not Progress.mission_unlocked("byzantine", 1) and not Progress.mission_unlocked("saracen", 0),
-		"finishing one campaign opens the Byzantine campaign")
+	t.check(Progress.civilization_unlocked("byzantine") and not Progress.civilization_unlocked("saracen"), "finishing one campaign unlocks Byzantine")
 	for i in Campaigns.get_campaign("norse").missions.size():
 		Progress.record("norse", i, 1)
-	t.check(Progress.mission_unlocked("saracen", 0), "finishing two opens the Saracen campaign")
+	t.check(Progress.civilization_unlocked("saracen"), "finishing two unlocks Saracen")
 	DirAccess.remove_absolute(Progress.path)
 	Progress.path = Progress.PATH

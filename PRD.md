@@ -394,22 +394,20 @@ Across base and special units this gives **21 unit types**, the same as the refe
 
 | ID | Requirement |
 |---|---|
-| CP-1 | Every civilization has a **campaign of 3 to 5 missions** on its own scenario map (12–20 regions): **25 missions** in all, as in the reference game (see the table below). |
-| CP-2 | A mission has a starting setup (owners, units, gold, walls) and objectives in the S&T form (8.11). Objective kinds: capture these regions, hold a region for N turns, destroy a faction, destroy N soldiers of a type, **survive N turns** (often with little gold), or conquest. |
-| CP-3 | Crowns replace stars (8.11). The generated campaigns set the crowns at par, under 1.5 × par and 2 × par, and lose after 2 × par turns or when the capital falls. |
-| CP-4 | Missions unlock in order. Finishing campaigns unlocks civilizations (8.5); the Byzantine and Saracen campaigns open when their civilization does. Each campaign starts with an easy capture mission and ends with its hardest, and `tools/sim_campaigns.gd` plays every mission with AI stand-ins to check the ramp. |
+| CP-1 | The campaigns are **S&T's four**, listed in its order: **England** (11 missions), **France** (11), **Crusades** (12) and **Vikings** (9), 43 in all. Each mission is a real event on a real map (the England and Wales map, the British Isles, France, Scandinavia, the Levant), with real kingdoms as factions. The wording is our own. |
+| CP-2 | A mission has a starting setup (owners, armies, gold, walls) and objectives in the S&T form (8.11). Objective kinds: capture these regions, hold a region for N turns, destroy a faction ("Destroy all enemy forces"), destroy N enemy soldiers (of a type, or any), and **lose no more than N** soldiers of a class (e.g. cavalry). |
+| CP-3 | Crowns replace stars (8.11): gold, silver and bronze within so many turns, and a time limit. |
+| CP-4 | Missions unlock in order, and every campaign is open from the start. Finishing campaigns unlocks the Byzantine and Saracen civilizations for skirmish (8.5). |
 | CP-5 | **Skirmish:** pick a map, your civilization, 1–3 AI opponents and difficulty. Win by conquest. |
 | CP-6 | **Hotseat:** 2–4 human players take turns on one device. A "pass the device" screen hides the map between turns. |
 | CP-7 | Mission briefings (a parchment scroll) and victory/defeat screens (8.11). |
 
-| Campaign | Map | Missions (objective) |
-|---|---|---|
-| **Norse — The Saga of the Sea-Wolves** | The Fjordmark | 1 Landfall (capture 3 settlements) · 2 The Abbey Road (take Greyhaven's hall) · 3 The Lean Winter (survive 6 turns with 100 gold) · 4 Blood-Feud (kill or capture Sigrid) · 5 Throne of the Fjordmark (conquest) |
-| **Anglish — The Longbow Wars** | The Wealdshire | 1 Raiders on the Coast (hold Kingsbarrow 5 turns) · 2 Mustering the Shires (capture 3 shires) · 3 Burn the Longships (destroy the raiders) · 4 Hunt the Black Count (kill or capture Baudouin) · 5 Crown of the Weald (take two capitals) |
-| **Frankish — Banners of the Valmont** | The Valmont | 1 The Unruly Marches (capture 3 marches) · 2 The Northmen Come (hold Belcourt 6 turns against an invasion) · 3 The Siege of Brévine (take the keep) · 4 The Lowland Towns (capture 3 river towns) · 5 King of the Valmont (conquest) |
-| **Crusader Orders — The Sunward Vow** | The Sunward Coast | 1 The Pilgrims' Road (capture 3 villages) · 2 The Keep on the Rock (hold Castel Aubade 6 turns) · 3 The Emir's Champion (kill or capture Rashid) · 4 The Kingdom by the Sea (take two capitals) |
-| **Byzantine — The Purple and the Gold** | The Porphyry Straits | 1 The Rebel Strategos (take Theronike) · 2 The Empty Treasury (survive 6 turns from 100 gold) · 3 The Empire Restored (conquest) |
-| **Saracen — Banners of the Sands** | The Amber Sands | 1 Riders of the Wadi (capture 3 oases) · 2 The Iron Brothers (kill or capture Aimon) · 3 Sultan of the Sands (take two capitals) |
+| Campaign | Missions |
+|---|---|
+| **England** | 1 Invasion of England by Norway and Denmark, 1013 · 2 Edmund Ironside, 1016 · 3 Stamford Bridge, 1066 · 4 Hastings, 1066 · 5 The Anarchy, 1139 · 6 Arsuf, 1191 · 7 Lincoln, 1217 · 8 The Conquest of Wales, 1282 · 9 Crécy and Calais, 1346 · 10 Agincourt, 1415 · 11 Bosworth, 1485 |
+| **France** | 1 Château Gaillard, 1204 · 2 The Albigensian Crusade, 1209 · 3 Bouvines, 1214 · 4 Taillebourg, 1242 · 5 Mons-en-Pévèle, 1304 · 6 Du Guesclin, 1370 · 7 The Siege of Orléans, 1429 · 8 The Road to Reims, 1429 · 9 Paris, 1436 · 10 Formigny, 1450 · 11 Castillon, 1453 |
+| **Crusades** | 1 Antioch, 1098 · 2 The County of Edessa, 1098 · 3 Jerusalem, 1099 · 4 Ascalon, 1099 · 5 Tripoli, 1109 · 6 Tyre, 1124 · 7 The Fall of Edessa, 1144 · 8 Damascus, 1148 · 9 Ascalon, 1153 · 10 Montgisard, 1177 · 11 Hattin, 1187 · 12 Third Crusade, second half of 1191–1192 |
+| **Vikings** | 1 Lindisfarne, 793 · 2 The Great Heathen Army, 866 · 3 Paris, 845 · 4 Unification of Norway, 872 · 5 Rollo, 911 · 6 Svolder, 1000 · 7 Sweyn Forkbeard, 1013 · 8 Cnut the Great, 1026 · 9 Harald Hardrada, 1066 |
 
 ### 8.7 The Forge (version 6, G; replaces research)
 

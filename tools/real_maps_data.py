@@ -9,7 +9,8 @@ w=1.2 to let a region grow larger (or smaller with w=0.8).
 
 Map: center (lon, lat), span (width, height) in degrees of arc, scale in
 pixels per degree, cutoff in degrees: land further than this from every town
-is scenery. Straits are lines carved as water where the grid would close a
+is scenery. "coastline" reuses another map's tools/coastlines file, and
+"skirmish_starts" adds skirmish starts to a map of fewer than four realms. Straits are lines carved as water where the grid would close a
 narrow channel. History: the start of the period, with the factions of the time.
 """
 
@@ -460,4 +461,61 @@ LIVONIA = {
                    ("Lake Ilmen", 58.27, 31.25, 18), ("Lake Ladoga", 60.45, 31.6, 24)],
 }
 
-MAPS = [BRITISH_ISLES, FRANCE, SCANDINAVIA, LEVANT, HOLY_ROMAN_EMPIRE, LIVONIA]
+# S&T's England and Wales, as its campaign map: 29 English regions, four
+# Welsh and the Isle of Man, with Scotland and Ireland as land at the edges.
+# The names are S&T's (a region is named for its town or county).
+ENGLAND = {
+    "id": "england", "name": "England and Wales", "seed": 13, "coastline": "british_isles",
+    "center": (-2.2, 52.95), "span": (6.4, 6.9), "scale": 330, "cutoff": 0.8,
+    "straits": [],
+    "history": {"year": 1013, "title": "Invasion of England by Norway and Denmark", "factions": [
+        {"id": "england", "name": "Kingdom of England", "civ": "anglish", "color": "#b5423a", "human": True, "ai": "balanced"},
+        {"id": "denmark", "name": "Kingdom of Denmark", "civ": "norse", "color": "#cfd2e6", "human": False, "ai": "aggressive"},
+    ]},
+    "regions": [
+        # The north
+        ("Newcastle", 55.05, -1.9, "england", 10, "hills", "port"),
+        ("Cumbria", 54.55, -3.0, "england", 10, "hills", "port w=1.2"),
+        ("York", 53.98, -1.25, "england", 10, "plains", "fortress town"),
+        ("Stamford Bridge", 54.05, -0.45, "england", 10, "plains", "port"),
+        ("Lancaster", 54.0, -2.65, "england", 10, "hills", "port"),
+        ("Doncaster", 53.5, -1.3, "england", 10, "plains", "camp"),
+        ("Lincoln", 53.2, -0.35, "england", 10, "plains", "port"),
+        ("Chester", 53.15, -2.75, "england", 10, "plains", "port"),
+        # The Midlands and East Anglia
+        ("Nottingham", 52.95, -1.3, "england", 10, "forest", "camp"),
+        ("Leicester", 52.62, -1.2, "england", 10, "plains", ""),
+        ("Stamford", 52.68, -0.4, "england", 10, "plains", ""),
+        ("Norwich", 52.75, 1.05, "england", 10, "plains", "port"),
+        ("Warwick", 52.3, -1.65, "denmark", 10, "forest", ""),
+        ("Cambridge", 52.25, 0.05, "england", 10, "marsh", ""),
+        ("Dunwich", 52.15, 1.2, "england", 10, "marsh", "port"),
+        ("Oxford", 51.78, -1.15, "england", 10, "plains", ""),
+        ("Gloucester", 51.85, -2.2, "denmark", 10, "plains", ""),
+        ("Hereford", 52.1, -2.75, "denmark", 10, "hills", ""),
+        ("Leominster", 52.45, -3.35, "england", 10, "hills", "w=1.2"),
+        # Wales
+        ("Caernarfonshire", 52.95, -3.95, "england", 10, "mountains", "port w=1.2"),
+        ("Pembrokeshire", 51.9, -4.6, "england", 10, "hills", "port"),
+        ("Glamorgan", 51.65, -3.45, "denmark", 10, "hills", "port"),
+        ("Anglesey", 53.27, -4.35, "neutral", 10, "plains", "port"),
+        # The south
+        ("London", 51.55, -0.2, "england", 10, "plains", "capital fortress port town"),
+        ("Guildford", 51.2, -0.6, "denmark", 10, "forest", ""),
+        ("Rochester", 51.3, 0.65, "denmark", 10, "plains", "port"),
+        ("Hastings", 50.95, 0.35, "denmark", 10, "forest", "port"),
+        ("Winchester", 51.0, -1.3, "denmark", 10, "plains", "capital port"),
+        ("Salisbury", 51.15, -1.85, "denmark", 10, "plains", ""),
+        ("Dorchester", 50.75, -2.4, "denmark", 10, "hills", "port"),
+        ("Glastonbury", 51.2, -2.85, "denmark", 10, "marsh", "port camp"),
+        ("Exeter", 50.8, -3.5, "england", 10, "hills", "port camp"),
+        ("Plymouth", 50.42, -4.9, "england", 10, "hills", "port w=1.3"),
+        ("Isle of Man", 54.22, -4.52, "neutral", 10, "hills", "port"),
+    ],
+    "sea_links": [("Isle of Man", "Lancaster"), ("Isle of Man", "Cumbria")],
+    "skirmish_starts": ["York", "Exeter"],
+    "sea_labels": [("North Sea", 53.6, 1.6, 34), ("Irish Sea", 53.75, -5.1, 28),
+                   ("English Channel", 50.3, -1.4, 30)],
+}
+
+MAPS = [BRITISH_ISLES, ENGLAND, FRANCE, SCANDINAVIA, LEVANT, HOLY_ROMAN_EMPIRE, LIVONIA]

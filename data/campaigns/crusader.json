@@ -1,112 +1,365 @@
 {
  "id": "crusader",
  "civ": "crusader",
- "name": "The Sunward Vow",
- "description": "Grand Master Aubert's brotherhood has landed on a far, dry shore, sworn to hold it with stone and steel.",
+ "order": 3,
+ "name": "Crusades",
+ "description": "From Antioch to Jerusalem and back again: two hundred years of war for the Holy Land.",
  "missions": [
   {
    "id": "crusader_1",
-   "name": "The Pilgrims' Road",
-   "map": "sunward",
+   "name": "Antioch, 1098",
+   "map": "levant",
    "factions": [
     {
-     "id": "order",
-     "name": "Order of the Sunward Keep",
+     "id": "crusaders",
+     "name": "Crusaders",
      "civ": "crusader",
      "color": "#c4962c",
-     "human": true,
-     "ai": "balanced"
+     "ai": "balanced",
+     "human": true
     },
     {
-     "id": "jebel",
-     "name": "Emir of Jebel Nur",
+     "id": "syria",
+     "name": "Seljuk Emirs of Syria",
      "civ": "saracen",
      "color": "#3d8a4a",
-     "human": false,
-     "ai": "defensive"
+     "ai": "aggressive",
+     "human": false
+    },
+    {
+     "id": "fatimids",
+     "name": "Fatimid Caliphate",
+     "civ": "saracen",
+     "color": "#5aa04a",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "seljuks",
+     "name": "Sultanate of Rum",
+     "civ": "saracen",
+     "color": "#8a5a2a",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "byzantines",
+     "name": "Byzantine Empire",
+     "civ": "byzantine",
+     "color": "#7a40a0",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "armenians",
+     "name": "Armenian Princes",
+     "civ": "",
+     "color": "#b07040",
+     "ai": "defensive",
+     "human": false
     }
    ],
    "owners": {
-    "castel_aubade": "order",
-    "jebel_nur": "jebel",
-    "port_serene": "order",
-    "bir_asfar": "jebel",
-    "saint_ivo": "order",
-    "deir_hanna": "jebel",
-    "tal_hazir": "order"
+    "paphos": "byzantines",
+    "lefkosa": "byzantines",
+    "famagusta": "byzantines",
+    "konya": "seljuks",
+    "philomelion": "seljuks",
+    "antalya": "byzantines",
+    "alanya": "byzantines",
+    "laranda": "seljuks",
+    "seleucia": "byzantines",
+    "eregli": "seljuks",
+    "nigde": "seljuks",
+    "tarsus": "crusaders",
+    "adana": "crusaders",
+    "sis": "armenians",
+    "marash": "crusaders",
+    "edessa": "armenians",
+    "bira": "armenians",
+    "antioch": "syria",
+    "st_simeon": "syria",
+    "aleppo": "syria",
+    "ma_arra": "syria",
+    "hamah": "syria",
+    "homs": "syria",
+    "tortosa": "neutral",
+    "krak_des_chevaliers": "neutral",
+    "tripoli": "neutral",
+    "palmyra": "syria",
+    "raqqa": "syria",
+    "baalbek": "syria",
+    "beirut": "fatimids",
+    "sidon": "fatimids",
+    "tyre": "fatimids",
+    "banias": "syria",
+    "damascus": "syria",
+    "bostra": "syria",
+    "acre": "fatimids",
+    "safad": "fatimids",
+    "caesarea": "fatimids",
+    "nablus": "fatimids",
+    "jaffa": "fatimids",
+    "jerusalem": "fatimids",
+    "ascalon": "fatimids",
+    "gaza": "fatimids",
+    "kerak": "fatimids",
+    "al_arish": "fatimids",
+    "damietta": "fatimids"
    },
    "capitals": {
-    "order": "castel_aubade",
-    "jebel": "jebel_nur"
+    "crusaders": "marash",
+    "syria": "aleppo",
+    "fatimids": "jerusalem",
+    "seljuks": "konya",
+    "byzantines": "lefkosa",
+    "armenians": "edessa"
    },
    "buildings": {
-    "castel_aubade": {
-     "market": 1,
-     "barracks": 1
+    "marash": {
+     "walls": 1
     },
-    "jebel_nur": {
-     "market": 1,
-     "barracks": 1
+    "aleppo": {
+     "walls": 1
+    },
+    "jerusalem": {
+     "walls": 1
+    },
+    "konya": {
+     "walls": 1
+    },
+    "lefkosa": {
+     "walls": 1
+    },
+    "edessa": {
+     "walls": 1
+    },
+    "antioch": {
+     "walls": 2
+    },
+    "antalya": {
+     "walls": 1
+    },
+    "sis": {
+     "walls": 1
+    },
+    "tortosa": {
+     "walls": 1
+    },
+    "krak_des_chevaliers": {
+     "walls": 1
+    },
+    "tripoli": {
+     "walls": 1
+    },
+    "tyre": {
+     "walls": 1
+    },
+    "banias": {
+     "walls": 1
+    },
+    "damascus": {
+     "walls": 1
+    },
+    "bostra": {
+     "walls": 1
+    },
+    "acre": {
+     "walls": 1
+    },
+    "safad": {
+     "walls": 1
+    },
+    "ascalon": {
+     "walls": 1
+    },
+    "kerak": {
+     "walls": 1
     }
    },
    "units": [
     {
-     "owner": "order",
-     "region": "castel_aubade",
-     "type": "brother_knight"
-    },
-    {
-     "owner": "order",
-     "region": "port_serene",
-     "type": "mounted_sergeant"
-    },
-    {
-     "owner": "order",
-     "region": "saint_ivo",
-     "type": "spearmen"
-    },
-    {
-     "owner": "order",
-     "region": "tal_hazir",
-     "type": "crossbowmen"
-    },
-    {
-     "owner": "jebel",
-     "region": "jebel_nur",
-     "type": "ghazi"
-    },
-    {
-     "owner": "jebel",
-     "region": "bir_asfar",
-     "type": "archers"
-    },
-    {
-     "owner": "jebel",
-     "region": "deir_hanna",
-     "type": "spearmen"
-    },
-    {
-     "owner": "neutral",
-     "region": "khirbat",
-     "type": "militia",
+     "owner": "fatimids",
+     "region": "acre",
+     "type": "ghazi",
      "soldiers": 12
     },
     {
-     "owner": "neutral",
-     "region": "saltpans",
-     "type": "militia",
+     "owner": "crusaders",
+     "region": "adana",
+     "type": "mounted_sergeant",
+     "soldiers": 15
+    },
+    {
+     "owner": "syria",
+     "region": "aleppo",
+     "type": "mamluk",
+     "soldiers": 20
+    },
+    {
+     "owner": "syria",
+     "region": "antioch",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "fatimids",
+     "region": "ascalon",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "armenians",
+     "region": "bira",
+     "type": "spearmen",
+     "soldiers": 15
+    },
+    {
+     "owner": "armenians",
+     "region": "edessa",
+     "type": "swordsmen",
+     "soldiers": 20
+    },
+    {
+     "owner": "seljuks",
+     "region": "eregli",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "byzantines",
+     "region": "famagusta",
+     "type": "varangian_guard",
+     "soldiers": 15
+    },
+    {
+     "owner": "fatimids",
+     "region": "gaza",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "syria",
+     "region": "hamah",
+     "type": "light_cavalry",
      "soldiers": 12
+    },
+    {
+     "owner": "fatimids",
+     "region": "jaffa",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "fatimids",
+     "region": "jerusalem",
+     "type": "mamluk",
+     "soldiers": 20
+    },
+    {
+     "owner": "fatimids",
+     "region": "kerak",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "seljuks",
+     "region": "konya",
+     "type": "mamluk",
+     "soldiers": 20
+    },
+    {
+     "owner": "seljuks",
+     "region": "laranda",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "byzantines",
+     "region": "lefkosa",
+     "type": "cataphract",
+     "soldiers": 20
+    },
+    {
+     "owner": "syria",
+     "region": "ma_arra",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "crusaders",
+     "region": "marash",
+     "type": "brother_knight",
+     "soldiers": 20
+    },
+    {
+     "owner": "fatimids",
+     "region": "nablus",
+     "type": "mamluk",
+     "soldiers": 12
+    },
+    {
+     "owner": "syria",
+     "region": "palmyra",
+     "type": "mamluk",
+     "soldiers": 12
+    },
+    {
+     "owner": "byzantines",
+     "region": "paphos",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "syria",
+     "region": "raqqa",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "syria",
+     "region": "st_simeon",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "neutral",
+     "region": "krak_des_chevaliers",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "tortosa",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "tripoli",
+     "type": "militia",
+     "soldiers": 10
     }
    ],
    "mission": {
-    "player": "order",
+    "player": "crusaders",
     "primary": [
      {
       "type": "capture",
-      "regions": ["mont_pelerin", "qasr_malik", "roche_vigile"]
+      "regions": [
+       "antioch",
+       "st_simeon"
+      ]
      }
     ],
-    "additional": [],
+    "additional": [
+     {
+      "type": "destroy_units",
+      "faction": "syria",
+      "unit_type": "",
+      "count": 30
+     }
+    ],
     "defeat": [
      {
       "type": "time",
@@ -114,135 +367,747 @@
      },
      {
       "type": "lose_region",
-      "region": "castel_aubade"
+      "region": "marash"
      }
     ],
-    "crowns": [6, 8, 12],
-    "events": [],
-    "briefing": "The brothers have a keep at Castel Aubade and little else. Secure the wells and villages along the pilgrims' road so the order can feed itself.",
-    "victory_text": "The road is safe, and the wells answer to the order.",
-    "defeat_text": "The road is lost, and the keep stands alone."
+    "crowns": [
+     6,
+     8,
+     10
+    ],
+    "events": [
+     {
+      "turn": 4,
+      "type": "reinforcements",
+      "faction": "syria",
+      "region": "aleppo",
+      "unit": "mamluk",
+      "soldiers": 15,
+      "text": "Kerbogha of Mosul marches to relieve Antioch with a great army."
+     }
+    ],
+    "history": "The armies of the First Crusade have crossed Anatolia, through heat, thirst and the Turks' horse archers, and come down to the walls of Antioch, the greatest city of Syria.",
+    "briefing": "Take Antioch and its port, St Simeon, before Kerbogha arrives.",
+    "victory_text": "Antioch falls, and the crusaders find the Holy Lance under the floor of St Peter's.",
+    "defeat_text": "Marash falls, and the crusade dies in the hills."
    },
    "campaign": "crusader",
    "mission_index": 0
   },
   {
    "id": "crusader_2",
-   "name": "The Keep on the Rock",
-   "map": "sunward",
+   "name": "The County of Edessa, 1098",
+   "map": "levant",
    "factions": [
     {
-     "id": "order",
-     "name": "Order of the Sunward Keep",
+     "id": "crusaders",
+     "name": "Crusaders",
      "civ": "crusader",
      "color": "#c4962c",
-     "human": true,
-     "ai": "balanced"
+     "ai": "balanced",
+     "human": true
     },
     {
-     "id": "pelerin",
-     "name": "Riders of Mont Pélerin",
+     "id": "armenians",
+     "name": "Armenian Princes",
+     "civ": "",
+     "color": "#b07040",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "syria",
+     "name": "Seljuk Emirs of Syria",
      "civ": "saracen",
      "color": "#3d8a4a",
-     "human": false,
-     "ai": "aggressive"
+     "ai": "aggressive",
+     "human": false
+    },
+    {
+     "id": "fatimids",
+     "name": "Fatimid Caliphate",
+     "civ": "saracen",
+     "color": "#5aa04a",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "seljuks",
+     "name": "Sultanate of Rum",
+     "civ": "saracen",
+     "color": "#8a5a2a",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "byzantines",
+     "name": "Byzantine Empire",
+     "civ": "byzantine",
+     "color": "#7a40a0",
+     "ai": "defensive",
+     "human": false
     }
    ],
    "owners": {
-    "castel_aubade": "order",
-    "mont_pelerin": "pelerin",
-    "port_serene": "order",
-    "ain_sabra": "pelerin",
-    "saint_ivo": "order",
-    "gue_dore": "pelerin",
-    "tal_hazir": "order",
-    "qasr_malik": "pelerin",
-    "bir_asfar": "pelerin"
+    "paphos": "byzantines",
+    "lefkosa": "byzantines",
+    "famagusta": "byzantines",
+    "konya": "seljuks",
+    "philomelion": "seljuks",
+    "antalya": "byzantines",
+    "alanya": "byzantines",
+    "laranda": "seljuks",
+    "seleucia": "byzantines",
+    "eregli": "seljuks",
+    "nigde": "seljuks",
+    "tarsus": "crusaders",
+    "adana": "crusaders",
+    "sis": "armenians",
+    "marash": "crusaders",
+    "edessa": "armenians",
+    "bira": "armenians",
+    "antioch": "crusaders",
+    "st_simeon": "crusaders",
+    "aleppo": "syria",
+    "ma_arra": "syria",
+    "hamah": "syria",
+    "homs": "syria",
+    "tortosa": "neutral",
+    "krak_des_chevaliers": "neutral",
+    "tripoli": "neutral",
+    "palmyra": "syria",
+    "raqqa": "syria",
+    "baalbek": "syria",
+    "beirut": "fatimids",
+    "sidon": "fatimids",
+    "tyre": "fatimids",
+    "banias": "syria",
+    "damascus": "syria",
+    "bostra": "syria",
+    "acre": "fatimids",
+    "safad": "fatimids",
+    "caesarea": "fatimids",
+    "nablus": "fatimids",
+    "jaffa": "fatimids",
+    "jerusalem": "fatimids",
+    "ascalon": "fatimids",
+    "gaza": "fatimids",
+    "kerak": "fatimids",
+    "al_arish": "fatimids",
+    "damietta": "fatimids"
    },
    "capitals": {
-    "order": "castel_aubade",
-    "pelerin": "mont_pelerin"
+    "crusaders": "antioch",
+    "syria": "aleppo",
+    "fatimids": "jerusalem",
+    "seljuks": "konya",
+    "byzantines": "lefkosa",
+    "armenians": "edessa"
    },
    "buildings": {
-    "castel_aubade": {
-     "market": 1,
-     "barracks": 1,
+    "antioch": {
      "walls": 1
     },
-    "mont_pelerin": {
-     "market": 1,
-     "barracks": 1
+    "aleppo": {
+     "walls": 1
+    },
+    "jerusalem": {
+     "walls": 1
+    },
+    "konya": {
+     "walls": 1
+    },
+    "lefkosa": {
+     "walls": 1
+    },
+    "edessa": {
+     "walls": 1
+    },
+    "antalya": {
+     "walls": 1
+    },
+    "sis": {
+     "walls": 1
+    },
+    "marash": {
+     "walls": 1
+    },
+    "tortosa": {
+     "walls": 1
+    },
+    "krak_des_chevaliers": {
+     "walls": 1
+    },
+    "tripoli": {
+     "walls": 1
+    },
+    "tyre": {
+     "walls": 1
+    },
+    "banias": {
+     "walls": 1
+    },
+    "damascus": {
+     "walls": 1
+    },
+    "bostra": {
+     "walls": 1
+    },
+    "acre": {
+     "walls": 1
+    },
+    "safad": {
+     "walls": 1
+    },
+    "ascalon": {
+     "walls": 1
+    },
+    "kerak": {
+     "walls": 1
     }
    },
    "units": [
     {
-     "owner": "order",
-     "region": "castel_aubade",
-     "type": "brother_knight"
-    },
-    {
-     "owner": "order",
-     "region": "port_serene",
-     "type": "pikemen"
-    },
-    {
-     "owner": "order",
-     "region": "saint_ivo",
-     "type": "crossbowmen"
-    },
-    {
-     "owner": "order",
-     "region": "tal_hazir",
-     "type": "spearmen"
-    },
-    {
-     "owner": "pelerin",
-     "region": "mont_pelerin",
-     "type": "mamluk"
-    },
-    {
-     "owner": "pelerin",
-     "region": "ain_sabra",
-     "type": "ghazi"
-    },
-    {
-     "owner": "pelerin",
-     "region": "bir_asfar",
-     "type": "ghazi"
-    },
-    {
-     "owner": "pelerin",
-     "region": "gue_dore",
-     "type": "archers"
-    },
-    {
-     "owner": "pelerin",
-     "region": "qasr_malik",
-     "type": "light_cavalry"
-    },
-    {
-     "owner": "neutral",
-     "region": "khirbat",
-     "type": "militia",
+     "owner": "fatimids",
+     "region": "acre",
+     "type": "ghazi",
      "soldiers": 12
     },
     {
-     "owner": "neutral",
-     "region": "saltpans",
-     "type": "militia",
+     "owner": "crusaders",
+     "region": "adana",
+     "type": "mounted_sergeant",
+     "soldiers": 15
+    },
+    {
+     "owner": "syria",
+     "region": "aleppo",
+     "type": "mamluk",
+     "soldiers": 20
+    },
+    {
+     "owner": "crusaders",
+     "region": "antioch",
+     "type": "brother_knight",
+     "soldiers": 20
+    },
+    {
+     "owner": "fatimids",
+     "region": "ascalon",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "armenians",
+     "region": "bira",
+     "type": "spearmen",
+     "soldiers": 15
+    },
+    {
+     "owner": "armenians",
+     "region": "edessa",
+     "type": "swordsmen",
+     "soldiers": 20
+    },
+    {
+     "owner": "seljuks",
+     "region": "eregli",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "byzantines",
+     "region": "famagusta",
+     "type": "varangian_guard",
+     "soldiers": 15
+    },
+    {
+     "owner": "fatimids",
+     "region": "gaza",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "syria",
+     "region": "hamah",
+     "type": "spearmen",
      "soldiers": 12
+    },
+    {
+     "owner": "fatimids",
+     "region": "jaffa",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "fatimids",
+     "region": "jerusalem",
+     "type": "mamluk",
+     "soldiers": 20
+    },
+    {
+     "owner": "fatimids",
+     "region": "kerak",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "seljuks",
+     "region": "konya",
+     "type": "mamluk",
+     "soldiers": 20
+    },
+    {
+     "owner": "seljuks",
+     "region": "laranda",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "byzantines",
+     "region": "lefkosa",
+     "type": "cataphract",
+     "soldiers": 20
+    },
+    {
+     "owner": "syria",
+     "region": "ma_arra",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "crusaders",
+     "region": "marash",
+     "type": "crossbowmen",
+     "soldiers": 15
+    },
+    {
+     "owner": "fatimids",
+     "region": "nablus",
+     "type": "mamluk",
+     "soldiers": 12
+    },
+    {
+     "owner": "syria",
+     "region": "palmyra",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "byzantines",
+     "region": "paphos",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "syria",
+     "region": "raqqa",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "neutral",
+     "region": "krak_des_chevaliers",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "tortosa",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "tripoli",
+     "type": "militia",
+     "soldiers": 10
     }
    ],
    "mission": {
-    "player": "order",
+    "player": "crusaders",
     "primary": [
      {
-      "type": "hold",
-      "region": "castel_aubade",
-      "turns": 6
+      "type": "capture",
+      "regions": [
+       "edessa",
+       "bira"
+      ]
      }
     ],
-    "additional": [],
+    "additional": [
+     {
+      "type": "lose_at_most",
+      "unit_class": "cavalry",
+      "count": 5
+     }
+    ],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 10
+     },
+     {
+      "type": "lose_region",
+      "region": "antioch"
+     }
+    ],
+    "crowns": [
+     5,
+     7,
+     9
+    ],
+    "events": [],
+    "history": "Baldwin of Boulogne has left the main army and ridden east to the Euphrates, where the Armenian lord of Edessa has asked for his help.",
+    "briefing": "Make Edessa and the Euphrates crossing at Bira the first crusader state.",
+    "victory_text": "Baldwin is Count of Edessa, the first of the crusader states.",
+    "defeat_text": "Antioch falls, and Baldwin's adventure ends."
+   },
+   "campaign": "crusader",
+   "mission_index": 1
+  },
+  {
+   "id": "crusader_3",
+   "name": "Jerusalem, 1099",
+   "map": "levant",
+   "factions": [
+    {
+     "id": "crusaders",
+     "name": "Crusaders",
+     "civ": "crusader",
+     "color": "#c4962c",
+     "ai": "balanced",
+     "human": true
+    },
+    {
+     "id": "fatimids",
+     "name": "Fatimid Caliphate",
+     "civ": "saracen",
+     "color": "#5aa04a",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "syria",
+     "name": "Seljuk Emirs of Syria",
+     "civ": "saracen",
+     "color": "#3d8a4a",
+     "ai": "aggressive",
+     "human": false
+    },
+    {
+     "id": "seljuks",
+     "name": "Sultanate of Rum",
+     "civ": "saracen",
+     "color": "#8a5a2a",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "byzantines",
+     "name": "Byzantine Empire",
+     "civ": "byzantine",
+     "color": "#7a40a0",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "armenians",
+     "name": "Armenian Princes",
+     "civ": "",
+     "color": "#b07040",
+     "ai": "defensive",
+     "human": false
+    }
+   ],
+   "owners": {
+    "paphos": "byzantines",
+    "lefkosa": "byzantines",
+    "famagusta": "byzantines",
+    "konya": "seljuks",
+    "philomelion": "seljuks",
+    "antalya": "byzantines",
+    "alanya": "byzantines",
+    "laranda": "seljuks",
+    "seleucia": "byzantines",
+    "eregli": "seljuks",
+    "nigde": "seljuks",
+    "tarsus": "crusaders",
+    "adana": "crusaders",
+    "sis": "armenians",
+    "marash": "crusaders",
+    "edessa": "crusaders",
+    "bira": "crusaders",
+    "antioch": "crusaders",
+    "st_simeon": "crusaders",
+    "aleppo": "syria",
+    "ma_arra": "syria",
+    "hamah": "syria",
+    "homs": "syria",
+    "tortosa": "crusaders",
+    "krak_des_chevaliers": "neutral",
+    "tripoli": "neutral",
+    "palmyra": "syria",
+    "raqqa": "syria",
+    "baalbek": "syria",
+    "beirut": "fatimids",
+    "sidon": "fatimids",
+    "tyre": "fatimids",
+    "banias": "syria",
+    "damascus": "syria",
+    "bostra": "syria",
+    "acre": "fatimids",
+    "safad": "fatimids",
+    "caesarea": "fatimids",
+    "nablus": "fatimids",
+    "jaffa": "fatimids",
+    "jerusalem": "fatimids",
+    "ascalon": "fatimids",
+    "gaza": "fatimids",
+    "kerak": "fatimids",
+    "al_arish": "fatimids",
+    "damietta": "fatimids"
+   },
+   "capitals": {
+    "crusaders": "antioch",
+    "syria": "aleppo",
+    "fatimids": "jerusalem",
+    "seljuks": "konya",
+    "byzantines": "lefkosa",
+    "armenians": "sis"
+   },
+   "buildings": {
+    "antioch": {
+     "walls": 1
+    },
+    "aleppo": {
+     "walls": 1
+    },
+    "jerusalem": {
+     "walls": 2
+    },
+    "konya": {
+     "walls": 1
+    },
+    "lefkosa": {
+     "walls": 1
+    },
+    "sis": {
+     "walls": 1
+    },
+    "antalya": {
+     "walls": 1
+    },
+    "marash": {
+     "walls": 1
+    },
+    "edessa": {
+     "walls": 1
+    },
+    "tortosa": {
+     "walls": 1
+    },
+    "krak_des_chevaliers": {
+     "walls": 1
+    },
+    "tripoli": {
+     "walls": 1
+    },
+    "tyre": {
+     "walls": 1
+    },
+    "banias": {
+     "walls": 1
+    },
+    "damascus": {
+     "walls": 1
+    },
+    "bostra": {
+     "walls": 1
+    },
+    "acre": {
+     "walls": 1
+    },
+    "safad": {
+     "walls": 1
+    },
+    "ascalon": {
+     "walls": 1
+    },
+    "kerak": {
+     "walls": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "fatimids",
+     "region": "acre",
+     "type": "ghazi",
+     "soldiers": 12
+    },
+    {
+     "owner": "crusaders",
+     "region": "adana",
+     "type": "mounted_sergeant",
+     "soldiers": 15
+    },
+    {
+     "owner": "syria",
+     "region": "aleppo",
+     "type": "mamluk",
+     "soldiers": 20
+    },
+    {
+     "owner": "crusaders",
+     "region": "antioch",
+     "type": "brother_knight",
+     "soldiers": 20
+    },
+    {
+     "owner": "fatimids",
+     "region": "ascalon",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "seljuks",
+     "region": "eregli",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "byzantines",
+     "region": "famagusta",
+     "type": "varangian_guard",
+     "soldiers": 15
+    },
+    {
+     "owner": "fatimids",
+     "region": "gaza",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "syria",
+     "region": "hamah",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "fatimids",
+     "region": "jaffa",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "fatimids",
+     "region": "jerusalem",
+     "type": "mamluk",
+     "soldiers": 20
+    },
+    {
+     "owner": "fatimids",
+     "region": "kerak",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "seljuks",
+     "region": "konya",
+     "type": "mamluk",
+     "soldiers": 20
+    },
+    {
+     "owner": "seljuks",
+     "region": "laranda",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "byzantines",
+     "region": "lefkosa",
+     "type": "cataphract",
+     "soldiers": 20
+    },
+    {
+     "owner": "syria",
+     "region": "ma_arra",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "crusaders",
+     "region": "marash",
+     "type": "crossbowmen",
+     "soldiers": 15
+    },
+    {
+     "owner": "fatimids",
+     "region": "nablus",
+     "type": "mamluk",
+     "soldiers": 12
+    },
+    {
+     "owner": "syria",
+     "region": "palmyra",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "byzantines",
+     "region": "paphos",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "syria",
+     "region": "raqqa",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "armenians",
+     "region": "sis",
+     "type": "swordsmen",
+     "soldiers": 20
+    },
+    {
+     "owner": "crusaders",
+     "region": "st_simeon",
+     "type": "pikemen",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "krak_des_chevaliers",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "tripoli",
+     "type": "militia",
+     "soldiers": 10
+    }
+   ],
+   "mission": {
+    "player": "crusaders",
+    "primary": [
+     {
+      "type": "capture",
+      "regions": [
+       "jerusalem"
+      ]
+     }
+    ],
+    "additional": [
+     {
+      "type": "capture",
+      "regions": [
+       "jaffa"
+      ]
+     }
+    ],
     "defeat": [
      {
       "type": "time",
@@ -250,356 +1115,3379 @@
      },
      {
       "type": "lose_region",
-      "region": "castel_aubade"
+      "region": "antioch"
      }
     ],
-    "crowns": [7, 10, 14],
+    "crowns": [
+     7,
+     10,
+     12
+    ],
     "events": [],
-    "briefing": "Tariq's riders have come down from Mont Pélerin to drive the order into the sea. Hold Castel Aubade for six turns; the hospital keeps your wounded fighting.",
-    "victory_text": "Tariq's riders break on the rock and ride home.",
-    "defeat_text": "Castel Aubade falls, and the order's banner comes down."
-   },
-   "resources": {
-    "pelerin": {
-     "gold": 450
-    }
-   },
-   "campaign": "crusader",
-   "mission_index": 1
-  },
-  {
-   "id": "crusader_3",
-   "name": "The Emir's Champion",
-   "map": "sunward",
-   "factions": [
-    {
-     "id": "order",
-     "name": "Order of the Sunward Keep",
-     "civ": "crusader",
-     "color": "#c4962c",
-     "human": true,
-     "ai": "balanced"
-    },
-    {
-     "id": "jebel",
-     "name": "Emir of Jebel Nur",
-     "civ": "saracen",
-     "color": "#3d8a4a",
-     "human": false,
-     "ai": "balanced"
-    }
-   ],
-   "owners": {
-    "castel_aubade": "order",
-    "jebel_nur": "jebel",
-    "port_serene": "order",
-    "bir_asfar": "jebel",
-    "saint_ivo": "order",
-    "deir_hanna": "jebel",
-    "tal_hazir": "order",
-    "gue_dore": "jebel",
-    "mont_pelerin": "order",
-    "qasr_malik": "jebel"
-   },
-   "capitals": {
-    "order": "castel_aubade",
-    "jebel": "jebel_nur"
-   },
-   "buildings": {
-    "castel_aubade": {
-     "market": 1,
-     "barracks": 1
-    },
-    "jebel_nur": {
-     "market": 1,
-     "barracks": 1
-    }
-   },
-   "units": [
-    {
-     "owner": "order",
-     "region": "castel_aubade",
-     "type": "brother_knight"
-    },
-    {
-     "owner": "order",
-     "region": "mont_pelerin",
-     "type": "mounted_sergeant"
-    },
-    {
-     "owner": "order",
-     "region": "port_serene",
-     "type": "pikemen"
-    },
-    {
-     "owner": "order",
-     "region": "saint_ivo",
-     "type": "crossbowmen"
-    },
-    {
-     "owner": "order",
-     "region": "tal_hazir",
-     "type": "archers"
-    },
-    {
-     "owner": "jebel",
-     "region": "jebel_nur",
-     "type": "mamluk"
-    },
-    {
-     "owner": "jebel",
-     "region": "bir_asfar",
-     "type": "ghazi"
-    },
-    {
-     "owner": "jebel",
-     "region": "deir_hanna",
-     "type": "archers"
-    },
-    {
-     "owner": "jebel",
-     "region": "gue_dore",
-     "type": "spearmen"
-    },
-    {
-     "owner": "jebel",
-     "region": "qasr_malik",
-     "type": "light_cavalry"
-    },
-    {
-     "owner": "neutral",
-     "region": "khirbat",
-     "type": "militia",
-     "soldiers": 12
-    },
-    {
-     "owner": "neutral",
-     "region": "saltpans",
-     "type": "militia",
-     "soldiers": 12
-    }
-   ],
-   "mission": {
-    "player": "order",
-    "primary": [
-     {
-      "type": "destroy_units",
-      "faction": "jebel",
-      "unit_type": "mamluk",
-      "count": 15
-     }
-    ],
-    "additional": [],
-    "defeat": [
-     {
-      "type": "time",
-      "turns": 20
-     },
-     {
-      "type": "lose_region",
-      "region": "castel_aubade"
-     }
-    ],
-    "crowns": [10, 14, 20],
-    "events": [],
-    "briefing": "Rashid, the emir's champion, leads every raid on our villages and slips away on his fast horses. Run him down.",
-    "victory_text": "Rashid is taken, and the raids stop.",
-    "defeat_text": "Rashid's horsemen ride rings around the brothers."
-   },
-   "resources": {
-    "jebel": {
-     "gold": 450
-    }
+    "history": "Three years after leaving home, the crusaders march down the coast towards Jerusalem, which the Fatimids of Egypt took from the Turks only last year.",
+    "briefing": "Take the Holy City before Egypt sends an army to save it.",
+    "victory_text": "On 15 July the crusaders storm the walls of Jerusalem.",
+    "defeat_text": "Antioch falls behind you, and the crusade never reaches Jerusalem."
    },
    "campaign": "crusader",
    "mission_index": 2
   },
   {
    "id": "crusader_4",
-   "name": "The Kingdom by the Sea",
-   "map": "sunward",
+   "name": "Ascalon, 1099",
+   "map": "levant",
    "factions": [
     {
-     "id": "order",
-     "name": "Order of the Sunward Keep",
+     "id": "crusaders",
+     "name": "Crusaders",
      "civ": "crusader",
      "color": "#c4962c",
-     "human": true,
-     "ai": "balanced"
+     "ai": "balanced",
+     "human": true
     },
     {
-     "id": "jebel",
-     "name": "Emir of Jebel Nur",
+     "id": "fatimids",
+     "name": "Fatimid Caliphate",
+     "civ": "saracen",
+     "color": "#5aa04a",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "syria",
+     "name": "Seljuk Emirs of Syria",
      "civ": "saracen",
      "color": "#3d8a4a",
-     "human": false,
-     "ai": "balanced"
+     "ai": "aggressive",
+     "human": false
     },
     {
-     "id": "khirbat",
-     "name": "Exarch of Khirbat",
+     "id": "seljuks",
+     "name": "Sultanate of Rum",
+     "civ": "saracen",
+     "color": "#8a5a2a",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "byzantines",
+     "name": "Byzantine Empire",
      "civ": "byzantine",
      "color": "#7a40a0",
-     "human": false,
-     "ai": "aggressive"
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "armenians",
+     "name": "Armenian Princes",
+     "civ": "",
+     "color": "#b07040",
+     "ai": "defensive",
+     "human": false
     }
    ],
    "owners": {
-    "castel_aubade": "order",
-    "jebel_nur": "jebel",
-    "khirbat": "khirbat",
-    "port_serene": "order",
-    "bir_asfar": "jebel",
-    "roche_vigile": "khirbat",
-    "saint_ivo": "order",
-    "deir_hanna": "jebel",
-    "sahl_rimah": "khirbat",
-    "tal_hazir": "order",
-    "gue_dore": "jebel",
-    "wadi_kesh": "khirbat",
-    "mont_pelerin": "order",
-    "qasr_malik": "jebel",
-    "saltpans": "khirbat",
-    "ain_sabra": "order"
+    "paphos": "byzantines",
+    "lefkosa": "byzantines",
+    "famagusta": "byzantines",
+    "konya": "seljuks",
+    "philomelion": "seljuks",
+    "antalya": "byzantines",
+    "alanya": "byzantines",
+    "laranda": "seljuks",
+    "seleucia": "byzantines",
+    "eregli": "seljuks",
+    "nigde": "seljuks",
+    "tarsus": "crusaders",
+    "adana": "crusaders",
+    "sis": "armenians",
+    "marash": "crusaders",
+    "edessa": "crusaders",
+    "bira": "crusaders",
+    "antioch": "crusaders",
+    "st_simeon": "crusaders",
+    "aleppo": "syria",
+    "ma_arra": "syria",
+    "hamah": "syria",
+    "homs": "syria",
+    "tortosa": "crusaders",
+    "krak_des_chevaliers": "neutral",
+    "tripoli": "neutral",
+    "palmyra": "syria",
+    "raqqa": "syria",
+    "baalbek": "syria",
+    "beirut": "fatimids",
+    "sidon": "fatimids",
+    "tyre": "fatimids",
+    "banias": "syria",
+    "damascus": "syria",
+    "bostra": "syria",
+    "acre": "fatimids",
+    "safad": "fatimids",
+    "caesarea": "fatimids",
+    "nablus": "crusaders",
+    "jaffa": "crusaders",
+    "jerusalem": "crusaders",
+    "ascalon": "fatimids",
+    "gaza": "fatimids",
+    "kerak": "fatimids",
+    "al_arish": "fatimids",
+    "damietta": "fatimids"
    },
    "capitals": {
-    "order": "castel_aubade",
-    "jebel": "jebel_nur",
-    "khirbat": "khirbat"
+    "crusaders": "jerusalem",
+    "syria": "aleppo",
+    "fatimids": "ascalon",
+    "seljuks": "konya",
+    "byzantines": "lefkosa",
+    "armenians": "sis"
    },
    "buildings": {
-    "castel_aubade": {
-     "market": 1,
-     "barracks": 1
-    },
-    "jebel_nur": {
-     "market": 1,
-     "barracks": 1,
+    "jerusalem": {
      "walls": 1
     },
-    "khirbat": {
-     "market": 1,
-     "barracks": 1,
+    "aleppo": {
+     "walls": 1
+    },
+    "ascalon": {
+     "walls": 1
+    },
+    "konya": {
+     "walls": 1
+    },
+    "lefkosa": {
+     "walls": 1
+    },
+    "sis": {
+     "walls": 1
+    },
+    "antalya": {
+     "walls": 1
+    },
+    "marash": {
+     "walls": 1
+    },
+    "edessa": {
+     "walls": 1
+    },
+    "antioch": {
+     "walls": 1
+    },
+    "tortosa": {
+     "walls": 1
+    },
+    "krak_des_chevaliers": {
+     "walls": 1
+    },
+    "tripoli": {
+     "walls": 1
+    },
+    "tyre": {
+     "walls": 1
+    },
+    "banias": {
+     "walls": 1
+    },
+    "damascus": {
+     "walls": 1
+    },
+    "bostra": {
+     "walls": 1
+    },
+    "acre": {
+     "walls": 1
+    },
+    "safad": {
+     "walls": 1
+    },
+    "kerak": {
      "walls": 1
     }
    },
    "units": [
     {
-     "owner": "order",
-     "region": "castel_aubade",
-     "type": "brother_knight"
+     "owner": "fatimids",
+     "region": "acre",
+     "type": "mamluk",
+     "soldiers": 12
     },
     {
-     "owner": "order",
-     "region": "ain_sabra",
-     "type": "brother_knight"
+     "owner": "fatimids",
+     "region": "al_arish",
+     "type": "archers",
+     "soldiers": 15
     },
     {
-     "owner": "order",
-     "region": "mont_pelerin",
-     "type": "mounted_sergeant"
+     "owner": "syria",
+     "region": "aleppo",
+     "type": "mamluk",
+     "soldiers": 20
     },
     {
-     "owner": "order",
-     "region": "port_serene",
-     "type": "pikemen"
+     "owner": "crusaders",
+     "region": "antioch",
+     "type": "spearmen",
+     "soldiers": 12
     },
     {
-     "owner": "order",
-     "region": "saint_ivo",
-     "type": "crossbowmen"
+     "owner": "fatimids",
+     "region": "ascalon",
+     "type": "mamluk",
+     "soldiers": 20
     },
     {
-     "owner": "order",
-     "region": "tal_hazir",
-     "type": "spearmen"
+     "owner": "fatimids",
+     "region": "caesarea",
+     "type": "spearmen",
+     "soldiers": 12
     },
     {
-     "owner": "jebel",
-     "region": "jebel_nur",
-     "type": "mamluk"
+     "owner": "seljuks",
+     "region": "eregli",
+     "type": "ghazi",
+     "soldiers": 15
     },
     {
-     "owner": "jebel",
-     "region": "bir_asfar",
-     "type": "ghazi"
+     "owner": "byzantines",
+     "region": "famagusta",
+     "type": "varangian_guard",
+     "soldiers": 15
     },
     {
-     "owner": "jebel",
-     "region": "deir_hanna",
-     "type": "ghazi"
+     "owner": "fatimids",
+     "region": "gaza",
+     "type": "ghazi",
+     "soldiers": 15
     },
     {
-     "owner": "jebel",
-     "region": "gue_dore",
-     "type": "archers"
+     "owner": "syria",
+     "region": "hamah",
+     "type": "spearmen",
+     "soldiers": 12
     },
     {
-     "owner": "jebel",
-     "region": "qasr_malik",
-     "type": "mamluk"
+     "owner": "crusaders",
+     "region": "jaffa",
+     "type": "mounted_sergeant",
+     "soldiers": 15
     },
     {
-     "owner": "khirbat",
-     "region": "khirbat",
-     "type": "cataphract"
+     "owner": "crusaders",
+     "region": "jerusalem",
+     "type": "brother_knight",
+     "soldiers": 20
     },
     {
-     "owner": "khirbat",
-     "region": "roche_vigile",
-     "type": "varangian_guard"
+     "owner": "fatimids",
+     "region": "kerak",
+     "type": "light_cavalry",
+     "soldiers": 12
     },
     {
-     "owner": "khirbat",
-     "region": "sahl_rimah",
-     "type": "archers"
+     "owner": "seljuks",
+     "region": "konya",
+     "type": "mamluk",
+     "soldiers": 20
     },
     {
-     "owner": "khirbat",
-     "region": "saltpans",
-     "type": "spearmen"
+     "owner": "seljuks",
+     "region": "laranda",
+     "type": "archers",
+     "soldiers": 15
     },
     {
-     "owner": "khirbat",
-     "region": "wadi_kesh",
-     "type": "crossbowmen"
+     "owner": "byzantines",
+     "region": "lefkosa",
+     "type": "cataphract",
+     "soldiers": 20
+    },
+    {
+     "owner": "syria",
+     "region": "ma_arra",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "crusaders",
+     "region": "nablus",
+     "type": "crossbowmen",
+     "soldiers": 15
+    },
+    {
+     "owner": "syria",
+     "region": "palmyra",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "byzantines",
+     "region": "paphos",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "syria",
+     "region": "raqqa",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "armenians",
+     "region": "sis",
+     "type": "swordsmen",
+     "soldiers": 20
+    },
+    {
+     "owner": "crusaders",
+     "region": "st_simeon",
+     "type": "pikemen",
+     "soldiers": 12
+    },
+    {
+     "owner": "crusaders",
+     "region": "tortosa",
+     "type": "brother_knight",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "krak_des_chevaliers",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "tripoli",
+     "type": "militia",
+     "soldiers": 10
     }
    ],
    "mission": {
-    "player": "order",
+    "player": "crusaders",
     "primary": [
      {
-      "type": "capture",
-      "regions": ["jebel_nur", "khirbat"]
+      "type": "destroy_units",
+      "faction": "fatimids",
+      "unit_type": "",
+      "count": 40
      }
     ],
-    "additional": [],
+    "additional": [
+     {
+      "type": "capture",
+      "regions": [
+       "ascalon"
+      ],
+      "points": 300
+     }
+    ],
     "defeat": [
      {
       "type": "time",
-      "turns": 24
+      "turns": 10
      },
      {
       "type": "lose_region",
-      "region": "castel_aubade"
+      "region": "jerusalem"
      }
     ],
-    "crowns": [12, 17, 24],
-    "events": [],
-    "briefing": "An emir in the hills and an imperial exarch on the coast both claim the Sunward shore. Take both their seats, and the order will rule from the mountains to the sea.",
-    "victory_text": "The order's banner flies over Jebel Nur and Khirbat. The vow is kept.",
-    "defeat_text": "The order is driven back to its single keep."
-   },
-   "resources": {
-    "jebel": {
-     "gold": 500
-    },
-    "khirbat": {
-     "gold": 500
-    }
+    "crowns": [
+     5,
+     7,
+     9
+    ],
+    "events": [
+     {
+      "turn": 1,
+      "type": "reinforcements",
+      "faction": "fatimids",
+      "region": "ascalon",
+      "unit": "ghazi",
+      "soldiers": 15,
+      "text": "The vizier al-Afdal has landed at Ascalon with the army of Egypt."
+     }
+    ],
+    "history": "Jerusalem is taken, but the vizier of Egypt is coming to take it back, and most of the crusaders want to go home.",
+    "briefing": "March out and destroy the Egyptian army before it reaches Jerusalem.",
+    "victory_text": "The Egyptian camp is taken at dawn, and the kingdom of Jerusalem will live.",
+    "defeat_text": "Jerusalem falls back to Egypt within the year."
    },
    "campaign": "crusader",
    "mission_index": 3
+  },
+  {
+   "id": "crusader_5",
+   "name": "Tripoli, 1109",
+   "map": "levant",
+   "factions": [
+    {
+     "id": "crusaders",
+     "name": "Crusaders",
+     "civ": "crusader",
+     "color": "#c4962c",
+     "ai": "balanced",
+     "human": true
+    },
+    {
+     "id": "ammar",
+     "name": "Banu Ammar of Tripoli",
+     "civ": "saracen",
+     "color": "#5aa04a",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "fatimids",
+     "name": "Fatimid Caliphate",
+     "civ": "saracen",
+     "color": "#5aa04a",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "syria",
+     "name": "Seljuk Emirs of Syria",
+     "civ": "saracen",
+     "color": "#3d8a4a",
+     "ai": "aggressive",
+     "human": false
+    },
+    {
+     "id": "seljuks",
+     "name": "Sultanate of Rum",
+     "civ": "saracen",
+     "color": "#8a5a2a",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "byzantines",
+     "name": "Byzantine Empire",
+     "civ": "byzantine",
+     "color": "#7a40a0",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "armenians",
+     "name": "Armenian Princes",
+     "civ": "",
+     "color": "#b07040",
+     "ai": "defensive",
+     "human": false
+    }
+   ],
+   "owners": {
+    "paphos": "byzantines",
+    "lefkosa": "byzantines",
+    "famagusta": "byzantines",
+    "konya": "seljuks",
+    "philomelion": "seljuks",
+    "antalya": "byzantines",
+    "alanya": "byzantines",
+    "laranda": "seljuks",
+    "seleucia": "byzantines",
+    "eregli": "seljuks",
+    "nigde": "seljuks",
+    "tarsus": "armenians",
+    "adana": "armenians",
+    "sis": "armenians",
+    "marash": "crusaders",
+    "edessa": "crusaders",
+    "bira": "crusaders",
+    "antioch": "crusaders",
+    "st_simeon": "crusaders",
+    "aleppo": "syria",
+    "ma_arra": "syria",
+    "hamah": "syria",
+    "homs": "syria",
+    "tortosa": "crusaders",
+    "krak_des_chevaliers": "ammar",
+    "tripoli": "ammar",
+    "palmyra": "syria",
+    "raqqa": "syria",
+    "baalbek": "syria",
+    "beirut": "fatimids",
+    "sidon": "fatimids",
+    "tyre": "fatimids",
+    "banias": "syria",
+    "damascus": "syria",
+    "bostra": "syria",
+    "acre": "crusaders",
+    "safad": "crusaders",
+    "caesarea": "crusaders",
+    "nablus": "crusaders",
+    "jaffa": "crusaders",
+    "jerusalem": "crusaders",
+    "ascalon": "fatimids",
+    "gaza": "fatimids",
+    "kerak": "fatimids",
+    "al_arish": "fatimids",
+    "damietta": "fatimids"
+   },
+   "capitals": {
+    "crusaders": "jerusalem",
+    "ammar": "tripoli",
+    "syria": "aleppo",
+    "fatimids": "ascalon",
+    "seljuks": "konya",
+    "byzantines": "lefkosa",
+    "armenians": "sis"
+   },
+   "buildings": {
+    "jerusalem": {
+     "walls": 1
+    },
+    "tripoli": {
+     "walls": 2
+    },
+    "aleppo": {
+     "walls": 1
+    },
+    "ascalon": {
+     "walls": 1
+    },
+    "konya": {
+     "walls": 1
+    },
+    "lefkosa": {
+     "walls": 1
+    },
+    "sis": {
+     "walls": 1
+    },
+    "antalya": {
+     "walls": 1
+    },
+    "marash": {
+     "walls": 1
+    },
+    "edessa": {
+     "walls": 1
+    },
+    "antioch": {
+     "walls": 1
+    },
+    "tortosa": {
+     "walls": 1
+    },
+    "krak_des_chevaliers": {
+     "walls": 1
+    },
+    "tyre": {
+     "walls": 1
+    },
+    "banias": {
+     "walls": 1
+    },
+    "damascus": {
+     "walls": 1
+    },
+    "bostra": {
+     "walls": 1
+    },
+    "acre": {
+     "walls": 1
+    },
+    "safad": {
+     "walls": 1
+    },
+    "kerak": {
+     "walls": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "crusaders",
+     "region": "acre",
+     "type": "pikemen",
+     "soldiers": 12
+    },
+    {
+     "owner": "armenians",
+     "region": "adana",
+     "type": "spearmen",
+     "soldiers": 15
+    },
+    {
+     "owner": "fatimids",
+     "region": "al_arish",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "syria",
+     "region": "aleppo",
+     "type": "mamluk",
+     "soldiers": 20
+    },
+    {
+     "owner": "crusaders",
+     "region": "antioch",
+     "type": "mounted_sergeant",
+     "soldiers": 15
+    },
+    {
+     "owner": "fatimids",
+     "region": "ascalon",
+     "type": "mamluk",
+     "soldiers": 20
+    },
+    {
+     "owner": "fatimids",
+     "region": "beirut",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "crusaders",
+     "region": "caesarea",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "seljuks",
+     "region": "eregli",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "byzantines",
+     "region": "famagusta",
+     "type": "varangian_guard",
+     "soldiers": 15
+    },
+    {
+     "owner": "fatimids",
+     "region": "gaza",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "syria",
+     "region": "hamah",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "crusaders",
+     "region": "jaffa",
+     "type": "mounted_sergeant",
+     "soldiers": 15
+    },
+    {
+     "owner": "crusaders",
+     "region": "jerusalem",
+     "type": "brother_knight",
+     "soldiers": 20
+    },
+    {
+     "owner": "fatimids",
+     "region": "kerak",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "seljuks",
+     "region": "konya",
+     "type": "mamluk",
+     "soldiers": 20
+    },
+    {
+     "owner": "ammar",
+     "region": "krak_des_chevaliers",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "seljuks",
+     "region": "laranda",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "byzantines",
+     "region": "lefkosa",
+     "type": "cataphract",
+     "soldiers": 20
+    },
+    {
+     "owner": "syria",
+     "region": "ma_arra",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "crusaders",
+     "region": "nablus",
+     "type": "crossbowmen",
+     "soldiers": 15
+    },
+    {
+     "owner": "syria",
+     "region": "palmyra",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "byzantines",
+     "region": "paphos",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "syria",
+     "region": "raqqa",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "crusaders",
+     "region": "safad",
+     "type": "brother_knight",
+     "soldiers": 12
+    },
+    {
+     "owner": "armenians",
+     "region": "sis",
+     "type": "swordsmen",
+     "soldiers": 20
+    },
+    {
+     "owner": "ammar",
+     "region": "tripoli",
+     "type": "mamluk",
+     "soldiers": 20
+    }
+   ],
+   "mission": {
+    "player": "crusaders",
+    "primary": [
+     {
+      "type": "capture",
+      "regions": [
+       "tripoli"
+      ]
+     }
+    ],
+    "additional": [
+     {
+      "type": "capture",
+      "regions": [
+       "beirut"
+      ]
+     }
+    ],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 12
+     },
+     {
+      "type": "lose_region",
+      "region": "antioch"
+     }
+    ],
+    "crowns": [
+     6,
+     8,
+     10
+    ],
+    "events": [],
+    "history": "Tripoli has held out against the crusaders for five years behind its sea walls. Bertrand of Toulouse has come from the West to claim his father's conquest.",
+    "briefing": "Take Tripoli and found the fourth crusader state.",
+    "victory_text": "Tripoli surrenders, and the County of Tripoli is born.",
+    "defeat_text": "Antioch falls while the army is held before Tripoli."
+   },
+   "campaign": "crusader",
+   "mission_index": 4
+  },
+  {
+   "id": "crusader_6",
+   "name": "Tyre, 1124",
+   "map": "levant",
+   "factions": [
+    {
+     "id": "crusaders",
+     "name": "Crusaders",
+     "civ": "crusader",
+     "color": "#c4962c",
+     "ai": "balanced",
+     "human": true
+    },
+    {
+     "id": "fatimids",
+     "name": "Fatimid Caliphate",
+     "civ": "saracen",
+     "color": "#5aa04a",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "syria",
+     "name": "Seljuk Emirs of Syria",
+     "civ": "saracen",
+     "color": "#3d8a4a",
+     "ai": "aggressive",
+     "human": false
+    },
+    {
+     "id": "seljuks",
+     "name": "Sultanate of Rum",
+     "civ": "saracen",
+     "color": "#8a5a2a",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "byzantines",
+     "name": "Byzantine Empire",
+     "civ": "byzantine",
+     "color": "#7a40a0",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "armenians",
+     "name": "Armenian Princes",
+     "civ": "",
+     "color": "#b07040",
+     "ai": "defensive",
+     "human": false
+    }
+   ],
+   "owners": {
+    "paphos": "byzantines",
+    "lefkosa": "byzantines",
+    "famagusta": "byzantines",
+    "konya": "seljuks",
+    "philomelion": "seljuks",
+    "antalya": "byzantines",
+    "alanya": "byzantines",
+    "laranda": "seljuks",
+    "seleucia": "byzantines",
+    "eregli": "seljuks",
+    "nigde": "seljuks",
+    "tarsus": "armenians",
+    "adana": "armenians",
+    "sis": "armenians",
+    "marash": "crusaders",
+    "edessa": "crusaders",
+    "bira": "crusaders",
+    "antioch": "crusaders",
+    "st_simeon": "crusaders",
+    "aleppo": "syria",
+    "ma_arra": "syria",
+    "hamah": "syria",
+    "homs": "syria",
+    "tortosa": "crusaders",
+    "krak_des_chevaliers": "crusaders",
+    "tripoli": "crusaders",
+    "palmyra": "syria",
+    "raqqa": "syria",
+    "baalbek": "syria",
+    "beirut": "crusaders",
+    "sidon": "crusaders",
+    "tyre": "fatimids",
+    "banias": "syria",
+    "damascus": "syria",
+    "bostra": "syria",
+    "acre": "crusaders",
+    "safad": "crusaders",
+    "caesarea": "crusaders",
+    "nablus": "crusaders",
+    "jaffa": "crusaders",
+    "jerusalem": "crusaders",
+    "ascalon": "fatimids",
+    "gaza": "fatimids",
+    "kerak": "fatimids",
+    "al_arish": "fatimids",
+    "damietta": "fatimids"
+   },
+   "capitals": {
+    "crusaders": "jerusalem",
+    "syria": "aleppo",
+    "fatimids": "ascalon",
+    "seljuks": "konya",
+    "byzantines": "lefkosa",
+    "armenians": "sis"
+   },
+   "buildings": {
+    "jerusalem": {
+     "walls": 1
+    },
+    "aleppo": {
+     "walls": 1
+    },
+    "ascalon": {
+     "walls": 1
+    },
+    "konya": {
+     "walls": 1
+    },
+    "lefkosa": {
+     "walls": 1
+    },
+    "sis": {
+     "walls": 1
+    },
+    "tyre": {
+     "walls": 2
+    },
+    "antalya": {
+     "walls": 1
+    },
+    "marash": {
+     "walls": 1
+    },
+    "edessa": {
+     "walls": 1
+    },
+    "antioch": {
+     "walls": 1
+    },
+    "tortosa": {
+     "walls": 1
+    },
+    "krak_des_chevaliers": {
+     "walls": 1
+    },
+    "tripoli": {
+     "walls": 1
+    },
+    "banias": {
+     "walls": 1
+    },
+    "damascus": {
+     "walls": 1
+    },
+    "bostra": {
+     "walls": 1
+    },
+    "acre": {
+     "walls": 1
+    },
+    "safad": {
+     "walls": 1
+    },
+    "kerak": {
+     "walls": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "crusaders",
+     "region": "acre",
+     "type": "pikemen",
+     "soldiers": 12
+    },
+    {
+     "owner": "armenians",
+     "region": "adana",
+     "type": "spearmen",
+     "soldiers": 15
+    },
+    {
+     "owner": "fatimids",
+     "region": "al_arish",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "syria",
+     "region": "aleppo",
+     "type": "mamluk",
+     "soldiers": 20
+    },
+    {
+     "owner": "fatimids",
+     "region": "ascalon",
+     "type": "mamluk",
+     "soldiers": 20
+    },
+    {
+     "owner": "crusaders",
+     "region": "beirut",
+     "type": "mounted_sergeant",
+     "soldiers": 12
+    },
+    {
+     "owner": "crusaders",
+     "region": "caesarea",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "seljuks",
+     "region": "eregli",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "byzantines",
+     "region": "famagusta",
+     "type": "varangian_guard",
+     "soldiers": 15
+    },
+    {
+     "owner": "fatimids",
+     "region": "gaza",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "syria",
+     "region": "hamah",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "crusaders",
+     "region": "jaffa",
+     "type": "mounted_sergeant",
+     "soldiers": 15
+    },
+    {
+     "owner": "crusaders",
+     "region": "jerusalem",
+     "type": "brother_knight",
+     "soldiers": 20
+    },
+    {
+     "owner": "seljuks",
+     "region": "konya",
+     "type": "mamluk",
+     "soldiers": 20
+    },
+    {
+     "owner": "seljuks",
+     "region": "laranda",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "byzantines",
+     "region": "lefkosa",
+     "type": "cataphract",
+     "soldiers": 20
+    },
+    {
+     "owner": "syria",
+     "region": "ma_arra",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "crusaders",
+     "region": "nablus",
+     "type": "crossbowmen",
+     "soldiers": 15
+    },
+    {
+     "owner": "syria",
+     "region": "palmyra",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "byzantines",
+     "region": "paphos",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "syria",
+     "region": "raqqa",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "crusaders",
+     "region": "safad",
+     "type": "brother_knight",
+     "soldiers": 12
+    },
+    {
+     "owner": "crusaders",
+     "region": "sidon",
+     "type": "crossbowmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "armenians",
+     "region": "sis",
+     "type": "swordsmen",
+     "soldiers": 20
+    },
+    {
+     "owner": "fatimids",
+     "region": "tyre",
+     "type": "ghazi",
+     "soldiers": 15
+    }
+   ],
+   "mission": {
+    "player": "crusaders",
+    "primary": [
+     {
+      "type": "capture",
+      "regions": [
+       "tyre"
+      ]
+     }
+    ],
+    "additional": [
+     {
+      "type": "destroy_units",
+      "faction": "fatimids",
+      "unit_type": "",
+      "count": 20
+     }
+    ],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 10
+     },
+     {
+      "type": "lose_region",
+      "region": "acre"
+     }
+    ],
+    "crowns": [
+     5,
+     7,
+     9
+    ],
+    "events": [],
+    "history": "A Venetian fleet has destroyed the Egyptian navy off Ascalon. Now Venice and the kingdom lay siege to Tyre, the strongest city on the coast.",
+    "briefing": "Take Tyre while the Venetians hold the sea.",
+    "victory_text": "Tyre surrenders after five months. The whole coast north of Ascalon is in Christian hands.",
+    "defeat_text": "Acre falls, and the siege of Tyre is abandoned."
+   },
+   "campaign": "crusader",
+   "mission_index": 5
+  },
+  {
+   "id": "crusader_7",
+   "name": "The Fall of Edessa, 1144",
+   "map": "levant",
+   "factions": [
+    {
+     "id": "crusaders",
+     "name": "Crusaders",
+     "civ": "crusader",
+     "color": "#c4962c",
+     "ai": "balanced",
+     "human": true
+    },
+    {
+     "id": "zengids",
+     "name": "Zengi of Mosul",
+     "civ": "saracen",
+     "color": "#2e6a3a",
+     "ai": "aggressive",
+     "human": false
+    },
+    {
+     "id": "burids",
+     "name": "Emirate of Damascus",
+     "civ": "saracen",
+     "color": "#3d8a4a",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "fatimids",
+     "name": "Fatimid Caliphate",
+     "civ": "saracen",
+     "color": "#5aa04a",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "seljuks",
+     "name": "Sultanate of Rum",
+     "civ": "saracen",
+     "color": "#8a5a2a",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "byzantines",
+     "name": "Byzantine Empire",
+     "civ": "byzantine",
+     "color": "#7a40a0",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "armenians",
+     "name": "Armenian Princes",
+     "civ": "",
+     "color": "#b07040",
+     "ai": "defensive",
+     "human": false
+    }
+   ],
+   "owners": {
+    "paphos": "byzantines",
+    "lefkosa": "byzantines",
+    "famagusta": "byzantines",
+    "konya": "seljuks",
+    "philomelion": "seljuks",
+    "antalya": "byzantines",
+    "alanya": "byzantines",
+    "laranda": "seljuks",
+    "seleucia": "byzantines",
+    "eregli": "seljuks",
+    "nigde": "seljuks",
+    "tarsus": "armenians",
+    "adana": "armenians",
+    "sis": "armenians",
+    "marash": "crusaders",
+    "edessa": "crusaders",
+    "bira": "crusaders",
+    "antioch": "crusaders",
+    "st_simeon": "crusaders",
+    "aleppo": "zengids",
+    "ma_arra": "zengids",
+    "hamah": "zengids",
+    "homs": "zengids",
+    "tortosa": "crusaders",
+    "krak_des_chevaliers": "crusaders",
+    "tripoli": "crusaders",
+    "palmyra": "zengids",
+    "raqqa": "zengids",
+    "baalbek": "burids",
+    "beirut": "crusaders",
+    "sidon": "crusaders",
+    "tyre": "crusaders",
+    "banias": "burids",
+    "damascus": "burids",
+    "bostra": "burids",
+    "acre": "crusaders",
+    "safad": "crusaders",
+    "caesarea": "crusaders",
+    "nablus": "crusaders",
+    "jaffa": "crusaders",
+    "jerusalem": "crusaders",
+    "ascalon": "fatimids",
+    "gaza": "fatimids",
+    "kerak": "crusaders",
+    "al_arish": "fatimids",
+    "damietta": "fatimids"
+   },
+   "capitals": {
+    "crusaders": "jerusalem",
+    "zengids": "aleppo",
+    "burids": "damascus",
+    "fatimids": "ascalon",
+    "seljuks": "konya",
+    "byzantines": "lefkosa",
+    "armenians": "sis"
+   },
+   "buildings": {
+    "jerusalem": {
+     "walls": 1
+    },
+    "aleppo": {
+     "walls": 1
+    },
+    "damascus": {
+     "walls": 1
+    },
+    "ascalon": {
+     "walls": 1
+    },
+    "konya": {
+     "walls": 1
+    },
+    "lefkosa": {
+     "walls": 1
+    },
+    "sis": {
+     "walls": 1
+    },
+    "antalya": {
+     "walls": 1
+    },
+    "marash": {
+     "walls": 1
+    },
+    "edessa": {
+     "walls": 1
+    },
+    "antioch": {
+     "walls": 1
+    },
+    "tortosa": {
+     "walls": 1
+    },
+    "krak_des_chevaliers": {
+     "walls": 1
+    },
+    "tripoli": {
+     "walls": 1
+    },
+    "tyre": {
+     "walls": 1
+    },
+    "banias": {
+     "walls": 1
+    },
+    "bostra": {
+     "walls": 1
+    },
+    "acre": {
+     "walls": 1
+    },
+    "safad": {
+     "walls": 1
+    },
+    "kerak": {
+     "walls": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "crusaders",
+     "region": "acre",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "armenians",
+     "region": "adana",
+     "type": "spearmen",
+     "soldiers": 15
+    },
+    {
+     "owner": "zengids",
+     "region": "aleppo",
+     "type": "mamluk",
+     "soldiers": 20
+    },
+    {
+     "owner": "fatimids",
+     "region": "ascalon",
+     "type": "mamluk",
+     "soldiers": 20
+    },
+    {
+     "owner": "burids",
+     "region": "baalbek",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "crusaders",
+     "region": "beirut",
+     "type": "crossbowmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "crusaders",
+     "region": "caesarea",
+     "type": "brother_knight",
+     "soldiers": 12
+    },
+    {
+     "owner": "burids",
+     "region": "damascus",
+     "type": "mamluk",
+     "soldiers": 20
+    },
+    {
+     "owner": "crusaders",
+     "region": "edessa",
+     "type": "crossbowmen",
+     "soldiers": 15
+    },
+    {
+     "owner": "seljuks",
+     "region": "eregli",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "byzantines",
+     "region": "famagusta",
+     "type": "varangian_guard",
+     "soldiers": 15
+    },
+    {
+     "owner": "fatimids",
+     "region": "gaza",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "crusaders",
+     "region": "jaffa",
+     "type": "mounted_sergeant",
+     "soldiers": 15
+    },
+    {
+     "owner": "crusaders",
+     "region": "jerusalem",
+     "type": "brother_knight",
+     "soldiers": 20
+    },
+    {
+     "owner": "crusaders",
+     "region": "kerak",
+     "type": "crossbowmen",
+     "soldiers": 15
+    },
+    {
+     "owner": "seljuks",
+     "region": "konya",
+     "type": "mamluk",
+     "soldiers": 20
+    },
+    {
+     "owner": "seljuks",
+     "region": "laranda",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "byzantines",
+     "region": "lefkosa",
+     "type": "cataphract",
+     "soldiers": 20
+    },
+    {
+     "owner": "zengids",
+     "region": "ma_arra",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "crusaders",
+     "region": "nablus",
+     "type": "pikemen",
+     "soldiers": 12
+    },
+    {
+     "owner": "byzantines",
+     "region": "paphos",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "zengids",
+     "region": "raqqa",
+     "type": "ghazi",
+     "soldiers": 18
+    },
+    {
+     "owner": "crusaders",
+     "region": "safad",
+     "type": "mounted_sergeant",
+     "soldiers": 12
+    },
+    {
+     "owner": "crusaders",
+     "region": "sidon",
+     "type": "pikemen",
+     "soldiers": 12
+    },
+    {
+     "owner": "armenians",
+     "region": "sis",
+     "type": "swordsmen",
+     "soldiers": 20
+    }
+   ],
+   "mission": {
+    "player": "crusaders",
+    "primary": [
+     {
+      "type": "hold",
+      "region": "edessa",
+      "turns": 6
+     }
+    ],
+    "additional": [
+     {
+      "type": "destroy_units",
+      "faction": "zengids",
+      "unit_type": "",
+      "count": 30
+     }
+    ],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 10
+     },
+     {
+      "type": "lose_region",
+      "region": "edessa"
+     }
+    ],
+    "crowns": [
+     7,
+     8,
+     10
+    ],
+    "events": [
+     {
+      "turn": 2,
+      "type": "reinforcements",
+      "faction": "zengids",
+      "region": "raqqa",
+      "unit": "mamluk",
+      "soldiers": 10,
+      "text": "Zengi's army crosses the Euphrates."
+     }
+    ],
+    "history": "Count Joscelin II has taken his army west, and Zengi, atabeg of Mosul and Aleppo, has seized the moment to strike at Edessa.",
+    "briefing": "Hold Edessa until help comes. History says it falls.",
+    "victory_text": "Zengi's army falls back from the walls, and Edessa stands.",
+    "defeat_text": "Edessa falls on Christmas Eve, and Europe takes the cross again."
+   },
+   "campaign": "crusader",
+   "mission_index": 6
+  },
+  {
+   "id": "crusader_8",
+   "name": "Damascus, 1148",
+   "map": "levant",
+   "factions": [
+    {
+     "id": "crusaders",
+     "name": "Crusaders",
+     "civ": "crusader",
+     "color": "#c4962c",
+     "ai": "balanced",
+     "human": true
+    },
+    {
+     "id": "burids",
+     "name": "Emirate of Damascus",
+     "civ": "saracen",
+     "color": "#3d8a4a",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "zengids",
+     "name": "Nur ad-Din",
+     "civ": "saracen",
+     "color": "#2e6a3a",
+     "ai": "aggressive",
+     "human": false
+    },
+    {
+     "id": "fatimids",
+     "name": "Fatimid Caliphate",
+     "civ": "saracen",
+     "color": "#5aa04a",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "seljuks",
+     "name": "Sultanate of Rum",
+     "civ": "saracen",
+     "color": "#8a5a2a",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "byzantines",
+     "name": "Byzantine Empire",
+     "civ": "byzantine",
+     "color": "#7a40a0",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "armenians",
+     "name": "Armenian Princes",
+     "civ": "",
+     "color": "#b07040",
+     "ai": "defensive",
+     "human": false
+    }
+   ],
+   "owners": {
+    "paphos": "byzantines",
+    "lefkosa": "byzantines",
+    "famagusta": "byzantines",
+    "konya": "seljuks",
+    "philomelion": "seljuks",
+    "antalya": "byzantines",
+    "alanya": "byzantines",
+    "laranda": "seljuks",
+    "seleucia": "byzantines",
+    "eregli": "seljuks",
+    "nigde": "seljuks",
+    "tarsus": "armenians",
+    "adana": "armenians",
+    "sis": "armenians",
+    "marash": "zengids",
+    "edessa": "zengids",
+    "bira": "zengids",
+    "antioch": "crusaders",
+    "st_simeon": "crusaders",
+    "aleppo": "zengids",
+    "ma_arra": "zengids",
+    "hamah": "zengids",
+    "homs": "zengids",
+    "tortosa": "crusaders",
+    "krak_des_chevaliers": "crusaders",
+    "tripoli": "crusaders",
+    "palmyra": "zengids",
+    "raqqa": "zengids",
+    "baalbek": "burids",
+    "beirut": "crusaders",
+    "sidon": "crusaders",
+    "tyre": "crusaders",
+    "banias": "burids",
+    "damascus": "burids",
+    "bostra": "burids",
+    "acre": "crusaders",
+    "safad": "crusaders",
+    "caesarea": "crusaders",
+    "nablus": "crusaders",
+    "jaffa": "crusaders",
+    "jerusalem": "crusaders",
+    "ascalon": "fatimids",
+    "gaza": "fatimids",
+    "kerak": "crusaders",
+    "al_arish": "fatimids",
+    "damietta": "fatimids"
+   },
+   "capitals": {
+    "crusaders": "jerusalem",
+    "zengids": "aleppo",
+    "burids": "damascus",
+    "fatimids": "ascalon",
+    "seljuks": "konya",
+    "byzantines": "lefkosa",
+    "armenians": "sis"
+   },
+   "buildings": {
+    "jerusalem": {
+     "walls": 1
+    },
+    "aleppo": {
+     "walls": 1
+    },
+    "damascus": {
+     "walls": 2
+    },
+    "ascalon": {
+     "walls": 1
+    },
+    "konya": {
+     "walls": 1
+    },
+    "lefkosa": {
+     "walls": 1
+    },
+    "sis": {
+     "walls": 1
+    },
+    "antalya": {
+     "walls": 1
+    },
+    "marash": {
+     "walls": 1
+    },
+    "edessa": {
+     "walls": 1
+    },
+    "antioch": {
+     "walls": 1
+    },
+    "tortosa": {
+     "walls": 1
+    },
+    "krak_des_chevaliers": {
+     "walls": 1
+    },
+    "tripoli": {
+     "walls": 1
+    },
+    "tyre": {
+     "walls": 1
+    },
+    "banias": {
+     "walls": 1
+    },
+    "bostra": {
+     "walls": 1
+    },
+    "acre": {
+     "walls": 1
+    },
+    "safad": {
+     "walls": 1
+    },
+    "kerak": {
+     "walls": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "crusaders",
+     "region": "acre",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "armenians",
+     "region": "adana",
+     "type": "spearmen",
+     "soldiers": 15
+    },
+    {
+     "owner": "zengids",
+     "region": "aleppo",
+     "type": "mamluk",
+     "soldiers": 20
+    },
+    {
+     "owner": "fatimids",
+     "region": "ascalon",
+     "type": "mamluk",
+     "soldiers": 20
+    },
+    {
+     "owner": "burids",
+     "region": "baalbek",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "crusaders",
+     "region": "beirut",
+     "type": "crossbowmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "zengids",
+     "region": "bira",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "crusaders",
+     "region": "caesarea",
+     "type": "brother_knight",
+     "soldiers": 12
+    },
+    {
+     "owner": "burids",
+     "region": "damascus",
+     "type": "mamluk",
+     "soldiers": 20
+    },
+    {
+     "owner": "seljuks",
+     "region": "eregli",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "byzantines",
+     "region": "famagusta",
+     "type": "varangian_guard",
+     "soldiers": 15
+    },
+    {
+     "owner": "fatimids",
+     "region": "gaza",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "crusaders",
+     "region": "jaffa",
+     "type": "mounted_sergeant",
+     "soldiers": 15
+    },
+    {
+     "owner": "crusaders",
+     "region": "jerusalem",
+     "type": "brother_knight",
+     "soldiers": 20
+    },
+    {
+     "owner": "crusaders",
+     "region": "kerak",
+     "type": "crossbowmen",
+     "soldiers": 15
+    },
+    {
+     "owner": "seljuks",
+     "region": "konya",
+     "type": "mamluk",
+     "soldiers": 20
+    },
+    {
+     "owner": "seljuks",
+     "region": "laranda",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "byzantines",
+     "region": "lefkosa",
+     "type": "cataphract",
+     "soldiers": 20
+    },
+    {
+     "owner": "zengids",
+     "region": "ma_arra",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "zengids",
+     "region": "marash",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "crusaders",
+     "region": "nablus",
+     "type": "pikemen",
+     "soldiers": 12
+    },
+    {
+     "owner": "byzantines",
+     "region": "paphos",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "zengids",
+     "region": "raqqa",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "crusaders",
+     "region": "safad",
+     "type": "mounted_sergeant",
+     "soldiers": 12
+    },
+    {
+     "owner": "armenians",
+     "region": "sis",
+     "type": "swordsmen",
+     "soldiers": 20
+    }
+   ],
+   "mission": {
+    "player": "crusaders",
+    "primary": [
+     {
+      "type": "capture",
+      "regions": [
+       "damascus"
+      ]
+     }
+    ],
+    "additional": [
+     {
+      "type": "capture",
+      "regions": [
+       "baalbek"
+      ]
+     }
+    ],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 12
+     },
+     {
+      "type": "lose_region",
+      "region": "jerusalem"
+     }
+    ],
+    "crowns": [
+     6,
+     8,
+     10
+    ],
+    "events": [],
+    "history": "The Second Crusade has come, led by the kings of France and Germany. Instead of Edessa, the barons have chosen Damascus, the richest city of Syria.",
+    "briefing": "Take Damascus before Nur ad-Din comes down from Aleppo.",
+    "victory_text": "Damascus falls, and the Second Crusade is not wasted after all.",
+    "defeat_text": "Jerusalem falls while its army is away."
+   },
+   "campaign": "crusader",
+   "mission_index": 7
+  },
+  {
+   "id": "crusader_9",
+   "name": "Ascalon, 1153",
+   "map": "levant",
+   "factions": [
+    {
+     "id": "crusaders",
+     "name": "Crusaders",
+     "civ": "crusader",
+     "color": "#c4962c",
+     "ai": "balanced",
+     "human": true
+    },
+    {
+     "id": "fatimids",
+     "name": "Fatimid Caliphate",
+     "civ": "saracen",
+     "color": "#5aa04a",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "zengids",
+     "name": "Nur ad-Din",
+     "civ": "saracen",
+     "color": "#2e6a3a",
+     "ai": "aggressive",
+     "human": false
+    },
+    {
+     "id": "seljuks",
+     "name": "Sultanate of Rum",
+     "civ": "saracen",
+     "color": "#8a5a2a",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "byzantines",
+     "name": "Byzantine Empire",
+     "civ": "byzantine",
+     "color": "#7a40a0",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "armenians",
+     "name": "Armenian Princes",
+     "civ": "",
+     "color": "#b07040",
+     "ai": "defensive",
+     "human": false
+    }
+   ],
+   "owners": {
+    "paphos": "byzantines",
+    "lefkosa": "byzantines",
+    "famagusta": "byzantines",
+    "konya": "seljuks",
+    "philomelion": "seljuks",
+    "antalya": "byzantines",
+    "alanya": "byzantines",
+    "laranda": "seljuks",
+    "seleucia": "byzantines",
+    "eregli": "seljuks",
+    "nigde": "seljuks",
+    "tarsus": "armenians",
+    "adana": "armenians",
+    "sis": "armenians",
+    "marash": "zengids",
+    "edessa": "zengids",
+    "bira": "zengids",
+    "antioch": "crusaders",
+    "st_simeon": "crusaders",
+    "aleppo": "zengids",
+    "ma_arra": "zengids",
+    "hamah": "zengids",
+    "homs": "zengids",
+    "tortosa": "crusaders",
+    "krak_des_chevaliers": "crusaders",
+    "tripoli": "crusaders",
+    "palmyra": "zengids",
+    "raqqa": "zengids",
+    "baalbek": "zengids",
+    "beirut": "crusaders",
+    "sidon": "crusaders",
+    "tyre": "crusaders",
+    "banias": "zengids",
+    "damascus": "zengids",
+    "bostra": "zengids",
+    "acre": "crusaders",
+    "safad": "crusaders",
+    "caesarea": "crusaders",
+    "nablus": "crusaders",
+    "jaffa": "crusaders",
+    "jerusalem": "crusaders",
+    "ascalon": "fatimids",
+    "gaza": "fatimids",
+    "kerak": "crusaders",
+    "al_arish": "fatimids",
+    "damietta": "fatimids"
+   },
+   "capitals": {
+    "crusaders": "jerusalem",
+    "zengids": "aleppo",
+    "fatimids": "ascalon",
+    "seljuks": "konya",
+    "byzantines": "lefkosa",
+    "armenians": "sis"
+   },
+   "buildings": {
+    "jerusalem": {
+     "walls": 1
+    },
+    "aleppo": {
+     "walls": 1
+    },
+    "ascalon": {
+     "walls": 2
+    },
+    "konya": {
+     "walls": 1
+    },
+    "lefkosa": {
+     "walls": 1
+    },
+    "sis": {
+     "walls": 1
+    },
+    "antalya": {
+     "walls": 1
+    },
+    "marash": {
+     "walls": 1
+    },
+    "edessa": {
+     "walls": 1
+    },
+    "antioch": {
+     "walls": 1
+    },
+    "tortosa": {
+     "walls": 1
+    },
+    "krak_des_chevaliers": {
+     "walls": 1
+    },
+    "tripoli": {
+     "walls": 1
+    },
+    "tyre": {
+     "walls": 1
+    },
+    "banias": {
+     "walls": 1
+    },
+    "damascus": {
+     "walls": 1
+    },
+    "bostra": {
+     "walls": 1
+    },
+    "acre": {
+     "walls": 1
+    },
+    "safad": {
+     "walls": 1
+    },
+    "kerak": {
+     "walls": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "crusaders",
+     "region": "acre",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "armenians",
+     "region": "adana",
+     "type": "spearmen",
+     "soldiers": 15
+    },
+    {
+     "owner": "zengids",
+     "region": "aleppo",
+     "type": "mamluk",
+     "soldiers": 20
+    },
+    {
+     "owner": "fatimids",
+     "region": "ascalon",
+     "type": "mamluk",
+     "soldiers": 20
+    },
+    {
+     "owner": "crusaders",
+     "region": "beirut",
+     "type": "crossbowmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "zengids",
+     "region": "bira",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "crusaders",
+     "region": "caesarea",
+     "type": "brother_knight",
+     "soldiers": 12
+    },
+    {
+     "owner": "zengids",
+     "region": "edessa",
+     "type": "mamluk",
+     "soldiers": 12
+    },
+    {
+     "owner": "seljuks",
+     "region": "eregli",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "byzantines",
+     "region": "famagusta",
+     "type": "varangian_guard",
+     "soldiers": 15
+    },
+    {
+     "owner": "fatimids",
+     "region": "gaza",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "zengids",
+     "region": "hamah",
+     "type": "ghazi",
+     "soldiers": 12
+    },
+    {
+     "owner": "crusaders",
+     "region": "jaffa",
+     "type": "mounted_sergeant",
+     "soldiers": 15
+    },
+    {
+     "owner": "crusaders",
+     "region": "jerusalem",
+     "type": "brother_knight",
+     "soldiers": 20
+    },
+    {
+     "owner": "crusaders",
+     "region": "kerak",
+     "type": "crossbowmen",
+     "soldiers": 15
+    },
+    {
+     "owner": "seljuks",
+     "region": "konya",
+     "type": "mamluk",
+     "soldiers": 20
+    },
+    {
+     "owner": "seljuks",
+     "region": "laranda",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "byzantines",
+     "region": "lefkosa",
+     "type": "cataphract",
+     "soldiers": 20
+    },
+    {
+     "owner": "zengids",
+     "region": "ma_arra",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "zengids",
+     "region": "marash",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "crusaders",
+     "region": "nablus",
+     "type": "pikemen",
+     "soldiers": 12
+    },
+    {
+     "owner": "byzantines",
+     "region": "paphos",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "zengids",
+     "region": "raqqa",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "crusaders",
+     "region": "safad",
+     "type": "mounted_sergeant",
+     "soldiers": 12
+    },
+    {
+     "owner": "armenians",
+     "region": "sis",
+     "type": "swordsmen",
+     "soldiers": 20
+    }
+   ],
+   "mission": {
+    "player": "crusaders",
+    "primary": [
+     {
+      "type": "capture",
+      "regions": [
+       "ascalon"
+      ]
+     }
+    ],
+    "additional": [
+     {
+      "type": "capture",
+      "regions": [
+       "gaza"
+      ]
+     }
+    ],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 10
+     },
+     {
+      "type": "lose_region",
+      "region": "jerusalem"
+     }
+    ],
+    "crowns": [
+     5,
+     7,
+     9
+    ],
+    "events": [],
+    "history": "Ascalon, the bride of Syria, is the last Egyptian fortress on the coast. Every year its garrison raids the kingdom. King Baldwin III has brought siege towers.",
+    "briefing": "Take Ascalon and close the road from Egypt.",
+    "victory_text": "Ascalon falls after seven months, and the whole coast is in crusader hands.",
+    "defeat_text": "Jerusalem falls while the army is at Ascalon."
+   },
+   "campaign": "crusader",
+   "mission_index": 8
+  },
+  {
+   "id": "crusader_10",
+   "name": "Montgisard, 1177",
+   "map": "levant",
+   "factions": [
+    {
+     "id": "crusaders",
+     "name": "Crusaders",
+     "civ": "crusader",
+     "color": "#c4962c",
+     "ai": "balanced",
+     "human": true
+    },
+    {
+     "id": "ayyubids",
+     "name": "Ayyubid Sultanate",
+     "civ": "saracen",
+     "color": "#3d8a4a",
+     "ai": "aggressive",
+     "human": false
+    },
+    {
+     "id": "seljuks",
+     "name": "Sultanate of Rum",
+     "civ": "saracen",
+     "color": "#8a5a2a",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "byzantines",
+     "name": "Byzantine Empire",
+     "civ": "byzantine",
+     "color": "#7a40a0",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "armenians",
+     "name": "Armenian Princes",
+     "civ": "",
+     "color": "#b07040",
+     "ai": "defensive",
+     "human": false
+    }
+   ],
+   "owners": {
+    "paphos": "byzantines",
+    "lefkosa": "byzantines",
+    "famagusta": "byzantines",
+    "konya": "seljuks",
+    "philomelion": "seljuks",
+    "antalya": "byzantines",
+    "alanya": "byzantines",
+    "laranda": "seljuks",
+    "seleucia": "byzantines",
+    "eregli": "seljuks",
+    "nigde": "seljuks",
+    "tarsus": "armenians",
+    "adana": "armenians",
+    "sis": "armenians",
+    "marash": "ayyubids",
+    "edessa": "ayyubids",
+    "bira": "ayyubids",
+    "antioch": "crusaders",
+    "st_simeon": "crusaders",
+    "aleppo": "ayyubids",
+    "ma_arra": "ayyubids",
+    "hamah": "ayyubids",
+    "homs": "ayyubids",
+    "tortosa": "crusaders",
+    "krak_des_chevaliers": "crusaders",
+    "tripoli": "crusaders",
+    "palmyra": "ayyubids",
+    "raqqa": "ayyubids",
+    "baalbek": "ayyubids",
+    "beirut": "crusaders",
+    "sidon": "crusaders",
+    "tyre": "crusaders",
+    "banias": "ayyubids",
+    "damascus": "ayyubids",
+    "bostra": "ayyubids",
+    "acre": "crusaders",
+    "safad": "crusaders",
+    "caesarea": "crusaders",
+    "nablus": "crusaders",
+    "jaffa": "crusaders",
+    "jerusalem": "crusaders",
+    "ascalon": "crusaders",
+    "gaza": "crusaders",
+    "kerak": "crusaders",
+    "al_arish": "ayyubids",
+    "damietta": "ayyubids"
+   },
+   "capitals": {
+    "crusaders": "jerusalem",
+    "ayyubids": "damascus",
+    "seljuks": "konya",
+    "byzantines": "lefkosa",
+    "armenians": "sis"
+   },
+   "buildings": {
+    "jerusalem": {
+     "walls": 1
+    },
+    "damascus": {
+     "walls": 1
+    },
+    "konya": {
+     "walls": 1
+    },
+    "lefkosa": {
+     "walls": 1
+    },
+    "sis": {
+     "walls": 1
+    },
+    "antalya": {
+     "walls": 1
+    },
+    "marash": {
+     "walls": 1
+    },
+    "edessa": {
+     "walls": 1
+    },
+    "antioch": {
+     "walls": 1
+    },
+    "aleppo": {
+     "walls": 1
+    },
+    "tortosa": {
+     "walls": 1
+    },
+    "krak_des_chevaliers": {
+     "walls": 1
+    },
+    "tripoli": {
+     "walls": 1
+    },
+    "tyre": {
+     "walls": 1
+    },
+    "banias": {
+     "walls": 1
+    },
+    "bostra": {
+     "walls": 1
+    },
+    "acre": {
+     "walls": 1
+    },
+    "safad": {
+     "walls": 1
+    },
+    "ascalon": {
+     "walls": 1
+    },
+    "kerak": {
+     "walls": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "crusaders",
+     "region": "acre",
+     "type": "mounted_sergeant",
+     "soldiers": 12
+    },
+    {
+     "owner": "armenians",
+     "region": "adana",
+     "type": "spearmen",
+     "soldiers": 15
+    },
+    {
+     "owner": "ayyubids",
+     "region": "al_arish",
+     "type": "mamluk",
+     "soldiers": 20
+    },
+    {
+     "owner": "crusaders",
+     "region": "ascalon",
+     "type": "brother_knight",
+     "soldiers": 15
+    },
+    {
+     "owner": "ayyubids",
+     "region": "baalbek",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "ayyubids",
+     "region": "banias",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "ayyubids",
+     "region": "bostra",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "crusaders",
+     "region": "caesarea",
+     "type": "crossbowmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "ayyubids",
+     "region": "damascus",
+     "type": "mamluk",
+     "soldiers": 20
+    },
+    {
+     "owner": "ayyubids",
+     "region": "damietta",
+     "type": "mamluk",
+     "soldiers": 12
+    },
+    {
+     "owner": "seljuks",
+     "region": "eregli",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "byzantines",
+     "region": "famagusta",
+     "type": "varangian_guard",
+     "soldiers": 15
+    },
+    {
+     "owner": "crusaders",
+     "region": "gaza",
+     "type": "crossbowmen",
+     "soldiers": 15
+    },
+    {
+     "owner": "ayyubids",
+     "region": "hamah",
+     "type": "ghazi",
+     "soldiers": 12
+    },
+    {
+     "owner": "ayyubids",
+     "region": "homs",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "crusaders",
+     "region": "jaffa",
+     "type": "pikemen",
+     "soldiers": 12
+    },
+    {
+     "owner": "crusaders",
+     "region": "jerusalem",
+     "type": "brother_knight",
+     "soldiers": 20
+    },
+    {
+     "owner": "crusaders",
+     "region": "kerak",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "seljuks",
+     "region": "konya",
+     "type": "mamluk",
+     "soldiers": 20
+    },
+    {
+     "owner": "seljuks",
+     "region": "laranda",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "byzantines",
+     "region": "lefkosa",
+     "type": "cataphract",
+     "soldiers": 20
+    },
+    {
+     "owner": "crusaders",
+     "region": "nablus",
+     "type": "brother_knight",
+     "soldiers": 12
+    },
+    {
+     "owner": "ayyubids",
+     "region": "palmyra",
+     "type": "archers",
+     "soldiers": 12
+    },
+    {
+     "owner": "byzantines",
+     "region": "paphos",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "crusaders",
+     "region": "safad",
+     "type": "pikemen",
+     "soldiers": 12
+    },
+    {
+     "owner": "armenians",
+     "region": "sis",
+     "type": "swordsmen",
+     "soldiers": 20
+    }
+   ],
+   "mission": {
+    "player": "crusaders",
+    "primary": [
+     {
+      "type": "destroy_units",
+      "faction": "ayyubids",
+      "unit_type": "mamluk",
+      "count": 15
+     }
+    ],
+    "additional": [
+     {
+      "type": "capture",
+      "regions": [
+       "al_arish"
+      ]
+     }
+    ],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 10
+     },
+     {
+      "type": "lose_region",
+      "region": "jerusalem"
+     }
+    ],
+    "crowns": [
+     5,
+     7,
+     9
+    ],
+    "events": [
+     {
+      "turn": 1,
+      "type": "reinforcements",
+      "faction": "ayyubids",
+      "region": "al_arish",
+      "unit": "mamluk",
+      "soldiers": 10,
+      "text": "Saladin crosses the Sinai with the army of Egypt."
+     }
+    ],
+    "history": "King Baldwin IV is sixteen and a leper. Saladin has marched out of Egypt and the king's army is shut up in Ascalon, with the road to Jerusalem open.",
+    "briefing": "Catch Saladin's army on the march and destroy his Mamluks.",
+    "victory_text": "At Montgisard the boy king's knights scatter Saladin's army.",
+    "defeat_text": "Jerusalem falls to Saladin ten years early."
+   },
+   "campaign": "crusader",
+   "mission_index": 9
+  },
+  {
+   "id": "crusader_11",
+   "name": "Hattin, 1187",
+   "map": "levant",
+   "factions": [
+    {
+     "id": "crusaders",
+     "name": "Crusaders",
+     "civ": "crusader",
+     "color": "#c4962c",
+     "ai": "balanced",
+     "human": true
+    },
+    {
+     "id": "ayyubids",
+     "name": "Ayyubid Sultanate",
+     "civ": "saracen",
+     "color": "#3d8a4a",
+     "ai": "aggressive",
+     "human": false
+    },
+    {
+     "id": "seljuks",
+     "name": "Sultanate of Rum",
+     "civ": "saracen",
+     "color": "#8a5a2a",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "byzantines",
+     "name": "Byzantine Empire",
+     "civ": "byzantine",
+     "color": "#7a40a0",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "armenians",
+     "name": "Armenian Princes",
+     "civ": "",
+     "color": "#b07040",
+     "ai": "defensive",
+     "human": false
+    }
+   ],
+   "owners": {
+    "paphos": "byzantines",
+    "lefkosa": "byzantines",
+    "famagusta": "byzantines",
+    "konya": "seljuks",
+    "philomelion": "seljuks",
+    "antalya": "byzantines",
+    "alanya": "byzantines",
+    "laranda": "seljuks",
+    "seleucia": "armenians",
+    "eregli": "seljuks",
+    "nigde": "seljuks",
+    "tarsus": "armenians",
+    "adana": "armenians",
+    "sis": "armenians",
+    "marash": "seljuks",
+    "edessa": "ayyubids",
+    "bira": "ayyubids",
+    "antioch": "crusaders",
+    "st_simeon": "crusaders",
+    "aleppo": "ayyubids",
+    "ma_arra": "ayyubids",
+    "hamah": "ayyubids",
+    "homs": "ayyubids",
+    "tortosa": "crusaders",
+    "krak_des_chevaliers": "crusaders",
+    "tripoli": "crusaders",
+    "palmyra": "ayyubids",
+    "raqqa": "ayyubids",
+    "baalbek": "ayyubids",
+    "beirut": "crusaders",
+    "sidon": "crusaders",
+    "tyre": "crusaders",
+    "banias": "ayyubids",
+    "damascus": "ayyubids",
+    "bostra": "ayyubids",
+    "acre": "crusaders",
+    "safad": "crusaders",
+    "caesarea": "crusaders",
+    "nablus": "crusaders",
+    "jaffa": "crusaders",
+    "jerusalem": "crusaders",
+    "ascalon": "crusaders",
+    "gaza": "crusaders",
+    "kerak": "crusaders",
+    "al_arish": "ayyubids",
+    "damietta": "ayyubids"
+   },
+   "capitals": {
+    "crusaders": "jerusalem",
+    "ayyubids": "damascus",
+    "seljuks": "konya",
+    "byzantines": "lefkosa",
+    "armenians": "sis"
+   },
+   "buildings": {
+    "jerusalem": {
+     "walls": 2
+    },
+    "damascus": {
+     "walls": 1
+    },
+    "konya": {
+     "walls": 1
+    },
+    "lefkosa": {
+     "walls": 1
+    },
+    "sis": {
+     "walls": 1
+    },
+    "antalya": {
+     "walls": 1
+    },
+    "marash": {
+     "walls": 1
+    },
+    "edessa": {
+     "walls": 1
+    },
+    "antioch": {
+     "walls": 1
+    },
+    "aleppo": {
+     "walls": 1
+    },
+    "tortosa": {
+     "walls": 1
+    },
+    "krak_des_chevaliers": {
+     "walls": 1
+    },
+    "tripoli": {
+     "walls": 1
+    },
+    "tyre": {
+     "walls": 1
+    },
+    "banias": {
+     "walls": 1
+    },
+    "bostra": {
+     "walls": 1
+    },
+    "acre": {
+     "walls": 1
+    },
+    "safad": {
+     "walls": 1
+    },
+    "ascalon": {
+     "walls": 1
+    },
+    "kerak": {
+     "walls": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "crusaders",
+     "region": "acre",
+     "type": "mounted_sergeant",
+     "soldiers": 12
+    },
+    {
+     "owner": "armenians",
+     "region": "adana",
+     "type": "spearmen",
+     "soldiers": 15
+    },
+    {
+     "owner": "crusaders",
+     "region": "ascalon",
+     "type": "mounted_sergeant",
+     "soldiers": 15
+    },
+    {
+     "owner": "ayyubids",
+     "region": "baalbek",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "ayyubids",
+     "region": "banias",
+     "type": "mamluk",
+     "soldiers": 20
+    },
+    {
+     "owner": "ayyubids",
+     "region": "bostra",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "crusaders",
+     "region": "caesarea",
+     "type": "crossbowmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "ayyubids",
+     "region": "damascus",
+     "type": "ghazi",
+     "soldiers": 20
+    },
+    {
+     "owner": "ayyubids",
+     "region": "damietta",
+     "type": "mamluk",
+     "soldiers": 12
+    },
+    {
+     "owner": "seljuks",
+     "region": "eregli",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "byzantines",
+     "region": "famagusta",
+     "type": "varangian_guard",
+     "soldiers": 15
+    },
+    {
+     "owner": "crusaders",
+     "region": "gaza",
+     "type": "crossbowmen",
+     "soldiers": 15
+    },
+    {
+     "owner": "ayyubids",
+     "region": "hamah",
+     "type": "ghazi",
+     "soldiers": 12
+    },
+    {
+     "owner": "ayyubids",
+     "region": "homs",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "crusaders",
+     "region": "jaffa",
+     "type": "pikemen",
+     "soldiers": 12
+    },
+    {
+     "owner": "crusaders",
+     "region": "jerusalem",
+     "type": "brother_knight",
+     "soldiers": 18
+    },
+    {
+     "owner": "crusaders",
+     "region": "kerak",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "seljuks",
+     "region": "konya",
+     "type": "mamluk",
+     "soldiers": 20
+    },
+    {
+     "owner": "seljuks",
+     "region": "laranda",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "byzantines",
+     "region": "lefkosa",
+     "type": "cataphract",
+     "soldiers": 20
+    },
+    {
+     "owner": "crusaders",
+     "region": "nablus",
+     "type": "brother_knight",
+     "soldiers": 12
+    },
+    {
+     "owner": "byzantines",
+     "region": "paphos",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "crusaders",
+     "region": "safad",
+     "type": "pikemen",
+     "soldiers": 12
+    },
+    {
+     "owner": "armenians",
+     "region": "sis",
+     "type": "swordsmen",
+     "soldiers": 20
+    }
+   ],
+   "mission": {
+    "player": "crusaders",
+    "primary": [
+     {
+      "type": "hold",
+      "region": "jerusalem",
+      "turns": 6
+     }
+    ],
+    "additional": [
+     {
+      "type": "destroy_units",
+      "faction": "ayyubids",
+      "unit_type": "mamluk",
+      "count": 10
+     }
+    ],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 10
+     },
+     {
+      "type": "lose_region",
+      "region": "jerusalem"
+     }
+    ],
+    "crowns": [
+     7,
+     8,
+     10
+    ],
+    "events": [
+     {
+      "turn": 2,
+      "type": "reinforcements",
+      "faction": "ayyubids",
+      "region": "banias",
+      "unit": "mamluk",
+      "soldiers": 10,
+      "text": "Saladin's host gathers on the Golan heights above the Sea of Galilee."
+     }
+    ],
+    "history": "Reynald of Châtillon has broken the truce. Saladin has gathered the largest army the kingdom has ever faced, and King Guy is marching to meet it across the waterless hills.",
+    "briefing": "History says Jerusalem falls this year. Keep it.",
+    "victory_text": "Saladin's host melts away, and Jerusalem is still a Christian city.",
+    "defeat_text": "Jerusalem falls to Saladin, as it did in 1187."
+   },
+   "campaign": "crusader",
+   "mission_index": 10
+  },
+  {
+   "id": "crusader_12",
+   "name": "Third Crusade, second half of 1191–1192",
+   "map": "levant",
+   "factions": [
+    {
+     "id": "crusaders",
+     "name": "Crusaders",
+     "civ": "crusader",
+     "color": "#c4962c",
+     "ai": "balanced",
+     "human": true
+    },
+    {
+     "id": "ayyubids",
+     "name": "Ayyubid Sultanate",
+     "civ": "saracen",
+     "color": "#3d8a4a",
+     "ai": "aggressive",
+     "human": false
+    },
+    {
+     "id": "cyprus",
+     "name": "Isaac Komnenos of Cyprus",
+     "civ": "byzantine",
+     "color": "#7a40a0",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "seljuks",
+     "name": "Sultanate of Rum",
+     "civ": "saracen",
+     "color": "#8a5a2a",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "armenians",
+     "name": "Armenian Princes",
+     "civ": "",
+     "color": "#b07040",
+     "ai": "defensive",
+     "human": false
+    }
+   ],
+   "owners": {
+    "paphos": "cyprus",
+    "lefkosa": "cyprus",
+    "famagusta": "cyprus",
+    "konya": "seljuks",
+    "philomelion": "seljuks",
+    "antalya": "seljuks",
+    "alanya": "seljuks",
+    "laranda": "seljuks",
+    "seleucia": "armenians",
+    "eregli": "seljuks",
+    "nigde": "seljuks",
+    "tarsus": "armenians",
+    "adana": "armenians",
+    "sis": "armenians",
+    "marash": "seljuks",
+    "edessa": "ayyubids",
+    "bira": "ayyubids",
+    "antioch": "crusaders",
+    "st_simeon": "crusaders",
+    "aleppo": "ayyubids",
+    "ma_arra": "ayyubids",
+    "hamah": "ayyubids",
+    "homs": "ayyubids",
+    "tortosa": "crusaders",
+    "krak_des_chevaliers": "crusaders",
+    "tripoli": "crusaders",
+    "palmyra": "ayyubids",
+    "raqqa": "ayyubids",
+    "baalbek": "ayyubids",
+    "beirut": "ayyubids",
+    "sidon": "ayyubids",
+    "tyre": "crusaders",
+    "banias": "ayyubids",
+    "damascus": "ayyubids",
+    "bostra": "ayyubids",
+    "acre": "ayyubids",
+    "safad": "ayyubids",
+    "caesarea": "ayyubids",
+    "nablus": "ayyubids",
+    "jaffa": "ayyubids",
+    "jerusalem": "ayyubids",
+    "ascalon": "ayyubids",
+    "gaza": "ayyubids",
+    "kerak": "ayyubids",
+    "al_arish": "ayyubids",
+    "damietta": "ayyubids"
+   },
+   "capitals": {
+    "crusaders": "tyre",
+    "ayyubids": "damascus",
+    "cyprus": "lefkosa",
+    "seljuks": "konya",
+    "armenians": "sis"
+   },
+   "buildings": {
+    "tyre": {
+     "walls": 1
+    },
+    "damascus": {
+     "walls": 1
+    },
+    "lefkosa": {
+     "walls": 1
+    },
+    "konya": {
+     "walls": 1
+    },
+    "sis": {
+     "walls": 1
+    },
+    "acre": {
+     "walls": 2
+    },
+    "jerusalem": {
+     "walls": 2
+    },
+    "antalya": {
+     "walls": 1
+    },
+    "marash": {
+     "walls": 1
+    },
+    "edessa": {
+     "walls": 1
+    },
+    "antioch": {
+     "walls": 1
+    },
+    "aleppo": {
+     "walls": 1
+    },
+    "tortosa": {
+     "walls": 1
+    },
+    "krak_des_chevaliers": {
+     "walls": 1
+    },
+    "tripoli": {
+     "walls": 1
+    },
+    "banias": {
+     "walls": 1
+    },
+    "bostra": {
+     "walls": 1
+    },
+    "safad": {
+     "walls": 1
+    },
+    "ascalon": {
+     "walls": 1
+    },
+    "kerak": {
+     "walls": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "ayyubids",
+     "region": "acre",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "armenians",
+     "region": "adana",
+     "type": "spearmen",
+     "soldiers": 15
+    },
+    {
+     "owner": "seljuks",
+     "region": "alanya",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "ayyubids",
+     "region": "ascalon",
+     "type": "ghazi",
+     "soldiers": 12
+    },
+    {
+     "owner": "ayyubids",
+     "region": "baalbek",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "ayyubids",
+     "region": "banias",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "ayyubids",
+     "region": "beirut",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "ayyubids",
+     "region": "bostra",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "ayyubids",
+     "region": "caesarea",
+     "type": "archers",
+     "soldiers": 12
+    },
+    {
+     "owner": "ayyubids",
+     "region": "damascus",
+     "type": "mamluk",
+     "soldiers": 20
+    },
+    {
+     "owner": "seljuks",
+     "region": "eregli",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "cyprus",
+     "region": "famagusta",
+     "type": "varangian_guard",
+     "soldiers": 15
+    },
+    {
+     "owner": "ayyubids",
+     "region": "homs",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "ayyubids",
+     "region": "jerusalem",
+     "type": "mamluk",
+     "soldiers": 20
+    },
+    {
+     "owner": "seljuks",
+     "region": "konya",
+     "type": "mamluk",
+     "soldiers": 20
+    },
+    {
+     "owner": "seljuks",
+     "region": "laranda",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "cyprus",
+     "region": "lefkosa",
+     "type": "cataphract",
+     "soldiers": 20
+    },
+    {
+     "owner": "ayyubids",
+     "region": "nablus",
+     "type": "mamluk",
+     "soldiers": 12
+    },
+    {
+     "owner": "cyprus",
+     "region": "paphos",
+     "type": "varangian_guard",
+     "soldiers": 15
+    },
+    {
+     "owner": "ayyubids",
+     "region": "safad",
+     "type": "mamluk",
+     "soldiers": 12
+    },
+    {
+     "owner": "ayyubids",
+     "region": "sidon",
+     "type": "ghazi",
+     "soldiers": 12
+    },
+    {
+     "owner": "armenians",
+     "region": "sis",
+     "type": "swordsmen",
+     "soldiers": 20
+    },
+    {
+     "owner": "crusaders",
+     "region": "st_simeon",
+     "type": "mounted_sergeant",
+     "soldiers": 15
+    },
+    {
+     "owner": "crusaders",
+     "region": "tripoli",
+     "type": "crossbowmen",
+     "soldiers": 15
+    },
+    {
+     "owner": "crusaders",
+     "region": "tyre",
+     "type": "brother_knight",
+     "soldiers": 20
+    }
+   ],
+   "mission": {
+    "player": "crusaders",
+    "primary": [
+     {
+      "type": "capture",
+      "regions": [
+       "acre",
+       "jerusalem"
+      ]
+     }
+    ],
+    "additional": [
+     {
+      "type": "hold",
+      "region": "paphos",
+      "turns": 2,
+      "text": "Take Paphos and hold it for 2 turns"
+     },
+     {
+      "type": "hold",
+      "region": "lefkosa",
+      "turns": 2,
+      "text": "Take Lefkosa and hold it for 2 turns"
+     }
+    ],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 9
+     },
+     {
+      "type": "lose_army"
+     }
+    ],
+    "crowns": [
+     5,
+     7,
+     9
+    ],
+    "events": [],
+    "history": "The Christian states in the East hang by a thread. The emperor Frederick Barbarossa has drowned on the way, and Richard the Lionheart and Philip of France quarrel over Cyprus, but the crusade is still strong, and Saladin has lost many men.",
+    "briefing": "Take Acre and Jerusalem. Cyprus will keep the crusade supplied.",
+    "victory_text": "Acre and Jerusalem are taken. The Third Crusade has done what the Second could not.",
+    "defeat_text": "The crusade melts away, and Richard sails home."
+   },
+   "campaign": "crusader",
+   "mission_index": 11
   }
  ]
 }

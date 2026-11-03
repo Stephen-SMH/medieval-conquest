@@ -1,437 +1,813 @@
 {
  "id": "norse",
  "civ": "norse",
- "name": "The Saga of the Sea-Wolves",
- "description": "Jarl Hakon's raiders sail south to carve a kingdom from the Fjordmark.",
+ "order": 4,
+ "name": "Vikings",
+ "description": "From the first raids on Northumbria to the last great invasion of England.",
  "missions": [
   {
    "id": "norse_1",
-   "name": "Landfall",
-   "map": "fjordmark",
+   "name": "Lindisfarne, 793",
+   "map": "british_isles",
    "factions": [
     {
-     "id": "norse",
-     "name": "Hakon's Raiders",
+     "id": "vikings",
+     "name": "Norse Raiders",
      "civ": "norse",
-     "color": "#2e708f",
-     "human": true,
-     "ai": "balanced"
+     "color": "#d1a23a",
+     "ai": "balanced",
+     "human": true
     },
     {
-     "id": "elmsworth",
-     "name": "Thanes of Elmsworth",
+     "id": "northumbria",
+     "name": "Kingdom of Northumbria",
      "civ": "anglish",
-     "color": "#b33b3b",
-     "human": false,
-     "ai": "defensive"
+     "color": "#b5423a",
+     "ai": "balanced",
+     "human": false
+    },
+    {
+     "id": "mercia",
+     "name": "Kingdom of Mercia",
+     "civ": "anglish",
+     "color": "#7a5a2a",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "scotland",
+     "name": "Kingdom of Alba",
+     "civ": "",
+     "color": "#3d6fb6",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "wales",
+     "name": "Welsh Kingdoms",
+     "civ": "",
+     "color": "#2f7d4a",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "ireland",
+     "name": "Irish Kingdoms",
+     "civ": "",
+     "color": "#7b4fa8",
+     "ai": "defensive",
+     "human": false
     }
    ],
    "owners": {
-    "skarholm": "norse",
-    "elmsworth": "elmsworth",
-    "brimstad": "norse",
-    "calder_abbey": "elmsworth",
-    "ravensfjord": "norse",
-    "hollin": "elmsworth",
-    "ashwick": "norse"
+    "bamburgh": "northumbria",
+    "newcastle": "northumbria",
+    "durham": "northumbria",
+    "lancaster": "northumbria",
+    "york": "northumbria",
+    "stamford_bridge": "vikings",
+    "doncaster": "northumbria",
+    "lincoln": "mercia",
+    "chester": "mercia",
+    "nottingham": "mercia",
+    "leicester": "mercia",
+    "shrewsbury": "mercia",
+    "warwick": "mercia",
+    "hereford": "mercia",
+    "gloucester": "mercia",
+    "bristol": "mercia",
+    "oxford": "mercia",
+    "cambridge": "mercia",
+    "norwich": "mercia",
+    "colchester": "mercia",
+    "london": "mercia",
+    "dover": "mercia",
+    "hastings": "mercia",
+    "winchester": "mercia",
+    "dorchester": "mercia",
+    "exeter": "mercia",
+    "bodmin": "mercia",
+    "carlisle": "scotland",
+    "bangor": "wales",
+    "mathrafal": "wales",
+    "aberystwyth": "wales",
+    "st_davids": "wales",
+    "brecon": "wales",
+    "cardiff": "wales",
+    "galloway": "scotland",
+    "glasgow": "scotland",
+    "roxburgh": "scotland",
+    "edinburgh": "scotland",
+    "dunblane": "scotland",
+    "scone": "scotland",
+    "st_andrews": "scotland",
+    "argyll": "scotland",
+    "aberdeen": "scotland",
+    "elgin": "scotland",
+    "inverness": "scotland",
+    "dornoch": "vikings",
+    "caithness": "vikings",
+    "lewis": "vikings",
+    "dublin": "ireland",
+    "tara": "ireland",
+    "armagh": "ireland",
+    "ailech": "ireland",
+    "tuam": "ireland",
+    "limerick": "ireland",
+    "cashel": "ireland",
+    "waterford": "ireland",
+    "cork": "ireland"
    },
    "capitals": {
-    "norse": "skarholm",
-    "elmsworth": "elmsworth"
+    "vikings": "caithness",
+    "northumbria": "york",
+    "mercia": "warwick",
+    "scotland": "scone",
+    "wales": "bangor",
+    "ireland": "tara"
    },
    "buildings": {
-    "skarholm": {
-     "market": 1,
-     "barracks": 1
+    "caithness": {
+     "walls": 1
     },
-    "elmsworth": {
-     "market": 1,
-     "barracks": 1
+    "york": {
+     "walls": 1
+    },
+    "warwick": {
+     "walls": 1
+    },
+    "scone": {
+     "walls": 1
+    },
+    "bangor": {
+     "walls": 1
+    },
+    "tara": {
+     "walls": 1
+    },
+    "bamburgh": {
+     "walls": 1
+    },
+    "durham": {
+     "walls": 1
+    },
+    "lincoln": {
+     "walls": 1
+    },
+    "chester": {
+     "walls": 1
+    },
+    "nottingham": {
+     "walls": 1
+    },
+    "dover": {
+     "walls": 1
+    },
+    "winchester": {
+     "walls": 1
+    },
+    "exeter": {
+     "walls": 1
+    },
+    "carlisle": {
+     "walls": 1
+    },
+    "roxburgh": {
+     "walls": 1
+    },
+    "edinburgh": {
+     "walls": 1
+    },
+    "cashel": {
+     "walls": 1
     }
    },
    "units": [
     {
-     "owner": "norse",
-     "region": "skarholm",
-     "type": "berserker"
+     "owner": "scotland",
+     "region": "aberdeen",
+     "type": "spearmen",
+     "soldiers": 15
     },
     {
-     "owner": "norse",
-     "region": "ashwick",
-     "type": "spearmen"
+     "owner": "wales",
+     "region": "aberystwyth",
+     "type": "spearmen",
+     "soldiers": 15
     },
     {
-     "owner": "norse",
-     "region": "brimstad",
-     "type": "archers"
+     "owner": "ireland",
+     "region": "ailech",
+     "type": "spearmen",
+     "soldiers": 15
     },
     {
-     "owner": "norse",
-     "region": "ravensfjord",
-     "type": "huscarl"
+     "owner": "scotland",
+     "region": "argyll",
+     "type": "archers",
+     "soldiers": 15
     },
     {
-     "owner": "elmsworth",
-     "region": "elmsworth",
-     "type": "yeoman"
+     "owner": "ireland",
+     "region": "armagh",
+     "type": "archers",
+     "soldiers": 15
     },
     {
-     "owner": "elmsworth",
-     "region": "calder_abbey",
-     "type": "spearmen"
+     "owner": "northumbria",
+     "region": "bamburgh",
+     "type": "spearmen",
+     "soldiers": 12
     },
     {
-     "owner": "elmsworth",
-     "region": "hollin",
-     "type": "archers"
+     "owner": "wales",
+     "region": "bangor",
+     "type": "swordsmen",
+     "soldiers": 20
     },
     {
-     "owner": "neutral",
-     "region": "greyhaven",
+     "owner": "mercia",
+     "region": "bristol",
+     "type": "longbowman",
+     "soldiers": 12
+    },
+    {
+     "owner": "vikings",
+     "region": "caithness",
+     "type": "huscarl",
+     "soldiers": 20
+    },
+    {
+     "owner": "mercia",
+     "region": "cambridge",
+     "type": "yeoman",
+     "soldiers": 12
+    },
+    {
+     "owner": "ireland",
+     "region": "cashel",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "mercia",
+     "region": "chester",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "northumbria",
+     "region": "doncaster",
+     "type": "longbowman",
+     "soldiers": 15
+    },
+    {
+     "owner": "vikings",
+     "region": "dornoch",
+     "type": "berserker",
+     "soldiers": 15
+    },
+    {
+     "owner": "ireland",
+     "region": "dublin",
      "type": "militia",
      "soldiers": 12
     },
     {
-     "owner": "neutral",
-     "region": "hrafnsey",
+     "owner": "scotland",
+     "region": "dunblane",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "northumbria",
+     "region": "durham",
      "type": "militia",
      "soldiers": 12
     },
     {
-     "owner": "neutral",
-     "region": "morrow_fen",
+     "owner": "scotland",
+     "region": "elgin",
      "type": "militia",
      "soldiers": 12
     },
     {
-     "owner": "neutral",
-     "region": "stonereach",
-     "type": "militia",
+     "owner": "mercia",
+     "region": "gloucester",
+     "type": "longbowman",
+     "soldiers": 15
+    },
+    {
+     "owner": "mercia",
+     "region": "hereford",
+     "type": "yeoman",
+     "soldiers": 15
+    },
+    {
+     "owner": "scotland",
+     "region": "inverness",
+     "type": "swordsmen",
      "soldiers": 12
     },
     {
-     "owner": "neutral",
-     "region": "ulvdal",
-     "type": "militia",
+     "owner": "mercia",
+     "region": "leicester",
+     "type": "spearmen",
      "soldiers": 12
+    },
+    {
+     "owner": "wales",
+     "region": "mathrafal",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "mercia",
+     "region": "nottingham",
+     "type": "archers",
+     "soldiers": 12
+    },
+    {
+     "owner": "mercia",
+     "region": "oxford",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "scotland",
+     "region": "scone",
+     "type": "swordsmen",
+     "soldiers": 20
+    },
+    {
+     "owner": "mercia",
+     "region": "shrewsbury",
+     "type": "swordsmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "vikings",
+     "region": "stamford_bridge",
+     "type": "berserker",
+     "soldiers": 20
+    },
+    {
+     "owner": "ireland",
+     "region": "tara",
+     "type": "swordsmen",
+     "soldiers": 20
+    },
+    {
+     "owner": "mercia",
+     "region": "warwick",
+     "type": "swordsmen",
+     "soldiers": 20
+    },
+    {
+     "owner": "northumbria",
+     "region": "york",
+     "type": "swordsmen",
+     "soldiers": 20
     }
    ],
    "mission": {
-    "player": "norse",
+    "player": "vikings",
     "primary": [
      {
       "type": "capture",
-      "regions": ["morrow_fen", "solvbekk", "tornfjell"]
+      "regions": [
+       "bamburgh",
+       "durham"
+      ]
      }
     ],
-    "additional": [],
+    "additional": [
+     {
+      "type": "capture",
+      "regions": [
+       "york"
+      ],
+      "points": 300
+     }
+    ],
     "defeat": [
      {
       "type": "time",
-      "turns": 10
+      "turns": 12
      },
      {
       "type": "lose_region",
-      "region": "skarholm"
+      "region": "stamford_bridge"
      }
     ],
-    "crowns": [5, 7, 10],
-    "events": [
-     {
-      "turn": 3,
-      "type": "reinforcements",
-      "faction": "elmsworth",
-      "region": "elmsworth",
-      "unit": "yeoman",
-      "soldiers": 6
-     }
+    "crowns": [
+     6,
+     8,
+     10
     ],
-    "briefing": "The longships are beached. Seize the three settlements nearest the shore before the thanes muster.",
-    "victory_text": "The coast is ours. The skalds will sing of this landfall.",
-    "defeat_text": "The raid ends in ash and cold water."
+    "events": [],
+    "history": "Strange ships have been seen off the coast of Northumbria. The monks of Lindisfarne have gold and silver on their altars and no swords.",
+    "briefing": "Raid the holy island at Bamburgh and the monastery at Durham.",
+    "victory_text": "The church of St Cuthbert is plundered. The Viking Age has begun.",
+    "defeat_text": "The Northumbrians burn your camp, and the ships sail home empty."
    },
    "campaign": "norse",
    "mission_index": 0
   },
   {
    "id": "norse_2",
-   "name": "The Abbey Road",
-   "map": "fjordmark",
+   "name": "The Great Heathen Army, 866",
+   "map": "british_isles",
    "factions": [
     {
-     "id": "norse",
-     "name": "Hakon's Raiders",
+     "id": "vikings",
+     "name": "Norse Raiders",
      "civ": "norse",
-     "color": "#2e708f",
-     "human": true,
-     "ai": "balanced"
+     "color": "#d1a23a",
+     "ai": "balanced",
+     "human": true
     },
     {
-     "id": "greyhaven",
-     "name": "Lords of Greyhaven",
+     "id": "northumbria",
+     "name": "Kingdom of Northumbria",
      "civ": "anglish",
-     "color": "#b33b3b",
-     "human": false,
-     "ai": "balanced"
+     "color": "#b5423a",
+     "ai": "balanced",
+     "human": false
+    },
+    {
+     "id": "mercia",
+     "name": "Kingdom of Mercia",
+     "civ": "anglish",
+     "color": "#7a5a2a",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "wessex",
+     "name": "Kingdom of Wessex",
+     "civ": "anglish",
+     "color": "#c46a3a",
+     "ai": "balanced",
+     "human": false
+    },
+    {
+     "id": "scotland",
+     "name": "Kingdom of Alba",
+     "civ": "",
+     "color": "#3d6fb6",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "wales",
+     "name": "Welsh Kingdoms",
+     "civ": "",
+     "color": "#2f7d4a",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "ireland",
+     "name": "Irish Kingdoms",
+     "civ": "",
+     "color": "#7b4fa8",
+     "ai": "defensive",
+     "human": false
     }
    ],
    "owners": {
-    "skarholm": "norse",
-    "wyrmsby": "greyhaven",
-    "brimstad": "norse",
-    "ashwick": "greyhaven",
-    "ravensfjord": "norse",
-    "greyhaven": "greyhaven",
-    "tornfjell": "norse",
-    "morrow_fen": "greyhaven",
-    "solvbekk": "norse",
-    "stonereach": "greyhaven",
-    "ulvdal": "norse"
+    "bamburgh": "northumbria",
+    "newcastle": "northumbria",
+    "durham": "northumbria",
+    "lancaster": "northumbria",
+    "york": "northumbria",
+    "stamford_bridge": "northumbria",
+    "doncaster": "northumbria",
+    "lincoln": "mercia",
+    "chester": "mercia",
+    "nottingham": "mercia",
+    "leicester": "mercia",
+    "shrewsbury": "mercia",
+    "warwick": "mercia",
+    "hereford": "mercia",
+    "gloucester": "mercia",
+    "bristol": "wessex",
+    "oxford": "mercia",
+    "cambridge": "vikings",
+    "norwich": "vikings",
+    "colchester": "vikings",
+    "london": "wessex",
+    "dover": "wessex",
+    "hastings": "wessex",
+    "winchester": "wessex",
+    "dorchester": "wessex",
+    "exeter": "wessex",
+    "bodmin": "wessex",
+    "carlisle": "scotland",
+    "bangor": "wales",
+    "mathrafal": "wales",
+    "aberystwyth": "wales",
+    "st_davids": "wales",
+    "brecon": "wales",
+    "cardiff": "wales",
+    "galloway": "scotland",
+    "glasgow": "scotland",
+    "roxburgh": "scotland",
+    "edinburgh": "scotland",
+    "dunblane": "scotland",
+    "scone": "scotland",
+    "st_andrews": "scotland",
+    "argyll": "scotland",
+    "aberdeen": "scotland",
+    "elgin": "scotland",
+    "inverness": "scotland",
+    "dornoch": "vikings",
+    "caithness": "vikings",
+    "lewis": "vikings",
+    "dublin": "ireland",
+    "tara": "ireland",
+    "armagh": "ireland",
+    "ailech": "ireland",
+    "tuam": "ireland",
+    "limerick": "ireland",
+    "cashel": "ireland",
+    "waterford": "ireland",
+    "cork": "ireland"
    },
    "capitals": {
-    "norse": "skarholm",
-    "greyhaven": "wyrmsby"
+    "vikings": "norwich",
+    "northumbria": "york",
+    "mercia": "warwick",
+    "wessex": "winchester",
+    "scotland": "scone",
+    "wales": "bangor",
+    "ireland": "tara"
    },
    "buildings": {
-    "skarholm": {
-     "market": 1,
-     "barracks": 1
+    "norwich": {
+     "walls": 1
     },
-    "wyrmsby": {
-     "market": 1,
-     "barracks": 1,
+    "york": {
+     "walls": 1
+    },
+    "warwick": {
+     "walls": 1
+    },
+    "winchester": {
+     "walls": 1
+    },
+    "scone": {
+     "walls": 1
+    },
+    "bangor": {
+     "walls": 1
+    },
+    "tara": {
+     "walls": 1
+    },
+    "bamburgh": {
+     "walls": 1
+    },
+    "durham": {
+     "walls": 1
+    },
+    "lincoln": {
+     "walls": 1
+    },
+    "chester": {
+     "walls": 1
+    },
+    "nottingham": {
+     "walls": 1
+    },
+    "dover": {
+     "walls": 1
+    },
+    "exeter": {
+     "walls": 1
+    },
+    "carlisle": {
+     "walls": 1
+    },
+    "roxburgh": {
+     "walls": 1
+    },
+    "edinburgh": {
+     "walls": 1
+    },
+    "cashel": {
      "walls": 1
     }
    },
    "units": [
     {
-     "owner": "norse",
-     "region": "skarholm",
-     "type": "berserker"
+     "owner": "scotland",
+     "region": "aberdeen",
+     "type": "spearmen",
+     "soldiers": 15
     },
     {
-     "owner": "norse",
-     "region": "brimstad",
-     "type": "berserker"
+     "owner": "wales",
+     "region": "aberystwyth",
+     "type": "spearmen",
+     "soldiers": 15
     },
     {
-     "owner": "norse",
-     "region": "ravensfjord",
-     "type": "huscarl"
+     "owner": "ireland",
+     "region": "ailech",
+     "type": "spearmen",
+     "soldiers": 15
     },
     {
-     "owner": "norse",
-     "region": "solvbekk",
-     "type": "archers"
+     "owner": "scotland",
+     "region": "argyll",
+     "type": "archers",
+     "soldiers": 15
     },
     {
-     "owner": "norse",
-     "region": "tornfjell",
-     "type": "spearmen"
+     "owner": "ireland",
+     "region": "armagh",
+     "type": "archers",
+     "soldiers": 15
     },
     {
-     "owner": "norse",
-     "region": "ulvdal",
-     "type": "light_cavalry"
+     "owner": "wales",
+     "region": "bangor",
+     "type": "swordsmen",
+     "soldiers": 20
     },
     {
-     "owner": "greyhaven",
-     "region": "wyrmsby",
-     "type": "yeoman"
+     "owner": "wessex",
+     "region": "bristol",
+     "type": "longbowman",
+     "soldiers": 15
     },
     {
-     "owner": "greyhaven",
-     "region": "ashwick",
-     "type": "longbowman"
+     "owner": "vikings",
+     "region": "cambridge",
+     "type": "berserker",
+     "soldiers": 18
     },
     {
-     "owner": "greyhaven",
-     "region": "greyhaven",
-     "type": "spearmen"
+     "owner": "ireland",
+     "region": "cashel",
+     "type": "light_cavalry",
+     "soldiers": 12
     },
     {
-     "owner": "greyhaven",
-     "region": "morrow_fen",
-     "type": "swordsmen"
+     "owner": "vikings",
+     "region": "colchester",
+     "type": "archers",
+     "soldiers": 15
     },
     {
-     "owner": "greyhaven",
-     "region": "stonereach",
-     "type": "archers"
+     "owner": "northumbria",
+     "region": "doncaster",
+     "type": "longbowman",
+     "soldiers": 15
     },
     {
-     "owner": "neutral",
-     "region": "hrafnsey",
+     "owner": "wessex",
+     "region": "dorchester",
+     "type": "yeoman",
+     "soldiers": 15
+    },
+    {
+     "owner": "ireland",
+     "region": "dublin",
      "type": "militia",
      "soldiers": 12
+    },
+    {
+     "owner": "scotland",
+     "region": "dunblane",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "northumbria",
+     "region": "durham",
+     "type": "yeoman",
+     "soldiers": 15
+    },
+    {
+     "owner": "scotland",
+     "region": "elgin",
+     "type": "militia",
+     "soldiers": 12
+    },
+    {
+     "owner": "mercia",
+     "region": "gloucester",
+     "type": "longbowman",
+     "soldiers": 15
+    },
+    {
+     "owner": "wessex",
+     "region": "hastings",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "mercia",
+     "region": "hereford",
+     "type": "yeoman",
+     "soldiers": 15
+    },
+    {
+     "owner": "scotland",
+     "region": "inverness",
+     "type": "swordsmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "northumbria",
+     "region": "lancaster",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "mercia",
+     "region": "leicester",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "wessex",
+     "region": "london",
+     "type": "longbowman",
+     "soldiers": 15
+    },
+    {
+     "owner": "wales",
+     "region": "mathrafal",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "vikings",
+     "region": "norwich",
+     "type": "huscarl",
+     "soldiers": 20
+    },
+    {
+     "owner": "mercia",
+     "region": "nottingham",
+     "type": "archers",
+     "soldiers": 12
+    },
+    {
+     "owner": "scotland",
+     "region": "scone",
+     "type": "swordsmen",
+     "soldiers": 20
+    },
+    {
+     "owner": "ireland",
+     "region": "tara",
+     "type": "swordsmen",
+     "soldiers": 20
+    },
+    {
+     "owner": "mercia",
+     "region": "warwick",
+     "type": "swordsmen",
+     "soldiers": 20
+    },
+    {
+     "owner": "wessex",
+     "region": "winchester",
+     "type": "swordsmen",
+     "soldiers": 20
+    },
+    {
+     "owner": "northumbria",
+     "region": "york",
+     "type": "swordsmen",
+     "soldiers": 20
     }
    ],
    "mission": {
-    "player": "norse",
+    "player": "vikings",
     "primary": [
      {
       "type": "capture",
-      "regions": ["wyrmsby"]
+      "regions": [
+       "york",
+       "nottingham"
+      ]
      }
     ],
     "additional": [
      {
-      "type": "destroy_units",
-      "faction": "greyhaven",
-      "unit_type": "longbowman",
-      "count": 10
+      "type": "capture",
+      "regions": [
+       "london"
+      ],
+      "points": 300
      }
     ],
-    "defeat": [
-     {
-      "type": "time",
-      "turns": 18
-     },
-     {
-      "type": "lose_region",
-      "region": "skarholm"
-     }
-    ],
-    "crowns": [9, 13, 18],
-    "events": [
-     {
-      "turn": 4,
-      "type": "reinforcements",
-      "faction": "greyhaven",
-      "region": "wyrmsby",
-      "unit": "spearmen",
-      "soldiers": 8
-     }
-    ],
-    "briefing": "Greyhaven's lords hide behind a palisade with the silver of three abbeys. Take their hall.",
-    "victory_text": "Greyhaven falls, and its silver pays for a hundred new ships.",
-    "defeat_text": "Greyhaven's bowmen hold the road."
-   },
-   "campaign": "norse",
-   "mission_index": 1
-  },
-  {
-   "id": "norse_3",
-   "name": "The Lean Winter",
-   "map": "fjordmark",
-   "factions": [
-    {
-     "id": "norse",
-     "name": "Hakon's Raiders",
-     "civ": "norse",
-     "color": "#2e708f",
-     "human": true,
-     "ai": "balanced"
-    },
-    {
-     "id": "elmsworth",
-     "name": "Thanes of Elmsworth",
-     "civ": "anglish",
-     "color": "#b33b3b",
-     "human": false,
-     "ai": "aggressive"
-    }
-   ],
-   "owners": {
-    "skarholm": "norse",
-    "elmsworth": "elmsworth",
-    "brimstad": "norse",
-    "calder_abbey": "elmsworth",
-    "ravensfjord": "norse",
-    "hollin": "elmsworth",
-    "ashwick": "norse",
-    "stonereach": "elmsworth"
-   },
-   "capitals": {
-    "norse": "skarholm",
-    "elmsworth": "elmsworth"
-   },
-   "buildings": {
-    "skarholm": {
-     "market": 1,
-     "barracks": 1,
-     "walls": 1
-    },
-    "elmsworth": {
-     "market": 1,
-     "barracks": 1
-    }
-   },
-   "units": [
-    {
-     "owner": "norse",
-     "region": "skarholm",
-     "type": "huscarl"
-    },
-    {
-     "owner": "norse",
-     "region": "ashwick",
-     "type": "spearmen"
-    },
-    {
-     "owner": "norse",
-     "region": "brimstad",
-     "type": "archers"
-    },
-    {
-     "owner": "norse",
-     "region": "ravensfjord",
-     "type": "berserker"
-    },
-    {
-     "owner": "elmsworth",
-     "region": "elmsworth",
-     "type": "yeoman"
-    },
-    {
-     "owner": "elmsworth",
-     "region": "calder_abbey",
-     "type": "longbowman"
-    },
-    {
-     "owner": "elmsworth",
-     "region": "hollin",
-     "type": "spearmen"
-    },
-    {
-     "owner": "elmsworth",
-     "region": "stonereach",
-     "type": "swordsmen"
-    },
-    {
-     "owner": "neutral",
-     "region": "greyhaven",
-     "type": "militia",
-     "soldiers": 12
-    },
-    {
-     "owner": "neutral",
-     "region": "hrafnsey",
-     "type": "militia",
-     "soldiers": 12
-    },
-    {
-     "owner": "neutral",
-     "region": "morrow_fen",
-     "type": "militia",
-     "soldiers": 12
-    },
-    {
-     "owner": "neutral",
-     "region": "ulvdal",
-     "type": "militia",
-     "soldiers": 12
-    }
-   ],
-   "mission": {
-    "player": "norse",
-    "primary": [
-     {
-      "type": "survive",
-      "turns": 6
-     }
-    ],
-    "additional": [],
     "defeat": [
      {
       "type": "time",
@@ -439,149 +815,2097 @@
      },
      {
       "type": "lose_region",
-      "region": "skarholm"
+      "region": "norwich"
      }
     ],
-    "crowns": [7, 10, 14],
+    "crowns": [
+     7,
+     10,
+     12
+    ],
     "events": [],
-    "briefing": "The fleet is iced into the fjord and the silver is spent. The thanes smell weakness. Keep Skarholm and the army alive for six turns, until the thaw, without the gold to buy fresh spears.",
-    "victory_text": "The ice breaks, and Hakon's raiders are still standing. The thanes go home hungry.",
-    "defeat_text": "Hunger and Anglish arrows finish what the winter began."
-   },
-   "resources": {
-    "norse": {
-     "gold": 100
-    },
-    "elmsworth": {
-     "gold": 300
-    }
+    "history": "The sons of Ragnar Lothbrok have landed in East Anglia with the greatest army England has ever seen, sworn to avenge their father.",
+    "briefing": "Take York from the quarrelling Northumbrians, then Nottingham in Mercia.",
+    "victory_text": "York is yours, and half of England will be the Danelaw.",
+    "defeat_text": "East Anglia rises behind you, and the great army breaks up."
    },
    "campaign": "norse",
-   "mission_index": 2
+   "mission_index": 1
   },
   {
-   "id": "norse_4",
-   "name": "Blood-Feud",
-   "map": "fjordmark",
+   "id": "norse_3",
+   "name": "Paris, 845",
+   "map": "france",
    "factions": [
     {
-     "id": "norse",
-     "name": "Hakon's Raiders",
+     "id": "vikings",
+     "name": "Norse Raiders",
      "civ": "norse",
-     "color": "#2e708f",
-     "human": true,
-     "ai": "balanced"
+     "color": "#d1a23a",
+     "ai": "balanced",
+     "human": true
     },
     {
-     "id": "kaldvik",
-     "name": "Kaldvik Rebels",
-     "civ": "norse",
-     "color": "#a8742c",
-     "human": false,
-     "ai": "balanced"
+     "id": "france",
+     "name": "West Francia",
+     "civ": "frankish",
+     "color": "#3d6fb6",
+     "ai": "balanced",
+     "human": false
+    },
+    {
+     "id": "brittany",
+     "name": "Duchy of Brittany",
+     "civ": "",
+     "color": "#2f7d4a",
+     "ai": "defensive",
+     "human": false
     }
    ],
    "owners": {
-    "skarholm": "norse",
-    "kaldvik": "kaldvik",
-    "brimstad": "norse",
-    "hrafnsey": "kaldvik",
-    "ravensfjord": "norse",
-    "solvbekk": "kaldvik",
-    "ashwick": "norse",
-    "ulvdal": "kaldvik",
-    "tornfjell": "norse"
+    "plymouth": "neutral",
+    "dorchester": "neutral",
+    "winchester": "neutral",
+    "london": "neutral",
+    "dover": "neutral",
+    "rouen": "vikings",
+    "caen": "france",
+    "formigny": "france",
+    "avranches": "france",
+    "le_mans": "france",
+    "angers": "france",
+    "chinon": "france",
+    "tours": "france",
+    "orleans": "france",
+    "paris": "france",
+    "chartres": "france",
+    "beauvais": "france",
+    "reims": "france",
+    "troyes": "france",
+    "calais": "france",
+    "crecy": "france",
+    "amiens": "france",
+    "arras": "france",
+    "brugge": "france",
+    "ghent": "france",
+    "antwerp": "france",
+    "brussels": "france",
+    "mons": "france",
+    "liege": "france",
+    "metz": "france",
+    "nancy": "france",
+    "dijon": "france",
+    "besancon": "france",
+    "auxerre": "france",
+    "macon": "france",
+    "bourges": "france",
+    "moulins": "france",
+    "poitiers": "france",
+    "la_rochelle": "france",
+    "limoges": "france",
+    "clermont": "france",
+    "lyon": "france",
+    "grenoble": "france",
+    "rennes": "brittany",
+    "nantes": "brittany",
+    "vannes": "brittany",
+    "brest": "brittany",
+    "bordeaux": "france",
+    "perigueux": "france",
+    "bayonne": "france",
+    "cahors": "france",
+    "toulouse": "france",
+    "carcassonne": "france",
+    "montpellier": "france",
+    "pau": "france",
+    "avignon": "france",
+    "marseille": "france"
    },
    "capitals": {
-    "norse": "skarholm",
-    "kaldvik": "kaldvik"
+    "vikings": "rouen",
+    "france": "paris",
+    "brittany": "nantes"
    },
    "buildings": {
-    "skarholm": {
-     "market": 1,
-     "barracks": 1
+    "rouen": {
+     "walls": 1
     },
-    "kaldvik": {
-     "market": 1,
-     "barracks": 1
+    "paris": {
+     "walls": 1
+    },
+    "nantes": {
+     "walls": 1
+    },
+    "winchester": {
+     "walls": 1
+    },
+    "dover": {
+     "walls": 1
+    },
+    "caen": {
+     "walls": 1
+    },
+    "le_mans": {
+     "walls": 1
+    },
+    "angers": {
+     "walls": 1
+    },
+    "chinon": {
+     "walls": 1
+    },
+    "orleans": {
+     "walls": 1
+    },
+    "calais": {
+     "walls": 1
+    },
+    "metz": {
+     "walls": 1
+    },
+    "dijon": {
+     "walls": 1
+    },
+    "bourges": {
+     "walls": 1
+    },
+    "poitiers": {
+     "walls": 1
+    },
+    "rennes": {
+     "walls": 1
+    },
+    "brest": {
+     "walls": 1
+    },
+    "bordeaux": {
+     "walls": 1
+    },
+    "toulouse": {
+     "walls": 1
+    },
+    "carcassonne": {
+     "walls": 1
     }
    },
    "units": [
     {
-     "owner": "norse",
-     "region": "skarholm",
-     "type": "berserker"
+     "owner": "france",
+     "region": "amiens",
+     "type": "light_cavalry",
+     "soldiers": 12
     },
     {
-     "owner": "norse",
-     "region": "ashwick",
-     "type": "huscarl"
+     "owner": "france",
+     "region": "angers",
+     "type": "light_cavalry",
+     "soldiers": 12
     },
     {
-     "owner": "norse",
-     "region": "brimstad",
-     "type": "archers"
+     "owner": "france",
+     "region": "antwerp",
+     "type": "knight",
+     "soldiers": 12
     },
     {
-     "owner": "norse",
-     "region": "ravensfjord",
-     "type": "spearmen"
+     "owner": "france",
+     "region": "arras",
+     "type": "sergeant",
+     "soldiers": 12
     },
     {
-     "owner": "norse",
-     "region": "tornfjell",
-     "type": "light_cavalry"
+     "owner": "france",
+     "region": "auxerre",
+     "type": "knight",
+     "soldiers": 12
     },
     {
-     "owner": "kaldvik",
-     "region": "kaldvik",
-     "type": "berserker"
+     "owner": "france",
+     "region": "avranches",
+     "type": "crossbowmen",
+     "soldiers": 12
     },
     {
-     "owner": "kaldvik",
-     "region": "hrafnsey",
-     "type": "huscarl"
+     "owner": "france",
+     "region": "beauvais",
+     "type": "sergeant",
+     "soldiers": 15
     },
     {
-     "owner": "kaldvik",
-     "region": "solvbekk",
-     "type": "archers"
+     "owner": "france",
+     "region": "besancon",
+     "type": "spearmen",
+     "soldiers": 12
     },
     {
-     "owner": "kaldvik",
-     "region": "ulvdal",
-     "type": "spearmen"
+     "owner": "france",
+     "region": "bourges",
+     "type": "archers",
+     "soldiers": 12
     },
     {
-     "owner": "neutral",
-     "region": "greyhaven",
-     "type": "militia",
+     "owner": "france",
+     "region": "brussels",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "caen",
+     "type": "sergeant",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "chartres",
+     "type": "crossbowmen",
+     "soldiers": 15
+    },
+    {
+     "owner": "france",
+     "region": "crecy",
+     "type": "crossbowmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "dijon",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "le_mans",
+     "type": "archers",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "liege",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "metz",
+     "type": "knight",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "mons",
+     "type": "sergeant",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "nancy",
+     "type": "crossbowmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "brittany",
+     "region": "nantes",
+     "type": "swordsmen",
+     "soldiers": 20
+    },
+    {
+     "owner": "france",
+     "region": "orleans",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "paris",
+     "type": "knight",
+     "soldiers": 20
+    },
+    {
+     "owner": "france",
+     "region": "reims",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "brittany",
+     "region": "rennes",
+     "type": "spearmen",
+     "soldiers": 15
+    },
+    {
+     "owner": "vikings",
+     "region": "rouen",
+     "type": "huscarl",
+     "soldiers": 20
+    },
+    {
+     "owner": "france",
+     "region": "tours",
+     "type": "archers",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "troyes",
+     "type": "archers",
      "soldiers": 12
     },
     {
      "owner": "neutral",
-     "region": "morrow_fen",
+     "region": "dorchester",
      "type": "militia",
-     "soldiers": 12
+     "soldiers": 10
     },
     {
      "owner": "neutral",
-     "region": "stonereach",
+     "region": "dover",
      "type": "militia",
-     "soldiers": 12
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "london",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "plymouth",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "winchester",
+     "type": "militia",
+     "soldiers": 10
     }
    ],
    "mission": {
-    "player": "norse",
+    "player": "vikings",
+    "primary": [
+     {
+      "type": "capture",
+      "regions": [
+       "paris"
+      ]
+     }
+    ],
+    "additional": [
+     {
+      "type": "capture",
+      "regions": [
+       "beauvais",
+       "chartres"
+      ]
+     }
+    ],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 12
+     },
+     {
+      "type": "lose_region",
+      "region": "rouen"
+     }
+    ],
+    "crowns": [
+     6,
+     8,
+     10
+    ],
+    "events": [
+     {
+      "turn": 3,
+      "type": "message",
+      "text": "King Charles the Bald gathers an army at Saint-Denis."
+     }
+    ],
+    "history": "A hundred and twenty longships under a chief called Ragnar have rowed up the Seine. Rouen is taken, and the road to Paris lies open.",
+    "briefing": "Row up the Seine and sack Paris on Easter Sunday.",
+    "victory_text": "Paris is sacked, and Charles the Bald pays seven thousand pounds of silver to see you go.",
+    "defeat_text": "The Franks retake Rouen, and the fleet is trapped in the river."
+   },
+   "campaign": "norse",
+   "mission_index": 2,
+   "resources": {
+    "vikings": {
+     "gold": 800
+    }
+   }
+  },
+  {
+   "id": "norse_4",
+   "name": "Unification of Norway, 872",
+   "map": "scandinavia",
+   "factions": [
+    {
+     "id": "norway",
+     "name": "Harald Fairhair",
+     "civ": "norse",
+     "color": "#d1a23a",
+     "ai": "balanced",
+     "human": true
+    },
+    {
+     "id": "petty",
+     "name": "Petty Kings of Norway",
+     "civ": "norse",
+     "color": "#6a7a8a",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "danes",
+     "name": "Kingdom of Denmark",
+     "civ": "norse",
+     "color": "#cfd2e6",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "swedes",
+     "name": "Svear",
+     "civ": "norse",
+     "color": "#3d6fb6",
+     "ai": "defensive",
+     "human": false
+    }
+   ],
+   "owners": {
+    "ribe": "danes",
+    "slesvik": "danes",
+    "jelling": "danes",
+    "aarhus": "danes",
+    "viborg": "danes",
+    "aalborg": "danes",
+    "funen": "danes",
+    "zealand": "danes",
+    "lolland": "danes",
+    "lund": "danes",
+    "halmstad": "danes",
+    "trondheim": "petty",
+    "borgund": "petty",
+    "bergen": "petty",
+    "stavanger": "petty",
+    "agder": "petty",
+    "tonsberg": "norway",
+    "oslo": "norway",
+    "hamar": "norway",
+    "tanum": "norway",
+    "uppsala": "swedes",
+    "stockholm": "swedes",
+    "vasteras": "swedes",
+    "nykoping": "swedes",
+    "linkoping": "swedes",
+    "orebro": "swedes",
+    "jonkoping": "swedes",
+    "skara": "swedes",
+    "lodose": "swedes",
+    "kalmar": "swedes",
+    "vaxjo": "swedes",
+    "visby": "neutral",
+    "karlstad": "swedes",
+    "tuna": "swedes",
+    "gavle": "swedes",
+    "halsingland": "swedes",
+    "froson": "neutral",
+    "holstein": "neutral",
+    "hamburg": "neutral",
+    "lubeck": "neutral",
+    "rostock": "neutral",
+    "wolin": "neutral",
+    "kolobrzeg": "neutral",
+    "gdansk": "neutral",
+    "truso": "neutral",
+    "turku": "neutral"
+   },
+   "capitals": {
+    "norway": "tonsberg",
+    "petty": "stavanger",
+    "danes": "zealand",
+    "swedes": "uppsala"
+   },
+   "buildings": {
+    "tonsberg": {
+     "walls": 1
+    },
+    "stavanger": {
+     "walls": 1
+    },
+    "zealand": {
+     "walls": 1
+    },
+    "uppsala": {
+     "walls": 1
+    },
+    "slesvik": {
+     "walls": 1
+    },
+    "lund": {
+     "walls": 1
+    },
+    "oslo": {
+     "walls": 1
+    },
+    "linkoping": {
+     "walls": 1
+    },
+    "kalmar": {
+     "walls": 1
+    },
+    "hamburg": {
+     "walls": 1
+    },
+    "wolin": {
+     "walls": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "petty",
+     "region": "agder",
+     "type": "berserker",
+     "soldiers": 15
+    },
+    {
+     "owner": "petty",
+     "region": "bergen",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "danes",
+     "region": "funen",
+     "type": "berserker",
+     "soldiers": 15
+    },
+    {
+     "owner": "swedes",
+     "region": "gavle",
+     "type": "berserker",
+     "soldiers": 15
+    },
+    {
+     "owner": "danes",
+     "region": "halmstad",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "swedes",
+     "region": "halsingland",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "danes",
+     "region": "jelling",
+     "type": "huscarl",
+     "soldiers": 12
+    },
+    {
+     "owner": "danes",
+     "region": "lolland",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "danes",
+     "region": "lund",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "swedes",
+     "region": "nykoping",
+     "type": "huscarl",
+     "soldiers": 12
+    },
+    {
+     "owner": "swedes",
+     "region": "orebro",
+     "type": "berserker",
+     "soldiers": 12
+    },
+    {
+     "owner": "norway",
+     "region": "oslo",
+     "type": "berserker",
+     "soldiers": 15
+    },
+    {
+     "owner": "petty",
+     "region": "stavanger",
+     "type": "huscarl",
+     "soldiers": 20
+    },
+    {
+     "owner": "swedes",
+     "region": "stockholm",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "norway",
+     "region": "tonsberg",
+     "type": "huscarl",
+     "soldiers": 20
+    },
+    {
+     "owner": "petty",
+     "region": "trondheim",
+     "type": "berserker",
+     "soldiers": 15
+    },
+    {
+     "owner": "swedes",
+     "region": "tuna",
+     "type": "archers",
+     "soldiers": 12
+    },
+    {
+     "owner": "swedes",
+     "region": "uppsala",
+     "type": "huscarl",
+     "soldiers": 20
+    },
+    {
+     "owner": "swedes",
+     "region": "vasteras",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "danes",
+     "region": "zealand",
+     "type": "huscarl",
+     "soldiers": 20
+    },
+    {
+     "owner": "neutral",
+     "region": "froson",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "gdansk",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "hamburg",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "holstein",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "kolobrzeg",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "lubeck",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "rostock",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "truso",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "turku",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "visby",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "wolin",
+     "type": "militia",
+     "soldiers": 10
+    }
+   ],
+   "mission": {
+    "player": "norway",
+    "primary": [
+     {
+      "type": "capture",
+      "regions": [
+       "stavanger",
+       "bergen",
+       "trondheim"
+      ]
+     }
+    ],
+    "additional": [
+     {
+      "type": "destroy_units",
+      "faction": "petty",
+      "unit_type": "huscarl",
+      "count": 10
+     }
+    ],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 16
+     },
+     {
+      "type": "lose_region",
+      "region": "tonsberg"
+     }
+    ],
+    "crowns": [
+     8,
+     11,
+     14
+    ],
+    "events": [],
+    "history": "Harald, king in Vestfold, asked for the hand of Gyda, who said she would not marry a man who ruled less than all of Norway. Harald has sworn not to cut his hair until he does.",
+    "briefing": "Beat the petty kings of the west at Hafrsfjord and unite Norway.",
+    "victory_text": "The kings of the west fall at Hafrsfjord. Harald cuts his hair, and Norway is one kingdom.",
+    "defeat_text": "Tønsberg falls, and Harald's hair grows on."
+   },
+   "campaign": "norse",
+   "mission_index": 3
+  },
+  {
+   "id": "norse_5",
+   "name": "Rollo, 911",
+   "map": "france",
+   "factions": [
+    {
+     "id": "vikings",
+     "name": "Norse Raiders",
+     "civ": "norse",
+     "color": "#d1a23a",
+     "ai": "balanced",
+     "human": true
+    },
+    {
+     "id": "france",
+     "name": "West Francia",
+     "civ": "frankish",
+     "color": "#3d6fb6",
+     "ai": "balanced",
+     "human": false
+    },
+    {
+     "id": "brittany",
+     "name": "Duchy of Brittany",
+     "civ": "",
+     "color": "#2f7d4a",
+     "ai": "defensive",
+     "human": false
+    }
+   ],
+   "owners": {
+    "plymouth": "neutral",
+    "dorchester": "neutral",
+    "winchester": "neutral",
+    "london": "neutral",
+    "dover": "neutral",
+    "rouen": "vikings",
+    "caen": "vikings",
+    "formigny": "vikings",
+    "avranches": "france",
+    "le_mans": "france",
+    "angers": "france",
+    "chinon": "france",
+    "tours": "france",
+    "orleans": "france",
+    "paris": "france",
+    "chartres": "france",
+    "beauvais": "france",
+    "reims": "france",
+    "troyes": "france",
+    "calais": "france",
+    "crecy": "france",
+    "amiens": "france",
+    "arras": "france",
+    "brugge": "france",
+    "ghent": "france",
+    "antwerp": "france",
+    "brussels": "france",
+    "mons": "france",
+    "liege": "france",
+    "metz": "france",
+    "nancy": "france",
+    "dijon": "france",
+    "besancon": "france",
+    "auxerre": "france",
+    "macon": "france",
+    "bourges": "france",
+    "moulins": "france",
+    "poitiers": "france",
+    "la_rochelle": "france",
+    "limoges": "france",
+    "clermont": "france",
+    "lyon": "france",
+    "grenoble": "france",
+    "rennes": "brittany",
+    "nantes": "brittany",
+    "vannes": "brittany",
+    "brest": "brittany",
+    "bordeaux": "france",
+    "perigueux": "france",
+    "bayonne": "france",
+    "cahors": "france",
+    "toulouse": "france",
+    "carcassonne": "france",
+    "montpellier": "france",
+    "pau": "france",
+    "avignon": "france",
+    "marseille": "france"
+   },
+   "capitals": {
+    "vikings": "rouen",
+    "france": "paris",
+    "brittany": "nantes"
+   },
+   "buildings": {
+    "rouen": {
+     "walls": 1
+    },
+    "paris": {
+     "walls": 1
+    },
+    "nantes": {
+     "walls": 1
+    },
+    "winchester": {
+     "walls": 1
+    },
+    "dover": {
+     "walls": 1
+    },
+    "caen": {
+     "walls": 1
+    },
+    "le_mans": {
+     "walls": 1
+    },
+    "angers": {
+     "walls": 1
+    },
+    "chinon": {
+     "walls": 1
+    },
+    "orleans": {
+     "walls": 1
+    },
+    "calais": {
+     "walls": 1
+    },
+    "metz": {
+     "walls": 1
+    },
+    "dijon": {
+     "walls": 1
+    },
+    "bourges": {
+     "walls": 1
+    },
+    "poitiers": {
+     "walls": 1
+    },
+    "rennes": {
+     "walls": 1
+    },
+    "brest": {
+     "walls": 1
+    },
+    "bordeaux": {
+     "walls": 1
+    },
+    "toulouse": {
+     "walls": 1
+    },
+    "carcassonne": {
+     "walls": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "france",
+     "region": "amiens",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "angers",
+     "type": "archers",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "antwerp",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "arras",
+     "type": "knight",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "auxerre",
+     "type": "knight",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "avranches",
+     "type": "sergeant",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "beauvais",
+     "type": "sergeant",
+     "soldiers": 15
+    },
+    {
+     "owner": "france",
+     "region": "besancon",
+     "type": "crossbowmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "bourges",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "brussels",
+     "type": "archers",
+     "soldiers": 12
+    },
+    {
+     "owner": "vikings",
+     "region": "caen",
+     "type": "berserker",
+     "soldiers": 15
+    },
+    {
+     "owner": "france",
+     "region": "chartres",
+     "type": "crossbowmen",
+     "soldiers": 15
+    },
+    {
+     "owner": "france",
+     "region": "crecy",
+     "type": "sergeant",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "dijon",
+     "type": "crossbowmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "le_mans",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "liege",
+     "type": "archers",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "metz",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "mons",
+     "type": "knight",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "nancy",
+     "type": "sergeant",
+     "soldiers": 12
+    },
+    {
+     "owner": "brittany",
+     "region": "nantes",
+     "type": "swordsmen",
+     "soldiers": 20
+    },
+    {
+     "owner": "france",
+     "region": "orleans",
+     "type": "crossbowmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "paris",
+     "type": "knight",
+     "soldiers": 20
+    },
+    {
+     "owner": "france",
+     "region": "reims",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "brittany",
+     "region": "rennes",
+     "type": "spearmen",
+     "soldiers": 15
+    },
+    {
+     "owner": "vikings",
+     "region": "rouen",
+     "type": "huscarl",
+     "soldiers": 20
+    },
+    {
+     "owner": "france",
+     "region": "tours",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "troyes",
+     "type": "archers",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "dorchester",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "dover",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "london",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "plymouth",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "winchester",
+     "type": "militia",
+     "soldiers": 10
+    }
+   ],
+   "mission": {
+    "player": "vikings",
+    "primary": [
+     {
+      "type": "hold",
+      "region": "rouen",
+      "turns": 5
+     }
+    ],
+    "additional": [
+     {
+      "type": "capture",
+      "regions": [
+       "chartres"
+      ]
+     }
+    ],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 10
+     },
+     {
+      "type": "lose_region",
+      "region": "rouen"
+     }
+    ],
+    "crowns": [
+     6,
+     8,
+     10
+    ],
+    "events": [],
+    "history": "Rollo and his Danes have raided the Seine for years. King Charles the Simple, tired of war, may give them the land if they can keep it.",
+    "briefing": "Hold Rouen until the king comes to terms.",
+    "victory_text": "At Saint-Clair-sur-Epte Charles grants Rollo the land around Rouen. It will be called Normandy.",
+    "defeat_text": "The Franks take Rouen, and Rollo's Danes are scattered."
+   },
+   "campaign": "norse",
+   "mission_index": 4
+  },
+  {
+   "id": "norse_6",
+   "name": "Svolder, 1000",
+   "map": "scandinavia",
+   "factions": [
+    {
+     "id": "norway",
+     "name": "Olaf Tryggvason",
+     "civ": "norse",
+     "color": "#d1a23a",
+     "ai": "balanced",
+     "human": true
+    },
+    {
+     "id": "danes",
+     "name": "Sweyn Forkbeard",
+     "civ": "norse",
+     "color": "#cfd2e6",
+     "ai": "aggressive",
+     "human": false
+    },
+    {
+     "id": "swedes",
+     "name": "Olof of Sweden",
+     "civ": "norse",
+     "color": "#3d6fb6",
+     "ai": "aggressive",
+     "human": false
+    },
+    {
+     "id": "empire",
+     "name": "Holy Roman Empire",
+     "civ": "",
+     "color": "#5a5a5a",
+     "ai": "defensive",
+     "human": false
+    }
+   ],
+   "owners": {
+    "ribe": "danes",
+    "slesvik": "danes",
+    "jelling": "danes",
+    "aarhus": "danes",
+    "viborg": "danes",
+    "aalborg": "danes",
+    "funen": "danes",
+    "zealand": "danes",
+    "lolland": "danes",
+    "lund": "danes",
+    "halmstad": "danes",
+    "trondheim": "norway",
+    "borgund": "norway",
+    "bergen": "norway",
+    "stavanger": "norway",
+    "agder": "norway",
+    "tonsberg": "norway",
+    "oslo": "norway",
+    "hamar": "norway",
+    "tanum": "norway",
+    "uppsala": "swedes",
+    "stockholm": "swedes",
+    "vasteras": "swedes",
+    "nykoping": "swedes",
+    "linkoping": "swedes",
+    "orebro": "swedes",
+    "jonkoping": "swedes",
+    "skara": "swedes",
+    "lodose": "swedes",
+    "kalmar": "swedes",
+    "vaxjo": "swedes",
+    "visby": "neutral",
+    "karlstad": "swedes",
+    "tuna": "swedes",
+    "gavle": "swedes",
+    "halsingland": "swedes",
+    "froson": "neutral",
+    "holstein": "empire",
+    "hamburg": "empire",
+    "lubeck": "neutral",
+    "rostock": "neutral",
+    "wolin": "neutral",
+    "kolobrzeg": "neutral",
+    "gdansk": "neutral",
+    "truso": "neutral",
+    "turku": "neutral"
+   },
+   "capitals": {
+    "norway": "trondheim",
+    "danes": "zealand",
+    "swedes": "uppsala",
+    "empire": "hamburg"
+   },
+   "buildings": {
+    "trondheim": {
+     "walls": 1
+    },
+    "zealand": {
+     "walls": 1
+    },
+    "uppsala": {
+     "walls": 1
+    },
+    "hamburg": {
+     "walls": 1
+    },
+    "slesvik": {
+     "walls": 1
+    },
+    "lund": {
+     "walls": 1
+    },
+    "oslo": {
+     "walls": 1
+    },
+    "linkoping": {
+     "walls": 1
+    },
+    "kalmar": {
+     "walls": 1
+    },
+    "wolin": {
+     "walls": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "norway",
+     "region": "bergen",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "norway",
+     "region": "borgund",
+     "type": "berserker",
+     "soldiers": 15
+    },
+    {
+     "owner": "danes",
+     "region": "funen",
+     "type": "berserker",
+     "soldiers": 15
+    },
+    {
+     "owner": "swedes",
+     "region": "gavle",
+     "type": "berserker",
+     "soldiers": 15
+    },
+    {
+     "owner": "danes",
+     "region": "halmstad",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "swedes",
+     "region": "halsingland",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "norway",
+     "region": "hamar",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "empire",
+     "region": "hamburg",
+     "type": "swordsmen",
+     "soldiers": 20
+    },
+    {
+     "owner": "empire",
+     "region": "holstein",
+     "type": "spearmen",
+     "soldiers": 15
+    },
+    {
+     "owner": "danes",
+     "region": "jelling",
+     "type": "huscarl",
+     "soldiers": 12
+    },
+    {
+     "owner": "danes",
+     "region": "lolland",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "danes",
+     "region": "lund",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "swedes",
+     "region": "nykoping",
+     "type": "huscarl",
+     "soldiers": 12
+    },
+    {
+     "owner": "swedes",
+     "region": "orebro",
+     "type": "berserker",
+     "soldiers": 12
+    },
+    {
+     "owner": "norway",
+     "region": "oslo",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "swedes",
+     "region": "stockholm",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "norway",
+     "region": "trondheim",
+     "type": "huscarl",
+     "soldiers": 20
+    },
+    {
+     "owner": "swedes",
+     "region": "tuna",
+     "type": "archers",
+     "soldiers": 12
+    },
+    {
+     "owner": "swedes",
+     "region": "uppsala",
+     "type": "huscarl",
+     "soldiers": 20
+    },
+    {
+     "owner": "swedes",
+     "region": "vasteras",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "danes",
+     "region": "zealand",
+     "type": "huscarl",
+     "soldiers": 20
+    },
+    {
+     "owner": "neutral",
+     "region": "froson",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "gdansk",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "kolobrzeg",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "lubeck",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "rostock",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "truso",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "turku",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "visby",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "wolin",
+     "type": "militia",
+     "soldiers": 10
+    }
+   ],
+   "mission": {
+    "player": "norway",
     "primary": [
      {
       "type": "destroy_units",
-      "faction": "kaldvik",
-      "unit_type": "berserker",
-      "count": 15
+      "faction": "danes",
+      "unit_type": "",
+      "count": 40
      }
     ],
-    "additional": [],
+    "additional": [
+     {
+      "type": "capture",
+      "regions": [
+       "lund"
+      ]
+     }
+    ],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 12
+     },
+     {
+      "type": "lose_region",
+      "region": "trondheim"
+     }
+    ],
+    "crowns": [
+     6,
+     8,
+     10
+    ],
+    "events": [
+     {
+      "turn": 2,
+      "type": "reinforcements",
+      "faction": "danes",
+      "region": "zealand",
+      "unit": "huscarl",
+      "soldiers": 10,
+      "text": "Sweyn and Olof of Sweden join their fleets against Olaf."
+     }
+    ],
+    "history": "Olaf Tryggvason has made Norway Christian with fire and sword. Now the kings of Denmark and Sweden and the jarl Eric lie in wait for him off the island of Svolder.",
+    "briefing": "Destroy the Danish fleet before the allies close the trap.",
+    "victory_text": "The Long Serpent wins the day, and Olaf's enemies flee.",
+    "defeat_text": "Trondheim falls, and Olaf leaps from the Long Serpent into the sea."
+   },
+   "campaign": "norse",
+   "mission_index": 5
+  },
+  {
+   "id": "norse_7",
+   "name": "Sweyn Forkbeard, 1013",
+   "map": "england",
+   "factions": [
+    {
+     "id": "denmark",
+     "name": "Kingdom of Denmark",
+     "civ": "norse",
+     "color": "#cfd2e6",
+     "ai": "aggressive",
+     "human": true
+    },
+    {
+     "id": "england",
+     "name": "Kingdom of England",
+     "civ": "anglish",
+     "color": "#b5423a",
+     "ai": "balanced",
+     "human": false
+    }
+   ],
+   "owners": {
+    "newcastle": "england",
+    "cumbria": "england",
+    "york": "england",
+    "stamford_bridge": "england",
+    "lancaster": "england",
+    "doncaster": "england",
+    "lincoln": "england",
+    "chester": "england",
+    "nottingham": "england",
+    "leicester": "england",
+    "stamford": "england",
+    "norwich": "england",
+    "warwick": "denmark",
+    "cambridge": "england",
+    "dunwich": "england",
+    "oxford": "england",
+    "gloucester": "denmark",
+    "hereford": "denmark",
+    "leominster": "england",
+    "caernarfonshire": "england",
+    "pembrokeshire": "england",
+    "glamorgan": "denmark",
+    "anglesey": "neutral",
+    "london": "england",
+    "guildford": "denmark",
+    "rochester": "denmark",
+    "hastings": "denmark",
+    "winchester": "denmark",
+    "salisbury": "denmark",
+    "dorchester": "denmark",
+    "glastonbury": "denmark",
+    "exeter": "england",
+    "plymouth": "england",
+    "isle_of_man": "neutral"
+   },
+   "capitals": {
+    "denmark": "winchester",
+    "england": "london"
+   },
+   "buildings": {
+    "winchester": {
+     "walls": 1
+    },
+    "london": {
+     "walls": 1
+    },
+    "york": {
+     "walls": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "england",
+     "region": "cambridge",
+     "type": "longbowman",
+     "soldiers": 15
+    },
+    {
+     "owner": "england",
+     "region": "chester",
+     "type": "longbowman",
+     "soldiers": 12
+    },
+    {
+     "owner": "denmark",
+     "region": "dorchester",
+     "type": "berserker",
+     "soldiers": 15
+    },
+    {
+     "owner": "england",
+     "region": "dunwich",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "denmark",
+     "region": "glastonbury",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "denmark",
+     "region": "gloucester",
+     "type": "huscarl",
+     "soldiers": 12
+    },
+    {
+     "owner": "denmark",
+     "region": "guildford",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "england",
+     "region": "leicester",
+     "type": "archers",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "leominster",
+     "type": "yeoman",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "lincoln",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "london",
+     "type": "swordsmen",
+     "soldiers": 20
+    },
+    {
+     "owner": "england",
+     "region": "norwich",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "nottingham",
+     "type": "archers",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "oxford",
+     "type": "yeoman",
+     "soldiers": 15
+    },
+    {
+     "owner": "denmark",
+     "region": "salisbury",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "stamford",
+     "type": "swordsmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "denmark",
+     "region": "winchester",
+     "type": "huscarl",
+     "soldiers": 20
+    },
+    {
+     "owner": "england",
+     "region": "york",
+     "type": "longbowman",
+     "soldiers": 15
+    },
+    {
+     "owner": "neutral",
+     "region": "anglesey",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "isle_of_man",
+     "type": "militia",
+     "soldiers": 10
+    }
+   ],
+   "mission": {
+    "player": "denmark",
+    "primary": [
+     {
+      "type": "capture",
+      "regions": [
+       "london",
+       "york"
+      ]
+     }
+    ],
+    "additional": [
+     {
+      "type": "lose_at_most",
+      "unit_class": "cavalry",
+      "count": 3
+     }
+    ],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 14
+     },
+     {
+      "type": "lose_region",
+      "region": "winchester"
+     }
+    ],
+    "crowns": [
+     7,
+     10,
+     12
+    ],
+    "events": [],
+    "history": "Sweyn Forkbeard, king of Denmark, has come for the English crown. His fleet holds the Channel, and Æthelred the Unready is losing his kingdom town by town.",
+    "briefing": "Take London and York, and Sweyn will be king of England.",
+    "victory_text": "London submits, Æthelred flees to Normandy, and Sweyn is king of England.",
+    "defeat_text": "Winchester falls, and the Danes go home."
+   },
+   "campaign": "norse",
+   "mission_index": 6
+  },
+  {
+   "id": "norse_8",
+   "name": "Cnut the Great, 1026",
+   "map": "scandinavia",
+   "factions": [
+    {
+     "id": "danes",
+     "name": "Cnut the Great",
+     "civ": "norse",
+     "color": "#cfd2e6",
+     "ai": "balanced",
+     "human": true
+    },
+    {
+     "id": "norway",
+     "name": "Olaf of Norway",
+     "civ": "norse",
+     "color": "#d1a23a",
+     "ai": "aggressive",
+     "human": false
+    },
+    {
+     "id": "swedes",
+     "name": "Anund Jacob of Sweden",
+     "civ": "norse",
+     "color": "#3d6fb6",
+     "ai": "aggressive",
+     "human": false
+    },
+    {
+     "id": "empire",
+     "name": "Holy Roman Empire",
+     "civ": "",
+     "color": "#5a5a5a",
+     "ai": "defensive",
+     "human": false
+    }
+   ],
+   "owners": {
+    "ribe": "danes",
+    "slesvik": "danes",
+    "jelling": "danes",
+    "aarhus": "danes",
+    "viborg": "danes",
+    "aalborg": "danes",
+    "funen": "danes",
+    "zealand": "danes",
+    "lolland": "danes",
+    "lund": "danes",
+    "halmstad": "danes",
+    "trondheim": "norway",
+    "borgund": "norway",
+    "bergen": "norway",
+    "stavanger": "norway",
+    "agder": "norway",
+    "tonsberg": "norway",
+    "oslo": "norway",
+    "hamar": "norway",
+    "tanum": "norway",
+    "uppsala": "swedes",
+    "stockholm": "swedes",
+    "vasteras": "swedes",
+    "nykoping": "swedes",
+    "linkoping": "swedes",
+    "orebro": "swedes",
+    "jonkoping": "swedes",
+    "skara": "swedes",
+    "lodose": "swedes",
+    "kalmar": "swedes",
+    "vaxjo": "swedes",
+    "visby": "neutral",
+    "karlstad": "swedes",
+    "tuna": "swedes",
+    "gavle": "swedes",
+    "halsingland": "swedes",
+    "froson": "neutral",
+    "holstein": "empire",
+    "hamburg": "empire",
+    "lubeck": "neutral",
+    "rostock": "neutral",
+    "wolin": "neutral",
+    "kolobrzeg": "neutral",
+    "gdansk": "neutral",
+    "truso": "neutral",
+    "turku": "neutral"
+   },
+   "capitals": {
+    "danes": "zealand",
+    "norway": "trondheim",
+    "swedes": "uppsala",
+    "empire": "hamburg"
+   },
+   "buildings": {
+    "zealand": {
+     "walls": 1
+    },
+    "trondheim": {
+     "walls": 1
+    },
+    "uppsala": {
+     "walls": 1
+    },
+    "hamburg": {
+     "walls": 1
+    },
+    "slesvik": {
+     "walls": 1
+    },
+    "lund": {
+     "walls": 1
+    },
+    "oslo": {
+     "walls": 1
+    },
+    "linkoping": {
+     "walls": 1
+    },
+    "kalmar": {
+     "walls": 1
+    },
+    "wolin": {
+     "walls": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "norway",
+     "region": "bergen",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "norway",
+     "region": "borgund",
+     "type": "berserker",
+     "soldiers": 15
+    },
+    {
+     "owner": "danes",
+     "region": "funen",
+     "type": "berserker",
+     "soldiers": 15
+    },
+    {
+     "owner": "swedes",
+     "region": "gavle",
+     "type": "berserker",
+     "soldiers": 15
+    },
+    {
+     "owner": "danes",
+     "region": "halmstad",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "swedes",
+     "region": "halsingland",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "norway",
+     "region": "hamar",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "empire",
+     "region": "hamburg",
+     "type": "swordsmen",
+     "soldiers": 20
+    },
+    {
+     "owner": "empire",
+     "region": "holstein",
+     "type": "spearmen",
+     "soldiers": 15
+    },
+    {
+     "owner": "danes",
+     "region": "jelling",
+     "type": "huscarl",
+     "soldiers": 12
+    },
+    {
+     "owner": "danes",
+     "region": "lolland",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "danes",
+     "region": "lund",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "swedes",
+     "region": "nykoping",
+     "type": "huscarl",
+     "soldiers": 12
+    },
+    {
+     "owner": "swedes",
+     "region": "orebro",
+     "type": "berserker",
+     "soldiers": 12
+    },
+    {
+     "owner": "norway",
+     "region": "oslo",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "swedes",
+     "region": "stockholm",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "norway",
+     "region": "trondheim",
+     "type": "huscarl",
+     "soldiers": 20
+    },
+    {
+     "owner": "swedes",
+     "region": "tuna",
+     "type": "archers",
+     "soldiers": 12
+    },
+    {
+     "owner": "swedes",
+     "region": "uppsala",
+     "type": "huscarl",
+     "soldiers": 20
+    },
+    {
+     "owner": "swedes",
+     "region": "vasteras",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "danes",
+     "region": "zealand",
+     "type": "huscarl",
+     "soldiers": 20
+    },
+    {
+     "owner": "neutral",
+     "region": "froson",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "gdansk",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "kolobrzeg",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "lubeck",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "rostock",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "truso",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "turku",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "visby",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "wolin",
+     "type": "militia",
+     "soldiers": 10
+    }
+   ],
+   "mission": {
+    "player": "danes",
+    "primary": [
+     {
+      "type": "capture",
+      "regions": [
+       "trondheim",
+       "uppsala"
+      ]
+     }
+    ],
+    "additional": [
+     {
+      "type": "capture",
+      "regions": [
+       "visby"
+      ]
+     }
+    ],
     "defeat": [
      {
       "type": "time",
@@ -589,187 +2913,287 @@
      },
      {
       "type": "lose_region",
-      "region": "skarholm"
+      "region": "zealand"
      }
     ],
-    "crowns": [9, 13, 18],
+    "crowns": [
+     9,
+     12,
+     15
+    ],
     "events": [],
-    "briefing": "Sigrid of Kaldvik has sworn Hakon's death and taken half the jarls with her. A feud ends one way: find her war-band and break it.",
-    "victory_text": "Sigrid is in chains, and the jarls of Kaldvik kneel again.",
-    "defeat_text": "Sigrid's oath is kept. Hakon's line is ended."
+    "history": "Cnut rules England and Denmark. King Olaf of Norway and King Anund Jacob of Sweden have joined against him and raid Scania while he is away.",
+    "briefing": "Beat the allies and make yourself king of Norway, Denmark and the Swedes.",
+    "victory_text": "Olaf flees to Russia. Cnut is king of England, Denmark, Norway and part of Sweden.",
+    "defeat_text": "Zealand falls, and Cnut's North Sea empire is broken."
    },
    "campaign": "norse",
-   "mission_index": 3
+   "mission_index": 7
   },
   {
-   "id": "norse_5",
-   "name": "Throne of the Fjordmark",
-   "map": "fjordmark",
+   "id": "norse_9",
+   "name": "Harald Hardrada, 1066",
+   "map": "england",
    "factions": [
     {
-     "id": "norse",
-     "name": "Jarldom of Hakon",
+     "id": "norway",
+     "name": "Kingdom of Norway",
      "civ": "norse",
-     "color": "#2e708f",
-     "human": true,
-     "ai": "balanced"
+     "color": "#d1a23a",
+     "ai": "aggressive",
+     "human": true
     },
     {
-     "id": "kaldvik",
-     "name": "Kaldvik Rebels",
-     "civ": "norse",
-     "color": "#a8742c",
-     "human": false,
-     "ai": "aggressive"
-    },
-    {
-     "id": "stonereach",
-     "name": "Franks of Stonereach",
-     "civ": "frankish",
-     "color": "#2f4fa8",
-     "human": false,
-     "ai": "balanced"
+     "id": "england",
+     "name": "Kingdom of England",
+     "civ": "anglish",
+     "color": "#b5423a",
+     "ai": "balanced",
+     "human": false
     }
    ],
    "owners": {
-    "skarholm": "norse",
-    "kaldvik": "kaldvik",
-    "elmsworth": "stonereach",
-    "brimstad": "norse",
-    "hrafnsey": "kaldvik",
-    "calder_abbey": "stonereach",
-    "ravensfjord": "norse",
-    "solvbekk": "kaldvik",
-    "hollin": "stonereach",
-    "ashwick": "norse",
-    "ulvdal": "kaldvik",
-    "stonereach": "stonereach",
-    "tornfjell": "norse",
-    "morrow_fen": "norse",
-    "greyhaven": "norse"
+    "newcastle": "england",
+    "cumbria": "england",
+    "york": "england",
+    "stamford_bridge": "norway",
+    "lancaster": "england",
+    "doncaster": "england",
+    "lincoln": "england",
+    "chester": "england",
+    "nottingham": "england",
+    "leicester": "england",
+    "stamford": "england",
+    "norwich": "england",
+    "warwick": "england",
+    "cambridge": "england",
+    "dunwich": "england",
+    "oxford": "england",
+    "gloucester": "england",
+    "hereford": "england",
+    "leominster": "england",
+    "caernarfonshire": "neutral",
+    "pembrokeshire": "neutral",
+    "glamorgan": "neutral",
+    "anglesey": "neutral",
+    "london": "england",
+    "guildford": "england",
+    "rochester": "england",
+    "hastings": "england",
+    "winchester": "england",
+    "salisbury": "england",
+    "dorchester": "england",
+    "glastonbury": "england",
+    "exeter": "england",
+    "plymouth": "england",
+    "isle_of_man": "norway"
    },
    "capitals": {
-    "norse": "skarholm",
-    "kaldvik": "kaldvik",
-    "stonereach": "elmsworth"
+    "norway": "stamford_bridge",
+    "england": "london"
    },
    "buildings": {
-    "skarholm": {
-     "market": 1,
-     "barracks": 1
+    "stamford_bridge": {
+     "walls": 1
     },
-    "kaldvik": {
-     "market": 1,
-     "barracks": 1
+    "london": {
+     "walls": 1
     },
-    "elmsworth": {
-     "market": 1,
-     "barracks": 1
+    "york": {
+     "walls": 1
     }
    },
    "units": [
     {
-     "owner": "norse",
-     "region": "skarholm",
-     "type": "berserker"
+     "owner": "england",
+     "region": "cambridge",
+     "type": "longbowman",
+     "soldiers": 15
     },
     {
-     "owner": "norse",
-     "region": "ashwick",
-     "type": "huscarl"
+     "owner": "england",
+     "region": "dunwich",
+     "type": "swordsmen",
+     "soldiers": 12
     },
     {
-     "owner": "norse",
-     "region": "brimstad",
-     "type": "huscarl"
+     "owner": "england",
+     "region": "gloucester",
+     "type": "longbowman",
+     "soldiers": 12
     },
     {
-     "owner": "norse",
-     "region": "greyhaven",
-     "type": "archers"
+     "owner": "england",
+     "region": "guildford",
+     "type": "yeoman",
+     "soldiers": 15
     },
     {
-     "owner": "norse",
-     "region": "morrow_fen",
-     "type": "spearmen"
+     "owner": "england",
+     "region": "hastings",
+     "type": "spearmen",
+     "soldiers": 12
     },
     {
-     "owner": "norse",
-     "region": "ravensfjord",
-     "type": "light_cavalry"
+     "owner": "norway",
+     "region": "isle_of_man",
+     "type": "berserker",
+     "soldiers": 15
     },
     {
-     "owner": "norse",
-     "region": "tornfjell",
-     "type": "berserker"
+     "owner": "england",
+     "region": "leicester",
+     "type": "yeoman",
+     "soldiers": 12
     },
     {
-     "owner": "kaldvik",
-     "region": "kaldvik",
-     "type": "berserker"
+     "owner": "england",
+     "region": "lincoln",
+     "type": "longbowman",
+     "soldiers": 15
     },
     {
-     "owner": "kaldvik",
-     "region": "hrafnsey",
-     "type": "spearmen"
+     "owner": "england",
+     "region": "london",
+     "type": "swordsmen",
+     "soldiers": 20
     },
     {
-     "owner": "kaldvik",
-     "region": "solvbekk",
-     "type": "archers"
+     "owner": "england",
+     "region": "norwich",
+     "type": "spearmen",
+     "soldiers": 12
     },
     {
-     "owner": "kaldvik",
-     "region": "ulvdal",
-     "type": "huscarl"
+     "owner": "england",
+     "region": "oxford",
+     "type": "archers",
+     "soldiers": 12
     },
     {
-     "owner": "stonereach",
-     "region": "elmsworth",
-     "type": "knight"
+     "owner": "england",
+     "region": "rochester",
+     "type": "light_cavalry",
+     "soldiers": 12
     },
     {
-     "owner": "stonereach",
-     "region": "calder_abbey",
-     "type": "sergeant"
+     "owner": "england",
+     "region": "salisbury",
+     "type": "archers",
+     "soldiers": 12
     },
     {
-     "owner": "stonereach",
-     "region": "hollin",
-     "type": "crossbowmen"
+     "owner": "england",
+     "region": "stamford",
+     "type": "light_cavalry",
+     "soldiers": 12
     },
     {
-     "owner": "stonereach",
-     "region": "stonereach",
-     "type": "spearmen"
+     "owner": "norway",
+     "region": "stamford_bridge",
+     "type": "huscarl",
+     "soldiers": 20
+    },
+    {
+     "owner": "england",
+     "region": "warwick",
+     "type": "swordsmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "winchester",
+     "type": "longbowman",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "york",
+     "type": "longbowman",
+     "soldiers": 15
+    },
+    {
+     "owner": "neutral",
+     "region": "anglesey",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "caernarfonshire",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "glamorgan",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "pembrokeshire",
+     "type": "militia",
+     "soldiers": 10
     }
    ],
    "mission": {
-    "player": "norse",
+    "player": "norway",
     "primary": [
      {
-      "type": "conquest"
+      "type": "capture",
+      "regions": [
+       "york",
+       "london"
+      ]
      }
     ],
-    "additional": [],
+    "additional": [
+     {
+      "type": "capture",
+      "regions": [
+       "lincoln"
+      ]
+     }
+    ],
     "defeat": [
      {
       "type": "time",
-      "turns": 28
+      "turns": 14
      },
      {
       "type": "lose_region",
-      "region": "skarholm"
+      "region": "stamford_bridge"
      }
     ],
-    "crowns": [14, 20, 28],
-    "events": [],
-    "briefing": "A rival jarl and a Frankish count both claim the Fjordmark. There can be only one throne.",
-    "victory_text": "Hakon is crowned king of the Fjordmark. The saga is complete.",
-    "defeat_text": "Another sits on the throne Hakon bled for."
+    "crowns": [
+     7,
+     10,
+     12
+    ],
+    "events": [
+     {
+      "turn": 2,
+      "type": "reinforcements",
+      "faction": "norway",
+      "region": "stamford_bridge",
+      "unit": "berserker",
+      "soldiers": 10,
+      "text": "Tostig's ships join the fleet in the Humber."
+     }
+    ],
+    "history": "King Edward is dead, and Harald Hardrada, the last great Viking, claims his throne. Three hundred ships have come up the Humber.",
+    "briefing": "Take York and then London, and become king of England.",
+    "victory_text": "Harold Godwinson falls, and a Norwegian sits on the English throne.",
+    "defeat_text": "At Stamford Bridge the English catch you without your mail, and the Viking Age ends with you."
    },
    "campaign": "norse",
-   "mission_index": 4
+   "mission_index": 8,
+   "resources": {
+    "norway": {
+     "gold": 900
+    }
+   }
   }
  ]
 }

@@ -96,7 +96,7 @@ class Builder:
     # ----- 1. land and water --------------------------------------------------------------
 
     def rasterize(self):
-        with open(os.path.join(ROOT, "tools", "coastlines", self.id + ".json")) as f:
+        with open(os.path.join(ROOT, "tools", "coastlines", self.spec.get("coastline", self.id) + ".json")) as f:
             coast = json.load(f)
         rings = []
         for ring in coast["land"] + coast["lakes"]:
@@ -742,6 +742,10 @@ class Builder:
                 own = [k for k, t in enumerate(self.towns) if t["owner"] == f["id"]]
                 start = self.towns[max(own, key=lambda k: len(self.neigh[k]))]["id"]
             starts.append(start)
+        # A map of fewer realms names more skirmish starts, up to four.
+        for extra in self.spec.get("skirmish_starts", []):
+            if len(starts) < 4 and to_id(extra) not in starts:
+                starts.append(to_id(extra))
         data = {
             "id": self.id, "name": spec["name"], "size": [self.proj.width, self.proj.height], "coast": [],
             "starts": starts,

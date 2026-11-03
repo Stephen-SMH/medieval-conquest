@@ -97,18 +97,14 @@ func _test_bonuses(t) -> void:
 
 func _test_campaigns(t) -> void:
 	var campaigns := Campaigns.all()
-	t.check(campaigns.map(func(c): return c.civ) == ["norse", "anglish", "frankish", "crusader", "byzantine", "saracen"], "one campaign per civilization")
-	var maps := {}
+	t.check(campaigns.map(func(c): return c.name) == ["England", "France", "Crusades", "Vikings"], "S&T's campaigns, in its order")
+	t.check(campaigns.map(func(c): return c.missions.size()) == [11, 11, 12, 9], "with S&T's numbers of missions: XI, XI, XII, IX")
 	for campaign in campaigns:
-		t.check(campaign.missions.size() >= 3, "%s has %d missions" % [campaign.name, campaign.missions.size()])
 		for i in campaign.missions.size():
 			var scenario := Campaigns.mission(campaign.id, i)
-			maps[scenario.map] = true
 			var map := MapData.load_map(scenario.map)
 			var state := GameState.from_scenario(scenario, 1)
 			var problems := []
-			if map.province_order.size() < 12 or map.province_order.size() > 20:
-				problems.append("map has %d regions" % map.province_order.size())
 			for region in map.province_order:
 				for faction in state.factions:
 					if state.space_in(region, faction) < 0:
@@ -125,8 +121,9 @@ func _test_campaigns(t) -> void:
 				problems.append("the player faction isn't the human one")
 			if Mission.crowns(state).size() != 3 or Mission.time_limit(state) <= 0 or scenario.mission.briefing == "":
 				problems.append("missing crowns, time limit or briefing")
-			t.check(problems.is_empty(), "%s mission %d \"%s\" is valid %s" % [campaign.civ, i + 1, scenario.name, problems])
-	t.check(maps.size() == campaigns.size(), "each campaign has its own map %s" % [maps.keys()])
+			t.check(problems.is_empty(), "%s mission %d \"%s\" is valid %s" % [campaign.name, i + 1, scenario.name, problems])
+	t.check(Campaigns.mission("anglish", 0).map == "england" and Campaigns.mission("anglish", 0).name == "Invasion of England by Norway and Denmark, 1013",
+		"England opens as S&T's does: the Danish invasion of 1013 on the England and Wales map")
 
 	# Every mission can be played through by the AI on both sides without errors.
 	var crashed := []

@@ -1,14 +1,15 @@
 class_name Campaigns
 extends RefCounted
-## The campaigns in data/campaigns/ (PRD CP-1): one per open civilization,
-## each a list of mission scenarios.
+## The campaigns in data/campaigns/ (PRD CP-1), as S&T lists them: England,
+## France, Crusades and Vikings, each a list of real-history mission
+## scenarios (tools/make_history_campaigns.py).
 
 const CAMPAIGN_DIR := "res://data/campaigns"
 
 static var _cache := {}
 
 
-## Every campaign, ordered like the civilizations.
+## Every campaign, in S&T's order.
 static func all() -> Array:
 	if _cache.is_empty():
 		for file in DirAccess.get_files_at(CAMPAIGN_DIR):
@@ -18,7 +19,7 @@ static func all() -> Array:
 					_cache[data.id] = data
 	Rules.ensure_loaded()
 	var list := _cache.values()
-	list.sort_custom(func(a, b): return Rules.civilization(a.civ).order < Rules.civilization(b.civ).order)
+	list.sort_custom(func(a, b): return int(a.get("order", 99)) < int(b.get("order", 99)))
 	return list
 
 

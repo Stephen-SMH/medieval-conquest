@@ -1,278 +1,1038 @@
 {
  "id": "anglish",
  "civ": "anglish",
- "name": "The Longbow Wars",
- "description": "Queen Elswyth must hold the Weald against raiders from the sea and a grasping neighbour.",
+ "order": 1,
+ "name": "England",
+ "description": "Defend the English lands from the Danes, the Norwegians and the French, fight for the Holy Land, win the Hundred Years' War and end the Wars of the Roses.",
  "missions": [
   {
    "id": "anglish_1",
-   "name": "Raiders on the Coast",
-   "map": "wealdshire",
+   "name": "Invasion of England by Norway and Denmark, 1013",
+   "map": "england",
    "factions": [
     {
-     "id": "weald",
-     "name": "Kingdom of the Weald",
+     "id": "england",
+     "name": "Kingdom of England",
      "civ": "anglish",
-     "color": "#b33b3b",
-     "human": true,
-     "ai": "balanced"
+     "color": "#b5423a",
+     "ai": "balanced",
+     "human": true
     },
     {
-     "id": "raiders",
-     "name": "Gullmouth Raiders",
+     "id": "denmark",
+     "name": "Kingdom of Denmark",
      "civ": "norse",
-     "color": "#2e708f",
-     "human": false,
-     "ai": "aggressive"
+     "color": "#cfd2e6",
+     "ai": "aggressive",
+     "human": false
     }
    ],
    "owners": {
-    "kingsbarrow": "weald",
-    "gullmouth": "raiders",
-    "oakhollow": "weald",
-    "bowmere": "raiders",
-    "thornbury": "weald",
-    "harrowdene": "raiders",
-    "coldmarsh": "weald",
-    "highwold": "raiders",
-    "fennick": "weald",
-    "redstow": "raiders"
+    "newcastle": "england",
+    "cumbria": "england",
+    "york": "england",
+    "stamford_bridge": "england",
+    "lancaster": "england",
+    "doncaster": "england",
+    "lincoln": "england",
+    "chester": "england",
+    "nottingham": "england",
+    "leicester": "england",
+    "stamford": "england",
+    "norwich": "england",
+    "warwick": "denmark",
+    "cambridge": "england",
+    "dunwich": "england",
+    "oxford": "england",
+    "gloucester": "denmark",
+    "hereford": "denmark",
+    "leominster": "england",
+    "caernarfonshire": "england",
+    "pembrokeshire": "england",
+    "glamorgan": "denmark",
+    "anglesey": "neutral",
+    "london": "england",
+    "guildford": "denmark",
+    "rochester": "denmark",
+    "hastings": "denmark",
+    "winchester": "denmark",
+    "salisbury": "denmark",
+    "dorchester": "denmark",
+    "glastonbury": "denmark",
+    "exeter": "england",
+    "plymouth": "england",
+    "isle_of_man": "neutral"
    },
    "capitals": {
-    "weald": "kingsbarrow",
-    "raiders": "gullmouth"
+    "england": "london",
+    "denmark": "winchester"
    },
    "buildings": {
-    "kingsbarrow": {
-     "market": 1,
-     "barracks": 1,
+    "london": {
      "walls": 1
     },
-    "gullmouth": {
-     "market": 1,
-     "barracks": 1
+    "winchester": {
+     "walls": 1
+    },
+    "york": {
+     "walls": 1
     }
    },
    "units": [
     {
-     "owner": "weald",
-     "region": "kingsbarrow",
-     "type": "longbowman"
+     "owner": "england",
+     "region": "cambridge",
+     "type": "longbowman",
+     "soldiers": 8
     },
     {
-     "owner": "weald",
-     "region": "coldmarsh",
-     "type": "yeoman"
+     "owner": "denmark",
+     "region": "dorchester",
+     "type": "light_cavalry",
+     "soldiers": 2
     },
     {
-     "owner": "weald",
-     "region": "fennick",
-     "type": "yeoman"
+     "owner": "england",
+     "region": "exeter",
+     "type": "archers",
+     "soldiers": 4
     },
     {
-     "owner": "weald",
-     "region": "oakhollow",
-     "type": "spearmen"
+     "owner": "denmark",
+     "region": "glamorgan",
+     "type": "archers",
+     "soldiers": 3
     },
     {
-     "owner": "weald",
-     "region": "thornbury",
-     "type": "archers"
+     "owner": "denmark",
+     "region": "glastonbury",
+     "type": "archers",
+     "soldiers": 3
     },
     {
-     "owner": "raiders",
-     "region": "gullmouth",
-     "type": "berserker"
+     "owner": "denmark",
+     "region": "gloucester",
+     "type": "spearmen",
+     "soldiers": 3
     },
     {
-     "owner": "raiders",
-     "region": "bowmere",
-     "type": "berserker"
+     "owner": "denmark",
+     "region": "guildford",
+     "type": "huscarl",
+     "soldiers": 3
     },
     {
-     "owner": "raiders",
-     "region": "harrowdene",
-     "type": "huscarl"
+     "owner": "denmark",
+     "region": "hastings",
+     "type": "berserker",
+     "soldiers": 3
     },
     {
-     "owner": "raiders",
-     "region": "highwold",
-     "type": "archers"
+     "owner": "denmark",
+     "region": "hereford",
+     "type": "spearmen",
+     "soldiers": 4
     },
     {
-     "owner": "raiders",
-     "region": "redstow",
-     "type": "spearmen"
+     "owner": "england",
+     "region": "leicester",
+     "type": "light_cavalry",
+     "soldiers": 4
+    },
+    {
+     "owner": "england",
+     "region": "leominster",
+     "type": "spearmen",
+     "soldiers": 3
+    },
+    {
+     "owner": "england",
+     "region": "lincoln",
+     "type": "archers",
+     "soldiers": 8
+    },
+    {
+     "owner": "england",
+     "region": "london",
+     "type": "swordsmen",
+     "soldiers": 9
+    },
+    {
+     "owner": "england",
+     "region": "nottingham",
+     "type": "yeoman",
+     "soldiers": 10
+    },
+    {
+     "owner": "england",
+     "region": "oxford",
+     "type": "spearmen",
+     "soldiers": 5
+    },
+    {
+     "owner": "england",
+     "region": "pembrokeshire",
+     "type": "archers",
+     "soldiers": 6
+    },
+    {
+     "owner": "denmark",
+     "region": "rochester",
+     "type": "spearmen",
+     "soldiers": 3
+    },
+    {
+     "owner": "denmark",
+     "region": "salisbury",
+     "type": "huscarl",
+     "soldiers": 4
+    },
+    {
+     "owner": "england",
+     "region": "stamford",
+     "type": "yeoman",
+     "soldiers": 6
+    },
+    {
+     "owner": "denmark",
+     "region": "warwick",
+     "type": "berserker",
+     "soldiers": 5
+    },
+    {
+     "owner": "denmark",
+     "region": "winchester",
+     "type": "huscarl",
+     "soldiers": 6
+    },
+    {
+     "owner": "england",
+     "region": "york",
+     "type": "spearmen",
+     "soldiers": 6
     },
     {
      "owner": "neutral",
-     "region": "ashcombe",
+     "region": "anglesey",
      "type": "militia",
-     "soldiers": 12
+     "soldiers": 10
     },
     {
      "owner": "neutral",
-     "region": "larkfield",
+     "region": "isle_of_man",
      "type": "militia",
-     "soldiers": 12
-    },
-    {
-     "owner": "neutral",
-     "region": "saltcombe",
-     "type": "militia",
-     "soldiers": 12
+     "soldiers": 10
     }
    ],
    "mission": {
-    "player": "weald",
+    "player": "england",
     "primary": [
      {
-      "type": "hold",
-      "region": "kingsbarrow",
-      "turns": 5
+      "type": "destroy_units",
+      "faction": "",
+      "unit_type": "",
+      "count": 7
      }
     ],
-    "additional": [],
+    "additional": [
+     {
+      "type": "lose_at_most",
+      "unit_class": "cavalry",
+      "count": 3
+     },
+     {
+      "type": "destroy",
+      "faction": "denmark",
+      "text": "Destroy all enemy forces",
+      "points": 300
+     }
+    ],
     "defeat": [
      {
       "type": "time",
       "turns": 12
      },
      {
+      "type": "lose_army"
+     },
+     {
       "type": "lose_region",
-      "region": "kingsbarrow"
+      "region": "london",
+      "before": 8
      }
     ],
-    "crowns": [6, 8, 12],
-    "events": [],
-    "briefing": "Longships have been sighted. Hold Kingsbarrow for five turns until the fyrd arrives.",
-    "victory_text": "The raiders' fury broke on our walls of bowmen.",
-    "defeat_text": "Kingsbarrow burns."
+    "crowns": [
+     8,
+     10,
+     12
+    ],
+    "events": [
+     {
+      "turn": 3,
+      "type": "reinforcements",
+      "faction": "denmark",
+      "region": "hastings",
+      "unit": "berserker",
+      "soldiers": 4,
+      "text": "Enemy reinforcements have landed at Hastings."
+     }
+    ],
+    "history": "Fog and war have always lain over these lands. Britons, Saxons and Danes have fought here for centuries. In 1013 Sweyn Forkbeard, king of Denmark, brought a great fleet to England, and his Danes and Norwegians now hold the south coast and the Severn.",
+    "briefing": "Break the Danish host before it reaches London.",
+    "victory_text": "The Danes are thrown back to their ships, and London stands.",
+    "defeat_text": "Sweyn's banners fly over London, and King Æthelred flees to Normandy."
    },
    "campaign": "anglish",
    "mission_index": 0
   },
   {
    "id": "anglish_2",
-   "name": "Mustering the Shires",
-   "map": "wealdshire",
+   "name": "Edmund Ironside, 1016",
+   "map": "england",
    "factions": [
     {
-     "id": "weald",
-     "name": "Kingdom of the Weald",
+     "id": "england",
+     "name": "Kingdom of England",
      "civ": "anglish",
-     "color": "#b33b3b",
-     "human": true,
-     "ai": "balanced"
+     "color": "#b5423a",
+     "ai": "balanced",
+     "human": true
     },
     {
-     "id": "wyndle",
-     "name": "Wyndle Free Towns",
-     "civ": "anglish",
-     "color": "#c07a3a",
-     "human": false,
-     "ai": "defensive"
+     "id": "denmark",
+     "name": "Kingdom of Denmark",
+     "civ": "norse",
+     "color": "#cfd2e6",
+     "ai": "aggressive",
+     "human": false
     }
    ],
    "owners": {
-    "kingsbarrow": "weald",
-    "wyndle": "wyndle",
-    "oakhollow": "weald",
-    "bramblegate": "wyndle",
-    "thornbury": "weald",
-    "coldmarsh": "weald"
+    "newcastle": "denmark",
+    "cumbria": "denmark",
+    "york": "denmark",
+    "stamford_bridge": "denmark",
+    "lancaster": "denmark",
+    "doncaster": "denmark",
+    "lincoln": "denmark",
+    "chester": "england",
+    "nottingham": "denmark",
+    "leicester": "england",
+    "stamford": "denmark",
+    "norwich": "denmark",
+    "warwick": "england",
+    "cambridge": "denmark",
+    "dunwich": "denmark",
+    "oxford": "england",
+    "gloucester": "england",
+    "hereford": "england",
+    "leominster": "england",
+    "caernarfonshire": "neutral",
+    "pembrokeshire": "neutral",
+    "glamorgan": "neutral",
+    "anglesey": "neutral",
+    "london": "denmark",
+    "guildford": "england",
+    "rochester": "england",
+    "hastings": "england",
+    "winchester": "england",
+    "salisbury": "england",
+    "dorchester": "england",
+    "glastonbury": "england",
+    "exeter": "england",
+    "plymouth": "england",
+    "isle_of_man": "neutral"
    },
    "capitals": {
-    "weald": "kingsbarrow",
-    "wyndle": "wyndle"
+    "england": "winchester",
+    "denmark": "york"
    },
    "buildings": {
-    "kingsbarrow": {
-     "market": 1,
-     "barracks": 1
+    "winchester": {
+     "walls": 1
     },
-    "wyndle": {
-     "market": 1,
-     "barracks": 1
+    "york": {
+     "walls": 1
+    },
+    "london": {
+     "walls": 1
     }
    },
    "units": [
     {
-     "owner": "weald",
-     "region": "kingsbarrow",
-     "type": "longbowman"
-    },
-    {
-     "owner": "weald",
-     "region": "coldmarsh",
-     "type": "yeoman"
-    },
-    {
-     "owner": "weald",
-     "region": "oakhollow",
-     "type": "spearmen"
-    },
-    {
-     "owner": "weald",
-     "region": "thornbury",
-     "type": "light_cavalry"
-    },
-    {
-     "owner": "wyndle",
-     "region": "wyndle",
-     "type": "yeoman"
-    },
-    {
-     "owner": "wyndle",
-     "region": "bramblegate",
-     "type": "archers"
-    },
-    {
-     "owner": "neutral",
-     "region": "ashcombe",
-     "type": "militia",
+     "owner": "denmark",
+     "region": "cumbria",
+     "type": "huscarl",
      "soldiers": 12
     },
     {
-     "owner": "neutral",
-     "region": "bowmere",
-     "type": "militia",
+     "owner": "denmark",
+     "region": "doncaster",
+     "type": "berserker",
+     "soldiers": 15
+    },
+    {
+     "owner": "england",
+     "region": "dorchester",
+     "type": "longbowman",
+     "soldiers": 15
+    },
+    {
+     "owner": "england",
+     "region": "exeter",
+     "type": "light_cavalry",
      "soldiers": 12
     },
     {
-     "owner": "neutral",
-     "region": "gullmouth",
-     "type": "militia",
+     "owner": "england",
+     "region": "glastonbury",
+     "type": "swordsmen",
      "soldiers": 12
     },
     {
-     "owner": "neutral",
-     "region": "harrowdene",
-     "type": "militia",
+     "owner": "england",
+     "region": "gloucester",
+     "type": "longbowman",
      "soldiers": 12
     },
     {
-     "owner": "neutral",
-     "region": "larkfield",
-     "type": "militia",
+     "owner": "england",
+     "region": "guildford",
+     "type": "yeoman",
+     "soldiers": 14
+    },
+    {
+     "owner": "denmark",
+     "region": "lancaster",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "denmark",
+     "region": "lincoln",
+     "type": "berserker",
      "soldiers": 12
     },
     {
-     "owner": "neutral",
-     "region": "saltcombe",
-     "type": "militia",
+     "owner": "denmark",
+     "region": "london",
+     "type": "huscarl",
+     "soldiers": 18
+    },
+    {
+     "owner": "denmark",
+     "region": "newcastle",
+     "type": "spearmen",
      "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "oxford",
+     "type": "longbowman",
+     "soldiers": 15
+    },
+    {
+     "owner": "england",
+     "region": "salisbury",
+     "type": "archers",
+     "soldiers": 12
+    },
+    {
+     "owner": "denmark",
+     "region": "stamford_bridge",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "winchester",
+     "type": "swordsmen",
+     "soldiers": 20
+    },
+    {
+     "owner": "denmark",
+     "region": "york",
+     "type": "huscarl",
+     "soldiers": 20
+    },
+    {
+     "owner": "neutral",
+     "region": "anglesey",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "caernarfonshire",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "glamorgan",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "isle_of_man",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "pembrokeshire",
+     "type": "militia",
+     "soldiers": 10
     }
    ],
    "mission": {
-    "player": "weald",
+    "player": "england",
     "primary": [
      {
       "type": "capture",
-      "regions": ["fennick", "highwold", "saltcombe"]
+      "regions": [
+       "london"
+      ]
      }
     ],
-    "additional": [],
+    "additional": [
+     {
+      "type": "capture",
+      "regions": [
+       "lincoln"
+      ]
+     }
+    ],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 14
+     },
+     {
+      "type": "lose_region",
+      "region": "winchester"
+     }
+    ],
+    "crowns": [
+     6,
+     9,
+     12
+    ],
+    "events": [
+     {
+      "turn": 4,
+      "type": "reinforcements",
+      "faction": "denmark",
+      "region": "cambridge",
+      "unit": "huscarl",
+      "soldiers": 10,
+      "text": "Cnut's fleet brings fresh Danes up the rivers of East Anglia."
+     }
+    ],
+    "history": "King Æthelred is dead, and his son Edmund, called Ironside, has been chosen king in London. Cnut, Sweyn's son, holds the Danelaw and has laid siege to the city.",
+    "briefing": "Relieve London before it starves, and keep Winchester out of Danish hands.",
+    "victory_text": "London is free. Edmund and Cnut will share the kingdom, and England is not lost.",
+    "defeat_text": "Winchester falls, and Cnut is crowned king of all England."
+   },
+   "campaign": "anglish",
+   "mission_index": 1
+  },
+  {
+   "id": "anglish_3",
+   "name": "Stamford Bridge, 1066",
+   "map": "england",
+   "factions": [
+    {
+     "id": "england",
+     "name": "Kingdom of England",
+     "civ": "anglish",
+     "color": "#b5423a",
+     "ai": "balanced",
+     "human": true
+    },
+    {
+     "id": "norway",
+     "name": "Kingdom of Norway",
+     "civ": "norse",
+     "color": "#d1a23a",
+     "ai": "aggressive",
+     "human": false
+    }
+   ],
+   "owners": {
+    "newcastle": "england",
+    "cumbria": "england",
+    "york": "norway",
+    "stamford_bridge": "norway",
+    "lancaster": "england",
+    "doncaster": "england",
+    "lincoln": "england",
+    "chester": "england",
+    "nottingham": "england",
+    "leicester": "england",
+    "stamford": "england",
+    "norwich": "england",
+    "warwick": "england",
+    "cambridge": "england",
+    "dunwich": "england",
+    "oxford": "england",
+    "gloucester": "england",
+    "hereford": "england",
+    "leominster": "england",
+    "caernarfonshire": "neutral",
+    "pembrokeshire": "neutral",
+    "glamorgan": "neutral",
+    "anglesey": "neutral",
+    "london": "england",
+    "guildford": "england",
+    "rochester": "england",
+    "hastings": "england",
+    "winchester": "england",
+    "salisbury": "england",
+    "dorchester": "england",
+    "glastonbury": "england",
+    "exeter": "england",
+    "plymouth": "england",
+    "isle_of_man": "neutral"
+   },
+   "capitals": {
+    "england": "london",
+    "norway": "stamford_bridge"
+   },
+   "buildings": {
+    "london": {
+     "walls": 1
+    },
+    "stamford_bridge": {
+     "walls": 1
+    },
+    "york": {
+     "walls": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "england",
+     "region": "cambridge",
+     "type": "longbowman",
+     "soldiers": 15
+    },
+    {
+     "owner": "england",
+     "region": "doncaster",
+     "type": "yeoman",
+     "soldiers": 16
+    },
+    {
+     "owner": "england",
+     "region": "dunwich",
+     "type": "swordsmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "gloucester",
+     "type": "longbowman",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "guildford",
+     "type": "yeoman",
+     "soldiers": 15
+    },
+    {
+     "owner": "england",
+     "region": "hastings",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "leicester",
+     "type": "yeoman",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "lincoln",
+     "type": "light_cavalry",
+     "soldiers": 10
+    },
+    {
+     "owner": "england",
+     "region": "london",
+     "type": "swordsmen",
+     "soldiers": 20
+    },
+    {
+     "owner": "england",
+     "region": "norwich",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "nottingham",
+     "type": "longbowman",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "oxford",
+     "type": "archers",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "rochester",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "salisbury",
+     "type": "archers",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "stamford",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "norway",
+     "region": "stamford_bridge",
+     "type": "huscarl",
+     "soldiers": 20
+    },
+    {
+     "owner": "england",
+     "region": "warwick",
+     "type": "swordsmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "winchester",
+     "type": "longbowman",
+     "soldiers": 12
+    },
+    {
+     "owner": "norway",
+     "region": "york",
+     "type": "berserker",
+     "soldiers": 15
+    },
+    {
+     "owner": "neutral",
+     "region": "anglesey",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "caernarfonshire",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "glamorgan",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "isle_of_man",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "pembrokeshire",
+     "type": "militia",
+     "soldiers": 10
+    }
+   ],
+   "mission": {
+    "player": "england",
+    "primary": [
+     {
+      "type": "capture",
+      "regions": [
+       "york",
+       "stamford_bridge"
+      ]
+     }
+    ],
+    "additional": [
+     {
+      "type": "lose_at_most",
+      "unit_class": "cavalry",
+      "count": 3
+     }
+    ],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 10
+     },
+     {
+      "type": "lose_region",
+      "region": "london"
+     }
+    ],
+    "crowns": [
+     4,
+     6,
+     8
+    ],
+    "events": [
+     {
+      "turn": 2,
+      "type": "reinforcements",
+      "faction": "norway",
+      "region": "stamford_bridge",
+      "unit": "huscarl",
+      "soldiers": 6,
+      "text": "Hardrada's men march up from the ships at Riccall."
+     },
+     {
+      "turn": 3,
+      "type": "message",
+      "text": "Word comes from the south: Duke William's fleet waits for a fair wind."
+     }
+    ],
+    "history": "Harald Hardrada, king of Norway, has sailed up the Humber with the exiled Tostig, beaten the northern earls at Fulford and taken York.",
+    "briefing": "March north fast, retake York and destroy the Norwegians at Stamford Bridge.",
+    "victory_text": "Hardrada falls at Stamford Bridge, and of three hundred ships only twenty-four sail home.",
+    "defeat_text": "The Norwegians hold the north, and Harold's crown slips."
+   },
+   "campaign": "anglish",
+   "mission_index": 2
+  },
+  {
+   "id": "anglish_4",
+   "name": "Hastings, 1066",
+   "map": "england",
+   "factions": [
+    {
+     "id": "england",
+     "name": "Kingdom of England",
+     "civ": "anglish",
+     "color": "#b5423a",
+     "ai": "balanced",
+     "human": true
+    },
+    {
+     "id": "normandy",
+     "name": "Duchy of Normandy",
+     "civ": "frankish",
+     "color": "#2f4fa8",
+     "ai": "aggressive",
+     "human": false
+    }
+   ],
+   "owners": {
+    "newcastle": "england",
+    "cumbria": "england",
+    "york": "england",
+    "stamford_bridge": "england",
+    "lancaster": "england",
+    "doncaster": "england",
+    "lincoln": "england",
+    "chester": "england",
+    "nottingham": "england",
+    "leicester": "england",
+    "stamford": "england",
+    "norwich": "england",
+    "warwick": "england",
+    "cambridge": "england",
+    "dunwich": "england",
+    "oxford": "england",
+    "gloucester": "england",
+    "hereford": "england",
+    "leominster": "england",
+    "caernarfonshire": "neutral",
+    "pembrokeshire": "neutral",
+    "glamorgan": "neutral",
+    "anglesey": "neutral",
+    "london": "england",
+    "guildford": "england",
+    "rochester": "normandy",
+    "hastings": "normandy",
+    "winchester": "england",
+    "salisbury": "england",
+    "dorchester": "england",
+    "glastonbury": "england",
+    "exeter": "england",
+    "plymouth": "england",
+    "isle_of_man": "neutral"
+   },
+   "capitals": {
+    "england": "london",
+    "normandy": "hastings"
+   },
+   "buildings": {
+    "london": {
+     "walls": 1
+    },
+    "hastings": {
+     "walls": 1
+    },
+    "york": {
+     "walls": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "england",
+     "region": "cambridge",
+     "type": "longbowman",
+     "soldiers": 15
+    },
+    {
+     "owner": "england",
+     "region": "chester",
+     "type": "swordsmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "dorchester",
+     "type": "longbowman",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "dunwich",
+     "type": "archers",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "gloucester",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "guildford",
+     "type": "yeoman",
+     "soldiers": 15
+    },
+    {
+     "owner": "normandy",
+     "region": "hastings",
+     "type": "knight",
+     "soldiers": 20
+    },
+    {
+     "owner": "england",
+     "region": "leicester",
+     "type": "swordsmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "london",
+     "type": "swordsmen",
+     "soldiers": 20
+    },
+    {
+     "owner": "england",
+     "region": "norwich",
+     "type": "longbowman",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "oxford",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "normandy",
+     "region": "rochester",
+     "type": "sergeant",
+     "soldiers": 15
+    },
+    {
+     "owner": "england",
+     "region": "salisbury",
+     "type": "yeoman",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "stamford",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "warwick",
+     "type": "archers",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "winchester",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "anglesey",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "caernarfonshire",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "glamorgan",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "isle_of_man",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "pembrokeshire",
+     "type": "militia",
+     "soldiers": 10
+    }
+   ],
+   "mission": {
+    "player": "england",
+    "primary": [
+     {
+      "type": "capture",
+      "regions": [
+       "hastings"
+      ]
+     }
+    ],
+    "additional": [
+     {
+      "type": "destroy_units",
+      "faction": "normandy",
+      "unit_type": "knight",
+      "count": 15
+     }
+    ],
     "defeat": [
      {
       "type": "time",
@@ -280,484 +1040,2188 @@
      },
      {
       "type": "lose_region",
-      "region": "kingsbarrow"
+      "region": "london"
      }
     ],
-    "crowns": [6, 8, 12],
-    "events": [],
-    "briefing": "The raiders are gone for now, but the next fleet will come. Bring the nearest shires under the crown, so their bowmen answer the queen's call.",
-    "victory_text": "The shires send their bowmen to Kingsbarrow.",
-    "defeat_text": "The shires keep their bowmen at home."
-   },
-   "campaign": "anglish",
-   "mission_index": 1
-  },
-  {
-   "id": "anglish_3",
-   "name": "Burn the Longships",
-   "map": "wealdshire",
-   "factions": [
-    {
-     "id": "weald",
-     "name": "Kingdom of the Weald",
-     "civ": "anglish",
-     "color": "#b33b3b",
-     "human": true,
-     "ai": "balanced"
-    },
-    {
-     "id": "raiders",
-     "name": "Gullmouth Raiders",
-     "civ": "norse",
-     "color": "#2e708f",
-     "human": false,
-     "ai": "balanced"
-    }
-   ],
-   "owners": {
-    "kingsbarrow": "weald",
-    "gullmouth": "raiders",
-    "oakhollow": "weald",
-    "bowmere": "raiders",
-    "thornbury": "weald",
-    "harrowdene": "raiders",
-    "coldmarsh": "weald",
-    "highwold": "raiders",
-    "fennick": "weald",
-    "redstow": "raiders",
-    "saltcombe": "weald"
-   },
-   "capitals": {
-    "weald": "kingsbarrow",
-    "raiders": "gullmouth"
-   },
-   "buildings": {
-    "kingsbarrow": {
-     "market": 1,
-     "barracks": 1
-    },
-    "gullmouth": {
-     "market": 1,
-     "barracks": 1
-    }
-   },
-   "units": [
-    {
-     "owner": "weald",
-     "region": "kingsbarrow",
-     "type": "longbowman"
-    },
-    {
-     "owner": "weald",
-     "region": "coldmarsh",
-     "type": "longbowman"
-    },
-    {
-     "owner": "weald",
-     "region": "fennick",
-     "type": "yeoman"
-    },
-    {
-     "owner": "weald",
-     "region": "oakhollow",
-     "type": "swordsmen"
-    },
-    {
-     "owner": "weald",
-     "region": "saltcombe",
-     "type": "light_cavalry"
-    },
-    {
-     "owner": "weald",
-     "region": "thornbury",
-     "type": "spearmen"
-    },
-    {
-     "owner": "raiders",
-     "region": "gullmouth",
-     "type": "berserker"
-    },
-    {
-     "owner": "raiders",
-     "region": "bowmere",
-     "type": "huscarl"
-    },
-    {
-     "owner": "raiders",
-     "region": "harrowdene",
-     "type": "archers"
-    },
-    {
-     "owner": "raiders",
-     "region": "highwold",
-     "type": "spearmen"
-    },
-    {
-     "owner": "raiders",
-     "region": "redstow",
-     "type": "berserker"
-    },
-    {
-     "owner": "neutral",
-     "region": "ashcombe",
-     "type": "militia",
-     "soldiers": 12
-    },
-    {
-     "owner": "neutral",
-     "region": "larkfield",
-     "type": "militia",
-     "soldiers": 12
-    }
-   ],
-   "mission": {
-    "player": "weald",
-    "primary": [
+    "crowns": [
+     5,
+     7,
+     9
+    ],
+    "events": [
      {
-      "type": "destroy",
-      "faction": "raiders"
+      "turn": 2,
+      "type": "reinforcements",
+      "faction": "normandy",
+      "region": "hastings",
+      "unit": "knight",
+      "soldiers": 8,
+      "text": "More Norman ships land at Pevensey."
      }
     ],
-    "additional": [],
-    "defeat": [
-     {
-      "type": "time",
-      "turns": 20
-     },
-     {
-      "type": "lose_region",
-      "region": "kingsbarrow"
-     }
-    ],
-    "crowns": [10, 14, 20],
-    "events": [],
-    "briefing": "Carry the war to Gullmouth and burn the raiders out of the Weald for good.",
-    "victory_text": "No longship will beach on our shore again.",
-    "defeat_text": "The raiders still hold the coast."
-   },
-   "campaign": "anglish",
-   "mission_index": 2
-  },
-  {
-   "id": "anglish_4",
-   "name": "Hunt the Black Count",
-   "map": "wealdshire",
-   "factions": [
-    {
-     "id": "weald",
-     "name": "Kingdom of the Weald",
-     "civ": "anglish",
-     "color": "#b33b3b",
-     "human": true,
-     "ai": "balanced"
-    },
-    {
-     "id": "ashcombe",
-     "name": "Count of Ashcombe",
-     "civ": "frankish",
-     "color": "#2f4fa8",
-     "human": false,
-     "ai": "balanced"
-    }
-   ],
-   "owners": {
-    "kingsbarrow": "weald",
-    "ashcombe": "ashcombe",
-    "oakhollow": "weald",
-    "harrowdene": "ashcombe",
-    "thornbury": "weald",
-    "bowmere": "ashcombe",
-    "coldmarsh": "weald",
-    "bramblegate": "ashcombe",
-    "fennick": "weald",
-    "highwold": "weald"
-   },
-   "capitals": {
-    "weald": "kingsbarrow",
-    "ashcombe": "ashcombe"
-   },
-   "buildings": {
-    "kingsbarrow": {
-     "market": 1,
-     "barracks": 1,
-     "walls": 1
-    },
-    "ashcombe": {
-     "market": 1,
-     "barracks": 1
-    }
-   },
-   "units": [
-    {
-     "owner": "weald",
-     "region": "kingsbarrow",
-     "type": "longbowman"
-    },
-    {
-     "owner": "weald",
-     "region": "coldmarsh",
-     "type": "pikemen"
-    },
-    {
-     "owner": "weald",
-     "region": "fennick",
-     "type": "longbowman"
-    },
-    {
-     "owner": "weald",
-     "region": "highwold",
-     "type": "yeoman"
-    },
-    {
-     "owner": "weald",
-     "region": "oakhollow",
-     "type": "swordsmen"
-    },
-    {
-     "owner": "weald",
-     "region": "thornbury",
-     "type": "light_cavalry"
-    },
-    {
-     "owner": "ashcombe",
-     "region": "ashcombe",
-     "type": "knight"
-    },
-    {
-     "owner": "ashcombe",
-     "region": "bowmere",
-     "type": "sergeant"
-    },
-    {
-     "owner": "ashcombe",
-     "region": "bramblegate",
-     "type": "crossbowmen"
-    },
-    {
-     "owner": "ashcombe",
-     "region": "harrowdene",
-     "type": "light_cavalry"
-    },
-    {
-     "owner": "neutral",
-     "region": "gullmouth",
-     "type": "militia",
-     "soldiers": 12
-    },
-    {
-     "owner": "neutral",
-     "region": "larkfield",
-     "type": "militia",
-     "soldiers": 12
-    },
-    {
-     "owner": "neutral",
-     "region": "saltcombe",
-     "type": "militia",
-     "soldiers": 12
-    }
-   ],
-   "mission": {
-    "player": "weald",
-    "primary": [
-     {
-      "type": "destroy_units",
-      "faction": "ashcombe",
-      "unit_type": "knight",
-      "count": 15
-     }
-    ],
-    "additional": [],
-    "defeat": [
-     {
-      "type": "time",
-      "turns": 22
-     },
-     {
-      "type": "lose_region",
-      "region": "kingsbarrow"
-     }
-    ],
-    "crowns": [11, 16, 22],
-    "events": [],
-    "briefing": "Baudouin, the Black Count of Ashcombe, rides through the Weald burning barns. His knights are deadly in the open: meet them with pikes and bows, then take the count.",
-    "victory_text": "The Black Count is the queen's prisoner, and his ransom fills the treasury.",
-    "defeat_text": "Baudouin's knights ride on, and the Weald burns."
+    "history": "Three days after Stamford Bridge, Duke William of Normandy landed at Pevensey and built a fort at Hastings. King Harold has marched his weary army back south.",
+    "briefing": "Throw the Normans into the sea before William can march on London.",
+    "victory_text": "The Norman knights break on the shield wall, and William's claim dies with his army.",
+    "defeat_text": "William is crowned in Westminster on Christmas Day."
    },
    "campaign": "anglish",
    "mission_index": 3
   },
   {
    "id": "anglish_5",
-   "name": "Crown of the Weald",
-   "map": "wealdshire",
+   "name": "The Anarchy, 1139",
+   "map": "england",
    "factions": [
     {
-     "id": "weald",
-     "name": "Kingdom of the Weald",
+     "id": "england",
+     "name": "Kingdom of England",
      "civ": "anglish",
-     "color": "#b33b3b",
-     "human": true,
-     "ai": "balanced"
+     "color": "#b5423a",
+     "ai": "balanced",
+     "human": true
     },
     {
-     "id": "ashcombe",
-     "name": "Count of Ashcombe",
-     "civ": "frankish",
-     "color": "#2f4fa8",
-     "human": false,
-     "ai": "aggressive"
-    },
-    {
-     "id": "wyndle",
-     "name": "Wyndle Free Towns",
+     "id": "angevins",
+     "name": "Empress Matilda",
      "civ": "anglish",
-     "color": "#c07a3a",
-     "human": false,
-     "ai": "defensive"
+     "color": "#7b4fa8",
+     "ai": "balanced",
+     "human": false
     }
    ],
    "owners": {
-    "kingsbarrow": "weald",
-    "ashcombe": "ashcombe",
-    "wyndle": "wyndle",
-    "oakhollow": "weald",
-    "harrowdene": "ashcombe",
-    "bramblegate": "wyndle",
-    "thornbury": "weald",
-    "bowmere": "ashcombe",
-    "fennick": "wyndle",
-    "coldmarsh": "weald",
-    "larkfield": "ashcombe",
-    "highwold": "weald",
-    "redstow": "ashcombe",
-    "saltcombe": "weald"
+    "newcastle": "england",
+    "cumbria": "england",
+    "york": "england",
+    "stamford_bridge": "england",
+    "lancaster": "england",
+    "doncaster": "england",
+    "lincoln": "england",
+    "chester": "england",
+    "nottingham": "england",
+    "leicester": "england",
+    "stamford": "england",
+    "norwich": "england",
+    "warwick": "england",
+    "cambridge": "england",
+    "dunwich": "england",
+    "oxford": "angevins",
+    "gloucester": "angevins",
+    "hereford": "angevins",
+    "leominster": "angevins",
+    "caernarfonshire": "neutral",
+    "pembrokeshire": "neutral",
+    "glamorgan": "neutral",
+    "anglesey": "neutral",
+    "london": "england",
+    "guildford": "england",
+    "rochester": "england",
+    "hastings": "england",
+    "winchester": "england",
+    "salisbury": "england",
+    "dorchester": "england",
+    "glastonbury": "angevins",
+    "exeter": "angevins",
+    "plymouth": "england",
+    "isle_of_man": "neutral"
    },
    "capitals": {
-    "weald": "kingsbarrow",
-    "ashcombe": "ashcombe",
-    "wyndle": "wyndle"
+    "england": "london",
+    "angevins": "gloucester"
    },
    "buildings": {
-    "kingsbarrow": {
-     "market": 1,
-     "barracks": 1
+    "london": {
+     "walls": 1
     },
-    "ashcombe": {
-     "market": 1,
-     "barracks": 1,
-     "walls": 2
+    "gloucester": {
+     "walls": 1
     },
-    "wyndle": {
-     "market": 1,
-     "barracks": 1
+    "york": {
+     "walls": 1
     }
    },
    "units": [
     {
-     "owner": "weald",
-     "region": "kingsbarrow",
-     "type": "longbowman"
+     "owner": "england",
+     "region": "cambridge",
+     "type": "longbowman",
+     "soldiers": 15
     },
     {
-     "owner": "weald",
-     "region": "coldmarsh",
-     "type": "longbowman"
+     "owner": "england",
+     "region": "dunwich",
+     "type": "light_cavalry",
+     "soldiers": 12
     },
     {
-     "owner": "weald",
-     "region": "highwold",
-     "type": "yeoman"
+     "owner": "angevins",
+     "region": "exeter",
+     "type": "longbowman",
+     "soldiers": 15
     },
     {
-     "owner": "weald",
-     "region": "oakhollow",
-     "type": "yeoman"
+     "owner": "angevins",
+     "region": "glastonbury",
+     "type": "longbowman",
+     "soldiers": 15
     },
     {
-     "owner": "weald",
-     "region": "saltcombe",
-     "type": "swordsmen"
+     "owner": "angevins",
+     "region": "gloucester",
+     "type": "swordsmen",
+     "soldiers": 20
     },
     {
-     "owner": "weald",
-     "region": "thornbury",
-     "type": "heavy_cavalry"
+     "owner": "england",
+     "region": "guildford",
+     "type": "yeoman",
+     "soldiers": 15
     },
     {
-     "owner": "ashcombe",
-     "region": "ashcombe",
-     "type": "knight"
+     "owner": "england",
+     "region": "hastings",
+     "type": "spearmen",
+     "soldiers": 12
     },
     {
-     "owner": "ashcombe",
-     "region": "bowmere",
-     "type": "sergeant"
+     "owner": "angevins",
+     "region": "hereford",
+     "type": "yeoman",
+     "soldiers": 15
     },
     {
-     "owner": "ashcombe",
-     "region": "harrowdene",
-     "type": "crossbowmen"
+     "owner": "england",
+     "region": "leicester",
+     "type": "swordsmen",
+     "soldiers": 12
     },
     {
-     "owner": "ashcombe",
-     "region": "larkfield",
-     "type": "spearmen"
+     "owner": "england",
+     "region": "london",
+     "type": "swordsmen",
+     "soldiers": 20
     },
     {
-     "owner": "ashcombe",
-     "region": "redstow",
-     "type": "knight"
+     "owner": "england",
+     "region": "norwich",
+     "type": "longbowman",
+     "soldiers": 12
     },
     {
-     "owner": "wyndle",
-     "region": "wyndle",
-     "type": "yeoman"
+     "owner": "angevins",
+     "region": "oxford",
+     "type": "longbowman",
+     "soldiers": 15
     },
     {
-     "owner": "wyndle",
-     "region": "bramblegate",
-     "type": "archers"
+     "owner": "england",
+     "region": "rochester",
+     "type": "archers",
+     "soldiers": 12
     },
     {
-     "owner": "wyndle",
-     "region": "fennick",
-     "type": "spearmen"
+     "owner": "england",
+     "region": "salisbury",
+     "type": "yeoman",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "stamford",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "warwick",
+     "type": "archers",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "winchester",
+     "type": "light_cavalry",
+     "soldiers": 12
     },
     {
      "owner": "neutral",
-     "region": "gullmouth",
+     "region": "anglesey",
      "type": "militia",
-     "soldiers": 12
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "caernarfonshire",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "glamorgan",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "isle_of_man",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "pembrokeshire",
+     "type": "militia",
+     "soldiers": 10
     }
    ],
    "mission": {
-    "player": "weald",
+    "player": "england",
     "primary": [
      {
       "type": "capture",
-      "regions": ["ashcombe", "wyndle"]
+      "regions": [
+       "gloucester",
+       "oxford"
+      ]
      }
     ],
-    "additional": [],
+    "additional": [
+     {
+      "type": "capture",
+      "regions": [
+       "exeter"
+      ]
+     }
+    ],
     "defeat": [
      {
       "type": "time",
-      "turns": 24
+      "turns": 16
      },
      {
       "type": "lose_region",
-      "region": "kingsbarrow"
+      "region": "london"
      }
     ],
-    "crowns": [12, 17, 24],
+    "crowns": [
+     8,
+     11,
+     14
+    ],
     "events": [],
-    "briefing": "Unite the Weald: take Ashcombe from its Frankish count and bring the free towns of Wyndle under the crown.",
-    "victory_text": "Elswyth is crowned Queen of all the Weald.",
-    "defeat_text": "The Weald stays divided."
+    "history": "King Stephen took the crown when Henry I died, but Henry's daughter, the Empress Matilda, has landed in England, and her half-brother Robert of Gloucester holds the west for her.",
+    "briefing": "Take Gloucester and Oxford, and end Matilda's war.",
+    "victory_text": "Matilda escapes over the snow from Oxford, and her cause is broken.",
+    "defeat_text": "Matilda's army holds London, and England is torn for another decade."
    },
    "campaign": "anglish",
    "mission_index": 4
+  },
+  {
+   "id": "anglish_6",
+   "name": "Arsuf, 1191",
+   "map": "levant",
+   "factions": [
+    {
+     "id": "england",
+     "name": "Kingdom of England",
+     "civ": "anglish",
+     "color": "#b5423a",
+     "ai": "balanced",
+     "human": true
+    },
+    {
+     "id": "ayyubids",
+     "name": "Ayyubid Sultanate",
+     "civ": "saracen",
+     "color": "#3d8a4a",
+     "ai": "aggressive",
+     "human": false
+    },
+    {
+     "id": "seljuks",
+     "name": "Sultanate of Rum",
+     "civ": "saracen",
+     "color": "#8a5a2a",
+     "ai": "defensive",
+     "human": false
+    },
+    {
+     "id": "armenians",
+     "name": "Kingdom of Armenia",
+     "civ": "",
+     "color": "#b07040",
+     "ai": "defensive",
+     "human": false
+    }
+   ],
+   "owners": {
+    "paphos": "england",
+    "lefkosa": "england",
+    "famagusta": "england",
+    "konya": "seljuks",
+    "philomelion": "seljuks",
+    "antalya": "seljuks",
+    "alanya": "seljuks",
+    "laranda": "seljuks",
+    "seleucia": "armenians",
+    "eregli": "seljuks",
+    "nigde": "seljuks",
+    "tarsus": "armenians",
+    "adana": "armenians",
+    "sis": "armenians",
+    "marash": "seljuks",
+    "edessa": "ayyubids",
+    "bira": "ayyubids",
+    "antioch": "england",
+    "st_simeon": "england",
+    "aleppo": "ayyubids",
+    "ma_arra": "ayyubids",
+    "hamah": "ayyubids",
+    "homs": "ayyubids",
+    "tortosa": "england",
+    "krak_des_chevaliers": "england",
+    "tripoli": "england",
+    "palmyra": "ayyubids",
+    "raqqa": "ayyubids",
+    "baalbek": "ayyubids",
+    "beirut": "ayyubids",
+    "sidon": "ayyubids",
+    "tyre": "england",
+    "banias": "ayyubids",
+    "damascus": "ayyubids",
+    "bostra": "ayyubids",
+    "acre": "england",
+    "safad": "ayyubids",
+    "caesarea": "ayyubids",
+    "nablus": "ayyubids",
+    "jaffa": "ayyubids",
+    "jerusalem": "ayyubids",
+    "ascalon": "ayyubids",
+    "gaza": "ayyubids",
+    "kerak": "ayyubids",
+    "al_arish": "ayyubids",
+    "damietta": "ayyubids"
+   },
+   "capitals": {
+    "england": "acre",
+    "ayyubids": "jerusalem",
+    "seljuks": "konya",
+    "armenians": "sis"
+   },
+   "buildings": {
+    "acre": {
+     "walls": 1
+    },
+    "jerusalem": {
+     "walls": 1
+    },
+    "konya": {
+     "walls": 1
+    },
+    "sis": {
+     "walls": 1
+    },
+    "lefkosa": {
+     "walls": 1
+    },
+    "antalya": {
+     "walls": 1
+    },
+    "marash": {
+     "walls": 1
+    },
+    "edessa": {
+     "walls": 1
+    },
+    "antioch": {
+     "walls": 1
+    },
+    "aleppo": {
+     "walls": 1
+    },
+    "tortosa": {
+     "walls": 1
+    },
+    "krak_des_chevaliers": {
+     "walls": 1
+    },
+    "tripoli": {
+     "walls": 1
+    },
+    "tyre": {
+     "walls": 1
+    },
+    "banias": {
+     "walls": 1
+    },
+    "damascus": {
+     "walls": 1
+    },
+    "bostra": {
+     "walls": 1
+    },
+    "safad": {
+     "walls": 1
+    },
+    "ascalon": {
+     "walls": 1
+    },
+    "kerak": {
+     "walls": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "england",
+     "region": "acre",
+     "type": "longbowman",
+     "soldiers": 20
+    },
+    {
+     "owner": "armenians",
+     "region": "adana",
+     "type": "spearmen",
+     "soldiers": 15
+    },
+    {
+     "owner": "ayyubids",
+     "region": "al_arish",
+     "type": "archers",
+     "soldiers": 12
+    },
+    {
+     "owner": "seljuks",
+     "region": "alanya",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "ayyubids",
+     "region": "ascalon",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "ayyubids",
+     "region": "baalbek",
+     "type": "ghazi",
+     "soldiers": 12
+    },
+    {
+     "owner": "ayyubids",
+     "region": "bostra",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "ayyubids",
+     "region": "caesarea",
+     "type": "mamluk",
+     "soldiers": 16
+    },
+    {
+     "owner": "ayyubids",
+     "region": "damascus",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "seljuks",
+     "region": "eregli",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "england",
+     "region": "famagusta",
+     "type": "longbowman",
+     "soldiers": 15
+    },
+    {
+     "owner": "ayyubids",
+     "region": "gaza",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "ayyubids",
+     "region": "jaffa",
+     "type": "ghazi",
+     "soldiers": 15
+    },
+    {
+     "owner": "ayyubids",
+     "region": "jerusalem",
+     "type": "mamluk",
+     "soldiers": 20
+    },
+    {
+     "owner": "ayyubids",
+     "region": "kerak",
+     "type": "mamluk",
+     "soldiers": 12
+    },
+    {
+     "owner": "seljuks",
+     "region": "konya",
+     "type": "mamluk",
+     "soldiers": 20
+    },
+    {
+     "owner": "seljuks",
+     "region": "laranda",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "lefkosa",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "ayyubids",
+     "region": "nablus",
+     "type": "ghazi",
+     "soldiers": 12
+    },
+    {
+     "owner": "ayyubids",
+     "region": "safad",
+     "type": "mamluk",
+     "soldiers": 12
+    },
+    {
+     "owner": "armenians",
+     "region": "sis",
+     "type": "swordsmen",
+     "soldiers": 20
+    },
+    {
+     "owner": "england",
+     "region": "st_simeon",
+     "type": "archers",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "tyre",
+     "type": "swordsmen",
+     "soldiers": 15
+    }
+   ],
+   "mission": {
+    "player": "england",
+    "primary": [
+     {
+      "type": "capture",
+      "regions": [
+       "caesarea",
+       "jaffa"
+      ]
+     }
+    ],
+    "additional": [
+     {
+      "type": "destroy_units",
+      "faction": "ayyubids",
+      "unit_type": "mamluk",
+      "count": 15
+     }
+    ],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 12
+     },
+     {
+      "type": "lose_region",
+      "region": "acre"
+     }
+    ],
+    "crowns": [
+     6,
+     8,
+     10
+    ],
+    "events": [],
+    "history": "Acre has fallen to the crusaders after two years of siege. King Richard now marches south along the coast towards Jaffa, the port of Jerusalem, with Saladin's horse archers harrying every step.",
+    "briefing": "Keep the column together, take Caesarea and Jaffa, and hold Acre behind you.",
+    "victory_text": "At Arsuf Richard's knights charge at last, and Saladin's army breaks. Jaffa is yours.",
+    "defeat_text": "Acre falls back to Saladin, and the crusade is over."
+   },
+   "campaign": "anglish",
+   "mission_index": 5
+  },
+  {
+   "id": "anglish_7",
+   "name": "Lincoln, 1217",
+   "map": "england",
+   "factions": [
+    {
+     "id": "england",
+     "name": "Kingdom of England",
+     "civ": "anglish",
+     "color": "#b5423a",
+     "ai": "balanced",
+     "human": true
+    },
+    {
+     "id": "france",
+     "name": "Prince Louis of France",
+     "civ": "frankish",
+     "color": "#3d6fb6",
+     "ai": "aggressive",
+     "human": false
+    }
+   ],
+   "owners": {
+    "newcastle": "england",
+    "cumbria": "england",
+    "york": "england",
+    "stamford_bridge": "england",
+    "lancaster": "england",
+    "doncaster": "england",
+    "lincoln": "france",
+    "chester": "england",
+    "nottingham": "england",
+    "leicester": "england",
+    "stamford": "france",
+    "norwich": "france",
+    "warwick": "england",
+    "cambridge": "france",
+    "dunwich": "france",
+    "oxford": "england",
+    "gloucester": "england",
+    "hereford": "england",
+    "leominster": "england",
+    "caernarfonshire": "neutral",
+    "pembrokeshire": "neutral",
+    "glamorgan": "neutral",
+    "anglesey": "neutral",
+    "london": "france",
+    "guildford": "france",
+    "rochester": "france",
+    "hastings": "france",
+    "winchester": "france",
+    "salisbury": "england",
+    "dorchester": "england",
+    "glastonbury": "england",
+    "exeter": "england",
+    "plymouth": "england",
+    "isle_of_man": "neutral"
+   },
+   "capitals": {
+    "england": "gloucester",
+    "france": "london"
+   },
+   "buildings": {
+    "gloucester": {
+     "walls": 1
+    },
+    "london": {
+     "walls": 1
+    },
+    "york": {
+     "walls": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "france",
+     "region": "cambridge",
+     "type": "sergeant",
+     "soldiers": 15
+    },
+    {
+     "owner": "england",
+     "region": "chester",
+     "type": "swordsmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "dorchester",
+     "type": "longbowman",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "exeter",
+     "type": "yeoman",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "glastonbury",
+     "type": "longbowman",
+     "soldiers": 15
+    },
+    {
+     "owner": "england",
+     "region": "gloucester",
+     "type": "swordsmen",
+     "soldiers": 20
+    },
+    {
+     "owner": "france",
+     "region": "guildford",
+     "type": "crossbowmen",
+     "soldiers": 15
+    },
+    {
+     "owner": "france",
+     "region": "hastings",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "hereford",
+     "type": "yeoman",
+     "soldiers": 15
+    },
+    {
+     "owner": "england",
+     "region": "leicester",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "lincoln",
+     "type": "knight",
+     "soldiers": 15
+    },
+    {
+     "owner": "france",
+     "region": "london",
+     "type": "sergeant",
+     "soldiers": 20
+    },
+    {
+     "owner": "england",
+     "region": "nottingham",
+     "type": "longbowman",
+     "soldiers": 15
+    },
+    {
+     "owner": "england",
+     "region": "oxford",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "rochester",
+     "type": "archers",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "salisbury",
+     "type": "archers",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "warwick",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "anglesey",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "caernarfonshire",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "glamorgan",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "isle_of_man",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "pembrokeshire",
+     "type": "militia",
+     "soldiers": 10
+    }
+   ],
+   "mission": {
+    "player": "england",
+    "primary": [
+     {
+      "type": "capture",
+      "regions": [
+       "lincoln",
+       "london"
+      ]
+     }
+    ],
+    "additional": [
+     {
+      "type": "destroy_units",
+      "faction": "france",
+      "unit_type": "knight",
+      "count": 10
+     }
+    ],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 15
+     },
+     {
+      "type": "lose_region",
+      "region": "gloucester"
+     }
+    ],
+    "crowns": [
+     7,
+     10,
+     13
+    ],
+    "events": [],
+    "history": "King John is dead. The rebel barons have offered his crown to Prince Louis of France, who holds London and half the kingdom. The boy king Henry III was crowned at Gloucester, and the old knight William Marshal leads his army.",
+    "briefing": "Relieve the castle at Lincoln, then drive Louis out of London.",
+    "victory_text": "The French are routed in the streets of Lincoln, and Louis gives up his claim.",
+    "defeat_text": "Gloucester falls, and a French prince rules England."
+   },
+   "campaign": "anglish",
+   "mission_index": 6
+  },
+  {
+   "id": "anglish_8",
+   "name": "The Conquest of Wales, 1282",
+   "map": "england",
+   "factions": [
+    {
+     "id": "england",
+     "name": "Kingdom of England",
+     "civ": "anglish",
+     "color": "#b5423a",
+     "ai": "balanced",
+     "human": true
+    },
+    {
+     "id": "wales",
+     "name": "Principality of Wales",
+     "civ": "",
+     "color": "#2f7d4a",
+     "ai": "defensive",
+     "human": false
+    }
+   ],
+   "owners": {
+    "newcastle": "england",
+    "cumbria": "england",
+    "york": "england",
+    "stamford_bridge": "england",
+    "lancaster": "england",
+    "doncaster": "england",
+    "lincoln": "england",
+    "chester": "england",
+    "nottingham": "england",
+    "leicester": "england",
+    "stamford": "england",
+    "norwich": "england",
+    "warwick": "england",
+    "cambridge": "england",
+    "dunwich": "england",
+    "oxford": "england",
+    "gloucester": "england",
+    "hereford": "england",
+    "leominster": "wales",
+    "caernarfonshire": "wales",
+    "pembrokeshire": "england",
+    "glamorgan": "england",
+    "anglesey": "wales",
+    "london": "england",
+    "guildford": "england",
+    "rochester": "england",
+    "hastings": "england",
+    "winchester": "england",
+    "salisbury": "england",
+    "dorchester": "england",
+    "glastonbury": "england",
+    "exeter": "england",
+    "plymouth": "england",
+    "isle_of_man": "neutral"
+   },
+   "capitals": {
+    "england": "chester",
+    "wales": "caernarfonshire"
+   },
+   "buildings": {
+    "chester": {
+     "walls": 1
+    },
+    "caernarfonshire": {
+     "walls": 1
+    },
+    "york": {
+     "walls": 1
+    },
+    "london": {
+     "walls": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "wales",
+     "region": "anglesey",
+     "type": "archers",
+     "soldiers": 15
+    },
+    {
+     "owner": "wales",
+     "region": "caernarfonshire",
+     "type": "spearmen",
+     "soldiers": 20
+    },
+    {
+     "owner": "england",
+     "region": "cambridge",
+     "type": "swordsmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "chester",
+     "type": "swordsmen",
+     "soldiers": 20
+    },
+    {
+     "owner": "england",
+     "region": "cumbria",
+     "type": "longbowman",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "doncaster",
+     "type": "longbowman",
+     "soldiers": 15
+    },
+    {
+     "owner": "england",
+     "region": "glamorgan",
+     "type": "yeoman",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "gloucester",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "hereford",
+     "type": "longbowman",
+     "soldiers": 15
+    },
+    {
+     "owner": "england",
+     "region": "lancaster",
+     "type": "yeoman",
+     "soldiers": 15
+    },
+    {
+     "owner": "england",
+     "region": "leicester",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "wales",
+     "region": "leominster",
+     "type": "spearmen",
+     "soldiers": 15
+    },
+    {
+     "owner": "england",
+     "region": "lincoln",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "newcastle",
+     "type": "swordsmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "nottingham",
+     "type": "archers",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "oxford",
+     "type": "longbowman",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "pembrokeshire",
+     "type": "yeoman",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "warwick",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "isle_of_man",
+     "type": "militia",
+     "soldiers": 10
+    }
+   ],
+   "mission": {
+    "player": "england",
+    "primary": [
+     {
+      "type": "destroy",
+      "faction": "wales"
+     }
+    ],
+    "additional": [
+     {
+      "type": "lose_at_most",
+      "unit_class": "cavalry",
+      "count": 5
+     }
+    ],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 12
+     },
+     {
+      "type": "lose_region",
+      "region": "chester"
+     }
+    ],
+    "crowns": [
+     6,
+     8,
+     10
+    ],
+    "events": [],
+    "history": "Llywelyn ap Gruffudd, Prince of Wales, has risen against King Edward I, and Snowdonia has closed its passes behind him.",
+    "briefing": "Take Anglesey, the granary of Gwynedd, and end the Welsh principality.",
+    "victory_text": "Llywelyn falls at Orewin Bridge, and Edward's castles rise over Wales.",
+    "defeat_text": "Chester burns, and the Welsh hold the march."
+   },
+   "campaign": "anglish",
+   "mission_index": 7
+  },
+  {
+   "id": "anglish_9",
+   "name": "Crécy and Calais, 1346",
+   "map": "france",
+   "factions": [
+    {
+     "id": "england",
+     "name": "Kingdom of England",
+     "civ": "anglish",
+     "color": "#b5423a",
+     "ai": "balanced",
+     "human": true
+    },
+    {
+     "id": "france",
+     "name": "Kingdom of France",
+     "civ": "frankish",
+     "color": "#3d6fb6",
+     "ai": "balanced",
+     "human": false
+    },
+    {
+     "id": "burgundy",
+     "name": "Duchy of Burgundy",
+     "civ": "frankish",
+     "color": "#d1a23a",
+     "ai": "defensive",
+     "human": false
+    }
+   ],
+   "owners": {
+    "plymouth": "england",
+    "dorchester": "england",
+    "winchester": "england",
+    "london": "england",
+    "dover": "england",
+    "rouen": "france",
+    "caen": "france",
+    "formigny": "england",
+    "avranches": "france",
+    "le_mans": "france",
+    "angers": "france",
+    "chinon": "france",
+    "tours": "france",
+    "orleans": "france",
+    "paris": "france",
+    "chartres": "france",
+    "beauvais": "france",
+    "reims": "france",
+    "troyes": "burgundy",
+    "calais": "france",
+    "crecy": "france",
+    "amiens": "france",
+    "arras": "france",
+    "brugge": "neutral",
+    "ghent": "neutral",
+    "antwerp": "neutral",
+    "brussels": "neutral",
+    "mons": "neutral",
+    "liege": "neutral",
+    "metz": "neutral",
+    "nancy": "neutral",
+    "dijon": "burgundy",
+    "besancon": "burgundy",
+    "auxerre": "burgundy",
+    "macon": "burgundy",
+    "bourges": "france",
+    "moulins": "france",
+    "poitiers": "france",
+    "la_rochelle": "france",
+    "limoges": "france",
+    "clermont": "france",
+    "lyon": "france",
+    "grenoble": "france",
+    "rennes": "neutral",
+    "nantes": "neutral",
+    "vannes": "neutral",
+    "brest": "neutral",
+    "bordeaux": "england",
+    "perigueux": "france",
+    "bayonne": "england",
+    "cahors": "france",
+    "toulouse": "france",
+    "carcassonne": "france",
+    "montpellier": "france",
+    "pau": "neutral",
+    "avignon": "neutral",
+    "marseille": "neutral"
+   },
+   "capitals": {
+    "england": "london",
+    "france": "paris",
+    "burgundy": "dijon"
+   },
+   "buildings": {
+    "london": {
+     "walls": 1
+    },
+    "paris": {
+     "walls": 1
+    },
+    "dijon": {
+     "walls": 1
+    },
+    "winchester": {
+     "walls": 1
+    },
+    "dover": {
+     "walls": 1
+    },
+    "rouen": {
+     "walls": 1
+    },
+    "caen": {
+     "walls": 1
+    },
+    "le_mans": {
+     "walls": 1
+    },
+    "angers": {
+     "walls": 1
+    },
+    "chinon": {
+     "walls": 1
+    },
+    "orleans": {
+     "walls": 1
+    },
+    "calais": {
+     "walls": 1
+    },
+    "metz": {
+     "walls": 1
+    },
+    "bourges": {
+     "walls": 1
+    },
+    "poitiers": {
+     "walls": 1
+    },
+    "rennes": {
+     "walls": 1
+    },
+    "brest": {
+     "walls": 1
+    },
+    "bordeaux": {
+     "walls": 1
+    },
+    "toulouse": {
+     "walls": 1
+    },
+    "carcassonne": {
+     "walls": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "france",
+     "region": "amiens",
+     "type": "archers",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "angers",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "arras",
+     "type": "knight",
+     "soldiers": 12
+    },
+    {
+     "owner": "burgundy",
+     "region": "auxerre",
+     "type": "sergeant",
+     "soldiers": 15
+    },
+    {
+     "owner": "france",
+     "region": "avranches",
+     "type": "sergeant",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "beauvais",
+     "type": "sergeant",
+     "soldiers": 15
+    },
+    {
+     "owner": "burgundy",
+     "region": "besancon",
+     "type": "crossbowmen",
+     "soldiers": 15
+    },
+    {
+     "owner": "france",
+     "region": "bourges",
+     "type": "crossbowmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "caen",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "calais",
+     "type": "crossbowmen",
+     "soldiers": 15
+    },
+    {
+     "owner": "france",
+     "region": "chartres",
+     "type": "crossbowmen",
+     "soldiers": 15
+    },
+    {
+     "owner": "france",
+     "region": "crecy",
+     "type": "knight",
+     "soldiers": 15
+    },
+    {
+     "owner": "burgundy",
+     "region": "dijon",
+     "type": "knight",
+     "soldiers": 20
+    },
+    {
+     "owner": "england",
+     "region": "dorchester",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "dover",
+     "type": "longbowman",
+     "soldiers": 15
+    },
+    {
+     "owner": "england",
+     "region": "formigny",
+     "type": "longbowman",
+     "soldiers": 20
+    },
+    {
+     "owner": "france",
+     "region": "le_mans",
+     "type": "sergeant",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "london",
+     "type": "swordsmen",
+     "soldiers": 20
+    },
+    {
+     "owner": "france",
+     "region": "orleans",
+     "type": "crossbowmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "paris",
+     "type": "knight",
+     "soldiers": 20
+    },
+    {
+     "owner": "france",
+     "region": "reims",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "rouen",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "tours",
+     "type": "archers",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "winchester",
+     "type": "yeoman",
+     "soldiers": 15
+    },
+    {
+     "owner": "neutral",
+     "region": "antwerp",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "avignon",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "brest",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "brugge",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "brussels",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "ghent",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "liege",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "marseille",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "metz",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "mons",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "nancy",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "nantes",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "pau",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "rennes",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "vannes",
+     "type": "militia",
+     "soldiers": 10
+    }
+   ],
+   "mission": {
+    "player": "england",
+    "primary": [
+     {
+      "type": "capture",
+      "regions": [
+       "crecy",
+       "calais"
+      ]
+     }
+    ],
+    "additional": [
+     {
+      "type": "capture",
+      "regions": [
+       "rouen"
+      ]
+     }
+    ],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 14
+     },
+     {
+      "type": "lose_region",
+      "region": "london"
+     }
+    ],
+    "crowns": [
+     7,
+     10,
+     12
+    ],
+    "events": [],
+    "history": "Edward III claims the French crown through his mother. He has landed in Normandy with an army of longbowmen and marches for the Somme, with King Philip VI's great host behind him.",
+    "briefing": "Beat the French knights at Crécy, then take Calais as a gate into France.",
+    "victory_text": "The French chivalry dies under the longbows at Crécy, and Calais is English for two hundred years.",
+    "defeat_text": "London falls, and Edward's claim with it."
+   },
+   "campaign": "anglish",
+   "mission_index": 8
+  },
+  {
+   "id": "anglish_10",
+   "name": "Agincourt, 1415",
+   "map": "france",
+   "factions": [
+    {
+     "id": "england",
+     "name": "Kingdom of England",
+     "civ": "anglish",
+     "color": "#b5423a",
+     "ai": "balanced",
+     "human": true
+    },
+    {
+     "id": "france",
+     "name": "Kingdom of France",
+     "civ": "frankish",
+     "color": "#3d6fb6",
+     "ai": "balanced",
+     "human": false
+    },
+    {
+     "id": "burgundy",
+     "name": "Duchy of Burgundy",
+     "civ": "frankish",
+     "color": "#d1a23a",
+     "ai": "defensive",
+     "human": false
+    }
+   ],
+   "owners": {
+    "plymouth": "england",
+    "dorchester": "england",
+    "winchester": "england",
+    "london": "england",
+    "dover": "england",
+    "rouen": "france",
+    "caen": "france",
+    "formigny": "england",
+    "avranches": "france",
+    "le_mans": "france",
+    "angers": "france",
+    "chinon": "france",
+    "tours": "france",
+    "orleans": "france",
+    "paris": "france",
+    "chartres": "france",
+    "beauvais": "france",
+    "reims": "france",
+    "troyes": "burgundy",
+    "calais": "england",
+    "crecy": "france",
+    "amiens": "burgundy",
+    "arras": "burgundy",
+    "brugge": "burgundy",
+    "ghent": "burgundy",
+    "antwerp": "burgundy",
+    "brussels": "burgundy",
+    "mons": "burgundy",
+    "liege": "neutral",
+    "metz": "neutral",
+    "nancy": "neutral",
+    "dijon": "burgundy",
+    "besancon": "burgundy",
+    "auxerre": "burgundy",
+    "macon": "burgundy",
+    "bourges": "france",
+    "moulins": "france",
+    "poitiers": "france",
+    "la_rochelle": "france",
+    "limoges": "france",
+    "clermont": "france",
+    "lyon": "france",
+    "grenoble": "france",
+    "rennes": "neutral",
+    "nantes": "neutral",
+    "vannes": "neutral",
+    "brest": "neutral",
+    "bordeaux": "england",
+    "perigueux": "france",
+    "bayonne": "england",
+    "cahors": "france",
+    "toulouse": "france",
+    "carcassonne": "france",
+    "montpellier": "france",
+    "pau": "neutral",
+    "avignon": "neutral",
+    "marseille": "neutral"
+   },
+   "capitals": {
+    "england": "london",
+    "france": "paris",
+    "burgundy": "dijon"
+   },
+   "buildings": {
+    "london": {
+     "walls": 1
+    },
+    "paris": {
+     "walls": 1
+    },
+    "dijon": {
+     "walls": 1
+    },
+    "winchester": {
+     "walls": 1
+    },
+    "dover": {
+     "walls": 1
+    },
+    "rouen": {
+     "walls": 1
+    },
+    "caen": {
+     "walls": 1
+    },
+    "le_mans": {
+     "walls": 1
+    },
+    "angers": {
+     "walls": 1
+    },
+    "chinon": {
+     "walls": 1
+    },
+    "orleans": {
+     "walls": 1
+    },
+    "calais": {
+     "walls": 1
+    },
+    "metz": {
+     "walls": 1
+    },
+    "bourges": {
+     "walls": 1
+    },
+    "poitiers": {
+     "walls": 1
+    },
+    "rennes": {
+     "walls": 1
+    },
+    "brest": {
+     "walls": 1
+    },
+    "bordeaux": {
+     "walls": 1
+    },
+    "toulouse": {
+     "walls": 1
+    },
+    "carcassonne": {
+     "walls": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "burgundy",
+     "region": "amiens",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "angers",
+     "type": "archers",
+     "soldiers": 12
+    },
+    {
+     "owner": "burgundy",
+     "region": "auxerre",
+     "type": "sergeant",
+     "soldiers": 15
+    },
+    {
+     "owner": "france",
+     "region": "avranches",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "beauvais",
+     "type": "sergeant",
+     "soldiers": 15
+    },
+    {
+     "owner": "burgundy",
+     "region": "besancon",
+     "type": "crossbowmen",
+     "soldiers": 15
+    },
+    {
+     "owner": "france",
+     "region": "bourges",
+     "type": "knight",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "caen",
+     "type": "archers",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "calais",
+     "type": "swordsmen",
+     "soldiers": 15
+    },
+    {
+     "owner": "france",
+     "region": "chartres",
+     "type": "crossbowmen",
+     "soldiers": 15
+    },
+    {
+     "owner": "france",
+     "region": "crecy",
+     "type": "knight",
+     "soldiers": 15
+    },
+    {
+     "owner": "burgundy",
+     "region": "dijon",
+     "type": "knight",
+     "soldiers": 20
+    },
+    {
+     "owner": "england",
+     "region": "dorchester",
+     "type": "archers",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "dover",
+     "type": "longbowman",
+     "soldiers": 15
+    },
+    {
+     "owner": "england",
+     "region": "formigny",
+     "type": "longbowman",
+     "soldiers": 20
+    },
+    {
+     "owner": "france",
+     "region": "le_mans",
+     "type": "knight",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "london",
+     "type": "swordsmen",
+     "soldiers": 20
+    },
+    {
+     "owner": "burgundy",
+     "region": "macon",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "orleans",
+     "type": "sergeant",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "paris",
+     "type": "knight",
+     "soldiers": 20
+    },
+    {
+     "owner": "france",
+     "region": "reims",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "france",
+     "region": "rouen",
+     "type": "knight",
+     "soldiers": 20
+    },
+    {
+     "owner": "france",
+     "region": "tours",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "burgundy",
+     "region": "troyes",
+     "type": "archers",
+     "soldiers": 12
+    },
+    {
+     "owner": "england",
+     "region": "winchester",
+     "type": "yeoman",
+     "soldiers": 15
+    },
+    {
+     "owner": "neutral",
+     "region": "avignon",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "brest",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "liege",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "marseille",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "metz",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "nancy",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "nantes",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "pau",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "rennes",
+     "type": "militia",
+     "soldiers": 10
+    },
+    {
+     "owner": "neutral",
+     "region": "vannes",
+     "type": "militia",
+     "soldiers": 10
+    }
+   ],
+   "mission": {
+    "player": "england",
+    "primary": [
+     {
+      "type": "capture",
+      "regions": [
+       "rouen"
+      ]
+     },
+     {
+      "type": "destroy_units",
+      "faction": "france",
+      "unit_type": "knight",
+      "count": 20
+     }
+    ],
+    "additional": [
+     {
+      "type": "capture",
+      "regions": [
+       "paris"
+      ],
+      "points": 300
+     }
+    ],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 16
+     },
+     {
+      "type": "lose_region",
+      "region": "calais"
+     }
+    ],
+    "crowns": [
+     8,
+     11,
+     14
+    ],
+    "events": [],
+    "history": "Henry V has taken Harfleur, but sickness has cut his army down. He marches for Calais, and the flower of French chivalry waits for him in the mud between two woods.",
+    "briefing": "Destroy the French knights and take Rouen, the heart of Normandy.",
+    "victory_text": "Agincourt is won. By the Treaty of Troyes Henry will be heir to the French crown.",
+    "defeat_text": "Calais falls, and the English are driven from France."
+   },
+   "campaign": "anglish",
+   "mission_index": 9
+  },
+  {
+   "id": "anglish_11",
+   "name": "Bosworth, 1485",
+   "map": "england",
+   "factions": [
+    {
+     "id": "tudor",
+     "name": "Henry Tudor",
+     "civ": "anglish",
+     "color": "#e2dcc4",
+     "ai": "balanced",
+     "human": true
+    },
+    {
+     "id": "york",
+     "name": "King Richard III",
+     "civ": "anglish",
+     "color": "#6e2a5a",
+     "ai": "balanced",
+     "human": false
+    }
+   ],
+   "owners": {
+    "newcastle": "york",
+    "cumbria": "york",
+    "york": "york",
+    "stamford_bridge": "york",
+    "lancaster": "york",
+    "doncaster": "york",
+    "lincoln": "york",
+    "chester": "york",
+    "nottingham": "york",
+    "leicester": "york",
+    "stamford": "york",
+    "norwich": "york",
+    "warwick": "york",
+    "cambridge": "york",
+    "dunwich": "york",
+    "oxford": "york",
+    "gloucester": "york",
+    "hereford": "york",
+    "leominster": "tudor",
+    "caernarfonshire": "tudor",
+    "pembrokeshire": "tudor",
+    "glamorgan": "tudor",
+    "anglesey": "tudor",
+    "london": "york",
+    "guildford": "york",
+    "rochester": "york",
+    "hastings": "york",
+    "winchester": "york",
+    "salisbury": "york",
+    "dorchester": "york",
+    "glastonbury": "york",
+    "exeter": "york",
+    "plymouth": "york",
+    "isle_of_man": "neutral"
+   },
+   "capitals": {
+    "tudor": "pembrokeshire",
+    "york": "london"
+   },
+   "buildings": {
+    "pembrokeshire": {
+     "walls": 1
+    },
+    "london": {
+     "walls": 1
+    },
+    "york": {
+     "walls": 1
+    }
+   },
+   "units": [
+    {
+     "owner": "tudor",
+     "region": "caernarfonshire",
+     "type": "spearmen",
+     "soldiers": 15
+    },
+    {
+     "owner": "york",
+     "region": "cambridge",
+     "type": "longbowman",
+     "soldiers": 15
+    },
+    {
+     "owner": "york",
+     "region": "dunwich",
+     "type": "swordsmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "tudor",
+     "region": "glamorgan",
+     "type": "longbowman",
+     "soldiers": 15
+    },
+    {
+     "owner": "york",
+     "region": "gloucester",
+     "type": "longbowman",
+     "soldiers": 12
+    },
+    {
+     "owner": "york",
+     "region": "guildford",
+     "type": "yeoman",
+     "soldiers": 15
+    },
+    {
+     "owner": "york",
+     "region": "hastings",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "york",
+     "region": "leicester",
+     "type": "yeoman",
+     "soldiers": 12
+    },
+    {
+     "owner": "tudor",
+     "region": "leominster",
+     "type": "yeoman",
+     "soldiers": 15
+    },
+    {
+     "owner": "york",
+     "region": "london",
+     "type": "swordsmen",
+     "soldiers": 20
+    },
+    {
+     "owner": "york",
+     "region": "norwich",
+     "type": "spearmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "york",
+     "region": "oxford",
+     "type": "archers",
+     "soldiers": 12
+    },
+    {
+     "owner": "tudor",
+     "region": "pembrokeshire",
+     "type": "swordsmen",
+     "soldiers": 20
+    },
+    {
+     "owner": "york",
+     "region": "rochester",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "york",
+     "region": "salisbury",
+     "type": "archers",
+     "soldiers": 12
+    },
+    {
+     "owner": "york",
+     "region": "stamford",
+     "type": "light_cavalry",
+     "soldiers": 12
+    },
+    {
+     "owner": "york",
+     "region": "warwick",
+     "type": "swordsmen",
+     "soldiers": 12
+    },
+    {
+     "owner": "york",
+     "region": "winchester",
+     "type": "longbowman",
+     "soldiers": 12
+    },
+    {
+     "owner": "neutral",
+     "region": "isle_of_man",
+     "type": "militia",
+     "soldiers": 10
+    }
+   ],
+   "mission": {
+    "player": "tudor",
+    "primary": [
+     {
+      "type": "capture",
+      "regions": [
+       "leicester",
+       "london"
+      ]
+     }
+    ],
+    "additional": [
+     {
+      "type": "lose_at_most",
+      "unit_class": "cavalry",
+      "count": 3
+     }
+    ],
+    "defeat": [
+     {
+      "type": "time",
+      "turns": 18
+     },
+     {
+      "type": "lose_region",
+      "region": "pembrokeshire"
+     }
+    ],
+    "crowns": [
+     9,
+     12,
+     15
+    ],
+    "events": [],
+    "history": "Henry Tudor, last hope of the House of Lancaster, has landed at Milford Haven with French money and a few thousand men. The Welsh are rising for him, and King Richard gathers his army at Leicester.",
+    "briefing": "March through Wales, beat Richard near Leicester and take London.",
+    "victory_text": "Richard falls at Bosworth Field. Henry VII is crowned, and the Wars of the Roses are over.",
+    "defeat_text": "Henry is driven back into the sea, and York keeps the crown."
+   },
+   "campaign": "anglish",
+   "mission_index": 10,
+   "resources": {
+    "tudor": {
+     "gold": 800
+    }
+   }
   }
  ]
 }

@@ -85,18 +85,19 @@ Swift AVFoundation script (`AVAssetImageGenerator`), and contact sheets were mad
    - Options: re-render with more realistic CC0 models (chainmail, kite shields, helmets), a painterly
      post-pass (outline, oil-paint smoothing, warm light), bigger figures, and darker realistic colours.
    - Copying S&T's sprites is not an option.
-2. **England & Wales map** like S&T's, about 45 regions. These exist in S&T but not in our `british_isles`:
-   Cumbria, Stamford, Dunwich, Leominster, Glamorgan, Pembrokeshire, Caernarfonshire, Anglesey, Salisbury,
-   Glastonbury, Plymouth, Guildford, Rochester, plus Scotland and the Isle of Man as edges.
-   - Each region shows a coin with income 10 (some 5 or 15), a castle sign where fortified, and a tent for camps.
-3. **Campaigns as in S&T** (menu list: Tutorial, England, France, Crusades, Vikings; with XI, XI, XI, XII, IX
-   missions). Use our own names: S&T calls them "Excalibur", "Great France" and "In Praise of Odin!".
-   - Tutorial: north England, England vs Denmark, 9 parchment tips.
-   - England mission 1: south England and Wales vs Denmark. Objectives: "destroy 7 units", "lose no more
-     than 3 cavalry", "destroy all enemy forces".
-   - Crusades: Third Crusade, second half of 1191–1192. Main objective Acre and Jerusalem; additional
-     objective Paphos and Lefkosa, held for 2 turns; defeat after 9 turns.
-   - Factions are real kingdoms ("Kingdom of England", "Kingdom of Denmark").
+2. **England & Wales map: done (2026-11-03).** `england` in `tools/real_maps_data.py`, built by
+   `tools/make_real_maps.py england`. It has S&T's 34 regions, named as S&T names them; Scotland and Ireland are
+   scenery. S&T writes "Stanford", but we use the real name, Stamford.
+3. **Campaigns as in S&T: done (2026-11-03).** `tools/make_history_campaigns.py` writes S&T's four campaigns in its
+   order: England 11, France 11, Crusades 12, Vikings 9.
+   - Every mission is a real event on a real map. England's first mission is S&T's own: Danes in the south in 1013,
+     "destroy 7 enemy units", "lose no more than 3 cavalry", "destroy all enemy forces", and losing London before
+     turn 8 means defeat. The Crusades end with S&T's "Third Crusade, second half of 1191–1192".
+   - New objective kinds: `destroy_units` with any faction or any type, and `lose_at_most`.
+   - The old fictional campaigns, including Byzantine and Saracen, are gone; those two civilizations still unlock
+     for skirmish.
+   - Still to do: the tutorial on north England (England vs Denmark, 9 tips), and balancing each mission by
+     playing it.
 4. **Scenarios as in S&T's list:**
    - Robin Hood
    - Viking wars 789–1066

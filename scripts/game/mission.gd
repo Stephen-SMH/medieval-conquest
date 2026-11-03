@@ -12,7 +12,10 @@ extends RefCounted
 ##     objective is one of
 ##       {"type": "capture", "regions": [...]}, {"type": "hold", "region": "...", "turns": N},
 ##       {"type": "destroy", "faction": "..."},
-##       {"type": "destroy_units", "faction": "...", "unit_type": "...", "count": N},
+##       {"type": "destroy_units", "faction": "...", "unit_type": "...", "count": N}
+##         (faction "": any enemy; unit_type "": soldiers of any type),
+##       {"type": "lose_at_most", "unit_class": "cavalry", "count": N}: done while the
+##         player has lost no more soldiers of that class (S&T's "lose no more than"),
 ##       {"type": "survive", "turns": N}, {"type": "conquest"},
 ##     each with optional "points" (score) and "text" (its own wording),
 ##   "defeat": [condition, ...], each one of
@@ -157,9 +160,18 @@ static func _objective(state: GameState, objective: Dictionary, faction: String,
 			var target: String = objective.faction
 			return {"text": "Destroy %s" % state.faction_name(target), "done": state.factions.has(target) and not state.factions[target].alive}
 		"destroy_units":
-			var killed := soldiers_killed(state, objective.faction, objective.unit_type)
-			return {"text": "Destroy %d %s of %s (%d so far)" % [int(objective.count), Rules.unit(objective.unit_type).plural_name().to_lower(),
-				state.faction_name(objective.faction), mini(killed, int(objective.count))], "done": killed >= int(objective.count)}
+			var target: String = objective.get("faction", "")
+			var type_id: String = objective.get("unit_type", "")
+			var killed := soldiers_killed(state, target, type_id, faction)
+			var kind := "soldiers" if type_id == "" else Rules.unit(type_id).plural_name().to_lower()
+			var whose := "enemy " + kind if target == "" else "%s of %s" % [kind, state.faction_name(target)]
+			return {"text": "Destroy %d %s (%d so far)" % [int(objective.count), whose, mini(killed, int(objective.count))],
+				"done": killed >= int(objective.count)}
+		"lose_at_most":
+			var lost := soldiers_lost(state, faction, objective.get("unit_class", ""))
+			var what: String = {"cavalry": "cavalry", "ranged": "archers", "infantry": "foot soldiers", "siege": "engines"}.get(
+				objective.get("unit_class", ""), "soldiers")
+			return {"text": "Lose no more than %d %s (%d lost so far)" % [int(objective.count), what, lost], "done": lost <= int(objective.count)}
 		"survive":
 			var survived := mini(state.turn - 1, int(objective.turns))
 			return {"text": "Hold out for %d turns (%d so far)" % [int(objective.turns), survived], "done": survived >= int(objective.turns)}
@@ -195,9 +207,27 @@ static func describe_defeats(conditions: Array, map: MapData) -> Array:
 	return lines
 
 
-## Soldiers of a type a faction has lost since the mission began.
-static func soldiers_killed(state: GameState, faction: String, unit_type: String) -> int:
-	return int(state.losses.get(faction, {}).get(unit_type, 0))
+## Soldiers of a type a faction has lost since the mission began. Faction ""
+## counts every faction but `player`; unit_type "" counts every type.
+static func soldiers_killed(state: GameState, faction: String, unit_type: String, player := "") -> int:
+	var total := 0
+	for who in state.losses:
+		if who == faction or (faction == "" and who != player):
+			for type_id in state.losses[who]:
+				if unit_type == "" or type_id == unit_type:
+					total += int(state.losses[who][type_id])
+	return total
+
+
+## Soldiers of a class ("cavalry", "ranged", "infantry", "siege"; "" for any)
+## a faction has lost since the mission began.
+static func soldiers_lost(state: GameState, faction: String, unit_class: String) -> int:
+	var total := 0
+	var by_type: Dictionary = state.losses.get(faction, {})
+	for type_id in by_type:
+		if unit_class == "" or Rules.unit(type_id).unit_class == unit_class:
+			total += int(by_type[type_id])
+	return total
 
 
 ## At the start of each turn (before the first faction plays): the mission's
