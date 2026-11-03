@@ -11,8 +11,9 @@ extends Node2D
 ## and the region fills with its new colour from the attacker's side as a
 ## banner drops in. Marches slide with a bob; detachments that come home
 ## march back into their army. When the viewer fought, battle_ended() lets
-## the HUD say "Battle won" or "Battle lost". The results are already
-## decided: this only shows them. A click skips.
+## the HUD say "Battle won" or "Battle lost". As in S&T, the camera glides
+## to a battle, or another side's march, that happens off screen. The
+## results are already decided: this only shows them. A click skips.
 
 ## A battle the viewer fought is over: `won` from the viewer's side.
 signal battle_ended(won: bool)
@@ -28,6 +29,7 @@ const GOLD := Color("#e2bd5a")
 
 var state: GameState
 var tokens: TokenLayer
+var camera: Camera2D  # Moved to off-screen action, if set.
 var orders: OrdersLayer
 var views := {}
 
@@ -222,6 +224,9 @@ func _volleys(volleys: Array) -> void:
 
 
 func _marches(marches: Array) -> void:
+	var theirs := marches.filter(func(e): return e.unit != null and e.unit.owner != state.viewer())
+	if not theirs.is_empty():
+		await _look_at(theirs[0].province)
 	var longest := 0.0
 	for sound in march_sounds(marches.map(func(e): return e.get("unit"))):
 		_sound(sound)
@@ -244,6 +249,7 @@ func _marches(marches: Array) -> void:
 
 
 func _battle(event: Dictionary) -> void:
+	await _look_at(event.province)
 	var attacker := _visual(event.unit)
 	var defender := _visual(event.get("other"))
 	var pace := _pace(event.unit)
@@ -539,3 +545,16 @@ func _wait(seconds: float) -> void:
 	while elapsed < seconds and not _skip:
 		await get_tree().process_frame
 		elapsed += get_process_delta_time()
+
+
+## Glides the camera to a region if it isn't comfortably on screen.
+func _look_at(region: String) -> void:
+	if camera == null or _skip or not state.map.provinces.has(region):
+		return
+	var at: Vector2 = state.map.provinces[region].centroid
+	var view := camera.get_viewport_rect().size / camera.zoom
+	if Rect2(camera.position - view / 2.0, view).grow(-minf(view.x, view.y) * 0.15).has_point(at):
+		return
+	var tween := create_tween()
+	tween.tween_property(camera, "position", at, 0.45 / _speed).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	await tween.finished

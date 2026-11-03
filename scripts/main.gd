@@ -106,6 +106,7 @@ func _ready() -> void:
 	_orders.tokens = _tokens
 	_effects = Effects.new()
 	_effects.setup(state, _tokens, _views, _orders)
+	_effects.camera = _camera
 	_map_root.add_child(_effects)
 
 	_ring = ActionRing.new()
@@ -122,7 +123,7 @@ func _ready() -> void:
 	_hud.recruit_pressed.connect(open_recruit)
 	_hud.treasury_pressed.connect(open_treasury)
 	_hud.menu_pressed.connect(open_menu)
-	_hud.alerts_pressed.connect(open_alerts)
+	_hud.alerts_pressed.connect(next_idle_army)
 	_hud.end_turn_pressed.connect(end_turn)
 	_region_popup.build_requested.connect(_on_build_requested)
 	$UI/ProvincePanel/Margin/Content/CloseButton.pressed.connect(_close_popups)
@@ -768,6 +769,24 @@ func open_objectives() -> void:
 	_popup.add_text("\n".join(lines), 17).custom_minimum_size = Vector2(620, 0)
 	_popup.add_close()
 	_dim.visible = true
+
+
+## The "!" shield, as in S&T: selects the next of your armies with no
+## orders yet and brings the camera to it; with none left, the turn's news.
+func next_idle_army() -> void:
+	if not _is_my_turn():
+		open_alerts()
+		return
+	var idle: Array = state.units_of(state.viewer()).filter(func(u): return state.orders.get(u, []).is_empty())
+	if idle.is_empty():
+		open_alerts()
+		return
+	idle.sort_custom(func(a, b): return map.province_order.find(a.province) < map.province_order.find(b.province))
+	var at := idle.find(selected_unit)
+	var unit: Unit = idle[(at + 1) % idle.size()]
+	select_unit(unit)
+	create_tween().tween_property(_camera, "position", map.provinces[unit.province].centroid, 0.35) \
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
 
 func open_alerts() -> void:

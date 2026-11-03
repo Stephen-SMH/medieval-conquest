@@ -129,11 +129,17 @@ Swift AVFoundation script (`AVAssetImageGenerator`), and contact sheets were mad
      is a guess;
    - in Godot, a texture `load()`ed inside a draw callback is freed before the frame is drawn and shows as a plain
      square. Keep a reference (a const `preload` or a cache).
-10. **Playback details still missing:**
-    - the camera pans to each enemy action;
-    - a moving army has a dark shadow disc and slides;
-    - a gold shield pops over the loser before it fades.
-11. **The "!" shield** cycles to the next army with no orders.
+10. **Playback: camera done (2026-11-03).** The camera glides to an off-screen battle or enemy march
+    (`Effects._look_at`). Armies already have a shadow disc. Not done: S&T's gold shield over the loser (ours shows a
+    cracked shield).
+11. **The "!" shield: done.** It selects the next army without orders and centres it; with none left it shows the
+    turn's news (`main.gd next_idle_army`).
+12. **Still to do:**
+    - S&T's scenario list. Robin Hood (England map), the Viking wars, Bråvalla, Cnut's war and the Unification of
+      Norway fit our maps. The Italian Wars, the Russian feudal war and the Reconquista need new real maps (Italy,
+      Russia, Iberia; `tools/extract_coastlines.py` needs the Natural Earth download).
+    - Army figures like S&T's painted ones. The video is too small (about 40 px a figure, drawn over the map) to cut
+      them out cleanly. The engines row of the Forge also has no S&T drawings (it isn't shown in the video).
 
 ## Known issues and notes
 
