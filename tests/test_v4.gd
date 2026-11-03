@@ -18,9 +18,10 @@ func _test_forge(t) -> void:
 	t.check(not ResourceLoader.exists("res://scripts/game/research.gd") and not ("techs" in FactionState.new())
 		and Rules.units.values().all(func(u): return not ("required_tech" in u)), "research is gone: every soldier type can be bought")
 	t.check(Forge.rows("military").map(func(r): return r.id) == ["infantry", "archers", "cavalry", "engines"]
-		and Forge.rows("economy").map(func(r): return r.id) == ["builders", "treasury", "musters"], "S&T's rows: three of soldiers and engines, three of economy")
+		and Forge.rows("economy").map(func(r): return r.id) == ["builders", "treasury", "armouries"], "S&T's rows: three of soldiers and engines, three of economy")
 	t.check(TypeIcons.FAMILIES.all(func(f): return Forge.row_of(f) != ""), "every line of soldiers has a row")
-	t.check(Forge.describe("infantry", 0) == "Field Training (infantry lvl.2): defense bonus" and Forge.describe("builders", 2) == "Upgrade costs decreased by 5%",
+	t.check(Forge.describe("infantry", 0) == "Field Training (infantry lvl.2): defense bonus" and Forge.describe("archers", 0) == "Reorganization (archers lvl.2): defense bonus"
+		and Forge.describe("builders", 2) == "Upgrade costs decreased by 5%" and Forge.describe("treasury", 0) == "5% more gold per turn",
 		"the line under the cards, as S&T words it")
 	var owned := {}
 	t.check(Forge.problem(owned, "archers", 0, 299) == "needs 300 points" and Forge.problem(owned, "archers", 0, 300) == "", "the first card costs 300")
@@ -47,7 +48,7 @@ func _test_forge(t) -> void:
 	state.prepare_for_battle(bows, "blue", false, "ashford")
 	state.prepare_for_battle(horse, "blue", true, "kingsvale")
 	state.prepare_for_battle(theirs, "red", true, "ashford")
-	t.check(is_equal_approx(bows.attack_mod, 1.2) and is_equal_approx(bows.defense_mod, 1.1), "archers' yew bows and keen eyes: +20% attack; butts: +10% defense (longbows too)")
+	t.check(is_equal_approx(bows.attack_mod, 1.2) and is_equal_approx(bows.defense_mod, 1.1), "archers' reorganization: +10% defense; volley drill and keen eyes: +20% attack (longbows too)")
 	t.check(is_equal_approx(horse.toughness, 1.1) and is_equal_approx(horse.defense_mod, 1.1) and horse.attack_mod == 1.0, "cavalry's saddles and remounts")
 	t.check(theirs.attack_mod == 1.0 and not state.is_upgraded("red", "archers") and state.is_upgraded("blue", "archers")
 		and state.is_upgraded("blue", "knight") and not state.is_upgraded("blue", "spearmen"), "only the owner's upgraded rows get the star")
@@ -58,10 +59,10 @@ func _test_forge(t) -> void:
 	var town := Helpers.game({"greywater": "blue", "kingsvale": "red"}, [["blue", "greywater", "militia"]], 7)
 	var before := Economy.region_income(town, "greywater")
 	var price_before := Economy.soldier_price(town, "blue", Rules.unit("spearmen"))
-	town.upgrades = {"blue": {"treasury": 2, "musters": 4}}
+	town.upgrades = {"blue": {"treasury": 2, "armouries": 4}}
 	t.check(is_equal_approx(Bonuses.income(town, "blue", "gold"), 1.1) and is_equal_approx(Bonuses.income(town, "red", "gold"), 1.0),
 		"two treasury cards: +10% income, for their owner only")
-	t.check(is_equal_approx(Bonuses.recruit_cost(town, "blue", Rules.unit("spearmen")), 0.8), "four musters cards: reinforcements 20% cheaper")
+	t.check(is_equal_approx(Bonuses.recruit_cost(town, "blue", Rules.unit("spearmen")), 0.8), "four armouries cards: reinforcements 20% cheaper")
 	t.check(Economy.region_income(town, "greywater") > before and is_equal_approx(Economy.soldier_price(town, "blue", Rules.unit("spearmen")), price_before * 0.8),
 		"so regions bring in more and soldiers cost less")
 

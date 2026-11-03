@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cu7a5a8u4h1um"
-path="res://.godot/imported/crested_helmet.svg-077d9d003d1a3ff46cc3d303235f9ae0.ctex"
+uid="uid://dutme1o7g3mjk"
+path="res://.godot/imported/broadsword.svg-1122262e4724d518f8e68b141f68db58.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/forge/crested_helmet.svg"
-dest_files=["res://.godot/imported/crested_helmet.svg-077d9d003d1a3ff46cc3d303235f9ae0.ctex"]
+source_file="res://assets/forge/broadsword.svg"
+dest_files=["res://.godot/imported/broadsword.svg-1122262e4724d518f8e68b141f68db58.ctex"]
 
 [params]
 

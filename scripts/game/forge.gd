@@ -23,7 +23,7 @@ const TABS := {
 			["Field Training", "defense", "tent"], ["Drill", "attack", "men"], ["Swordsmanship", "attack", "swords"],
 			["Mail Gauntlets", "defense", "fist"], ["Winter Quarters", "health", "tents"], ["Brothers in Arms", "health", "hands"]]},
 		{"id": "archers", "families": ["bow", "crossbow"], "cards": [
-			["Yew Bows", "attack", "bow"], ["Archery Butts", "defense", "archers"], ["Keen Eyes", "attack", "eye"],
+			["Reorganization", "defense", "bow"], ["Volley Drill", "attack", "archers"], ["Keen Eyes", "attack", "eye"],
 			["Bracers", "defense", "fist"], ["Heavy Draw", "attack", "draw"], ["Brothers in Arms", "health", "hands"]]},
 		{"id": "cavalry", "families": ["horse"], "cards": [
 			["War Saddles", "defense", "saddle"], ["Remounts", "health", "horses"], ["Destriers", "attack", "horse"],
@@ -39,10 +39,10 @@ const TABS := {
 		{"id": "treasury", "cards": [
 			["Mint", "income", "coin"], ["Tolls", "income", "coins2"], ["Markets", "income", "coins3"],
 			["Tithes", "income", "purse"], ["Royal Treasury", "income", "sack"]]},
-		{"id": "musters", "cards": [
-			["Levies", "reinforcements", "helmets1"], ["Muster Rolls", "reinforcements", "helmets2"],
-			["Armouries", "reinforcements", "helmets3"], ["Garrisons", "reinforcements", "helmets4"],
-			["Standing Army", "reinforcements", "helmets5"]]},
+		{"id": "armouries", "cards": [
+			["Swordsmith", "reinforcements", "sword1"], ["Smithy", "reinforcements", "swords2"],
+			["Armoury", "reinforcements", "swords3"], ["Arsenal", "reinforcements", "swords4"],
+			["Royal Armoury", "reinforcements", "shield"]]},
 	],
 }
 ## What each card costs before the economy tab's discount, by its place in its row.
@@ -107,7 +107,7 @@ static func describe(row_id: String, index: int) -> String:
 		"prices":
 			return "Upgrade costs decreased by 5%"
 		"income":
-			return "Income increased by 5%"
+			return "5% more gold per turn"
 		"reinforcements":
 			return "Reinforcement costs decreased by 5%"
 	return "%s (%s lvl.%d): %s bonus" % [card[0], row_id, index + 2, card[1]]

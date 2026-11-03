@@ -2,7 +2,8 @@ class_name ForgeCard
 extends Control
 ## A card of the Forge (PRD G), as in S&T: a square of parchment with a pencil
 ## sketch (shaders/sketch.gdshader over the shapes in assets/forge/) inside a
-## frame. The card its row offers next has a bold black frame; a bought card
+## frame. If S&T's own drawing of the card is in the git-ignored
+## assets/st/forge/ (the player's own copy), that is drawn instead. The card its row offers next has a bold black frame; a bought card
 ## keeps the bold frame and gets an orange chevron in its corner; the rest are
 ## faint, in a thin grey frame. The selected card has red brackets round its
 ## corners, drawn outside the card.
@@ -16,7 +17,7 @@ const BRACKET := Color("#c4412a")
 const CHEVRON := Color("#e8722c")
 const BRACKET_GAP := 9.0  # Between the card and its brackets.
 ## The shapes each sketch is drawn from, back to front: [icon, centre x,
-## centre y, size], as fractions of the drawing area.
+## centre y, size] as fractions of the drawing area, and a turn in degrees.
 const SKETCHES := {
 	"tent": [["pavilion", 0.5, 0.5, 1.0]],
 	"men": [["swordman", 0.25, 0.52, 0.7], ["swordman", 0.75, 0.52, 0.7], ["swordman", 0.5, 0.5, 0.74]],
@@ -47,13 +48,11 @@ const SKETCHES := {
 	"coins3": [["coins", 0.5, 0.5, 0.9]],
 	"purse": [["swap_bag", 0.5, 0.52, 0.82]],
 	"sack": [["coins_pile", 0.5, 0.5, 0.95]],
-	"helmets1": [["crested_helmet", 0.5, 0.5, 0.78]],
-	"helmets2": [["crested_helmet", 0.33, 0.5, 0.62], ["crested_helmet", 0.67, 0.5, 0.62]],
-	"helmets3": [["crested_helmet", 0.22, 0.48, 0.52], ["crested_helmet", 0.78, 0.48, 0.52], ["crested_helmet", 0.5, 0.54, 0.56]],
-	"helmets4": [["crested_helmet", 0.3, 0.3, 0.46], ["crested_helmet", 0.7, 0.3, 0.46], ["crested_helmet", 0.3, 0.72, 0.46],
-		["crested_helmet", 0.7, 0.72, 0.46]],
-	"helmets5": [["crested_helmet", 0.27, 0.3, 0.42], ["crested_helmet", 0.73, 0.3, 0.42], ["crested_helmet", 0.2, 0.72, 0.42],
-		["crested_helmet", 0.8, 0.72, 0.42], ["crested_helmet", 0.5, 0.56, 0.46]],
+	"sword1": [["broadsword", 0.5, 0.5, 0.95]],
+	"swords2": [["broadsword", 0.3, 0.5, 0.9, -45.0], ["broadsword", 0.7, 0.5, 0.9, -45.0]],
+	"swords3": [["crossed_swords", 0.5, 0.5, 0.95]],
+	"swords4": [["broadsword", 0.5, 0.5, 0.95, -45.0], ["crossed_swords", 0.5, 0.52, 0.92]],
+	"shield": [["bordered_shield", 0.5, 0.5, 0.72], ["crossed_swords", 0.5, 0.5, 0.98]],
 }
 
 var sketch := ""
@@ -71,6 +70,7 @@ var _art: Control
 
 static var _shader: Shader
 static var _icons := {}
+static var _st := {}  # sketch -> S&T's drawing, or null
 
 
 func _init(sketch_name := "", card_size := 119.0) -> void:
@@ -87,15 +87,30 @@ func _init(sketch_name := "", card_size := 119.0) -> void:
 	_art.offset_top = inset
 	_art.offset_right = -inset
 	_art.offset_bottom = -inset
-	if _shader == null:
-		_shader = load("res://shaders/sketch.gdshader")
-	var material := ShaderMaterial.new()
-	material.shader = _shader
-	material.set_shader_parameter("paper", PAPER)
-	material.set_shader_parameter("texels", 256.0 / (card_size * 0.8 * 0.75))
-	_art.material = material
+	if st_drawing(sketch) == null:
+		if _shader == null:
+			_shader = load("res://shaders/sketch.gdshader")
+		var material := ShaderMaterial.new()
+		material.shader = _shader
+		material.set_shader_parameter("paper", PAPER)
+		material.set_shader_parameter("texels", 256.0 / (card_size * 0.8 * 0.75))
+		_art.material = material
+	else:
+		inset = card_size * 0.035
+		_art.offset_left = inset
+		_art.offset_top = inset
+		_art.offset_right = -inset
+		_art.offset_bottom = -inset
 	_art.draw.connect(_draw_sketch)
 	add_child(_art)
+
+
+## S&T's own drawing of a card, if the player's copy has it.
+static func st_drawing(sketch_name: String) -> Texture2D:
+	if not _st.has(sketch_name):
+		var path := "res://assets/st/forge/%s.png" % sketch_name
+		_st[sketch_name] = load(path) if ResourceLoader.exists(path) else null
+	return _st[sketch_name]
 
 
 static func icon(name: String) -> Texture2D:
@@ -132,9 +147,15 @@ static func draw_brackets(canvas: CanvasItem, rect: Rect2, arm: float) -> void:
 func _draw_sketch() -> void:
 	var area := _art.size
 	var fade := 1.0 if look != Look.LOCKED else 0.42
+	var drawing := st_drawing(sketch)
+	if drawing != null:
+		_art.draw_texture_rect(drawing, Rect2(Vector2.ZERO, area), false, Color(1, 1, 1, fade * 0.92))
+		return
 	for part in SKETCHES.get(sketch, []):
 		var side: float = area.x * part[3]
-		var rect := Rect2(Vector2(area.x * part[1], area.y * part[2]) - Vector2(side, side) / 2.0, Vector2(side, side))
+		var rect := Rect2(-Vector2(side, side) / 2.0, Vector2(side, side))
 		var texture := icon(part[0])
+		_art.draw_set_transform(Vector2(area.x * part[1], area.y * part[2]), deg_to_rad(part[4] if part.size() > 4 else 0.0))
 		_art.draw_texture_rect(texture, rect, false, Color(0, 0, 0, 1))
 		_art.draw_texture_rect(texture, rect, false, Color(1, 1, 1, fade))
+	_art.draw_set_transform(Vector2.ZERO)

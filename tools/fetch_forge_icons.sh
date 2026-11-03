@@ -35,9 +35,10 @@ two_coins delapouite/two-coins
 coins delapouite/coins
 swap_bag lorc/swap-bag
 coins_pile delapouite/coins-pile
-crested_helmet lorc/crested-helmet
 windmill delapouite/windmill
 archery_target lorc/archery-target
 claw_hammer lorc/claw-hammer
+broadsword lorc/broadsword
+bordered_shield lorc/bordered-shield
 EOF
 echo "Done. Run godot --headless --import to import them."

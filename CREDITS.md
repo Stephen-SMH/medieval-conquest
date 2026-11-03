@@ -87,14 +87,15 @@ so the white shape can be tinted; the shapes are unchanged.
 | `assets/forge/palisade.svg` | [palisade](https://game-icons.net/1x1/delapouite/palisade.html) | Delapouite | Forge: Mantlets | CC BY 3.0 |
 | `assets/forge/catapult.svg` | [catapult](https://game-icons.net/1x1/heavenly-dog/catapult.html) | HeavenlyDog | Forge: Siege Crews | CC BY 3.0 |
 | `assets/forge/siege_ram.svg` | [siege-ram](https://game-icons.net/1x1/skoll/siege-ram.html) | Skoll | Forge: Iron-shod Rams | CC BY 3.0 |
-| `assets/forge/house.svg` | [house](https://game-icons.net/1x1/delapouite/house.html) | Delapouite | Forge: builders | CC BY 3.0 |
+| `assets/forge/house.svg` | [house](https://game-icons.net/1x1/delapouite/house.html) | Delapouite | Forge: houses | CC BY 3.0 |
 | `assets/forge/family_house.svg` | [family-house](https://game-icons.net/1x1/delapouite/family-house.html) | Delapouite | Forge: Guild Hall | CC BY 3.0 |
 | `assets/forge/crown_coin.svg` | [crown-coin](https://game-icons.net/1x1/lorc/crown-coin.html) | Lorc | Forge: Mint | CC BY 3.0 |
 | `assets/forge/two_coins.svg` | [two-coins](https://game-icons.net/1x1/delapouite/two-coins.html) | Delapouite | Forge: Tolls | CC BY 3.0 |
 | `assets/forge/coins.svg` | [coins](https://game-icons.net/1x1/delapouite/coins.html) | Delapouite | Forge: Markets | CC BY 3.0 |
 | `assets/forge/swap_bag.svg` | [swap-bag](https://game-icons.net/1x1/lorc/swap-bag.html) | Lorc | Forge: Tithes | CC BY 3.0 |
 | `assets/forge/coins_pile.svg` | [coins-pile](https://game-icons.net/1x1/delapouite/coins-pile.html) | Delapouite | Forge: Royal Treasury | CC BY 3.0 |
-| `assets/forge/crested_helmet.svg` | [crested-helmet](https://game-icons.net/1x1/lorc/crested-helmet.html) | Lorc | Forge: musters | CC BY 3.0 |
+| `assets/forge/broadsword.svg` | [broadsword](https://game-icons.net/1x1/lorc/broadsword.html) | Lorc | Forge: armouries | CC BY 3.0 |
+| `assets/forge/bordered_shield.svg` | [bordered-shield](https://game-icons.net/1x1/lorc/bordered-shield.html) | Lorc | Forge: Royal Armoury | CC BY 3.0 |
 | `assets/forge/windmill.svg` | [windmill](https://game-icons.net/1x1/delapouite/windmill.html) | Delapouite | Forge: economy tab | CC BY 3.0 |
 | `assets/forge/archery_target.svg` | [archery-target](https://game-icons.net/1x1/lorc/archery-target.html) | Lorc | Forge: army tab | CC BY 3.0 |
 | `assets/forge/claw_hammer.svg` | [claw-hammer](https://game-icons.net/1x1/lorc/claw-hammer.html) | Lorc | Forge: the buy button and price | CC BY 3.0 |
