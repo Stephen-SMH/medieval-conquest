@@ -5,3 +5,5 @@
 /build/
 .claude/
 /dist/
+# S&T's own art, for the user's personal copy only: never commit it (see HANDOFF.md).
+/assets/st/

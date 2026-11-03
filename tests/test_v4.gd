@@ -12,22 +12,31 @@ func run(t) -> void:
 	_test_settings_and_exports(t)
 
 
-## The Forge between missions (G) replaces research: development points buy
-## attack, defense and health levels for a line of soldiers.
+## The Forge between missions (G), as S&T's: rows of cards bought left to
+## right with the campaign's mission score.
 func _test_forge(t) -> void:
 	t.check(not ResourceLoader.exists("res://scripts/game/research.gd") and not ("techs" in FactionState.new())
 		and Rules.units.values().all(func(u): return not ("required_tech" in u)), "research is gone: every soldier type can be bought")
+	t.check(Forge.rows("military").map(func(r): return r.id) == ["infantry", "archers", "cavalry", "engines"]
+		and Forge.rows("economy").map(func(r): return r.id) == ["builders", "treasury", "musters"], "S&T's rows: three of soldiers and engines, three of economy")
+	t.check(TypeIcons.FAMILIES.all(func(f): return Forge.row_of(f) != ""), "every line of soldiers has a row")
+	t.check(Forge.describe("infantry", 0) == "Field Training (infantry lvl.2): defense bonus" and Forge.describe("builders", 2) == "Upgrade costs decreased by 5%",
+		"the line under the cards, as S&T words it")
 	var owned := {}
-	t.check(Forge.problem(owned, "bow", "attack", 0) == "needs 1 point" and Forge.problem(owned, "bow", "attack", 1) == "", "a first level costs 1 point")
-	Forge.raise(owned, "bow", "attack")
-	Forge.raise(owned, "bow", "attack")
-	t.check(Forge.spent(owned) == 3 and Forge.problem(owned, "bow", "attack", 2) == "needs 3 points", "the next 2, then 3")
-	Forge.raise(owned, "bow", "attack")
-	Forge.raise(owned, "horse", "health")
-	t.check(Forge.spent(owned) == 7 and Forge.problem(owned, "bow", "attack", 99) == "fully upgraded", "up to level 3")
-	t.check(Forge.families("norse") == TypeIcons.FAMILIES and Forge.families("") == TypeIcons.FAMILIES, "every civilization fields all seven lines")
+	t.check(Forge.problem(owned, "archers", 0, 299) == "needs 300 points" and Forge.problem(owned, "archers", 0, 300) == "", "the first card costs 300")
+	t.check(Forge.problem(owned, "archers", 1, 9999) == "the card before it comes first", "a row is bought from left to right")
+	Forge.raise(owned, "archers")
+	Forge.raise(owned, "archers")
+	Forge.raise(owned, "archers")
+	Forge.raise(owned, "cavalry")
+	Forge.raise(owned, "cavalry")
+	t.check(Forge.problem(owned, "archers", 0, 9999) == "already bought" and Forge.problem(owned, "archers", 3, 900) == "", "then the next one")
+	Forge.raise(owned, "builders")
+	Forge.raise(owned, "builders")
+	t.check(Forge.price(owned, "archers", 3) == 810 and Forge.price({}, "archers", 3) == 900, "each builders' card takes 5% off the Forge's prices")
+	t.check(Forge.normalized({"spears": {"defense": 2}, "archers": 3.0, "nonsense": 1}) == {"archers": 3}, "older {line: {stat: level}} upgrades no longer count")
 
-	# In battle: +10% a level, for that line only.
+	# In battle: +10% a card, for that row's soldiers only.
 	var state := Helpers.game({"greywater": "blue", "kingsvale": "blue", "ashford": "red"}, [
 		["blue", "greywater", "longbowman"], ["blue", "kingsvale", "knight"], ["red", "ashford", "archers"]], 7,
 		{"blue_civ": "frankish"})
@@ -38,34 +47,48 @@ func _test_forge(t) -> void:
 	state.prepare_for_battle(bows, "blue", false, "ashford")
 	state.prepare_for_battle(horse, "blue", true, "kingsvale")
 	state.prepare_for_battle(theirs, "red", true, "ashford")
-	t.check(is_equal_approx(bows.attack_mod, 1.3) and bows.defense_mod == 1.0, "3 attack levels: archers' line attacks 30% harder (longbows too)")
-	t.check(is_equal_approx(horse.toughness, 1.1) and horse.attack_mod == 1.0, "1 health level: cavalry take 10% less damage")
+	t.check(is_equal_approx(bows.attack_mod, 1.2) and is_equal_approx(bows.defense_mod, 1.1), "archers' yew bows and keen eyes: +20% attack; butts: +10% defense (longbows too)")
+	t.check(is_equal_approx(horse.toughness, 1.1) and is_equal_approx(horse.defense_mod, 1.1) and horse.attack_mod == 1.0, "cavalry's saddles and remounts")
 	t.check(theirs.attack_mod == 1.0 and not state.is_upgraded("red", "archers") and state.is_upgraded("blue", "archers")
-		and state.is_upgraded("blue", "knight") and not state.is_upgraded("blue", "spearmen"), "only the owner's upgraded lines get the star")
+		and state.is_upgraded("blue", "knight") and not state.is_upgraded("blue", "spearmen"), "only the owner's upgraded rows get the star")
 	var saved := SaveGame.from_dict(JSON.parse_string(JSON.stringify(SaveGame.to_dict(state))))
 	t.check(saved.upgrades == state.upgrades, "upgrades survive save and load")
 
-	# Points come from missions and stay with the campaign.
+	# The economy tab: income and reinforcements.
+	var town := Helpers.game({"greywater": "blue", "kingsvale": "red"}, [["blue", "greywater", "militia"]], 7)
+	var before := Economy.region_income(town, "greywater")
+	var price_before := Economy.soldier_price(town, "blue", Rules.unit("spearmen"))
+	town.upgrades = {"blue": {"treasury": 2, "musters": 4}}
+	t.check(is_equal_approx(Bonuses.income(town, "blue", "gold"), 1.1) and is_equal_approx(Bonuses.income(town, "red", "gold"), 1.0),
+		"two treasury cards: +10% income, for their owner only")
+	t.check(is_equal_approx(Bonuses.recruit_cost(town, "blue", Rules.unit("spearmen")), 0.8), "four musters cards: reinforcements 20% cheaper")
+	t.check(Economy.region_income(town, "greywater") > before and is_equal_approx(Economy.soldier_price(town, "blue", Rules.unit("spearmen")), price_before * 0.8),
+		"so regions bring in more and soldiers cost less")
+
+	# Points are the campaign's best mission scores, less what the Forge cost.
 	Progress.path = "user://test_forge_progress.json"
 	Progress.reset()
-	Progress.record("norse", 0, 3, 5)
-	Progress.record("norse", 0, 1, 3)
-	Progress.record("norse", 1, 2, 4)
-	t.check(Progress.mission_points("norse", 0) == 5 and Progress.development_points("norse") == 9 and Progress.development_points("anglish") == 0,
-		"each mission keeps its best points; a campaign's points are its own")
-	t.check(Progress.buy_upgrade("norse", "spears", "defense") and Progress.buy_upgrade("norse", "spears", "defense")
-		and Progress.development_points("norse") == 6 and Progress.upgrades("norse") == {"spears": {"defense": 2}}, "the Forge spends them")
-	t.check(not Progress.buy_upgrade("anglish", "spears", "defense"), "with no points nothing can be bought")
+	Progress.record("norse", 0, 3, 500)
+	Progress.record("norse", 0, 1, 300)
+	Progress.record("norse", 1, 2, 400)
+	t.check(Progress.forge_points("norse") == 900 and Progress.forge_points("anglish") == 0,
+		"each mission's best score counts; a campaign's points are its own")
+	t.check(Progress.buy_upgrade("norse", "infantry") and Progress.buy_upgrade("norse", "infantry")
+		and Progress.forge_points("norse") == 150 and Progress.upgrades("norse") == {"infantry": 2}, "the Forge spends them: 300, then 450")
+	t.check(not Progress.buy_upgrade("norse", "infantry") and not Progress.buy_upgrade("anglish", "infantry"), "with too few points nothing can be bought")
 	var scenario := Forge.equip(Campaigns.mission("norse", 1), Progress.upgrades("norse"))
 	var game := GameState.from_scenario(scenario, 1)
-	t.check(game.upgrades == {scenario.mission.player: {"spears": {"defense": 2}}}, "a campaign mission starts with the campaign's upgrades")
+	t.check(game.upgrades == {scenario.mission.player: {"infantry": 2}}, "a campaign mission starts with the campaign's upgrades")
 	DirAccess.remove_absolute(Progress.path)
 	Progress.path = Progress.PATH
 
-	var won := Helpers.game({"greywater": "blue", "kingsvale": "red"}, [["blue", "greywater", "spearmen"]], 7)
-	won.mission = {"player": "blue", "objectives": [{"type": "capture", "regions": ["greywater"]}], "par": 5}
-	won.update_result()
-	t.check(won.result.result == "won" and won.result.development == Mission.DEVELOPMENT_FOR_WIN + 3, "a won mission earns development points (%s)" % [won.result])
+	# The screen: rows of cards, the next one bold, a bought one with a chevron.
+	var screen := ForgeScreen.new()
+	t.check(screen.has_method("show_campaign") and ForgeCard.SKETCHES.has("tent") and Forge.TABS.values().all(func(rows):
+		return rows.all(func(r): return r.cards.all(func(c): return ForgeCard.SKETCHES.has(c[2]))))
+		and ForgeCard.SKETCHES.values().all(func(parts): return parts.all(func(p): return ResourceLoader.exists("res://assets/forge/%s.svg" % p[0]))),
+		"every card has a sketch, and every sketch its shapes")
+	screen.free()
 
 
 func _test_hotseat(t) -> void:

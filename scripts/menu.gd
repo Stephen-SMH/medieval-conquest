@@ -7,13 +7,13 @@ extends Control
 
 const GAME_SCENE := "res://scenes/main.tscn"
 const DIFFICULTIES := ["easy", "normal", "hard"]
-const CREDIT_LINE := "Unit figures rendered from CC0 3D models by Quaternius. Icons by Lorc, Delapouite and " \
-	+ "Guard13007 from game-icons.net (CC BY 3.0). Fonts: Cinzel, IM FELL English, Grenze Gotisch and Noto (SIL Open Font License). " \
+const CREDIT_LINE := "Unit figures rendered from CC0 3D models by Quaternius. Icons by Lorc, Delapouite, Guard13007, " \
+	+ "Cathelineau, Skoll and HeavenlyDog from game-icons.net (CC BY 3.0). Fonts: Cinzel, IM FELL English, Grenze Gotisch and Noto (SIL Open Font License). " \
 	+ "Music by RandomMind, cynicmusic and Emma_MA (CC0). Sounds by Kenney and by freesound.org users HebronTheatre, " \
 	+ "mcaseydesign, craigsmith, el_boss and freefire66 (CC0). See CREDITS.md."
 
 var _content: VBoxContainer
-var _forge: ForgeWindow
+var _forge: ForgeScreen
 var _skirmish := {"map": "heartlands", "civ": "norse", "opponents": 2, "difficulty": "normal"}
 var _hotseat := {"map": "heartlands", "civs": ["norse", "anglish"], "ai": 0}
 
@@ -78,7 +78,7 @@ func _ready() -> void:
 		var button := SquareButton.new(entry[0], entry[1])
 		button.pressed.connect(entry[2])
 		row.add_child(button)
-	_forge = ForgeWindow.new()
+	_forge = ForgeScreen.new()
 	add_child(_forge)
 	AudioManager.music("menu")
 	var session := get_node_or_null("/root/Session")
@@ -315,11 +315,11 @@ func _briefing(scenario: Dictionary, heading: String, back: Callable, campaign_i
 	_content.add_child(row)
 	row.add_child(RoundButton.with_caption("back", "Back", back))
 	if campaign_id != "":
-		var forge := RoundButton.with_caption("forge", "Forge (%d)" % Progress.development_points(campaign_id), func(): _forge.show_campaign(campaign_id))
+		var forge := RoundButton.with_caption("forge", "Forge (%d)" % Progress.forge_points(campaign_id), func(): _forge.show_campaign(campaign_id))
 		row.add_child(forge)
 		_forge.changed.connect(func():
 			if is_instance_valid(forge):
-				forge.get_child(1).text = "Forge (%d)" % Progress.development_points(campaign_id))
+				forge.get_child(1).text = "Forge (%d)" % Progress.forge_points(campaign_id))
 	row.add_child(RoundButton.with_caption("start", "Start", func():
 		var upgrades := Progress.upgrades(campaign_id) if campaign_id != "" else {}
 		_start({"scenario": Forge.equip(scenario, upgrades), "seed": randi()})))
@@ -525,7 +525,7 @@ func _scenario_row(scenario: Dictionary, selected: bool, open: bool) -> Control:
 # --- Records and credits ------------------------------------------------------------
 
 ## Records (PRD M): your rank and score, each campaign's crowns and
-## development points, and the scenarios won.
+## points left for the Forge, and the scenarios won.
 func show_records() -> void:
 	_clear()
 	_add_label(_content, "Records", 30)
@@ -537,8 +537,8 @@ func show_records() -> void:
 		var crowns := PackedStringArray()
 		for i in campaign.missions.size():
 			crowns.append(_crown_text(campaign.id, i) if Progress.mission_unlocked(campaign.id, i) else "locked")
-		_add_text("[b]%s[/b] — %s\n[i]%s.[/i]  Development points to spend: %d" % [campaign.name, Rules.civilization(campaign.civ).display_name,
-			", ".join(crowns), Progress.development_points(campaign.id)])
+		_add_text("[b]%s[/b] — %s\n[i]%s.[/i]  Points to spend in the Forge: %d" % [campaign.name, Rules.civilization(campaign.civ).display_name,
+			", ".join(crowns), Progress.forge_points(campaign.id)])
 	var won := Scenarios.all().filter(func(s): return Progress.scenario_won(s.id))
 	_add_text("[b]Scenarios won:[/b] %d of %d%s" % [won.size(), Scenarios.all().size(),
 		"\n" + "\n".join(won.map(func(s): return "  •  %s (%s)" % [s.name, Mission.CROWN_NAMES[Progress.scenario_crown(s.id)] + " crown" if Progress.scenario_crown(s.id) > 0 else "won"])) if not won.is_empty() else ""])

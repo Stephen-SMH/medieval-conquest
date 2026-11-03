@@ -70,6 +70,37 @@ so the white shape can be tinted; the shapes are unchanged.
 | `assets/icons/ui_swords.svg` | [crossed-swords](https://game-icons.net/1x1/lorc/crossed-swords.html) | Lorc | Melee slider and battles | CC BY 3.0 |
 | `assets/icons/ui_check.svg` | [check-mark](https://game-icons.net/1x1/delapouite/check-mark.html) | Delapouite | Confirm buttons | CC BY 3.0 |
 | `assets/icons/ui_anvil.svg` | [anvil](https://game-icons.net/1x1/lorc/anvil.html) | Lorc | The Forge | CC BY 3.0 |
+| `assets/forge/pavilion.svg` | [medieval-pavilion](https://game-icons.net/1x1/delapouite/medieval-pavilion.html) | Delapouite | Forge: Field Training, Winter Quarters | CC BY 3.0 |
+| `assets/forge/swordman.svg` | [swordman](https://game-icons.net/1x1/cathelineau/swordman.html) | Cathelineau | Forge: Drill | CC BY 3.0 |
+| `assets/forge/crossed_swords.svg` | [crossed-swords](https://game-icons.net/1x1/lorc/crossed-swords.html) | Lorc | Forge: Swordsmanship | CC BY 3.0 |
+| `assets/forge/fist.svg` | [fist](https://game-icons.net/1x1/lorc/fist.html) | Lorc | Forge: gauntlets and bracers | CC BY 3.0 |
+| `assets/forge/shaking_hands.svg` | [shaking-hands](https://game-icons.net/1x1/delapouite/shaking-hands.html) | Delapouite | Forge: Brothers in Arms | CC BY 3.0 |
+| `assets/forge/bow_arrow.svg` | [bow-arrow](https://game-icons.net/1x1/delapouite/bow-arrow.html) | Delapouite | Forge: Yew Bows | CC BY 3.0 |
+| `assets/forge/archer.svg` | [archer](https://game-icons.net/1x1/delapouite/archer.html) | Delapouite | Forge: Archery Butts | CC BY 3.0 |
+| `assets/forge/bow_string.svg` | [bow-string](https://game-icons.net/1x1/delapouite/bow-string.html) | Delapouite | Forge: Heavy Draw | CC BY 3.0 |
+| `assets/forge/saddle.svg` | [saddle](https://game-icons.net/1x1/delapouite/saddle.html) | Delapouite | Forge: War Saddles | CC BY 3.0 |
+| `assets/forge/cavalry.svg` | [cavalry](https://game-icons.net/1x1/delapouite/cavalry.html) | Delapouite | Forge: Remounts | CC BY 3.0 |
+| `assets/forge/horse_head.svg` | [horse-head](https://game-icons.net/1x1/delapouite/horse-head.html) | Delapouite | Forge: Destriers | CC BY 3.0 |
+| `assets/forge/charged_arrow.svg` | [charged-arrow](https://game-icons.net/1x1/lorc/charged-arrow.html) | Lorc | Forge: Breakthrough | CC BY 3.0 |
+| `assets/forge/hand_saw.svg` | [hand-saw](https://game-icons.net/1x1/delapouite/hand-saw.html) | Delapouite | Forge: Carpenters | CC BY 3.0 |
+| `assets/forge/trebuchet.svg` | [trebuchet](https://game-icons.net/1x1/delapouite/trebuchet.html) | Delapouite | Forge: Counterweights | CC BY 3.0 |
+| `assets/forge/palisade.svg` | [palisade](https://game-icons.net/1x1/delapouite/palisade.html) | Delapouite | Forge: Mantlets | CC BY 3.0 |
+| `assets/forge/catapult.svg` | [catapult](https://game-icons.net/1x1/heavenly-dog/catapult.html) | HeavenlyDog | Forge: Siege Crews | CC BY 3.0 |
+| `assets/forge/siege_ram.svg` | [siege-ram](https://game-icons.net/1x1/skoll/siege-ram.html) | Skoll | Forge: Iron-shod Rams | CC BY 3.0 |
+| `assets/forge/house.svg` | [house](https://game-icons.net/1x1/delapouite/house.html) | Delapouite | Forge: builders | CC BY 3.0 |
+| `assets/forge/family_house.svg` | [family-house](https://game-icons.net/1x1/delapouite/family-house.html) | Delapouite | Forge: Guild Hall | CC BY 3.0 |
+| `assets/forge/crown_coin.svg` | [crown-coin](https://game-icons.net/1x1/lorc/crown-coin.html) | Lorc | Forge: Mint | CC BY 3.0 |
+| `assets/forge/two_coins.svg` | [two-coins](https://game-icons.net/1x1/delapouite/two-coins.html) | Delapouite | Forge: Tolls | CC BY 3.0 |
+| `assets/forge/coins.svg` | [coins](https://game-icons.net/1x1/delapouite/coins.html) | Delapouite | Forge: Markets | CC BY 3.0 |
+| `assets/forge/swap_bag.svg` | [swap-bag](https://game-icons.net/1x1/lorc/swap-bag.html) | Lorc | Forge: Tithes | CC BY 3.0 |
+| `assets/forge/coins_pile.svg` | [coins-pile](https://game-icons.net/1x1/delapouite/coins-pile.html) | Delapouite | Forge: Royal Treasury | CC BY 3.0 |
+| `assets/forge/crested_helmet.svg` | [crested-helmet](https://game-icons.net/1x1/lorc/crested-helmet.html) | Lorc | Forge: musters | CC BY 3.0 |
+| `assets/forge/windmill.svg` | [windmill](https://game-icons.net/1x1/delapouite/windmill.html) | Delapouite | Forge: economy tab | CC BY 3.0 |
+| `assets/forge/archery_target.svg` | [archery-target](https://game-icons.net/1x1/lorc/archery-target.html) | Lorc | Forge: army tab | CC BY 3.0 |
+| `assets/forge/claw_hammer.svg` | [claw-hammer](https://game-icons.net/1x1/lorc/claw-hammer.html) | Lorc | Forge: the buy button and price | CC BY 3.0 |
+| `assets/forge/eye.svg` | Our own | — | Forge: Keen Eyes | Same licence as the game |
+
+The Forge's card sketches (`assets/forge/`, fetched by `tools/fetch_forge_icons.sh`) are drawn from these shapes in pencil by `shaders/sketch.gdshader`.
 
 ## Fonts
 

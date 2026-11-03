@@ -78,6 +78,24 @@ static func draw_panel(canvas: CanvasItem, rect: Rect2) -> void:
 		_rivets(canvas, middle[i], middle[i + 1])
 
 
+## A straight iron bar filling `rect`, with rivets along its middle (S&T's
+## full-screen windows, such as the Forge, are wood split by these).
+static func draw_bar(canvas: CanvasItem, rect: Rect2) -> void:
+	var points := PackedVector2Array([rect.position, Vector2(rect.end.x, rect.position.y), rect.end, Vector2(rect.position.x, rect.end.y)])
+	_fill(canvas, points, iron())
+	_outline(canvas, points, EDGE, 1.5)
+	var middle := rect.get_center()
+	if rect.size.x >= rect.size.y:
+		_rivets(canvas, Vector2(rect.position.x + 7.0, middle.y), Vector2(rect.end.x - 7.0, middle.y))
+	else:
+		_rivets(canvas, Vector2(middle.x, rect.position.y + 7.0), Vector2(middle.x, rect.end.y - 7.0))
+
+
+## Wood over the whole of `rect`.
+static func draw_wood(canvas: CanvasItem, rect: Rect2) -> void:
+	_fill(canvas, PackedVector2Array([rect.position, Vector2(rect.end.x, rect.position.y), rect.end, Vector2(rect.position.x, rect.end.y)]), planks())
+
+
 ## The framed box in a bottom corner of `panel`: an iron bar along its top
 ## and its inner side, cut where they meet. `box` is the box's own area,
 ## inside the window's frame; `left` for the bottom-left corner.

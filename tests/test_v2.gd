@@ -60,7 +60,7 @@ func _test_missions(t) -> void:
 	Helpers.resolve(state)
 	var result := state.result
 	t.check(state.is_over() and result.result == "won" and result.stars == 3 and result.turns == 1, "capturing the target in turn 1 wins a gold crown")
-	t.check(result.points == Mission.PRIMARY_POINTS + Mission.CROWN_POINTS[3] and result.development == Mission.DEVELOPMENT_FOR_WIN + 3
+	t.check(result.points == Mission.PRIMARY_POINTS + Mission.CROWN_POINTS[3]
 		and result.objectives.map(func(o): return o.done) == [true, false, false], "points for what was done and the crown (%s)" % [result])
 
 	state = Helpers.game({"greywater": "blue", "kingsvale": "red", "eastwold": "red"},
@@ -75,14 +75,14 @@ func _test_missions(t) -> void:
 	Helpers.resolve(state)
 	t.check(state.is_over() and state.result.result == "lost" and "Out of time" in state.result.reason, "after turn 8 the mission is lost")
 
-	# Additional objectives add points and development points.
+	# Additional objectives add points.
 	state = Helpers.game({"greywater": "blue", "kingsvale": "red", "eastwold": "red"},
 		[["blue", "greywater", "swordsmen"], ["blue", "highcrag", "swordsmen"]], 7, {"capitals": {"blue": "greywater"}})
 	state.mission = mission.duplicate(true)
 	Helpers.order(state, state.unit_in("greywater"), "move", "kingsvale")
 	Helpers.order(state, state.unit_in("highcrag"), "move", "eastwold")
 	Helpers.resolve(state)
-	t.check(state.result.points == Mission.PRIMARY_POINTS + 200 + Mission.CROWN_POINTS[3] and state.result.development == Mission.DEVELOPMENT_FOR_WIN + 1 + 3,
+	t.check(state.result.points == Mission.PRIMARY_POINTS + 200 + Mission.CROWN_POINTS[3],
 		"an additional objective done on the way counts (%d points)" % state.result.points)
 
 	state = Helpers.game({"greywater": "blue", "kingsvale": "blue", "eastwold": "red"}, [["red", "eastwold", "militia"]], 7)

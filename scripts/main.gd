@@ -556,7 +556,7 @@ func _check_end() -> bool:
 	_refresh_world()
 	if state.result.result == "won" and state.mission.has("campaign") and state.result.winner == state.viewer():
 		Progress.record(state.mission.campaign, int(state.mission.mission_index), int(state.result.stars),
-			int(state.result.get("development", 0)), int(state.result.get("points", 0)))
+			int(state.result.get("points", 0)))
 	elif state.result.result == "won" and state.mission.has("scenario") and state.result.winner == state.viewer():
 		Progress.record_scenario(state.mission.scenario, int(state.result.stars), int(state.result.get("points", 0)))
 	AudioManager.music("victory" if state.result.get("winner", "") == state.viewer() else "defeat")

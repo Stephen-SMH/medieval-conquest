@@ -8,6 +8,9 @@ const DIGITS := 6
 const ROLL_SECONDS := 0.45
 
 var value := 0
+var digit_color := Color("#f3d77e")
+var drum_color := Color("#140c06")
+var rim_color := Color("#e2bd5a", 0.55)
 var _shown := 0.0
 var _font: Font
 var _tween: Tween
@@ -53,11 +56,11 @@ func _draw() -> void:
 	var font_size := int(h * 0.72)
 	for i in DIGITS:
 		var rect := Rect2(Vector2(2 + i * w, 0), Vector2(w - 2, h))
-		draw_rect(rect, Color("#140c06"))
+		draw_rect(rect, drum_color)
 		# The drum's shading: darker at the top and bottom edge.
 		draw_rect(Rect2(rect.position, Vector2(rect.size.x, h * 0.18)), Color(0, 0, 0, 0.45))
 		draw_rect(Rect2(rect.position + Vector2(0, h * 0.82), Vector2(rect.size.x, h * 0.18)), Color(0, 0, 0, 0.45))
-		draw_rect(rect, Color("#e2bd5a", 0.55), false, 1.0)
+		draw_rect(rect, rim_color, false, 1.0)
 		# The wheel rolls: this place's value with the fraction of the place below it.
 		var place := pow(10.0, DIGITS - 1 - i)
 		var turning := fmod(_shown / place, 10.0)
@@ -71,6 +74,6 @@ func _draw() -> void:
 			if y < -h * 0.1 or y > h * 1.6:
 				continue
 			draw_string(_font, Vector2(rect.position.x, rect.position.y + y), str(d), HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, font_size,
-				Color("#f3d77e"))
+				digit_color)
 	# The glass over the wheels.
 	draw_rect(Rect2(Vector2(2, h * 0.08), Vector2(size.x - 4, h * 0.14)), Color(1, 1, 1, 0.08))

@@ -44,7 +44,7 @@ var losses := {}
 var kills := {}
 ## {} while the game goes on; see Mission.evaluate().
 var result := {}
-## Forge upgrades for factions: faction -> {upgrade family: {"attack": level, ...}}.
+## Forge upgrades for factions: faction -> {Forge row: cards bought}.
 var upgrades := {}
 
 var _next_unit_id := 1
@@ -392,11 +392,9 @@ func retreat_region(unit: Unit, from: String) -> String:
 	return ""
 
 
-## Whether a faction has a Forge upgrade for this soldier type's line (G).
+## Whether a faction has a Forge card for this soldier type's row (G).
 func is_upgraded(faction: String, type_id: String) -> bool:
-	var lines: Dictionary = upgrades.get(faction, {})
-	var levels: Dictionary = lines.get(TypeIcons.family(type_id), {})
-	return levels.values().any(func(level): return int(level) > 0)
+	return Forge.bought(upgrades.get(faction, {}), Forge.row_of(TypeIcons.family(type_id))) > 0
 
 
 ## Adds the soldiers each side lost in a battle to `losses`.

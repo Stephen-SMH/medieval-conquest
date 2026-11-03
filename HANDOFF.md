@@ -1,6 +1,9 @@
 # Handoff: where the work stopped (2026-11-03)
 
-The game is being made to play like HeroCraft's **S&T: Medieval Wars** (Android), using only our own art and text. Never use HeroCraft assets.
+The game is being made to play like HeroCraft's **S&T: Medieval Wars** (Android). On 2026-11-03 the user said copying
+S&T's own art is fine for them (they play it themselves, not commercially). But the repo, releases and web build are
+public, so HeroCraft's files must never be committed: if they're ever used, they go in `assets/st/`, which git ignores,
+and the game must still work from our own art without them.
 Run the tests with `godot --headless -s tests/run_tests.gd` (Godot 4.7.2). They must report `0 failed`.
 After adding a script with a new `class_name`, run `godot --headless --import` once, or other scripts can't find the class.
 
@@ -71,8 +74,10 @@ Swift AVFoundation script (`AVAssetImageGenerator`), and contact sheets were mad
 - Be proactive: study the videos and don't wait to be told each item.
 - A second video, `~/Downloads/Medieval Wars_Strategy&Tactics 1.mp4` (10.7 min, the **mobile** version), is
   the main reference. It matches our HUD layout. Grab frames with an AVFoundation Swift script; there's no ffmpeg.
-- Keep to the line: copy rules, layouts, flows and animation timing, but **make all art and words our own**.
-  The repo and releases are public, and copying HeroCraft's art, text or campaign titles would be infringement.
+- Copy rules, layouts, flows and animation timing exactly. Committed art and words stay our own (see the top);
+  S&T's own files, if the user supplies them, live only in the git-ignored `assets/st/`.
+- The video can only be read when macOS lets the editor into ~/Downloads (System Settings → Privacy & Security →
+  Files and Folders). In the mobile video the Forge is at 9:45–10:05.
 
 **Still to do, in priority order:**
 1. **Army figures.** S&T's are 2–3 hand-painted realistic figures, larger than ours, with a banner pole and the
@@ -114,12 +119,20 @@ Swift AVFoundation script (`AVAssetImageGenerator`), and contact sheets were mad
    - buttons: castle (back), replay, arrow (next).
 8. **Briefing scroll:** year in the title, history text, MAIN / ADDITIONAL OBJECTIVE / DEFEAT CONDITIONS and
    crown turn limits. A right rail holds anvil (Forge), arrow (start) and castle (back).
-9. **Forge:**
-   - parchment grid of sketched upgrade cards joined by arrows, a red bracket on the selected one;
-   - infantry row (tent, men, crossed swords, gauntlet, tents, handshake); archers row (bow, archers, eye,
-     gauntlet, arrow, handshake);
-   - economy tab (houses, coins);
-   - odometer for points, cost in a dark circle, "Do you want to buy this upgrade? Price N".
+9. **Forge: done (2026-11-03).** `scripts/ui/forge_screen.gd` and `forge_card.gd`, rules in
+   `scripts/game/forge.gd`. Full-screen wood and iron like S&T's:
+   - the anvil "+" buys, an odometer shows the points, a dark disc shows the price;
+   - the parchment holds rows of pencil-sketched cards joined by arrows, bought left to right. The next card is
+     bold, bought ones have an orange chevron, and red brackets mark the selected card;
+   - the windmill and target switch between the army and economy tabs, the ✓ closes, and buying asks "Do you want to
+     buy this upgrade? Price: N";
+   - it spends the campaign's best mission scores, as S&T does: 2820 in the video was exactly that mission's
+     2190 + 630. Development points are gone;
+   - the sketches are game-icons shapes (`assets/forge/`, `tools/fetch_forge_icons.sh`) drawn in pencil by
+     `shaders/sketch.gdshader`. S&T's third economy row was off screen, so ours (musters: cheaper reinforcements)
+     is a guess;
+   - in Godot, a texture `load()`ed inside a draw callback is freed before the frame is drawn and shows as a plain
+     square. Keep a reference (a const `preload` or a cache).
 10. **Playback details still missing:**
     - the camera pans to each enemy action;
     - a moving army has a dark shadow disc and slides;

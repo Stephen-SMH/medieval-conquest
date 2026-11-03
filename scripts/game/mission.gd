@@ -33,9 +33,6 @@ const PRIMARY_POINTS := 300
 const ADDITIONAL_POINTS := 150
 const CROWN_POINTS := [0, 100, 200, 300]  # None, bronze, silver, gold.
 const CROWN_NAMES := ["", "bronze", "silver", "gold"]
-## Development points (G) for a win: this many, one per additional objective
-## done, and one for a bronze crown, two for silver, three for gold.
-const DEVELOPMENT_FOR_WIN := 2
 
 
 static func is_mission(state: GameState) -> bool:
@@ -251,8 +248,9 @@ static func end_of_turn(state: GameState, faction: String) -> void:
 
 ## Works out whether the game is over. Returns {} while it goes on, else
 ## {"result": "won"/"lost", "winner": faction, "reason": text} plus, for a
-## mission: "stars" (the crown, 3 gold to 0 none), "points", "development",
-## "turns" and "objectives" (each with "done" and "points").
+## mission: "stars" (the crown, 3 gold to 0 none), "points" (the score,
+## which the Forge spends, PRD G), "turns" and "objectives" (each with "done"
+## and "points").
 static func evaluate(state: GameState) -> Dictionary:
 	var living := state.living_factions()
 	if not is_mission(state):
@@ -276,14 +274,11 @@ static func evaluate(state: GameState) -> Dictionary:
 		var crown := crown_for(state.turn, crowns(state))
 		var list := objectives(state)
 		var points: int = CROWN_POINTS[crown]
-		var extra := 0
 		for objective in list:
 			if objective.done:
 				points += int(objective.points)
-				if not objective.primary:
-					extra += 1
 		return {"result": "won", "winner": faction, "stars": crown, "points": points, "turns": state.turn,
-			"development": DEVELOPMENT_FOR_WIN + extra + crown, "objectives": list,
+			"objectives": list,
 			"reason": "The primary objective is done on turn %d%s." % [state.turn,
 				", for a %s crown" % CROWN_NAMES[crown] if crown > 0 else ""]}
 	return {}
@@ -325,5 +320,5 @@ static func _defeat_reason(state: GameState, condition: Dictionary, faction: Str
 
 
 static func _lost(state: GameState, reason: String) -> Dictionary:
-	return {"result": "lost", "winner": "", "stars": 0, "points": 0, "development": 0, "turns": state.turn,
+	return {"result": "lost", "winner": "", "stars": 0, "points": 0, "turns": state.turn,
 		"objectives": objectives(state), "reason": reason}

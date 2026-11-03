@@ -1,7 +1,7 @@
 class_name EndScreen
 extends PanelContainer
 ## Victory and defeat (PRD H, CP-7). For a mission: the objectives with ✓ or
-## ✗ and their points, the development points earned for the Forge, the
+## ✗ and their points, the score (which the Forge spends), the
 ## decorations (the gold, silver and bronze crowns and their turn limits,
 ## the one won lit) with the turns taken, your losses and the enemy's by
 ## soldier type, and your rank with how far it is to the next. Round
@@ -45,8 +45,8 @@ func show_result(state: GameState, viewer: String) -> void:
 	if mission and result.has("objectives"):
 		_rows.add_child(_objectives(result))
 		if won:
-			_text("[center][color=#f3d77e]+%d development points[/color] for the Forge   ·   [b]%d points[/b][/center]" % [
-				int(result.get("development", 0)), int(result.get("points", 0))], 18)
+			_text("[center][b]%d points[/b]%s[/center]" % [int(result.get("points", 0)),
+				"   ·   [color=#f3d77e]to spend in the Forge[/color]" if state.mission.get("campaign", "") != "" else ""], 18)
 		if Mission.crowns(state).size() == 3:
 			_rows.add_child(_decorations(state, int(result.stars) if won else 0, int(result.get("turns", state.turn))))
 	_rows.add_child(_losses(state, viewer))

@@ -15,22 +15,26 @@ static func civ(state: GameState, faction: String) -> String:
 	return state.factions[faction].civ if state.factions.has(faction) else ""
 
 
-## Multiplier for a kind of income: "gold" (all of it) or "market".
+## Multiplier for a kind of income: "gold" (all of it, with the Forge's
+## treasury cards) or "market".
 static func income(state: GameState, faction: String, kind: String) -> float:
 	var multiplier := 1.0
 	if kind == "market" and civ(state, faction) == "byzantine":
 		multiplier *= BYZANTINE_MARKETS
+	if kind == "gold":
+		multiplier *= Forge.income(state.upgrades.get(faction, {}))
 	return multiplier
 
 
 ## Multiplier on a soldier type's price: Frankish cavalry 20% cheaper,
-## Saracen reinforcements 15% cheaper.
+## Saracen reinforcements 15% cheaper, and the Forge's musters cards.
 static func recruit_cost(state: GameState, faction: String, unit_type: UnitType) -> float:
+	var multiplier := Forge.reinforcements(state.upgrades.get(faction, {}))
 	if unit_type.is_cavalry() and civ(state, faction) == "frankish":
-		return FRANKISH_CAVALRY_COST
+		return multiplier * FRANKISH_CAVALRY_COST
 	if civ(state, faction) == "saracen":
-		return SARACEN_REINFORCEMENTS
-	return 1.0
+		return multiplier * SARACEN_REINFORCEMENTS
+	return multiplier
 
 
 ## Crusader hospitals: armies in their own regions heal even after marching or fighting.

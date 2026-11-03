@@ -161,11 +161,11 @@ func _test_progress(t) -> void:
 
 	# PRD H: a win without a crown still counts; best scores add up to a rank.
 	Progress.reset()
-	Progress.record("norse", 0, 0, 2, 300)
+	Progress.record("norse", 0, 0, 300)
 	t.check(Progress.won("norse", 0) and Progress.stars("norse", 0) == 0 and Progress.mission_unlocked("norse", 1),
 		"a win without a crown still opens the next mission")
-	Progress.record("norse", 1, 3, 5, 1000)
-	Progress.record("norse", 1, 1, 3, 400)
+	Progress.record("norse", 1, 3, 1000)
+	Progress.record("norse", 1, 1, 400)
 	t.check(Progress.total_score() == 1300 and Progress.rank(1300).name == "Militiaman" and Progress.rank(0).name == "Serf"
 		and Progress.rank(99999).next == "" and is_equal_approx(Progress.rank(1600).progress, 0.5), "each mission's best score adds up to a rank")
 	t.check(Mission.plain("Hold Kingsvale for 3 turns (1 so far)") == "Hold Kingsvale for 3 turns" and Mission.plain("Capture Ashford") == "Capture Ashford",

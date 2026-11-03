@@ -90,8 +90,10 @@ func _draw() -> void:
 			StFrame.draw_corner_box(self, panel, Rect2(to_here.origin, slot.size), slot == _left)
 
 
+## Opens the window empty, with `title` at the top (none if "").
 func open(title: String) -> void:
 	_title.text = title
+	_title.get_parent().visible = title != ""
 	for child in body.get_children() + footer.get_children() + _left.get_children() + _right.get_children():
 		child.queue_free()
 	_boxes.clear()

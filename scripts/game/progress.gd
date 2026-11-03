@@ -1,10 +1,10 @@
 class_name Progress
 extends RefCounted
 ## Campaign progress kept between games in user://progress.json: each
-## mission's best crown (kept as "stars": 3 gold, 2 silver, 1 bronze), score
-## and development points, which missions are won and open (CP-4), which
-## civilizations are unlocked by finishing campaigns (8.5), each campaign's
-## Forge upgrades (G), and the player's rank from their total score (H).
+## mission's best crown (kept as "stars": 3 gold, 2 silver, 1 bronze) and
+## score, which missions are won and open (CP-4), which civilizations are
+## unlocked by finishing campaigns (8.5), each campaign's Forge upgrades and
+## what they cost (G), and the player's rank from their total score (H).
 
 const PATH := "user://progress.json"
 ## Ranks by total score, lowest first: [name, score needed].
@@ -45,17 +45,16 @@ static func won(campaign_id: String, index: int) -> bool:
 	return data.get("won", {}).has(key) or int(data.stars.get(key, 0)) > 0
 
 
-## Keeps the best result of a won mission: its crown, the development points
-## and the score it earned (replaying a mission only adds what it beats).
-static func record(campaign_id: String, index: int, crown: int, points := 0, score := 0) -> void:
+## Keeps the best result of a won mission: its crown and the score it earned
+## (replaying a mission only adds what it beats).
+static func record(campaign_id: String, index: int, crown: int, score := 0) -> void:
 	var data := _load()
 	var key := "%s/%d" % [campaign_id, index]
 	data.stars[key] = maxi(int(data.stars.get(key, 0)), crown)
-	for field in ["won", "development", "score"]:
+	for field in ["won", "score"]:
 		if not data.has(field):
 			data[field] = {}
 	data.won[key] = true
-	data.development[key] = maxi(int(data.development.get(key, 0)), points)
 	data.score[key] = maxi(int(data.score.get(key, 0)), score)
 	_store(data)
 
@@ -108,36 +107,41 @@ static func rank(score: int) -> Dictionary:
 	return {"name": RANKS[index][0], "index": index, "next": RANKS[index + 1][0], "progress": float(score - low) / (high - low)}
 
 
-## The development points a mission has earned at best.
-static func mission_points(campaign_id: String, index: int) -> int:
-	return int(_load().get("development", {}).get("%s/%d" % [campaign_id, index], 0))
-
-
-## Development points a campaign's missions have earned, less what the Forge spent.
-static func development_points(campaign_id: String) -> int:
+## The points a campaign has for the Forge, as in S&T: the best scores of
+## its missions added up, less what the Forge has cost.
+static func forge_points(campaign_id: String) -> int:
+	var data := _load()
 	var total := 0
-	var development: Dictionary = _load().get("development", {})
-	for key in development:
+	var scores: Dictionary = data.get("score", {})
+	for key in scores:
 		if key.begins_with(campaign_id + "/"):
-			total += int(development[key])
-	return total - Forge.spent(upgrades(campaign_id))
+			total += int(scores[key])
+	return total - int(data.get("forge_spent", {}).get(campaign_id, 0))
 
 
-## A campaign's Forge upgrades: {family: {stat: level}}.
+## A campaign's Forge upgrades: {row: cards bought}.
 static func upgrades(campaign_id: String) -> Dictionary:
 	return Forge.normalized(_load().get("forge", {}).get(campaign_id, {}))
 
 
-## Buys the next level of a line's stat with the campaign's development points.
-static func buy_upgrade(campaign_id: String, family: String, stat: String) -> bool:
+## Buys a row's next card with the campaign's points.
+static func buy_upgrade(campaign_id: String, row_id: String) -> bool:
 	var owned := upgrades(campaign_id)
-	if Forge.problem(owned, family, stat, development_points(campaign_id)) != "":
+	var index := Forge.bought(owned, row_id)
+	if index >= Forge.row(row_id).get("cards", []).size():
 		return false
-	Forge.raise(owned, family, stat)
+	if Forge.problem(owned, row_id, index, forge_points(campaign_id)) != "":
+		return false
+	var cost := Forge.price(owned, row_id, index)
+	Forge.raise(owned, row_id)
 	var data := _load()
-	if not data.has("forge"):
-		data.forge = {}
+	for field in ["forge", "forge_spent"]:
+		if not data.has(field):
+			data[field] = {}
 	data.forge[campaign_id] = owned
+	# Purchases from before the cards (a {line: {stat: level}} Forge) are
+	# refunded: normalized() drops them and nothing was spent on cards.
+	data.forge_spent[campaign_id] = int(data.forge_spent.get(campaign_id, 0)) + cost
 	_store(data)
 	return true
 
