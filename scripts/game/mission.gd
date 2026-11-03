@@ -196,14 +196,14 @@ static func describe_defeats(conditions: Array, map: MapData) -> Array:
 	for condition in conditions:
 		match condition.type:
 			"time":
-				lines.append("The primary objective isn't done in %d turns" % int(condition.turns))
+				lines.append("Fail to complete the main objective in %d turns" % int(condition.turns))
 			"lose_army":
-				lines.append("You lose all your troops")
+				lines.append("Lose all of your troops")
 			"lose_region":
 				if condition.has("before"):
-					lines.append("You lose %s before turn %d" % [map.region_name(condition.region), int(condition.before)])
+					lines.append("Lose %s before turn %d" % [map.region_name(condition.region), int(condition.before)])
 				else:
-					lines.append("You lose %s" % map.region_name(condition.region))
+					lines.append("Lose %s" % map.region_name(condition.region))
 	return lines
 
 

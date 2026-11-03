@@ -314,55 +314,19 @@ func show_scenario_briefing(scenario_id: String) -> void:
 		show_scenarios.bind(scenario_id), "")
 
 
-func _briefing(scenario: Dictionary, heading: String, back: Callable, campaign_id: String) -> void:
-	var preview := GameState.from_scenario(scenario, 1)
-	var mission: Dictionary = preview.mission
-	_clear()
-	var scroll := BriefingScroll.new()
-	scroll.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	_content.add_child(scroll)
-	var lines := PackedStringArray()
-	lines.append("[center][font_size=16][color=#6b5a40]%s[/color][/font_size]" % heading)
-	lines.append("[font_size=34][color=#6a2a14]%s[/color][/font_size][/center]" % scenario.name)
-	for text in [mission.get("history", ""), mission.get("briefing", "")]:
-		if text != "":
-			lines.append("[i]%s[/i]\n" % text)
-	lines.append(_section("Primary objective", Mission.primary(preview).map(func(o): return Mission.plain(o.text))))
-	var extra := Mission.additional(preview)
-	if not extra.is_empty():
-		lines.append(_section("Additional objectives", extra.map(func(o): return "%s  [i](%d points)[/i]" % [Mission.plain(o.text), o.points])))
-	var defeats := Mission.defeats(preview)
-	if not defeats.is_empty():
-		lines.append(_section("Defeat", defeats))
-	var limits := Mission.crowns(preview)
-	if limits.size() == 3:
-		lines.append("[b]Crowns:[/b] [color=#9a7a10]gold[/color] by turn %d, [color=#6f7377]silver[/color] by %d, [color=#8a5226]bronze[/color] by %d." % limits)
-	var factions := PackedStringArray()
-	for faction in scenario.factions:
-		var civ := Rules.civilization(faction.get("civ", ""))
-		factions.append("[color=%s]%s[/color]%s" % [Color(faction.color).darkened(0.25).to_html(false), faction.name,
-			" (%s%s)" % [civ.display_name if civ != null else "", ", you" if faction.get("human", false) else ""] if civ != null or faction.get("human", false) else ""])
-	lines.append("[b]Map:[/b] %s, %d regions.  [b]Factions:[/b] %s" % [preview.map.display_name, preview.map.province_order.size(), ", ".join(factions)])
-	scroll.set_text("\n".join(lines))
-
-	var row := HBoxContainer.new()
-	row.alignment = BoxContainer.ALIGNMENT_CENTER
-	row.add_theme_constant_override("separation", 40)
-	_content.add_child(row)
-	row.add_child(RoundButton.with_caption("back", "Back", back))
-	if campaign_id != "":
-		var forge := RoundButton.with_caption("forge", "Forge (%d)" % Progress.forge_points(campaign_id), func(): _forge.show_campaign(campaign_id))
-		row.add_child(forge)
-		_forge.changed.connect(func():
-			if is_instance_valid(forge):
-				forge.get_child(1).text = "Forge (%d)" % Progress.forge_points(campaign_id))
-	row.add_child(RoundButton.with_caption("start", "Start", func():
+func _briefing(scenario: Dictionary, _heading: String, back: Callable, campaign_id: String) -> void:
+	var screen := BriefingScreen.new()
+	add_child(screen)
+	screen.show_mission(scenario, campaign_id != "", Progress.forge_points(campaign_id) if campaign_id != "" else 0)
+	screen.back_pressed.connect(func():
+		screen.queue_free()
+		back.call())
+	screen.forge_pressed.connect(func():
+		move_child(_forge, -1)
+		_forge.show_campaign(campaign_id))
+	screen.start_pressed.connect(func():
 		var upgrades := Progress.upgrades(campaign_id) if campaign_id != "" else {}
-		_start({"scenario": Forge.equip(scenario, upgrades), "seed": randi()})))
-
-
-func _section(title: String, items: Array) -> String:
-	return "[b][color=#6a2a14]%s[/color][/b]\n%s\n" % [title.to_upper(), "\n".join(items.map(func(item): return "  •  " + item))]
+		_start({"scenario": Forge.equip(scenario, upgrades), "seed": randi()}))
 
 
 # --- Skirmish ---------------------------------------------------------------------

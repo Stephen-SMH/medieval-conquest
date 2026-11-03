@@ -23,6 +23,8 @@ const TEXTURES := {
 }
 
 var kind := ""
+## S&T's look on its scrolls: a plain dark disc, no gold rim.
+var disc := false
 var _texture: Texture2D
 
 
@@ -60,6 +62,12 @@ func _draw() -> void:
 	var mode := get_draw_mode()
 	var glow := 1.15 if mode in [DRAW_HOVER, DRAW_HOVER_PRESSED] else 1.0
 	var gold := GOLD * glow if not disabled else Color(0.55, 0.5, 0.42)
+	if disc:
+		for k in 6:
+			draw_circle(c, r + 5.0 - k, Color(0, 0, 0, 0.07))
+		draw_circle(c, r, Color("#2a1b0e").lightened(0.08 if mode in [DRAW_HOVER, DRAW_HOVER_PRESSED] else 0.0))
+		draw_glyph(self, kind, _texture, c, r * 1.25, gold, disabled)
+		return
 	draw_circle(c + Vector2(0, r * 0.06), r, Color(0, 0, 0, 0.45))
 	draw_circle(c, r, Color("#7a5a24"))
 	draw_circle(c, r * 0.9, gold.darkened(0.25))
@@ -77,6 +85,34 @@ static func draw_glyph(canvas: CanvasItem, glyph: String, texture: Texture2D, c:
 		return
 	var w := maxf(r * 0.13, 2.0)
 	match glyph:
+		"castle":
+			# S&T's "back": a castle tower with an arrow leaving it.
+			var base := c + Vector2(r * 0.05, r * 0.36)
+			canvas.draw_rect(Rect2(base + Vector2(-r * 0.05, -r * 0.62), Vector2(r * 0.42, r * 0.62)), gold)
+			for k in 3:
+				canvas.draw_rect(Rect2(base + Vector2(-r * 0.05 + k * r * 0.16, -r * 0.74), Vector2(r * 0.1, r * 0.14)), gold)
+			canvas.draw_rect(Rect2(base + Vector2(r * 0.1, -r * 0.2), Vector2(r * 0.12, r * 0.2)), Color(0.16, 0.1, 0.05))
+			canvas.draw_line(c + Vector2(r * 0.2, r * 0.18), c + Vector2(-r * 0.4, r * 0.18), gold, w, true)
+			canvas.draw_colored_polygon(PackedVector2Array([c + Vector2(-r * 0.5, r * 0.18), c + Vector2(-r * 0.3, r * 0.04),
+				c + Vector2(-r * 0.3, r * 0.32)]), gold)
+		"arrow":
+			# S&T's "next" and "start": a long fletched arrow.
+			canvas.draw_line(c + Vector2(-r * 0.45, 0), c + Vector2(r * 0.3, 0), gold, w * 0.8, true)
+			canvas.draw_colored_polygon(PackedVector2Array([c + Vector2(r * 0.5, 0), c + Vector2(r * 0.22, -r * 0.16), c + Vector2(r * 0.28, 0),
+				c + Vector2(r * 0.22, r * 0.16)]), gold)
+			for k in 2:
+				var x := -r * 0.45 + k * r * 0.12
+				canvas.draw_line(c + Vector2(x, 0), c + Vector2(x - r * 0.1, -r * 0.13), gold, w * 0.6, true)
+				canvas.draw_line(c + Vector2(x, 0), c + Vector2(x - r * 0.1, r * 0.13), gold, w * 0.6, true)
+		"replay":
+			canvas.draw_arc(c, r * 0.36, -PI * 0.2, PI * 1.55, 28, gold, w, true)
+			var tip := c + Vector2.from_angle(-PI * 0.2) * r * 0.36
+			canvas.draw_colored_polygon(PackedVector2Array([tip + Vector2(r * 0.12, r * 0.2), tip + Vector2(-r * 0.2, -r * 0.02),
+				tip + Vector2(r * 0.16, -r * 0.14)]), gold)
+			var tail := c + Vector2.from_angle(PI * 1.55) * r * 0.36
+			for k in 2:
+				canvas.draw_line(tail + Vector2(-r * 0.12 * (k + 1), 0), tail + Vector2(-r * 0.12 * k - r * 0.04, -r * 0.1), gold, w * 0.6, true)
+				canvas.draw_line(tail + Vector2(-r * 0.12 * (k + 1), 0), tail + Vector2(-r * 0.12 * k - r * 0.04, r * 0.1), gold, w * 0.6, true)
 		"back", "next":
 			var d := -1.0 if glyph == "back" else 1.0
 			canvas.draw_line(c - Vector2(d * r * 0.38, 0), c + Vector2(d * r * 0.18, 0), gold, w, true)

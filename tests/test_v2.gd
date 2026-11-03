@@ -55,7 +55,7 @@ func _test_missions(t) -> void:
 	t.check(not state.is_over() and Mission.primary_left(state) == 1 and Mission.objectives(state).size() == 3
 		and Mission.objectives(state)[0].primary and not Mission.objectives(state)[1].primary, "the primary objective comes first, then the additional ones")
 	t.check(Mission.crown_now(state) == {"crown": 3, "turns_left": 4}, "turn 1: the gold crown, 4 turns left")
-	t.check(Mission.defeats(state) == ["The primary objective isn't done in 8 turns", "You lose Greywater"], "the defeat conditions in words")
+	t.check(Mission.defeats(state) == ["Fail to complete the main objective in 8 turns", "Lose Greywater"], "the defeat conditions in words")
 	Helpers.order(state, state.unit_in("greywater"), "move", "kingsvale")
 	Helpers.resolve(state)
 	var result := state.result
