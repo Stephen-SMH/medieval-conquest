@@ -14,7 +14,8 @@ extends RefCounted
 ##      then the others, strongest first, and later ones face whatever is left.
 ##      Supporters fight from home and never move in (as in S&T);
 ##   2. moves into empty or friendly regions (merges add the compositions, up
-##      to Unit.CAP; two whole armies trading places swap). Attacks go first
+##      to Unit.CAP; two armies or detachments, each alone in its region,
+##      trading places swap). Attacks go first
 ##      so that beaten attackers are home before others march in: a march
 ##      that no longer fits only partly merges, and the rest stay put;
 ##   3. detachments that end the turn in their home region (failed, blocked
@@ -151,13 +152,13 @@ static func _moves(state: GameState, steps: Dictionary, ctx: Dictionary) -> Arra
 	var progress := true
 	while progress and not pending.is_empty():
 		progress = false
-		# Swaps: two whole armies trade places.
+		# Swaps: two armies (or detachments) each alone in its region trade places.
 		for unit in pending.duplicate():
 			if not pending.has(unit):
 				continue
 			var other := state.unit_in(steps[unit].target)
 			if other != null and other.owner == unit.owner and pending.has(other) and steps[other].target == unit.province \
-					and not ctx.group.has(unit) and not ctx.group.has(other):
+					and state.units_in(unit.province).size() == 1 and state.units_in(other.province).size() == 1:
 				var here: String = unit.province
 				unit.province = other.province
 				other.province = here

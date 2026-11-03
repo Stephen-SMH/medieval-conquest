@@ -7,7 +7,9 @@ extends Control
 
 const GAME_SCENE := "res://scenes/main.tscn"
 const KEY_ART := "res://assets/st/menu/key_art.jpg"
-const DIFFICULTIES := ["easy", "normal", "hard"]
+const DIFFICULTY_TEXT := "How well the enemy plays, in every new game. Easy: it plans everything at once and attacks one army at a time. " \
+	+ "Normal: it gathers armies against one target, attacks first and then follows up, and guards what it holds. " \
+	+ "Hard: as Normal, takes closer fights, earns 40% more gold and spends it."
 const CREDIT_LINE := "Unit figures rendered from CC0 3D models by Quaternius. Icons by Lorc, Delapouite, Guard13007, " \
 	+ "Cathelineau, Skoll and HeavenlyDog from game-icons.net (CC BY 3.0). Fonts: Cinzel, IM FELL English, Grenze Gotisch and Noto (SIL Open Font License). " \
 	+ "Music by RandomMind, cynicmusic and Emma_MA (CC0). Sounds by Kenney and by freesound.org users HebronTheatre, " \
@@ -19,7 +21,7 @@ var _header: Control
 ## S&T's own key art (the player's copy, in the git-ignored assets/st/), or null.
 var _key_art: Texture2D
 var _forge: ForgeScreen
-var _skirmish := {"map": "heartlands", "civ": "norse", "opponents": 2, "difficulty": "normal"}
+var _skirmish := {"map": "heartlands", "civ": "norse", "opponents": 2}
 var _hotseat := {"map": "heartlands", "civs": ["norse", "anglish"], "ai": 0}
 
 
@@ -235,6 +237,9 @@ func show_settings() -> void:
 		fullscreen.button_pressed = Settings.fullscreen
 		fullscreen.toggled.connect(func(on): Settings.fullscreen = on; Settings.save(); Settings.apply(get_tree()))
 		_content.add_child(fullscreen)
+	_add_option("Difficulty", AI.DIFFICULTIES.map(func(d): return d.capitalize()), AI.DIFFICULTIES.find(Settings.difficulty),
+		func(i): Settings.difficulty = AI.DIFFICULTIES[i]; Settings.save())
+	_add_text("[i]%s[/i]" % DIFFICULTY_TEXT)
 	var speeds := ["normal", "fast", "off"]
 	_add_option("Turn animations", ["Normal", "Fast", "Off"], speeds.find(Settings.animation),
 		func(i): Settings.animation = speeds[i]; Settings.save())
@@ -353,12 +358,12 @@ func show_skirmish() -> void:
 	_skirmish.opponents = mini(_skirmish.opponents, most)
 	_add_option("Computer opponents", range(1, most + 1).map(func(n): return str(n)), _skirmish.opponents - 1,
 		func(i): _skirmish.opponents = i + 1)
-	_add_option("Difficulty", DIFFICULTIES.map(func(d): return d.capitalize()), DIFFICULTIES.find(_skirmish.difficulty),
-		func(i): _skirmish.difficulty = DIFFICULTIES[i])
+	_add_option("Difficulty", AI.DIFFICULTIES.map(func(d): return d.capitalize()), AI.DIFFICULTIES.find(Settings.difficulty),
+		func(i): Settings.difficulty = AI.DIFFICULTIES[i]; Settings.save())
 	_add_button(_content, "Start skirmish", func():
 		var players := [{"civ": _skirmish.civ, "human": true}]
 		players.append_array(opponent_civs(_skirmish.civ, _skirmish.opponents).map(func(c): return {"civ": c, "human": false}))
-		_start({"scenario": Skirmish.build(_skirmish.map, players, _skirmish.difficulty, randi()), "seed": randi()}))
+		_start({"scenario": Skirmish.build(_skirmish.map, players, Settings.difficulty, randi()), "seed": randi()}))
 
 
 ## Opponents get the other unlocked civilizations in turn.

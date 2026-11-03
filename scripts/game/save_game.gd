@@ -34,7 +34,7 @@ static func to_dict(state: GameState) -> Dictionary:
 		units.append({"id": unit.id, "owner": unit.owner, "region": unit.province, "troops": troops,
 			"move_points_left": unit.move_points_left, "attacked": unit.attacked, "moved": unit.moved})
 	return {
-		"version": VERSION, "map": state.map.id, "scenario": state.scenario_id, "turn": state.turn, "current": state.current,
+		"version": VERSION, "map": state.map.id, "scenario": state.scenario_id, "difficulty": state.difficulty, "turn": state.turn, "current": state.current,
 		"factions": factions, "owners": state.owners.duplicate(), "capitals": state.capitals.duplicate(),
 		"provinces": provinces, "units": units, "next_unit_id": state._next_unit_id,
 		"rng_seed": str(state.rng.seed), "rng_state": str(state.rng.state),
@@ -50,6 +50,7 @@ static func from_dict(data: Dictionary) -> GameState:
 	var state := GameState.new()
 	state.map = MapData.load_map(data.map)
 	state.scenario_id = data.scenario
+	state.difficulty = data.get("difficulty", "normal")
 	state.turn = int(data.turn)
 	state.current = int(data.current)
 	for entry in data.factions:

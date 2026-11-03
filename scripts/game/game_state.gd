@@ -46,6 +46,9 @@ var kills := {}
 var result := {}
 ## Forge upgrades for factions: faction -> {Forge row: cards bought}.
 var upgrades := {}
+## How well the computer plays: "easy", "normal" or "hard" (AI.SKILL). Set
+## it with set_difficulty() before the first turn.
+var difficulty := "normal"
 
 var _next_unit_id := 1
 
@@ -103,7 +106,21 @@ static func from_scenario(scenario: Dictionary, game_seed := 1) -> GameState:
 		army.reset_turn()
 	state.update_alive()
 	state.begin_turn()
+	state.set_difficulty(scenario.get("difficulty", "normal"))
 	return state
+
+
+## Sets how well the computer plays, at the start of a game: on hard its
+## armies start stronger (AI.strengthen_start), once.
+func set_difficulty(level: String) -> void:
+	difficulty = level if level in AI.DIFFICULTIES else "normal"
+	if turn != 1 or mission_progress.get("strengthened", false):
+		return
+	for id in turn_order:
+		if not factions[id].human:
+			AI.strengthen_start(self, id)
+	if AI.skill(self).start > 1.0:
+		mission_progress["strengthened"] = true
 
 
 # --- Factions and turns ---------------------------------------------------------

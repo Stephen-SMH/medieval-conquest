@@ -218,7 +218,7 @@ There is no item inventory per character. The faction **stockpile** holds Gold, 
 |---|---|
 | AI-1 | Each AI faction has a **personality**: Aggressive, Defensive or Economic, which changes its weights. |
 | AI-2 | Each turn the AI: builds economy buildings when food or gold is low; recruits to **counter** the armies it can see (e.g. sees cavalry → recruits spearmen); attacks neighbouring provinces where its forecast is "win" or better; defends threatened provinces. |
-| AI-3 | The AI follows the same rules as the player (no free resources) on Normal difficulty. On Hard it gets +25% income. |
+| AI-3 | **Difficulty** (Easy, Normal, Hard; in Settings and the skirmish screen, kept in saves) sets how well the AI plays. **Easy** plans all its orders at once and only then ends its turn, attacks one army at a time (others may join as supports), hesitates on 30% of its attacks and earns 15% less gold. **Normal** follows the same rules as the player: it gathers up to 4 armies against one target (the fewest that get an acceptable forecast; one attacks and moves in, the others support), carries its attacks out with the ! before planning more with the armies still fresh, then marches (OR-7); it splits armies to take every empty region next to them, guards its capital and threatened regions with walls or buildings, leaves a guard at home when attacking out of a region another enemy army borders, and merges its armies at the front. **Hard** plays as Normal, also takes close fights when several armies join, earns 40% more gold, keeps less back, buys reinforcements further from the front, and its armies start the game a quarter stronger (20 at most). |
 
 ### 3.14 Diplomacy (minimal v1)
 

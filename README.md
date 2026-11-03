@@ -242,6 +242,18 @@ that counter the enemies it can see, builds when food or gold run short, pulls b
 its forecast is good enough for its personality (aggressive, balanced or defensive), besieges walls, reinforces
 threatened regions and advances on the nearest enemy.
 
+**Difficulty** (Settings, or the skirmish screen) sets how well it plays in every new game:
+
+| | Easy | Normal | Hard |
+|---|---|---|---|
+| Attacks | one army at a time, sometimes hesitates | gathers up to 4 armies on one target (one attacks, the others support) | the same, and takes close fights when several join |
+| Turn | plans everything, then the hourglass | attacks first with the !, again with the armies still fresh, then marches | the same |
+| Land | takes one empty region per army | splits an army to take every empty region next to it | the same |
+| Guarding | keeps its capital | also guards threatened regions with walls or buildings, and leaves a guard at home when attacking out | the same |
+| Gold | 15% less income | the same rules as you | 40% more income, spends more, armies start a quarter stronger |
+
+In AI-only test games the Normal AI beats the old one about 31 to 17 in mirror matches and Easy 41 to 7.
+
 ## Tests
 
 ```

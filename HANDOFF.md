@@ -138,7 +138,13 @@ Swift AVFoundation script (`AVAssetImageGenerator`), and contact sheets were mad
     ordered again (red X). The **hourglass** ends the turn and asks first if some army could still move
     (`Orders.can_act`). With an army that has orders selected, a red **X** cancels them. An army is let go once
     given an order, so the ! shows at once. The old news shield is gone; the news shows as a line at the turn's start.
-12. **Still to do:**
+12. **AI and difficulty: done (2026-11-03).** `scripts/game/ai.gd` rewritten: gathered attacks with supports,
+    attack waves carried out with the ! before the marches (`plan_attacks` / `plan_moves`; `main.gd _enemy_turn`
+    animates each wave), several captures at once, guards. Easy/Normal/Hard in `AI.SKILL`, chosen in Settings
+    (`Settings.difficulty`), stored as `GameState.difficulty` (`set_difficulty` strengthens Hard's armies once) and
+    in saves. AI-only duels (scripts in the session scratchpad only): new Normal beats the old AI 31–17 in mirror
+    matches and Easy 41–7; Hard vs Normal is even in tactics, its edge is gold and stronger starting armies.
+13. **Still to do:**
     - S&T's scenario list. Robin Hood (England map), the Viking wars, Bråvalla, Cnut's war and the Unification of
       Norway fit our maps. The Italian Wars, the Russian feudal war and the Reconquista need new real maps (Italy,
       Russia, Iberia; `tools/extract_coastlines.py` needs the Natural Earth download).

@@ -82,6 +82,9 @@ func _ready() -> void:
 		state = SaveGame.from_dict(setup.save)
 	else:
 		state = GameState.from_scenario(setup.scenario, setup.get("seed", 1))
+		if not setup.scenario.has("difficulty"):
+			Settings.ensure_loaded()
+			state.set_difficulty(Settings.difficulty)
 	map = state.map
 	_camera.map_rect = Rect2(Vector2.ZERO, map.size)
 	# Open on the player's capital rather than the map's corner (the big real maps are wider than the screen).
@@ -531,9 +534,25 @@ func _enemy_turn(faction: String) -> void:
 	_hud.set_end_turn_enabled(false)
 	var fast := _animation_speed() <= 0.0
 	_hud.show_enemy_turn("Turn: %s" % state.faction_name(faction), state.faction_color(faction), state.factions[faction].civ)
-	AI.play_turn(state)
+	# As a player would: the attacks first, carried out with the "!" (on
+	# normal and hard), then the marches, carried out with the hourglass.
+	for wave in AI.attack_waves(state):
+		AI.plan_attacks(state, wave)
+		if not AI.plays_in_waves(state) or not state.has_orders():
+			break
+		_refresh_world()
+		if not fast and not _skip_enemy:
+			await _pause(0.9)
+		var first := _snapshot()
+		_orders.snapshot()
+		await _show_resolution(state.carry_out_orders(), first)
+		if state.is_over():
+			_hud.hide_enemy_turn()
+			return
+		_busy = true
+	AI.plan_moves(state)
 	_refresh_world()
-	if not fast and not _skip_enemy:
+	if not fast and not _skip_enemy and state.has_orders():
 		await _pause(0.9)
 	var before := _snapshot()
 	_orders.snapshot()

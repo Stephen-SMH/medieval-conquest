@@ -170,16 +170,16 @@ func _test_ai(t) -> void:
 	var state := Helpers.game({"greywater": "blue", "kingsvale": "red", "redfield": "red"}, [
 		["blue", "greywater", "militia", 6], ["red", "kingsvale", "heavy_cavalry"]], 7)
 	Helpers.plan_as(state, "red")
-	AI.play_turn(state)
-	t.check(state.orders.get(state.unit_in("kingsvale"), [{"steps": [{}]}])[0].steps[0].get("type") == "attack", "the AI plans an attack on a weak neighbour")
+	var attacks := Helpers.events_of(AI.play_turn(state), "battle")
+	t.check(attacks.size() == 1 and attacks[0].province == "greywater", "the AI attacks a weak neighbour first, with the \"!\"")
 	Helpers.resolve(state)
-	t.check(state.owners.greywater == "red", "and takes it when the turn resolves")
+	t.check(state.owners.greywater == "red", "and takes it")
 
 	state = Helpers.game({"greywater": "blue", "kingsvale": "red"}, [["blue", "greywater", "spearmen"], ["red", "kingsvale", "light_cavalry", 8]], 7)
 	Helpers.plan_as(state, "red")
-	AI.play_turn(state)
+	var fought := Helpers.events_of(AI.play_turn(state), "battle")
 	var orders: Array = state.orders.get(state.unit_in("kingsvale"), [])
-	t.check(orders.all(func(o): return o.steps[0].type != "attack"), "the AI won't attack when the forecast is bad")
+	t.check(fought.is_empty() and orders.all(func(o): return o.steps[0].type != "attack"), "the AI won't attack when the forecast is bad")
 
 	state = Helpers.game({"greywater": "blue", "kingsvale": "red", "redfield": "red"}, [
 		["blue", "greywater", "heavy_cavalry"], ["red", "kingsvale", "spearmen", 3]], 7, {"resources": {"red": {"gold": 0}}})

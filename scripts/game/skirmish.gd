@@ -18,7 +18,7 @@ static func build(map_id: String, players: Array, difficulty := "normal", game_s
 	var rng := RandomNumberGenerator.new()
 	rng.seed = game_seed
 	var starts: Array[String] = map.starts.duplicate()
-	var scenario := {"id": "skirmish_" + map_id, "name": "Skirmish: " + map.display_name, "map": map_id,
+	var scenario := {"id": "skirmish_" + map_id, "name": "Skirmish: " + map.display_name, "map": map_id, "difficulty": difficulty,
 		"factions": [], "owners": {}, "capitals": {}, "buildings": {}, "units": [], "resources": {}}
 	var used_ids := {}
 	for i in players.size():

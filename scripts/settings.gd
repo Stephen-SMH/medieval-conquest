@@ -12,6 +12,8 @@ static var ui_scale := 1.0
 ## Music and sound-effect volumes, 0 (off) to 1.
 static var music_volume := 0.7
 static var sfx_volume := 0.8
+## How well the computer plays in new games: "easy", "normal" or "hard" (AI.SKILL).
+static var difficulty := "normal"
 ## The one-time "First time here?" tutorial prompt has been shown.
 static var tutorial_offered := false
 ## Where the settings live; tests point this at a scratch file.
@@ -29,6 +31,7 @@ static func ensure_loaded() -> void:
 	fullscreen = config.get_value("display", "fullscreen", false)
 	ui_scale = config.get_value("display", "ui_scale", 1.0)
 	animation = config.get_value("game", "animation", "normal")
+	difficulty = config.get_value("game", "difficulty", "normal")
 	music_volume = clampf(float(config.get_value("audio", "music_volume", 0.7)), 0.0, 1.0)
 	sfx_volume = clampf(float(config.get_value("audio", "sfx_volume", 0.8)), 0.0, 1.0)
 	tutorial_offered = config.get_value("game", "tutorial_offered", false)
@@ -37,6 +40,7 @@ static func ensure_loaded() -> void:
 ## Resets to the defaults and reads the file again, so values from a missing file never linger.
 static func load_again() -> void:
 	animation = "normal"
+	difficulty = "normal"
 	fullscreen = false
 	ui_scale = 1.0
 	music_volume = 0.7
@@ -51,6 +55,7 @@ static func save() -> void:
 	config.set_value("display", "fullscreen", fullscreen)
 	config.set_value("display", "ui_scale", ui_scale)
 	config.set_value("game", "animation", animation)
+	config.set_value("game", "difficulty", difficulty)
 	config.set_value("audio", "music_volume", music_volume)
 	config.set_value("audio", "sfx_volume", sfx_volume)
 	config.set_value("game", "tutorial_offered", tutorial_offered)

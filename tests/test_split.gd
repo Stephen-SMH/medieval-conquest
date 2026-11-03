@@ -384,10 +384,13 @@ func _test_ai(t) -> void:
 	var state := Helpers.game({"kingsvale": "red", "highcrag": "red", "greywater": "blue", "eastwold": "blue"}, [
 		["red", "kingsvale", "heavy_cavalry"], ["blue", "greywater", "militia", 3], ["blue", "eastwold", "militia", 4]], 7)
 	Helpers.plan_as(state, "red")
-	AI.play_turn(state)
-	var list := Orders.orders_of(state, state.unit_in("kingsvale"))
+	var horse: Unit = state.unit_in("kingsvale")
+	AI.plan_attacks(state)
+	var list := Orders.orders_of(state, horse)
 	t.check(list.size() == 2 and list[0].steps[0].type == "attack" and list[1].steps[0].target == "highcrag" and list[1].size == 4,
-		"the AI attacks with 16 and leaves 4 to hold threatened Highcrag (%s)" % Orders.describe(state, state.unit_in("kingsvale")))
+		"the AI attacks with 16 and leaves 4 to hold threatened Highcrag (%s)" % Orders.describe(state, horse))
+	state.carry_out_orders()
+	AI.plan_moves(state)
 	Helpers.resolve(state)
 	t.check(_one_per_region(state) and state.unit_in("highcrag") != null and state.unit_in("highcrag").owner == "red", "and both orders resolve")
 

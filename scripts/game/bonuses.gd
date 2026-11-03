@@ -22,7 +22,7 @@ static func income(state: GameState, faction: String, kind: String) -> float:
 	if kind == "market" and civ(state, faction) == "byzantine":
 		multiplier *= BYZANTINE_MARKETS
 	if kind == "gold":
-		multiplier *= Forge.income(state.upgrades.get(faction, {}))
+		multiplier *= Forge.income(state.upgrades.get(faction, {})) * AI.income_multiplier(state, faction)
 	return multiplier
 
 
