@@ -1002,7 +1002,38 @@ def build(campaign, index, spec):
     return scenario
 
 
+# S&T's tutorial: the north of England, England against the Danes. The Danes
+# stand and wait ("passive"); the regions not in play are neutral and empty.
+TUTORIAL = {
+    "name": "Tutorial", "map": "england",
+    "factions": [ENGLAND, F("denmark", "Kingdom of Denmark", "norse", "#cfd2e6", "passive")], "rest": "neutral",
+    "owners": {"england": "newcastle cumbria york lancaster stamford_bridge lincoln", "denmark": "doncaster"},
+    "capitals": {"england": "york", "denmark": "doncaster"},
+    "auto": False,
+    "armies": {"york": ["spearmen", 8], "cumbria": ["swordsmen", 6], "lancaster": ["light_cavalry", 4],
+               "stamford_bridge": ["swordsmen", 10], "lincoln": ["archers", 6], "doncaster": ["spearmen", 6]},
+    "primary": [{"type": "capture", "regions": ["doncaster"], "text": "Conquer all enemy provinces"}],
+    "additional": [], "defeat": [], "crowns": [3, 4, 5], "time": 10,
+    "history": "", "briefing": "Learn to command an army in the north of England.",
+    "victory": "Your training is complete.", "defeat_text": "Even veterans lose a battle. Try again.",
+}
+
+
+def build_tutorial():
+    scenario = build({"id": "tutorial"}, -1, TUTORIAL)
+    scenario["id"] = "tutorial"
+    scenario.pop("campaign")
+    scenario.pop("mission_index")
+    scenario["units"] = [u for u in scenario["units"] if u["owner"] != "neutral"]
+    scenario["mission"]["tutorial"] = True
+    scenario["mission"]["defeat"] = []
+    with open("data/tutorial/tutorial.json", "w") as f:
+        f.write(json.dumps(scenario, indent=1, ensure_ascii=False) + "\n")
+    print("tutorial")
+
+
 def main():
+    build_tutorial()
     for campaign in CAMPAIGNS:
         if not campaign["missions"]:
             continue

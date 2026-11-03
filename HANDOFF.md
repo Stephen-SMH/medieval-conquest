@@ -96,8 +96,9 @@ Swift AVFoundation script (`AVAssetImageGenerator`), and contact sheets were mad
    - New objective kinds: `destroy_units` with any faction or any type, and `lose_at_most`.
    - The old fictional campaigns, including Byzantine and Saracen, are gone; those two civilizations still unlock
      for skirmish.
-   - Still to do: the tutorial on north England (England vs Denmark, 9 tips), and balancing each mission by
-     playing it.
+   - The tutorial is S&T's too: north England, England against the Danes in Doncaster, 9 steps ending with the
+     surrounded Danes destroyed (`TUTORIAL` in the same script, `scripts/game/tutorial.gd`).
+   - Still to do: balancing each mission by playing it.
 4. **Scenarios as in S&T's list:**
    - Robin Hood
    - Viking wars 789–1066
@@ -108,18 +109,12 @@ Swift AVFoundation script (`AVAssetImageGenerator`), and contact sheets were mad
    - Russian feudal war 1146–1154
    - Reconquista 790–1300
    - Each has a flag, ★ difficulty, map size (L/M) and 1/2 players. Modes are vs computer or a 2-player duel.
-5. **Main menu:**
-   - full-screen painted key art (our own) with the logo top right;
-   - a bottom row of 7 square wood buttons: campaign, army, battle, continue, records, settings, globe;
-   - corner shields. Skip the "$" shop.
-6. **Loading screen:** wood, the logo, a red progress bar with %, and a tip line.
-7. **Victory scroll:**
-   - objectives ✓/✗ with points; your and enemy losses by type icon;
-   - development points; awards (bronze, silver and gold crowns) and turns;
-   - total, rank ("Knecht", "Sergeant") with a bar;
-   - buttons: castle (back), replay, arrow (next).
-8. **Briefing scroll:** year in the title, history text, MAIN / ADDITIONAL OBJECTIVE / DEFEAT CONDITIONS and
-   crown turn limits. A right rail holds anvil (Forge), arrow (start) and castle (back).
+5. **Main menu: done (2026-11-03).** With S&T's key art in the git-ignored `assets/st/menu/` (cut by
+   `assets/st/cut_menu.py` from the video), the title is that art and the button bar, as in S&T. Without it, the
+   title is our own. Campaigns open S&T's list (pennant, name, Roman numerals, status).
+6. **Loading screen: done.** `scripts/ui/loading_screen.gd`: wood, the logo (S&T's if present), a red bar with %, a tip.
+7. **Victory scroll: done.** `scripts/end_screen.gd` on `scripts/ui/st_scroll.gd`.
+8. **Briefing scroll: done.** `scripts/ui/briefing_screen.gd`: banner, maps, scroll and the anvil/arrow/castle rail.
 9. **Forge: done (2026-11-03).** `scripts/ui/forge_screen.gd` and `forge_card.gd`, rules in
    `scripts/game/forge.gd`. Full-screen wood and iron like S&T's:
    - the anvil "+" buys, an odometer shows the points, a dark disc shows the price;

@@ -1,35 +1,38 @@
 class_name Tutorial
 extends RefCounted
-## The guided tutorial mission: a small map (data/tutorial/) and a list of
-## steps, each teaching one thing and waiting until the player has done it:
-## select a unit, march, cancel, attack with the split slider, cavalry's two
-## steps and the red X, the hourglass, gold income and reinforcements.
+## The guided tutorial mission, as S&T's: the north of England, England
+## against the Danes in Doncaster (data/tutorial/), and nine steps, each
+## teaching one thing and waiting until the player has done it (or, for a
+## step that only explains, until they press Next): select an army, its
+## panel, march, the hourglass, resting, the order ring, an attack with
+## supports, carrying it out, and the surrounded enemy destroyed.
 ## The game scene shows the current step in a parchment box (TutorialBox) and
 ## reports what the player does with record().
 
 const SCENARIO := "res://data/tutorial/tutorial.json"
-const PLAYER := "realm"
+const PLAYER := "england"
 
-## Each step: an id (what finishes it, see is_done), a title and the hint.
+## Each step: an id (what finishes it, see is_done), a title and the hint;
+## "info" for a step that only explains.
 const STEPS := [
-	{"id": "select", "title": "Select a unit",
-		"text": "Welcome, commander! Each region holds one unit: a group of soldiers under its banner. Click your [b]spearmen in Millbrook[/b] to select them."},
+	{"id": "select", "title": "Select an army",
+		"text": "Welcome to the tutorial mission. Your troops fly England's banner, gold lions on red; the Danes' banners are pale. To select troops, click the region they stand in: click [b]York[/b]."},
+	{"id": "panel", "info": true, "title": "The army's soldiers",
+		"text": "The banner on the right lists the soldiers of the selected army, one icon for each type and how many there are. Click an icon to see its name."},
 	{"id": "move", "title": "March",
-		"text": "The regions lit [color=#2a4fa0][b]blue[/b][/color] are where they can march. Click [b]Fernridge[/b], choose how many soldiers go (all, unless you drag the slider) and press the check mark: a blue spear-arrow shows the order. Nothing moves until the turn ends."},
-	{"id": "cancel", "title": "Cancel an order",
-		"text": "Changed your mind? Click an [b]arrow[/b] to [b]cancel[/b] that order; [b]right-click[/b] the unit (or press [b]Cancel all orders[/b]) to cancel all of them. Then send the spearmen to Fernridge again."},
-	{"id": "attack", "title": "Attack",
-		"text": "Select the [b]swordsmen in Highmoor[/b] and click [b]Ravensford[/b], lit [color=#9b2d20][b]red[/b][/color]: an attack. Drag the [b]slider[/b] to choose how many soldiers to send, then press the check mark. The unit stays selected: the rest can march elsewhere with another arrow, or stay home (the small number by the unit)."},
-	{"id": "cavalry", "title": "Cavalry: two steps",
-		"text": "Horsemen move twice. Select the [b]light cavalry in Eastwatch[/b], click [b]Saltfen[/b] and confirm, then click a second region to ride on or attack. A unit whose soldiers all have orders shows a [color=#c0301e][b]red X[/b][/color] by its health bar."},
-	{"id": "hourglass", "title": "End the turn",
-		"text": "Every unit has its orders. Turn the [b]hourglass[/b] (bottom right, or Enter) to end your turn: every side moves at once and the turn plays out on the map. Click to skip the show."},
-	{"id": "treasury", "title": "Gold",
-		"text": "Every region you hold pays [b]gold[/b] each turn: the number under its name. Towns and your capital pay more. Press the [b]coin shield[/b] (top left) to see your treasury."},
-	{"id": "reinforce", "title": "Reinforcements",
-		"text": "New soldiers come in bundles. Press the [b]knight shield[/b] (top left, or R) and pick a card: so many soldiers of one type for a price. Confirm, then click a lit province: your [b]capital[/b], a [b]town[/b] (houses) or a [b]camp[/b] (tent). They join the army there next turn; each province takes one order a turn."},
-	{"id": "finish", "title": "Ready for war",
-		"text": "That's everything. Take Ravensford if you like, or head for the campaigns. Spears beat horse, horse beats bows, bows beat spears. Good luck!"},
+		"text": "Now give an order. Select the troops in [b]Cumbria[/b] and click [b]Lancaster[/b]. Choose how many go and press the check mark: a blue arrow shows the order."},
+	{"id": "hourglass", "title": "Carry out the order",
+		"text": "Click the [b]hourglass[/b] to carry out your orders. Then the enemy takes its turn."},
+	{"id": "rest", "info": true, "title": "Rest",
+		"text": "An army that does nothing for a turn gets back part of its strength: watch the bar under it. Tired armies fight worse."},
+	{"id": "ring", "info": true, "title": "Kinds of order",
+		"text": "Click a region next to the enemy and a ring of orders opens: the [b]X[/b] cancels, [b]crossed swords[/b] attack, and [b]crossed swords with a plus[/b] support another army's attack without moving in."},
+	{"id": "support", "title": "Attack and support",
+		"text": "Order the troops in [b]Stamford Bridge[/b] to attack [b]Doncaster[/b], and the troops in [b]York[/b], [b]Lancaster[/b] and [b]Lincoln[/b] to support the attack."},
+	{"id": "carry", "title": "Attack!",
+		"text": "Now carry out the orders you have given: click the [b]hourglass[/b]."},
+	{"id": "finish", "title": "Victory",
+		"text": "Surrounded troops have nowhere to retreat if they lose, and are destroyed. You won!"},
 ]
 
 var step := 0
@@ -83,27 +86,22 @@ func is_done(id: String, state: GameState, selected: Unit) -> bool:
 		"select":
 			return selected != null and selected.owner == PLAYER
 		"move":
-			return _has_step(state, func(unit, steps): return steps.any(func(s): return s.type == "move"))
-		"cancel":
-			return int(actions.get("cancel", 0)) > 0 and _has_step(state, func(unit, steps): return steps.any(func(s): return s.type == "move"))
-		"attack":
-			return _has_step(state, func(unit, steps): return not unit.type().is_cavalry() and steps.any(func(s): return s.type == "attack"))
-		"cavalry":
-			return _has_step(state, func(unit, steps): return unit.type().is_cavalry() and steps.size() >= 2)
+			return _has_order(state, func(order): return order.steps.any(func(s): return s.type == "move"))
 		"hourglass":
 			return state.turn > start_turn
-		"treasury":
-			return int(actions.get("treasury", 0)) > 0
-		"reinforce":
-			return int(actions.get("recruit", 0)) > 0
-	return false  # "finish" waits for the player to close the tutorial.
+		"support":
+			return _has_order(state, func(order): return order.get("support", false) and order.steps.back().target == "doncaster") \
+				and _has_order(state, func(order): return not order.get("support", false) and order.steps.back().type == "attack")
+		"carry":
+			return state.turn > start_turn + 1 or state.is_over()
+	return false  # A step that only explains waits for Next; "finish" for the player to close it.
 
 
-## Some order of the player's has steps that pass `test(unit, steps)`.
-func _has_step(state: GameState, test: Callable) -> bool:
+## Some order of the player's passes `test(order)`.
+func _has_order(state: GameState, test: Callable) -> bool:
 	for unit: Unit in state.orders:
 		for order in state.orders[unit]:
-			if unit.owner == PLAYER and test.call(unit, order.steps):
+			if unit.owner == PLAYER and test.call(order):
 				return true
 	return false
 

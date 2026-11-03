@@ -852,10 +852,14 @@ func _start_tutorial() -> void:
 		_tutorial.skip()
 		_show_tutorial_step())
 	_tutorial_box.leave_pressed.connect(_go_to_menu)
-	# Shift the small map right, over the sea, so the hint box in the
-	# lower-left corner never hides a region or its name.
+	# Look at the regions in play, shifted right so the hint box in the
+	# lower-left corner doesn't hide them.
+	var in_play := map.province_order.filter(func(r): return state.owners[r] != "neutral")
+	var centre := Vector2.ZERO
+	for region in in_play:
+		centre += map.provinces[region].centroid
 	_camera.zoom = Vector2.ONE * TUTORIAL_ZOOM
-	_camera.position = Vector2((get_viewport_rect().size.x / 2.0 - TutorialBox.WIDTH - 2.0 * TutorialBox.MARGIN) / TUTORIAL_ZOOM, map.size.y / 2.0)
+	_camera.position = centre / maxf(in_play.size(), 1) - Vector2((TutorialBox.WIDTH + 2.0 * TutorialBox.MARGIN) / 2.0 / TUTORIAL_ZOOM, 0)
 	_show_tutorial_step()
 
 

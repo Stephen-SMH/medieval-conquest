@@ -8,7 +8,6 @@ extends RefCounted
 ## it to march or attack, and a landing fights like a river crossing.
 
 const MAP_DIR := "res://data/maps"
-const TUTORIAL_DIR := "res://data/tutorial"
 const EDGE_DETAIL := 3        # Times each border edge is split in half, so borders look hand-drawn.
 const EDGE_ROUGHNESS := 0.08  # Largest sideways bend, as a fraction of the edge length.
 
@@ -32,8 +31,6 @@ static func load_map(map_id: String) -> MapData:
 	if not _cache.has(map_id):
 		var map := MapData.new()
 		var path := MAP_DIR.path_join(map_id + ".json")
-		if not FileAccess.file_exists(path):
-			path = TUTORIAL_DIR.path_join(map_id + ".json")  # The tutorial's map isn't offered for skirmish.
 		var error := map.load_file(path)
 		if error != OK:
 			push_error("Could not load map %s: %s" % [map_id, error_string(error)])

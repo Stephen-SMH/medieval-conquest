@@ -1,57 +1,137 @@
 {
  "id": "tutorial",
- "name": "Tutorial: The Training Marches",
- "map": "tutorial_map",
+ "name": "Tutorial",
+ "map": "england",
  "factions": [
   {
-   "id": "realm",
-   "name": "Your Realm",
-   "civ": "",
-   "color": "#3d6fb6",
-   "human": true,
-   "ai": "balanced"
+   "id": "england",
+   "name": "Kingdom of England",
+   "civ": "anglish",
+   "color": "#b5423a",
+   "ai": "balanced",
+   "human": true
   },
   {
-   "id": "raiders",
-   "name": "Ravensford Raiders",
-   "civ": "",
-   "color": "#b5423a",
-   "human": false,
-   "ai": "passive"
+   "id": "denmark",
+   "name": "Kingdom of Denmark",
+   "civ": "norse",
+   "color": "#cfd2e6",
+   "ai": "passive",
+   "human": false
   }
  ],
  "owners": {
-  "oakhollow": "realm",
-  "millbrook": "realm",
-  "highmoor": "realm",
-  "eastwatch": "realm",
-  "ravensford": "raiders"
+  "newcastle": "england",
+  "cumbria": "england",
+  "york": "england",
+  "stamford_bridge": "england",
+  "lancaster": "england",
+  "doncaster": "denmark",
+  "lincoln": "england",
+  "chester": "neutral",
+  "nottingham": "neutral",
+  "leicester": "neutral",
+  "stamford": "neutral",
+  "norwich": "neutral",
+  "warwick": "neutral",
+  "cambridge": "neutral",
+  "dunwich": "neutral",
+  "oxford": "neutral",
+  "gloucester": "neutral",
+  "hereford": "neutral",
+  "leominster": "neutral",
+  "caernarfonshire": "neutral",
+  "pembrokeshire": "neutral",
+  "glamorgan": "neutral",
+  "anglesey": "neutral",
+  "london": "neutral",
+  "guildford": "neutral",
+  "rochester": "neutral",
+  "hastings": "neutral",
+  "winchester": "neutral",
+  "salisbury": "neutral",
+  "dorchester": "neutral",
+  "glastonbury": "neutral",
+  "exeter": "neutral",
+  "plymouth": "neutral",
+  "isle_of_man": "neutral"
  },
  "capitals": {
-  "realm": "oakhollow",
-  "raiders": "ravensford"
+  "england": "york",
+  "denmark": "doncaster"
  },
  "buildings": {
-  "oakhollow": {"market": 1, "barracks": 1}
- },
- "resources": {
-  "realm": {"gold": 500},
-  "raiders": {"gold": 0}
+  "york": {
+   "walls": 1
+  },
+  "doncaster": {
+   "walls": 1
+  },
+  "london": {
+   "walls": 1
+  }
  },
  "units": [
-  {"owner": "realm", "region": "millbrook", "type": "spearmen"},
-  {"owner": "realm", "region": "highmoor", "type": "swordsmen"},
-  {"owner": "realm", "region": "eastwatch", "type": "light_cavalry"},
-  {"owner": "raiders", "region": "ravensford", "type": "militia", "soldiers": 8}
+  {
+   "owner": "england",
+   "region": "cumbria",
+   "type": "swordsmen",
+   "soldiers": 6
+  },
+  {
+   "owner": "denmark",
+   "region": "doncaster",
+   "type": "spearmen",
+   "soldiers": 6
+  },
+  {
+   "owner": "england",
+   "region": "lancaster",
+   "type": "light_cavalry",
+   "soldiers": 4
+  },
+  {
+   "owner": "england",
+   "region": "lincoln",
+   "type": "archers",
+   "soldiers": 6
+  },
+  {
+   "owner": "england",
+   "region": "stamford_bridge",
+   "type": "swordsmen",
+   "soldiers": 10
+  },
+  {
+   "owner": "england",
+   "region": "york",
+   "type": "spearmen",
+   "soldiers": 8
+  }
  ],
  "mission": {
-  "player": "realm",
-  "par": 0,
-  "objectives": [],
-  "tutorial": true,
-  "lose_capital": false,
-  "briefing": "Learn to command an army on a small map.",
+  "player": "england",
+  "primary": [
+   {
+    "type": "capture",
+    "regions": [
+     "doncaster"
+    ],
+    "text": "Conquer all enemy provinces"
+   }
+  ],
+  "additional": [],
+  "defeat": [],
+  "crowns": [
+   3,
+   4,
+   5
+  ],
+  "events": [],
+  "history": "",
+  "briefing": "Learn to command an army in the north of England.",
   "victory_text": "Your training is complete.",
-  "defeat_text": "Even veterans lose a battle. Try again."
+  "defeat_text": "Even veterans lose a battle. Try again.",
+  "tutorial": true
  }
 }

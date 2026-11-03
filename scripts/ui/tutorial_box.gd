@@ -62,6 +62,7 @@ func show_step(step: Dictionary, index: int, count: int) -> void:
 	_heading.text = "%d / %d   %s" % [index + 1, count, step.get("title", "")]
 	_text.text = step.get("text", "")
 	_skip.visible = not last
+	_skip.text = "Next" if step.get("info", false) else "Skip step"
 	_leave.text = "Finish tutorial" if last else "Leave tutorial"
 	visible = true
 	reset_size()

@@ -28,7 +28,6 @@ func run(t) -> void:
 	_test_one_per_region(t)
 	_test_ai(t)
 	_test_saves(t)
-	_test_tutorial_cancel(t)
 
 
 func _one_per_region(state: GameState) -> bool:
@@ -387,22 +386,3 @@ func _test_saves(t) -> void:
 ## The data as JSON, after a trip through JSON (so whole numbers read back as floats compare equal).
 func _norm(data: Dictionary) -> String:
 	return JSON.stringify(JSON.parse_string(JSON.stringify(data)))
-
-
-func _test_tutorial_cancel(t) -> void:
-	var state := GameState.from_scenario(Tutorial.scenario(), 1)
-	var tutorial := Tutorial.new(state.turn)
-	var spears: Unit = state.units.filter(func(u): return u.type_id == "spearmen" and u.owner == Tutorial.PLAYER)[0]
-	Helpers.plan_as(state, Tutorial.PLAYER)
-	tutorial.update(state, spears)
-	Orders.give(state, spears, "move", "fernridge", {"soldiers": 6})
-	tutorial.update(state, spears)
-	t.check(tutorial.current().id == "cancel" and Tutorial.STEPS[2].text.contains("arrow") and Tutorial.STEPS[2].text.contains("right-click"),
-		"the cancel step explains arrows cancel one order and right-click cancels all")
-	Orders.cancel_order(state, spears, 0)
-	tutorial.record("cancel")
-	tutorial.update(state, spears)
-	t.check(tutorial.current().id == "cancel", "cancelling one arrow counts; it waits for the march again")
-	Orders.give(state, spears, "move", "fernridge")
-	tutorial.update(state, spears)
-	t.check(tutorial.current().id == "attack", "then moves on to the attack")
