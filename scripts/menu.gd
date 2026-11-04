@@ -6,7 +6,7 @@ extends Control
 ## the save slots), Records, Settings and Credits.
 
 const GAME_SCENE := "res://scenes/main.tscn"
-const KEY_ART := "res://assets/st/menu/key_art.jpg"
+const COVER := "res://assets/ui/cover.jpg"
 const DIFFICULTY_TEXT := "How well the enemy plays, in every new game. Easy: it plans everything at once and attacks one army at a time. " \
 	+ "Normal: it gathers armies against one target, attacks first and then follows up, and guards what it holds. " \
 	+ "Hard: as Normal, takes closer fights, earns 40% more gold and spends it."
@@ -21,9 +21,8 @@ const CREDIT_LINE := "Unit figures rendered from CC0 3D models by Quaternius. Ic
 
 var _content: VBoxContainer
 var _background: TextureRect
-var _header: Control
-## S&T's own key art (the player's copy, in the git-ignored assets/st/), or null.
-var _key_art: Texture2D
+## The cover picture: bright behind the title screen, dimmed behind the others; null without it.
+var _cover: Texture2D
 var _forge: ForgeScreen
 var _skirmish := {"map": "heartlands", "civ": "norse", "opponents": 2}
 var _hotseat := {"map": "heartlands", "civs": ["norse", "anglish"], "ai": 0}
@@ -34,9 +33,9 @@ func _ready() -> void:
 	Settings.apply(get_tree())
 	var background := TextureRect.new()
 	_background = background
-	if ResourceLoader.exists(KEY_ART):
-		_key_art = load(KEY_ART)
-		background.texture = _key_art
+	if ResourceLoader.exists(COVER):
+		_cover = load(COVER)
+		background.texture = _cover
 		background.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	else:
@@ -54,8 +53,7 @@ func _ready() -> void:
 	# The title along the top; a quit button on the right where quitting makes sense.
 	var header := HBoxContainer.new()
 	header.alignment = BoxContainer.ALIGNMENT_CENTER
-	_header = _margin(header, 14)
-	layout.add_child(_header)
+	layout.add_child(_margin(header, 14))
 	var spacer := Control.new()
 	spacer.custom_minimum_size = Vector2(50, 0)
 	header.add_child(spacer)
@@ -66,7 +64,9 @@ func _ready() -> void:
 	var title := _add_label(titles, "Medieval Conquest", 38, Color("#f2d16b"))
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_override("font", load("res://assets/fonts/Cinzel.ttf"))
-	_add_label(titles, "Regions, banners and steel", 15, Color("#c8b48a")).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	# A dark rim so the gold reads over the bright cover.
+	title.add_theme_constant_override("outline_size", 10)
+	title.add_theme_color_override("font_outline_color", Color(0.12, 0.07, 0.03, 0.9))
 	if not OS.has_feature("web") and not OS.has_feature("mobile"):
 		var quit := RoundButton.new("exit", 48)
 		quit.tooltip_text = "Quit"
@@ -89,6 +89,8 @@ func _ready() -> void:
 	# The bottom row of square wooden buttons.
 	var bar := PanelContainer.new()
 	layout.add_child(bar)
+	# The background stops at the bar, so none of the cover is hidden behind it.
+	bar.resized.connect(func(): background.offset_bottom = -bar.size.y)
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", 10)
@@ -181,19 +183,9 @@ func _menu_entries() -> Array:
 
 func show_title() -> void:
 	_clear()
-	if _key_art != null:
-		# As in S&T: the key art (its logo is in it) and the buttons, nothing else.
+	# Just the title and the buttons, over the cover at full brightness (or the wood).
+	if _cover != null:
 		_background.modulate = Color.WHITE
-		_header.modulate.a = 0.0
-		return
-	_content.add_child(Muster.new())
-	_add_text("[center]Every region holds one army. Click it, then a neighbouring region (or drag onto it): a [color=#7fa8f0]blue arrow[/color] " \
-		+ "marches there, a [color=#f07060]red arrow[/color] attacks. Then the [b]![/b] carries your orders out at once; " \
-		+ "the hourglass ends your turn and each rival takes its own. Spears beat horse, horse beats bows, bows beat spears.[/center]")
-	var rank := Progress.rank(Progress.total_score())
-	var autosave := SaveGame.describe("auto")
-	_add_text("[center][color=#f3d77e]Your rank: %s[/color]%s[/center]" % [rank.name,
-		"   ·   [b]Last game:[/b] %s" % autosave if autosave != "" else ""])
 
 
 # --- Hotseat ---------------------------------------------------------------------------
@@ -575,9 +567,8 @@ func _start(setup: Dictionary) -> void:
 func _clear() -> void:
 	for child in _content.get_children():
 		child.queue_free()
-	if _key_art != null:
+	if _cover != null:
 		_background.modulate = Color(0.4, 0.36, 0.33)
-		_header.modulate.a = 1.0
 
 
 func _add_label(parent: Control, text: String, size: int, color := Color("#e8e4dc")) -> Label:
@@ -685,45 +676,6 @@ func _crown_text(campaign_id: String, index: int) -> String:
 
 func _specials_text(civ: Civilization) -> String:
 	return "Special units: %s." % ", ".join(civ.special_units.map(func(u): return Rules.unit(u).display_name))
-
-
-## Two armies facing each other under their banners, on the title screen.
-class Muster:
-	extends Control
-	const LEFT := [["knight", Color("#3d6fb6")], ["spearmen", Color("#3d6fb6")], ["archers", Color("#3d6fb6")]]
-	const RIGHT := [["huscarl", Color("#b5423a")], ["berserker", Color("#b5423a")], ["catapult", Color("#b5423a")]]
-	var _textures := {}
-
-	func _init() -> void:
-		custom_minimum_size = Vector2(0, 190)
-		mouse_filter = Control.MOUSE_FILTER_IGNORE
-		texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
-		# Keep the textures alive: draw calls only hold their RIDs.
-		for entry in LEFT + RIGHT:
-			_textures[entry[0]] = TokenLayer.figure_textures(entry[0])
-
-	func _draw() -> void:
-		var ground := size.y - 18.0
-		var sprite := 150.0
-		var groups := [[LEFT, 70.0, "frankish", 1.0], [RIGHT, size.x - 430.0, "norse", -1.0]]
-		for group in groups:
-			var x: float = group[1]
-			var color: Color = group[0][0][1]
-			TokenLayer.draw_banner(self, Vector2(x + 330.0, ground - 4.0), 150.0, color, group[2])
-			for entry in group[0]:
-				var feet := Vector2(x, ground)
-				var textures: Array = _textures[entry[0]]
-				draw_set_transform(feet + Vector2(0, 4), 0.0, Vector2(1.0, 0.25))
-				draw_circle(Vector2.ZERO, 48.0, Color(0, 0, 0, 0.3))
-				draw_set_transform(Vector2.ZERO)
-				# The right-hand army is mirrored so the two face each other.
-				draw_set_transform(feet, 0.0, Vector2(group[3], 1.0))
-				var rect := Rect2(-Vector2(sprite * 0.5, sprite * TokenLayer.FIGURE_FEET), Vector2(sprite, sprite))
-				draw_texture_rect(textures[0], rect, false)
-				if textures[1] != null:
-					draw_texture_rect(textures[1], rect, false, color.lightened(0.12))
-				draw_set_transform(Vector2.ZERO)
-				x += 105.0
 
 
 ## The campaign list's panel: dark wood in an iron frame, as in S&T.
