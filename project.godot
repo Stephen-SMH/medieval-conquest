@@ -11,8 +11,8 @@ config_version=5
 [application]
 
 config/name="Medieval Conquest"
-config/version="2.0.0"
 config/description="A turn-based medieval strategy game: gather food and gold, recruit counter-based armies, and march them across a province map to conquer."
+config/version="2.0.0"
 run/main_scene="res://scenes/menu.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
@@ -30,7 +30,6 @@ window/size/viewport_height=720
 window/size/window_width_override=2560
 window/size/window_height_override=1440
 window/stretch/mode="canvas_items"
-window/handheld/orientation=0
 
 [gui]
 
@@ -106,15 +105,10 @@ deselect={
 ]
 }
 
-[input_devices]
-
-pointing/emulate_mouse_from_touch=true
-
 [rendering]
 
 textures/canvas_textures/default_texture_filter=3
-textures/vram_compression/import_etc2_astc=true
-
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
+textures/vram_compression/import_etc2_astc=true
 environment/defaults/default_clear_color=Color(0.16, 0.24, 0.32, 1)
