@@ -16,8 +16,8 @@ const CREDIT_LINE := "Unit figures rendered from CC0 3D models by Quaternius. Ic
 	+ "The Great Battle and Superepic by Alexander Nakarada (CreatorChords, creatorchords.com); For the Fallen by Kevin MacLeod " \
 	+ "(incompetech.com); licensed under Creative Commons: By Attribution 4.0 (creativecommons.org/licenses/by/4.0). " \
 	+ "Sounds by Kenney and by freesound.org users HebronTheatre, " \
-	+ "mcaseydesign, craigsmith, el_boss, freefire66 and Infinita08 (CC0); MedievalCombatLoop by Yap_Audio_Production and " \
-	+ "VICTORY CRY REVERB 1 by chripei (freesound.org, CC BY 4.0). See CREDITS.md."
+	+ "craigsmith, el_boss, freefire66 and Infinita08 (CC0); MedievalCombatLoop by Yap_Audio_Production and " \
+	+ "VICTORY CRY REVERB 1 by chripei (freesound.org, CC BY 4.0); Taiko drums by jobro (freesound.org, CC BY 3.0). See CREDITS.md."
 
 var _content: VBoxContainer
 var _background: TextureRect

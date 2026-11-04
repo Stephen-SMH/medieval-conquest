@@ -26,7 +26,7 @@ layer): the same models turned slightly, with the weapon held at another angle.
 The music is licensed under [Creative Commons Attribution 4.0](https://creativecommons.org/licenses/by/4.0/)
 (CC BY 4.0): free to use with credit, which is given here and in the game's Credits screen. Most sound effects are
 released under [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) (public domain; credit is not required
-but is given here); the battle clash and the victory cheer are CC BY 4.0, credited here and in the Credits screen too. Everything in `assets/audio/` was trimmed, mixed, levelled and re-encoded as Ogg Vorbis by
+but is given here); the battle clash and the victory cheer (CC BY 4.0) and the archers' taiko drums (CC BY 3.0) are credited here and in the Credits screen too. Everything in `assets/audio/` was trimmed, mixed, levelled and re-encoded as Ogg Vorbis by
 [tools/make_audio.sh](tools/make_audio.sh): music at quality 4 (about 128 kbps), levelled to -16 LUFS on the map and
 -14 LUFS for the menu and battles; sound effects small. For the freesound.org sounds the high-quality preview of the
 original upload was used.
@@ -50,7 +50,7 @@ original upload was used.
 | `assets/audio/sfx/march.ogg` | `footstep_grass_000`–`003` from [Impact Sounds](https://kenney.nl/assets/impact-sounds), in step | Kenney | CC0 1.0 |
 | `assets/audio/sfx/hooves.ogg` | [Horse Gallop - Loopable.mp3](https://freesound.org/people/HebronTheatre/sounds/197212/) | HebronTheatre | CC0 1.0 |
 | `assets/audio/sfx/sword_clash.ogg` | `impactMetal_heavy_000`, `impactPlate_medium_002`, `impactMetal_heavy_003` from [Impact Sounds](https://kenney.nl/assets/impact-sounds), mixed | Kenney | CC0 1.0 |
-| `assets/audio/sfx/arrow_volley.ogg` | [volley of arrows01.wav](https://freesound.org/people/mcaseydesign/sounds/474121/) | mcaseydesign | CC0 1.0 |
+| `assets/audio/sfx/volley_taiko.ogg` | [Taiko drums.wav](https://freesound.org/people/jobro/sounds/112248/) (2:26.4 to 2:29.4, faded) | jobro | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) |
 | `assets/audio/sfx/catapult_throw.ogg` | [R01-04-Catapult Launch.wav](https://freesound.org/people/craigsmith/sounds/479922/) (the first launch) | craigsmith | CC0 1.0 |
 | `assets/audio/sfx/catapult_impact.ogg` | `impactMining_001` and `impactWood_heavy_003` from [Impact Sounds](https://kenney.nl/assets/impact-sounds), mixed | Kenney | CC0 1.0 |
 | `assets/audio/sfx/capture_horn.ogg` | [Horn002.wav](https://freesound.org/people/freefire66/sounds/175946/) | freefire66 | CC0 1.0 |

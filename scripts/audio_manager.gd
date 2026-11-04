@@ -45,7 +45,7 @@ const SOUNDS := {
 	"march": ["march", -5.0],
 	"hooves": ["hooves", -3.0],
 	"clash": ["sword_clash", -3.0],
-	"volley": ["arrow_volley", -2.0],
+	"volley": ["volley_taiko", -1.0],  # Archers loose: taiko drums under the battle music.
 	"catapult": ["catapult_throw", -1.0],
 	"impact": ["catapult_impact", -5.0],
 	"capture": ["capture_horn", -3.0],

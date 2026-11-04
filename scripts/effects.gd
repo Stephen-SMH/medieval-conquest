@@ -511,7 +511,7 @@ static func shield_points(at: Vector2, r: float) -> PackedVector2Array:
 	return points
 
 
-## The sounds a group of volleys makes: arrows whistle, catapults throw.
+## The sounds a group of volleys makes: taiko drums for archers, a throw for catapults.
 static func volley_sounds(volleys: Array) -> Array:
 	var sounds := []
 	for event in volleys:

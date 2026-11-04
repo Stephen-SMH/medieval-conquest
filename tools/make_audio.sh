@@ -4,7 +4,7 @@
 # Trims, mixes and levels with ffmpeg to WAV, then encodes Ogg Vorbis files
 # with oggenc (brew install ffmpeg vorbis-tools). <download dir> holds:
 #   kenney_rpg-audio/x, kenney_interface-sounds/x, kenney_impact-sounds/x  (unzipped Kenney packs)
-#   fs_gallop, fs_volley, fs_catapult1, fs_hourglass, fs_horn1, fs_combat, fs_victory, fs_taiko:
+#   fs_gallop, fs_taiko_live, fs_catapult1, fs_hourglass, fs_horn1, fs_combat, fs_victory, fs_taiko:
 #     a.mp3 each (freesound HQ previews)
 #   music/: the music MP3s as their composers' sites give them (CC BY 4.0):
 #     Rise_of_Kingdoms.mp3, Medieval_Chateau.mp3, Towards_the_Horizon.mp3, Gates_of_Glory.mp3,
@@ -50,7 +50,7 @@ ffmpeg $F -i "$M/footstep_grass_000.ogg" -i "$M/footstep_grass_001.ogg" -i "$M/f
 ffmpeg $F -i "$D/fs_gallop/a.mp3" -af "atrim=0:2.2,afade=t=in:d=0.1,afade=t=out:st=1.7:d=0.5" $SFX "$O/sfx/hooves.wav"
 ffmpeg $F -i "$M/impactMetal_heavy_000.ogg" -i "$M/impactPlate_medium_002.ogg" -i "$M/impactMetal_heavy_003.ogg" \
   -filter_complex "[1]adelay=140|140[b];[2]adelay=330|330[c];[0][b][c]amix=inputs=3:normalize=0" $SFX "$O/sfx/sword_clash.wav"
-ffmpeg $F -i "$D/fs_volley/a.mp3" -af "afade=t=out:st=2.2:d=0.5" $SFX "$O/sfx/arrow_volley.wav"
+ffmpeg $F -i "$D/fs_taiko_live/a.mp3" -af "atrim=146.4:149.4,asetpts=PTS-STARTPTS,afade=t=in:d=0.03,afade=t=out:st=2.0:d=1.0,loudnorm=I=-20:TP=-1.5" $SFX "$O/sfx/volley_taiko.wav"
 ffmpeg $F -i "$D/fs_catapult1/a.mp3" -af "atrim=1.15:2.75,afade=t=out:st=1.3:d=0.3,volume=12dB" $SFX "$O/sfx/catapult_throw.wav"
 ffmpeg $F -i "$M/impactMining_001.ogg" -i "$M/impactWood_heavy_003.ogg" -filter_complex "[1]adelay=40|40[b];[0][b]amix=inputs=2:normalize=0" $SFX "$O/sfx/catapult_impact.wav"
 ffmpeg $F -i "$D/fs_horn1/a.mp3" -af "atrim=0.9:3.4,afade=t=out:st=2.0:d=0.5" $SFX "$O/sfx/capture_horn.wav"

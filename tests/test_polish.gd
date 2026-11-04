@@ -133,7 +133,7 @@ func _test_battle_sounds(t) -> void:
 	var horse: Unit = Helpers.units_of_type(state, "light_cavalry")[0]
 	var spears: Unit = Helpers.units_of_type(state, "spearmen")[0]
 	t.check(Effects.volley_sounds([{"type": "volley", "unit": archers}, {"type": "volley", "unit": archers}]) == ["volley"],
-		"a volley of arrows whistles once, however many archers shoot")
+		"archers' volleys beat the taiko drums once, however many archers shoot")
 	t.check(Effects.volley_sounds([{"type": "volley", "unit": catapult}, {"type": "destroyed", "unit": archers}]) == ["catapult"],
 		"a catapult's volley throws a stone")
 	t.check(Effects.march_sounds([spears]) == ["march"] and Effects.march_sounds([horse]) == ["hooves"],
