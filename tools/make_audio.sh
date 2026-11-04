@@ -4,7 +4,8 @@
 # Trims, mixes and levels with ffmpeg to WAV, then encodes Ogg Vorbis files
 # with oggenc (brew install ffmpeg vorbis-tools). <download dir> holds:
 #   kenney_rpg-audio/x, kenney_interface-sounds/x, kenney_impact-sounds/x  (unzipped Kenney packs)
-#   fs_gallop, fs_volley, fs_catapult1, fs_hourglass, fs_horn1: a.mp3 each (freesound HQ previews)
+#   fs_gallop, fs_volley, fs_catapult1, fs_hourglass, fs_horn1, fs_combat, fs_victory, fs_taiko:
+#     a.mp3 each (freesound HQ previews)
 #   music/: the music MP3s as their composers' sites give them (CC BY 4.0):
 #     Rise_of_Kingdoms.mp3, Medieval_Chateau.mp3, Towards_the_Horizon.mp3, Gates_of_Glory.mp3,
 #     Tavern_Tales.mp3, The_Vikings.mp3, Battle_Loop.mp3, The_Great_Battle.mp3, Superepic.mp3
@@ -54,6 +55,10 @@ ffmpeg $F -i "$D/fs_catapult1/a.mp3" -af "atrim=1.15:2.75,afade=t=out:st=1.3:d=0
 ffmpeg $F -i "$M/impactMining_001.ogg" -i "$M/impactWood_heavy_003.ogg" -filter_complex "[1]adelay=40|40[b];[0][b]amix=inputs=2:normalize=0" $SFX "$O/sfx/catapult_impact.wav"
 ffmpeg $F -i "$D/fs_horn1/a.mp3" -af "atrim=0.9:3.4,afade=t=out:st=2.0:d=0.5" $SFX "$O/sfx/capture_horn.wav"
 ffmpeg $F -i "$K/handleCoins.ogg" $SFX "$O/sfx/coins.wav"
+# Battles: the armies clash, then the men cheer (won) or the drums toll (lost).
+ffmpeg $F -i "$D/fs_combat/a.mp3" -af "atrim=1.8:4.8,asetpts=PTS-STARTPTS,afade=t=in:d=0.05,afade=t=out:st=2.0:d=1.0,loudnorm=I=-21:TP=-2" $SFX "$O/sfx/battle_charge.wav"
+ffmpeg $F -i "$D/fs_victory/a.mp3" -af "afade=t=out:st=3.3:d=0.6,loudnorm=I=-18:TP=-1.5" $SFX "$O/sfx/battle_won.wav"
+ffmpeg $F -i "$D/fs_taiko/a.mp3" -af "atrim=24.1:28.6,asetpts=PTS-STARTPTS,afade=t=in:d=0.05,afade=t=out:st=3.3:d=1.2,loudnorm=I=-18:TP=-1.5" $SFX "$O/sfx/battle_lost.wav"
 ffmpeg $F -i "$M/impactSoft_heavy_002.ogg" -i "$K/dropLeather.ogg" -filter_complex "[1]adelay=120|120[b];[0][b]amix=inputs=2:normalize=0" $SFX "$O/sfx/unit_destroyed.wav"
 
 for f in "$O"/music/*.wav; do oggenc -Q -q 4 -o "$OUT/music/$(basename "$f" .wav).ogg" "$f"; done

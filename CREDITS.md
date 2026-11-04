@@ -24,9 +24,9 @@ layer): the same models turned slightly, with the weapon held at another angle.
 ## Music and sound effects
 
 The music is licensed under [Creative Commons Attribution 4.0](https://creativecommons.org/licenses/by/4.0/)
-(CC BY 4.0): free to use with credit, which is given here and in the game's Credits screen. The sound effects are
+(CC BY 4.0): free to use with credit, which is given here and in the game's Credits screen. Most sound effects are
 released under [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) (public domain; credit is not required
-but is given here). Everything in `assets/audio/` was trimmed, mixed, levelled and re-encoded as Ogg Vorbis by
+but is given here); the battle clash and the victory cheer are CC BY 4.0, credited here and in the Credits screen too. Everything in `assets/audio/` was trimmed, mixed, levelled and re-encoded as Ogg Vorbis by
 [tools/make_audio.sh](tools/make_audio.sh): music at quality 4 (about 128 kbps), levelled to -16 LUFS on the map and
 -14 LUFS for the menu and battles; sound effects small. For the freesound.org sounds the high-quality preview of the
 original upload was used.
@@ -56,6 +56,9 @@ original upload was used.
 | `assets/audio/sfx/capture_horn.ogg` | [Horn002.wav](https://freesound.org/people/freefire66/sounds/175946/) | freefire66 | CC0 1.0 |
 | `assets/audio/sfx/coins.ogg` | `handleCoins` from [RPG Audio](https://kenney.nl/assets/rpg-audio) | Kenney | CC0 1.0 |
 | `assets/audio/sfx/unit_destroyed.ogg` | `impactSoft_heavy_002` from [Impact Sounds](https://kenney.nl/assets/impact-sounds) and `dropLeather` from [RPG Audio](https://kenney.nl/assets/rpg-audio), mixed | Kenney | CC0 1.0 |
+| `assets/audio/sfx/battle_charge.ogg` | [MedievalCombatLoop.mp3](https://freesound.org/people/Yap_Audio_Production/sounds/218522/) (1.8 s to 4.8 s, faded) | Yap_Audio_Production | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
+| `assets/audio/sfx/battle_won.ogg` | [VICTORY CRY REVERB 1.wav](https://freesound.org/people/chripei/sounds/165492/) | chripei | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
+| `assets/audio/sfx/battle_lost.ogg` | [Taiko Drum Sequence for Looping (The Sacrifice)](https://freesound.org/people/Infinita08/sounds/459561/) (24.1 s to 28.6 s, faded) | Infinita08 | CC0 1.0 |
 
 ## Icons
 

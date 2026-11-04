@@ -258,6 +258,7 @@ func _battle(event: Dictionary) -> void:
 	var fight := {"at": to + Vector2(0, -tokens.token_size() * 1.25), "t": 0.0}
 	_fights.append(fight)
 	orders.burn(event.province)
+	_sound("charge")
 	_sound("clash")
 	await _wait(BURN / pace)
 	_clash_effects(to)
@@ -276,7 +277,9 @@ func _battle(event: Dictionary) -> void:
 	var defending: String = event.other.owner if event.get("other") != null else ""
 	if viewer in [event.unit.owner, defending]:
 		var battle: Battle = event.battle
-		battle_ended.emit(battle.attacker_won() == (event.unit.owner == viewer))
+		var won: bool = battle.attacker_won() == (event.unit.owner == viewer)
+		_sound("won" if won else "lost")  # Your men cheer, or the drums toll.
+		battle_ended.emit(won)
 		await _wait(1.1 / pace)
 
 

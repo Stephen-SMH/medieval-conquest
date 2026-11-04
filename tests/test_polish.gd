@@ -87,7 +87,8 @@ func _test_audio_manager(t) -> void:
 	t.check(missing.is_empty(), "every music track and sound effect has its .ogg file (missing: %s)" % [missing])
 	for name in ["menu", "map", "battle", "victory", "defeat"]:
 		t.check(AudioManager.TRACKS.has(name), "there is music for '%s'" % name)
-	for name in ["click", "select", "order", "hourglass", "march", "hooves", "clash", "volley", "catapult", "impact", "capture", "coins", "destroyed"]:
+	for name in ["click", "select", "order", "hourglass", "march", "hooves", "clash", "volley", "catapult", "impact", "capture", "coins", "destroyed",
+			"charge", "won", "lost"]:
 		if not AudioManager.SOUNDS.has(name):
 			missing.append(name)
 	t.check(missing.is_empty(), "every sound the game asks for is listed")

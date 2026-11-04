@@ -51,6 +51,9 @@ const SOUNDS := {
 	"capture": ["capture_horn", -3.0],
 	"coins": ["coins", -2.0],
 	"destroyed": ["unit_destroyed", -3.0],
+	"charge": ["battle_charge", -1.0],  # An attack: the armies close, roars and steel.
+	"won": ["battle_won", 0.0],  # Your men cheer a battle won.
+	"lost": ["battle_lost", 0.0],  # Slow drums for a battle lost.
 }
 
 var mood := ""
