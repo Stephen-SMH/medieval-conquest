@@ -80,11 +80,14 @@ func setup() -> void:
 		tree.node_added.connect(_on_node_added)
 
 
-## Adds the Music and SFX buses if the project has no bus layout for them.
+## Adds the Music and SFX buses if the bus layout (default_bus_layout.tres)
+## has none. The layout is what normally makes them: in the web build a bus
+## added with add_bus()'s default position lands at the wrong index on the
+## browser's side and feeds back into itself, and the browser mutes it all.
 static func ensure_buses() -> void:
 	for bus in [MUSIC_BUS, SFX_BUS]:
 		if AudioServer.get_bus_index(bus) < 0:
-			AudioServer.add_bus()
+			AudioServer.add_bus(AudioServer.bus_count)
 			var index := AudioServer.bus_count - 1
 			AudioServer.set_bus_name(index, bus)
 			AudioServer.set_bus_send(index, "Master")

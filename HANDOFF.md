@@ -156,6 +156,12 @@ Swift AVFoundation script (`AVAssetImageGenerator`), and contact sheets were mad
 - **Balance:** bundles made soldiers dearer (a soldier costs a tenth of the old 20-soldier price). With `tools/sim_campaigns.gd`, some old conquest finales got harder (Norse 5, Anglish 5, Crusader 3, Byzantine 3). These campaigns are due to be replaced (below), so they weren't retuned.
 - **Scenario balance:** checked only with an AI stand-in that keeps its must-hold regions garrisoned (the script is not in the repo; it's like `sim_campaigns.gd` but over `Scenarios.all()`). Heartlands loses its capital quickly with that stand-in; a person does better.
 - `tests/test_v2.gd` writes save slot 3 into the real `user://saves` (it did before this session too).
+- **Web audio (fixed 2026-11-04):** the web build has no threads, so Godot plays audio as Web Audio samples. A bus
+  added at runtime with `AudioServer.add_bus()` (default position -1) lands at the wrong index on the browser's side
+  and the buses feed into each other; the browser mutes the loop, so the web build was silent while desktop was
+  fine. The buses now come from `default_bus_layout.tres`, and `AudioManager.ensure_buses` adds any missing one at
+  an explicit position. To check sound in a browser without speakers, load a local web export in headless Chrome
+  and meter what reaches `AudioDestinationNode` (a probe script did this; it lives only in the session scratchpad).
 
 ## Next: real-history campaigns (user approved)
 
