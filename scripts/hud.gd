@@ -287,7 +287,8 @@ func set_battles(kinds: Array) -> void:
 	_banner.queue_redraw()
 
 
-## Lists the selected army's soldiers on the green banner, or hides it (null).
+## Lists an army's soldiers on the banner on the right, or hides it (null):
+## yours on green cloth, anyone else's in their own colour, as in S&T.
 func show_army(state: GameState, unit: Unit) -> void:
 	_army.visible = unit != null
 	_banner.visible = unit == null
@@ -644,13 +645,16 @@ class OrdersBanner:
 				draw_rect(Rect2(at - Vector2(6, 6), Vector2(12, 12)), gold, false, 2.0)
 
 
-## The green cloth banner on the right edge listing the selected army's
-## soldiers, one small type icon per soldier (PRD A). Hovering or tapping an
-## icon shows a parchment tooltip with the type's name.
+## The cloth banner on the right edge listing an army's soldiers, one small
+## type icon per soldier (PRD A), a star on Forge-upgraded types. Green for
+## your own army, the owner's colour for anyone else's. Hovering or tapping
+## an icon shows a parchment tooltip with the type's name.
 class ArmyBanner:
 	extends Control
 	const ICON := 22.0
 	const COLUMNS := 3
+	const OWN_CLOTH := Color("#2f5a2a")
+	var cloth := OWN_CLOTH
 	var _grid: GridContainer
 	var _tip: PanelContainer
 	var _tip_label: Label
@@ -673,15 +677,23 @@ class ArmyBanner:
 		_tip.add_child(_tip_label)
 		add_child(_tip)
 
+	## The banner's cloth for an army seen by `viewer`: green if it's theirs.
+	static func cloth_for(state: GameState, unit: Unit, viewer: String) -> Color:
+		if unit.owner == viewer:
+			return OWN_CLOTH
+		return state.faction_color(unit.owner).lerp(Color("#1c140c"), 0.62)  # Dark enough for the gold icons, even on a gold faction.
+
 	func show_army(state: GameState, unit: Unit) -> void:
+		cloth = cloth_for(state, unit, state.viewer())
 		for child in _grid.get_children():
 			child.queue_free()
 		for troop in unit.troops:
+			var upgraded := state.is_upgraded(unit.owner, troop.type_id)
 			for k in troop.soldiers:
-				var icon := TypeIcons.control(troop.type_id, ICON, state.is_upgraded(unit.owner, troop.type_id))
+				var icon := TypeIcons.control(troop.type_id, ICON, upgraded)
 				icon.tooltip_text = ""
 				icon.mouse_filter = Control.MOUSE_FILTER_STOP
-				var name := "%s (%d)" % [troop.type().display_name, troop.soldiers]
+				var name := "%s (%d)%s" % [troop.type().display_name, troop.soldiers, ", upgraded" if upgraded else ""]
 				icon.mouse_entered.connect(func(): _show_tip(icon, name))
 				icon.mouse_exited.connect(func(): _tip.visible = false)
 				icon.gui_input.connect(func(event):
@@ -704,12 +716,12 @@ class ArmyBanner:
 	func _draw() -> void:
 		var w := size.x
 		var h := size.y
-		var cloth := PackedVector2Array([Vector2(0, 0), Vector2(w, 0), Vector2(w, h), Vector2(w / 2.0, h - 16), Vector2(0, h)])
-		draw_colored_polygon(cloth, Color("#2f5a2a"))
+		var shape := PackedVector2Array([Vector2(0, 0), Vector2(w, 0), Vector2(w, h), Vector2(w / 2.0, h - 16), Vector2(0, h)])
+		draw_colored_polygon(shape, cloth)
 		for k in 5:
 			draw_line(Vector2(w * (k + 0.5) / 5.0, 2), Vector2(w * (k + 0.5) / 5.0, h - 20), Color(0, 0, 0, 0.06), 3.0)
-		var edge := cloth.duplicate()
-		edge.append(cloth[0])
+		var edge := shape.duplicate()
+		edge.append(shape[0])
 		draw_polyline(edge, Color("#e2bd5a", 0.85), 2.0, true)
 		draw_rect(Rect2(-4, -6, w + 8, 8), Color("#5a3a1c"))
 		draw_rect(Rect2(-4, -6, w + 8, 8), Color("#e2bd5a", 0.6), false, 1.0)

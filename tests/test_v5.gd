@@ -16,6 +16,8 @@ func run(t) -> void:
 	_test_new_objectives(t)
 	_test_missions(t)
 	_test_unlocks(t)
+	_test_enemy_army_banner(t)
+	_test_leave_without_saving(t)
 
 
 func _test_roster(t) -> void:
@@ -274,3 +276,32 @@ func _test_unlocks(t) -> void:
 	t.check(Progress.civilization_unlocked("saracen"), "finishing two unlocks Saracen")
 	DirAccess.remove_absolute(Progress.path)
 	Progress.path = Progress.PATH
+
+
+## Clicking any army you can see lists its soldiers on the banner, upgrades starred.
+func _test_enemy_army_banner(t) -> void:
+	var state := Helpers.game({"northmarch": "blue", "ashford": "red", "stonehelm": "red"}, [
+		["blue", "northmarch", "spearmen"], ["red", "ashford", "spearmen"], ["red", "stonehelm", "knight"]])
+	t.check(state.army_seen_by("blue", "northmarch") == state.unit_in("northmarch"), "your own army shows on the banner")
+	t.check(state.army_seen_by("blue", "ashford") == state.unit_in("ashford"), "an enemy army in sight shows on the banner too")
+	t.check(state.army_seen_by("blue", "stonehelm") == null, "an enemy army out of sight stays hidden")
+	t.check(state.army_seen_by("blue", "kingsvale") == null, "an empty region shows no army")
+	var owned := {}
+	Forge.raise(owned, Forge.row_of(TypeIcons.family("spearmen")))
+	state.upgrades = {"red": owned}
+	t.check(state.upgraded_types(state.unit_in("ashford")) == PackedStringArray(["spearmen"])
+		and state.upgraded_types(state.unit_in("northmarch")).is_empty(), "the enemy's Forge upgrades are named, only for the owner's rows")
+	var mine: Color = Hud.ArmyBanner.cloth_for(state, state.unit_in("northmarch"), "blue")
+	var theirs: Color = Hud.ArmyBanner.cloth_for(state, state.unit_in("ashford"), "blue")
+	t.check(mine == Hud.ArmyBanner.OWN_CLOTH and theirs != mine and theirs.get_luminance() < state.faction_color("red").get_luminance(),
+		"your banner is green; an enemy's is a dark cloth in their colour")
+
+
+## Leaving without saving drops the autosave, so Continue can't bring the game back.
+func _test_leave_without_saving(t) -> void:
+	var state := Helpers.game({"northmarch": "blue", "ashford": "red"}, [["blue", "northmarch", "spearmen"], ["red", "ashford", "spearmen"]])
+	SaveGame.save(state, "test_leave")
+	t.check(SaveGame.describe("test_leave") != "", "a saved game is listed")
+	SaveGame.erase("test_leave")
+	t.check(SaveGame.describe("test_leave") == "" and not FileAccess.file_exists(SaveGame.path_for("test_leave")), "erasing it leaves nothing to resume")
+	SaveGame.erase("test_leave")  # Erasing an empty slot is harmless.

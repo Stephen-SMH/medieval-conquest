@@ -184,6 +184,12 @@ static func save(state: GameState, slot: String) -> Error:
 	return DirAccess.rename_absolute(temporary, path_for(slot))
 
 
+## Empties a slot (leaving a game without saving drops its autosave).
+static func erase(slot: String) -> void:
+	if FileAccess.file_exists(path_for(slot)):
+		DirAccess.remove_absolute(path_for(slot))
+
+
 static func load_slot(slot: String) -> Dictionary:
 	if not FileAccess.file_exists(path_for(slot)):
 		return {}

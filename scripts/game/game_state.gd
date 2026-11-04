@@ -316,6 +316,26 @@ func unit_in(region: String) -> Unit:
 	return null
 
 
+## The army in `region` that `faction` can see: its own, or anyone's in a
+## region it has sight of (fog of war). Null when there's none to see.
+func army_seen_by(faction: String, region: String) -> Unit:
+	var occupant := unit_in(region)
+	if occupant != null and (occupant.owner == faction or visible_provinces(faction).has(region)):
+		return occupant
+	return null
+
+
+## The soldier types in an army that its owner has upgraded in the Forge,
+## as plural names ("spearmen"), each once.
+func upgraded_types(unit: Unit) -> PackedStringArray:
+	var names := PackedStringArray()
+	for troop in unit.troops:
+		var name := troop.type().plural_name().to_lower()
+		if is_upgraded(unit.owner, troop.type_id) and not names.has(name):
+			names.append(name)
+	return names
+
+
 func units_in(region: String) -> Array[Unit]:
 	var found: Array[Unit] = []
 	for unit in units:

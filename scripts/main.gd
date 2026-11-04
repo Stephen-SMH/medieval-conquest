@@ -50,6 +50,7 @@ var _messages := PackedStringArray()
 var _notes_shown := 0
 var _last_battles := []  # [Battle, region] pairs from the last resolution.
 var _busy := false  # True while a turn resolves on screen.
+var _autosaved := false  # This game has written the autosave (so leaving without saving may drop it).
 var _attack_popup: AttackPopup
 var _recruit_window: RecruitWindow
 var _popup: WoodPopup
@@ -244,7 +245,8 @@ func select_region(region: String) -> void:
 	selected_unit = null
 	selected_region = region
 	_ring.visible = false
-	_hud.show_army(state, null)
+	# Any army you can see shows its soldiers on the banner, enemies' too.
+	_hud.show_army(state, state.army_seen_by(state.viewer(), region) if region != "" else null)
 	if region == "":
 		_hud.hide_info()
 	else:
@@ -427,9 +429,11 @@ func _show_region_info(region: String) -> void:
 		extras.append("sails to " + ", ".join(ports.map(func(r): return map.region_name(r))))
 	lines.append("[b]%s[/b] — %s%s. %s, %d gold a turn." % [map.region_name(region), state.faction_name(owner),
 		" (%s)" % ", ".join(extras) if not extras.is_empty() else "", map.terrain(region).display_name, roundi(Economy.region_income(state, region))])
-	var occupant := state.unit_in(region)
-	if occupant != null and (occupant.owner == state.viewer() or state.visible_provinces(state.viewer()).has(region)):
-		lines.append("Held by an army of %s: %d soldiers (%s)." % [state.faction_name(occupant.owner), occupant.soldiers(), occupant.describe()])
+	var occupant := state.army_seen_by(state.viewer(), region)
+	if occupant != null:
+		var upgraded := state.upgraded_types(occupant)
+		lines.append("Held by an army of %s: %d soldiers (%s).%s" % [state.faction_name(occupant.owner), occupant.soldiers(), occupant.describe(),
+			" Upgraded in the Forge: %s." % ", ".join(upgraded) if not upgraded.is_empty() else ""])
 	var buttons := []
 	if owner == state.current_faction() and _is_my_turn():
 		if Economy.recruit_point(state, region, owner):
@@ -582,6 +586,7 @@ func _start_human_planning() -> void:
 		_pass_screen.visible = true
 	if faction == humans[0] and _tutorial == null:  # The tutorial doesn't overwrite the autosave.
 		SaveGame.save(state, "auto")
+		_autosaved = true
 	if not _messages.is_empty():  # The news since the player's last turn.
 		_hud.toast("\n".join(_messages.slice(-3)))
 		_messages.clear()
@@ -742,12 +747,38 @@ func _build_pause_menu() -> void:
 	_pause_menu.objectives.connect(func(): _close_popups(); open_objectives())
 	_pause_menu.info.connect(func(): _close_popups(); open_info())
 	_pause_menu.restart.connect(func(): _confirm("Restart", "Start this game again from the beginning?", _restart))
-	_pause_menu.exit.connect(func(): _confirm("Exit", "Leave for the main menu? Anything since the start of this turn is lost.", _go_to_menu))
+	_pause_menu.exit.connect(_ask_exit)
 	_pause_menu.surrender.connect(func():
 		if not _is_my_turn():
 			_hud.toast("You can surrender on your own turn.")
 			return
 		_confirm("Surrender", "Lay down your arms? %s" % ("The mission is lost." if Mission.is_mission(state) else "Your realm leaves the war."), _surrender))
+
+
+## Leaving for the main menu: save it so Continue can pick it up again, or
+## leave without saving and the game is gone (its autosave too). The save
+## slots are never touched. The tutorial keeps no autosave, so it just asks.
+func _ask_exit() -> void:
+	if _tutorial != null:
+		_confirm("Exit", "Leave the tutorial for the main menu?", _go_to_menu)
+		return
+	_close_popups()
+	_popup.open("Exit")
+	_popup.add_text("[center]Leave for the main menu?\nSave it, and [b]Continue[/b] on the main menu picks this game up again.[/center]", 20) \
+		.custom_minimum_size = Vector2(400, 0)
+	_popup.add_button("Save and leave", func(): _close_popups(); _leave(true))
+	_popup.add_button("Leave without saving", func(): _close_popups(); _leave(false))
+	_popup.add_close()
+	_dim.visible = true
+
+
+func _leave(keep: bool) -> void:
+	if not keep:
+		if _autosaved:  # Only this game's autosave, never an older game's.
+			SaveGame.erase("auto")
+	elif _is_my_turn():
+		SaveGame.save(state, "auto")  # Mid-turn, with the orders given so far. On a rival's turn the turn-start autosave stays.
+	_go_to_menu()
 
 
 ## A yes-or-no question in a wooden window; `on_yes` runs on the check mark.
