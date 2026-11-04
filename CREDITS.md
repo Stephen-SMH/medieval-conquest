@@ -23,18 +23,26 @@ layer): the same models turned slightly, with the weapon held at another angle.
 
 ## Music and sound effects
 
-Every audio file is released under [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) (public domain;
-credit is not required but is given here). The files in `assets/audio/` were trimmed, mixed, levelled and
-re-encoded as small Ogg Vorbis files by [tools/make_audio.sh](tools/make_audio.sh). For the freesound.org sounds
-the high-quality preview of the original upload was used.
+The music is licensed under [Creative Commons Attribution 4.0](https://creativecommons.org/licenses/by/4.0/)
+(CC BY 4.0): free to use with credit, which is given here and in the game's Credits screen. The sound effects are
+released under [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) (public domain; credit is not required
+but is given here). Everything in `assets/audio/` was trimmed, mixed, levelled and re-encoded as Ogg Vorbis by
+[tools/make_audio.sh](tools/make_audio.sh): music at quality 4 (about 128 kbps), levelled to -16 LUFS on the map and
+-14 LUFS for the menu and battles; sound effects small. For the freesound.org sounds the high-quality preview of the
+original upload was used.
 
 | File | Source | Author | Licence |
 |---|---|---|---|
-| `assets/audio/music/menu_minstrel_dance.ogg` | [Medieval: Minstrel Dance](https://opengameart.org/content/medieval-minstrel-dance) (loop) | RandomMind | CC0 1.0 |
-| `assets/audio/music/map_bards_tale.ogg` | [Medieval: The Bard's Tale](https://opengameart.org/content/medieval-the-bards-tale) (loop) | RandomMind | CC0 1.0 |
-| `assets/audio/music/map_old_tower_inn.ogg` | [Medieval: The Old Tower Inn](https://opengameart.org/content/medieval-the-old-tower-inn) (loop) | RandomMind | CC0 1.0 |
-| `assets/audio/music/victory.ogg` | [Victory Fanfare Short](https://opengameart.org/content/victory-fanfare-short) | cynicmusic | CC0 1.0 |
-| `assets/audio/music/defeat.ogg` | [Sad game over](https://opengameart.org/content/sad-game-over) (first 9 seconds, faded) | Emma_MA | CC0 1.0 |
+| `assets/audio/music/menu_rise_of_kingdoms.ogg` | [Rise of Kingdoms](https://creatorchords.com/music/rise-of-kingdoms/) | Alexander Nakarada (CreatorChords) | CC BY 4.0 |
+| `assets/audio/music/map_medieval_chateau.ogg` | [Medieval Chateau](https://creatorchords.com/music/medieval-chateau/) | Alexander Nakarada (CreatorChords) | CC BY 4.0 |
+| `assets/audio/music/map_towards_the_horizon.ogg` | [Towards the Horizon](https://creatorchords.com/music/towards-the-horizon/) | Alexander Nakarada (CreatorChords) | CC BY 4.0 |
+| `assets/audio/music/map_gates_of_glory.ogg` | [Gates of Glory](https://creatorchords.com/music/gates-of-glory/) | Alexander Nakarada (CreatorChords) | CC BY 4.0 |
+| `assets/audio/music/map_tavern_tales.ogg` | [Tavern Tales](https://creatorchords.com/music/tavern-tales/) | Alexander Nakarada (CreatorChords) | CC BY 4.0 |
+| `assets/audio/music/map_the_vikings.ogg` | [The Vikings](https://creatorchords.com/music/the-vikings/) | Alexander Nakarada (CreatorChords) | CC BY 4.0 |
+| `assets/audio/music/battle_loop.ogg` | [Battle Loop](https://creatorchords.com/music/battle-loop/) | Alexander Nakarada (CreatorChords) | CC BY 4.0 |
+| `assets/audio/music/battle_the_great_battle.ogg` | [The Great Battle](https://creatorchords.com/music/the-great-battle/) | Alexander Nakarada (CreatorChords) | CC BY 4.0 |
+| `assets/audio/music/victory_superepic.ogg` | [Superepic](https://creatorchords.com/music/superepic/) | Alexander Nakarada (CreatorChords) | CC BY 4.0 |
+| `assets/audio/music/defeat_for_the_fallen.ogg` | [For the Fallen](https://incompetech.com/music/royalty-free/music.html) (first 48 seconds, faded) | Kevin MacLeod (incompetech.com) | CC BY 4.0 |
 | `assets/audio/sfx/ui_click.ogg` | `click_001` from [Interface Sounds](https://kenney.nl/assets/interface-sounds) | Kenney | CC0 1.0 |
 | `assets/audio/sfx/unit_select.ogg` | `beltHandle1` from [RPG Audio](https://kenney.nl/assets/rpg-audio) | Kenney | CC0 1.0 |
 | `assets/audio/sfx/order_thunk.ogg` | `impactWood_heavy_001` from [Impact Sounds](https://kenney.nl/assets/impact-sounds) | Kenney | CC0 1.0 |

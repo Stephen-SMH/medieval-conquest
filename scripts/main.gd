@@ -147,7 +147,8 @@ func _ready() -> void:
 	_build_pass_screen()
 	Hud.react_all($UI)
 	Settings.apply(get_tree())
-	AudioManager.music("map")
+	var player_faction: FactionState = state.factions.get(state.mission.get("player", state.viewer()))
+	AudioManager.music(AudioManager.map_mood(player_faction.civ if player_faction != null else ""))
 	if state.mission.get("tutorial", false):
 		_start_tutorial()
 
@@ -607,6 +608,8 @@ func _show_resolution(events: Array, before: Dictionary) -> void:
 			_last_battles.append([event.battle, event.province])
 			kinds.append(event.get("kind", "volley"))
 	_hud.set_battles(kinds)
+	if not kinds.is_empty():
+		AudioManager.battle()
 	await _effects.play(events, before, 0.0 if _skip_enemy else _animation_speed())
 	_orders.stop_playing()
 	_tokens.sync()

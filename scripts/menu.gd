@@ -12,7 +12,10 @@ const DIFFICULTY_TEXT := "How well the enemy plays, in every new game. Easy: it 
 	+ "Hard: as Normal, takes closer fights, earns 40% more gold and spends it."
 const CREDIT_LINE := "Unit figures rendered from CC0 3D models by Quaternius. Icons by Lorc, Delapouite, Guard13007, " \
 	+ "Cathelineau, Skoll and HeavenlyDog from game-icons.net (CC BY 3.0). Fonts: Cinzel, IM FELL English, Grenze Gotisch and Noto (SIL Open Font License). " \
-	+ "Music by RandomMind, cynicmusic and Emma_MA (CC0). Sounds by Kenney and by freesound.org users HebronTheatre, " \
+	+ "Music: Rise of Kingdoms, Medieval Chateau, Towards the Horizon, Gates of Glory, Tavern Tales, The Vikings, Battle Loop, " \
+	+ "The Great Battle and Superepic by Alexander Nakarada (CreatorChords, creatorchords.com); For the Fallen by Kevin MacLeod " \
+	+ "(incompetech.com); licensed under Creative Commons: By Attribution 4.0 (creativecommons.org/licenses/by/4.0). " \
+	+ "Sounds by Kenney and by freesound.org users HebronTheatre, " \
 	+ "mcaseydesign, craigsmith, el_boss and freefire66 (CC0). See CREDITS.md."
 
 var _content: VBoxContainer

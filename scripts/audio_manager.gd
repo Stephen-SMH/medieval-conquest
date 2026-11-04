@@ -2,8 +2,11 @@ class_name AudioManager
 extends Node
 ## Autoload "Audio": music and sound effects on their own buses ("Music" and
 ## "SFX", both into Master), with the volumes from Settings. The music
-## crossfades between the menu track and the calm map tracks, and plays a
-## short sting on victory or defeat. Every button press clicks.
+## crossfades between the menu theme and the map tracks (a playlist; the
+## Norse have their own first), and plays a sting on victory or defeat. When
+## a battle is fought on screen the battle music swells over the map music
+## and holds until no battle has been fought for BATTLE_HOLD seconds; then the
+## map track carries on where it paused. Every button press clicks.
 ##
 ## Everything is optional: a missing file, a dummy audio driver or no autoload
 ## at all (the headless tests) just means silence. Call the static helpers
@@ -16,16 +19,23 @@ const SFX_DIR := "res://assets/audio/sfx/"
 const CROSSFADE := 1.6
 const VOICES := 10  # Sound effects that can play at once.
 const SILENT_DB := -60.0
+## Seconds the battle music holds after the last battle on screen.
+const BATTLE_HOLD := 25.0
+const BATTLE_FADE := 1.2
 
-## Which files a music "mood" can play; the map alternates its tracks.
+## Which files a music "mood" can play; the map moods play theirs in turn.
+## Sources and licences are in CREDITS.md.
 const TRACKS := {
-	"menu": ["menu_minstrel_dance"],
-	"map": ["map_bards_tale", "map_old_tower_inn"],
-	"victory": ["victory"],
-	"defeat": ["defeat"],
+	"menu": ["menu_rise_of_kingdoms"],
+	"map": ["map_medieval_chateau", "map_towards_the_horizon", "map_gates_of_glory", "map_tavern_tales"],
+	"map_norse": ["map_the_vikings", "map_gates_of_glory", "map_towards_the_horizon", "map_medieval_chateau"],
+	"battle": ["battle_loop", "battle_the_great_battle"],
+	"victory": ["victory_superepic"],
+	"defeat": ["defeat_for_the_fallen"],
 }
-## Stings play once; the other moods loop.
+## Stings play once; the menu and battle music loop; map tracks follow one another.
 const STINGS := ["victory", "defeat"]
+const LOOPED := ["menu", "battle"]
 ## Every sound effect, by name: its file and its loudness in dB.
 const SOUNDS := {
 	"click": ["ui_click", -4.0],
@@ -50,6 +60,10 @@ var _voices: Array[AudioStreamPlayer] = []
 var _streams := {}
 var _fade: Tween
 var _map_turn := 0  # Which map track plays next.
+var _battle: AudioStreamPlayer
+var _battle_fade: Tween
+var _battle_left := 0.0  # Seconds the battle music still holds.
+var _battle_turn := 0  # Which battle track plays next.
 
 
 func _ready() -> void:
@@ -69,6 +83,10 @@ func setup() -> void:
 		player.finished.connect(_on_music_finished.bind(player))
 		add_child(player)
 		_music.append(player)
+	_battle = AudioStreamPlayer.new()
+	_battle.bus = MUSIC_BUS
+	_battle.volume_db = SILENT_DB
+	add_child(_battle)
 	for i in VOICES:
 		var voice := AudioStreamPlayer.new()
 		voice.bus = SFX_BUS
@@ -130,6 +148,18 @@ static func music(new_mood: String) -> void:
 		audio.play_music(new_mood)
 
 
+## The map mood for a civilization: its own playlist if it has one.
+static func map_mood(civ: String) -> String:
+	return "map_" + civ if TRACKS.has("map_" + civ) else "map"
+
+
+## A battle is fought on screen: the battle music swells (see BATTLE_HOLD).
+static func battle() -> void:
+	var audio := instance()
+	if audio != null:
+		audio.start_battle()
+
+
 ## The file a mood plays, given how many times the map music has turned over.
 static func track_for(new_mood: String, turn := 0) -> String:
 	var tracks: Array = TRACKS.get(new_mood, [])
@@ -151,14 +181,80 @@ func play_sfx(sound: String, pitch_jitter := 0.06) -> void:
 
 ## Crossfades to a mood's music. Asking for the mood already playing does nothing.
 func play_music(new_mood: String) -> void:
-	if new_mood == mood or not TRACKS.has(new_mood):
+	if new_mood == mood or not TRACKS.has(new_mood) or new_mood == "battle":
 		return
+	_stop_battle(BATTLE_FADE)
 	mood = new_mood
 	var track := track_for(new_mood, _map_turn)
-	if new_mood == "map":
+	if new_mood.begins_with("map"):
 		_map_turn += 1
-	# The menu track loops; map tracks end so the next one can start; stings play once.
-	_crossfade(_stream(MUSIC_DIR + track + ".ogg", new_mood == "menu"))
+	_crossfade(_stream(MUSIC_DIR + track + ".ogg", LOOPED.has(new_mood)))
+
+
+## On the map, the battle music fades in over the map track, which pauses;
+## another battle while it plays keeps it going longer.
+func start_battle() -> void:
+	if not mood.begins_with("map"):
+		return
+	var already := _battle_left > 0.0
+	_battle_left = BATTLE_HOLD
+	if already or _music.size() < 2 or not is_inside_tree():
+		return
+	var stream := _stream(MUSIC_DIR + track_for("battle", _battle_turn) + ".ogg", true)
+	if stream == null:
+		return
+	_battle_turn += 1
+	var map_player := _music[_active]
+	if _fade != null and _fade.is_valid():
+		_fade.kill()
+	_fade = create_tween()
+	_fade.tween_property(map_player, "volume_db", SILENT_DB, BATTLE_FADE)
+	_fade.tween_callback(func(): map_player.stream_paused = true)
+	if _battle_fade != null and _battle_fade.is_valid():
+		_battle_fade.kill()
+	_battle.stream = stream
+	_battle.volume_db = SILENT_DB
+	_battle.play()
+	_battle_fade = create_tween()
+	_battle_fade.tween_property(_battle, "volume_db", 0.0, BATTLE_FADE).set_trans(Tween.TRANS_SINE)
+
+
+func _process(delta: float) -> void:
+	if _battle_left > 0.0:
+		_battle_left -= delta
+		if _battle_left <= 0.0:
+			_end_battle()
+
+
+## The battle music fades out and the map track carries on where it paused.
+func _end_battle() -> void:
+	_stop_battle(BATTLE_FADE * 2.0)
+	if not mood.begins_with("map"):
+		return
+	var map_player := _music[_active]
+	map_player.stream_paused = false
+	if not map_player.playing and map_player.stream != null:
+		map_player.play()
+	if _fade != null and _fade.is_valid():
+		_fade.kill()
+	_fade = create_tween()
+	_fade.tween_property(map_player, "volume_db", 0.0, BATTLE_FADE * 2.0).set_trans(Tween.TRANS_SINE)
+
+
+func _stop_battle(seconds: float) -> void:
+	_battle_left = 0.0
+	if _battle == null or not _battle.playing:
+		return
+	if _battle_fade != null and _battle_fade.is_valid():
+		_battle_fade.kill()
+	_battle_fade = create_tween()
+	_battle_fade.tween_property(_battle, "volume_db", SILENT_DB, seconds)
+	_battle_fade.tween_callback(_battle.stop)
+
+
+## Whether the battle music is on (for the tests).
+func battle_playing() -> bool:
+	return _battle_left > 0.0
 
 
 func _crossfade(stream: AudioStream) -> void:
@@ -171,7 +267,9 @@ func _crossfade(stream: AudioStream) -> void:
 		_fade.kill()
 	_fade = create_tween().set_parallel()
 	_fade.tween_property(old, "volume_db", SILENT_DB, CROSSFADE)
-	_fade.chain().tween_callback(old.stop)
+	_fade.chain().tween_callback(func():
+		old.stop()
+		old.stream_paused = false)
 	if stream == null:
 		return
 	new.stream = stream
@@ -182,7 +280,7 @@ func _crossfade(stream: AudioStream) -> void:
 
 ## When a map track ends, the next one starts (the tracks themselves don't loop).
 func _on_music_finished(player: AudioStreamPlayer) -> void:
-	if player != _music[_active] or STINGS.has(mood) or mood == "":
+	if player != _music[_active] or STINGS.has(mood) or LOOPED.has(mood) or mood == "":
 		return
 	var again := mood
 	mood = ""

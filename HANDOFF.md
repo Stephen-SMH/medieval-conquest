@@ -144,7 +144,14 @@ Swift AVFoundation script (`AVAssetImageGenerator`), and contact sheets were mad
     (`Settings.difficulty`), stored as `GameState.difficulty` (`set_difficulty` strengthens Hard's armies once) and
     in saves. AI-only duels (scripts in the session scratchpad only): new Normal beats the old AI 31–17 in mirror
     matches and Easy 41–7; Hard vs Normal is even in tactics, its edge is gold and stronger starting armies.
-13. **Still to do:**
+13. **Soundtrack: done (2026-11-04).** Ten CC BY 4.0 tracks (nine by Alexander Nakarada from creatorchords.com,
+    one by Kevin MacLeod) replace the five short CC0 loops: menu, a four-track map playlist (Norse open with The
+    Vikings), battle music layered over the map (`AudioManager.battle()` from `main.gd _show_resolution`), victory
+    and defeat. Built by `tools/make_audio.sh` at Ogg quality 4, levelled by EBU R128. A listening page with every
+    track, every sound effect and 25 more alternatives was published as a private artifact for the user
+    ("Medieval Conquest Soundtrack"). Scott Buckley's CC BY library (scottbuckley.com.au) would also fit, but his site
+    refuses scripted downloads; download by hand if wanted.
+14. **Still to do:**
     - S&T's scenario list. Robin Hood (England map), the Viking wars, Bråvalla, Cnut's war and the Unification of
       Norway fit our maps. The Italian Wars, the Russian feudal war and the Reconquista need new real maps (Italy,
       Russia, Iberia; `tools/extract_coastlines.py` needs the Natural Earth download).

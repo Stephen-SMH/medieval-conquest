@@ -70,8 +70,11 @@ func _test_volume_settings(t) -> void:
 func _test_audio_manager(t) -> void:
 	t.check(AudioManager.volume_db(0.0) <= AudioManager.SILENT_DB and is_equal_approx(AudioManager.volume_db(1.0), 0.0)
 		and absf(AudioManager.volume_db(0.5) + 6.02) < 0.1, "volume 0 is silent, 100% is 0 dB and 50% about -6 dB")
-	t.check(AudioManager.track_for("map", 0) != AudioManager.track_for("map", 1) and AudioManager.track_for("map", 0) == AudioManager.track_for("map", 2),
-		"the map music alternates between its calm tracks")
+	var map_tracks: Array = AudioManager.TRACKS.map
+	t.check(map_tracks.size() >= 3 and AudioManager.track_for("map", 0) != AudioManager.track_for("map", 1)
+		and AudioManager.track_for("map", 0) == AudioManager.track_for("map", map_tracks.size()), "the map music plays its tracks in turn")
+	t.check(AudioManager.map_mood("norse") == "map_norse" and AudioManager.track_for("map_norse", 0) == "map_the_vikings"
+		and AudioManager.map_mood("anglish") == "map", "the Norse open with The Vikings; the others share the map playlist")
 	t.check(AudioManager.track_for("nonsense") == "", "an unknown mood has no track")
 	var missing := []
 	for mood in AudioManager.TRACKS:
@@ -82,7 +85,7 @@ func _test_audio_manager(t) -> void:
 		if not ResourceLoader.exists(AudioManager.SFX_DIR + AudioManager.SOUNDS[sound][0] + ".ogg"):
 			missing.append(sound)
 	t.check(missing.is_empty(), "every music track and sound effect has its .ogg file (missing: %s)" % [missing])
-	for name in ["menu", "victory", "defeat"]:
+	for name in ["menu", "map", "battle", "victory", "defeat"]:
 		t.check(AudioManager.TRACKS.has(name), "there is music for '%s'" % name)
 	for name in ["click", "select", "order", "hourglass", "march", "hooves", "clash", "volley", "catapult", "impact", "capture", "coins", "destroyed"]:
 		if not AudioManager.SOUNDS.has(name):
@@ -102,6 +105,13 @@ func _test_audio_manager(t) -> void:
 	audio.play_music("map")
 	audio.play_music("no such mood")
 	t.check(audio.mood == "map", "music switches moods and ignores unknown ones")
+	audio.start_battle()
+	t.check(audio.battle_playing() and audio.mood == "map", "a battle brings in the battle music over the map")
+	audio._process(AudioManager.BATTLE_HOLD + 1.0)
+	t.check(not audio.battle_playing(), "and it fades once no battle has been fought for a while")
+	audio.start_battle()
+	audio.play_music("victory")
+	t.check(not audio.battle_playing() and audio.mood == "victory", "a victory ends the battle music")
 	audio._stream("res://assets/audio/sfx/does_not_exist.ogg", false)
 	t.check(audio._stream("res://assets/audio/sfx/does_not_exist.ogg", false) == null, "a missing file is silence, not an error")
 	AudioManager.sfx("click")  # The static helpers work whether the autoload runs or not.
